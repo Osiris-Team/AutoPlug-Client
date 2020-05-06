@@ -10,7 +10,7 @@ All you want, all you need at one place.
 
 # Join us!
 If you are interested in this project and you have questions or you want to contribute just contact us:
- - [Discord](https://discord.gg/DD3rbQe)
+ - [Discord](https://discord.com/invite/GGNmtCC)
  - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 
 
