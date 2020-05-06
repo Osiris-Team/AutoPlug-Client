@@ -1,0 +1,38 @@
+#
+#
+# Thank you for downloading AutoPlug!
+# For installation instructions check our Spigot post: https://www.spigotmc.org/members/osiristeam.935748/
+#
+#
+autoplug-config:
+
+  #This will check for the latest server jar available, backup your old server jar and replace it with the latest version
+  #Currently supported server software: PAPER
+  #Currently supported server versions (always latest): 1.15, 1.14, 1.13, 1.12, 1.8
+  server-check:
+    enable: false
+    software: PAPER
+    version: 1.15.2
+
+  #Select your operating profile for plugins-check: MANUAL or AUTOMATIC
+  #######################################################################################################################
+  #### DISCLAIMER:
+  #### Even though the AUTOMATIC profile is heavily tested for bugs, issues may happen!
+  #### We (OsirisTeam) do NOT guarantee the safety of your files and we are not responsible for any loss of data.
+  #### By enabling this feature, you accept the risk and you take full responsibility for your files.
+  #######################################################################################################################
+  profile: MANUAL
+  # Features of profile MANUAL :
+  # -> Update-check [YES]  - Searches online (via Spiget) for plugin updates
+  # -> Updates-download [YES]  - Downloads the updated jar files to /plugins/autoplug-cache
+  # -> Delete-old [NO] - Replaces old jar files with newly downloaded ones in /plugins
+  # -> server-restart [NO] - Restarts the server
+  #
+  # Features of profile AUTOMATIC :
+  # -> Update-check [YES]
+  # -> Updates-download [YES]
+  # -> Delete-old [YES]
+  # -> server-restart [YES]
+
+  # Toggles debug mode
+  debug: false
