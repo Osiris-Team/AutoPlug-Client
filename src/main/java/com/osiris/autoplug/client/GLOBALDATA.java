@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -12,7 +12,7 @@ public class GLOBALDATA {
 
     public static final String SPIGOT_URL = "https://www.spigotmc.org/members/osiristeam.935748/";
     public static String OFFICIAL_WEBSITE = "http://autoplug.ddns.net/";
-    public static String VERSION = "AutoPlugClient - v0.1";
+    public static String VERSION = "AutoPlugClient - v0.3";
     public static String COPYRIGHT = "Copyright (c) 2020 Osiris Team";
     public static String COPYRIGHT_WEBSITE = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Client/master/LICENSE";
     public static boolean DEBUG = true;

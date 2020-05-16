@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -15,38 +15,26 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class UpdateServerJar {
 
-    public UpdateServerJar (Path path)  {
+    public UpdateServerJar (File jar_path)  {
         AutoPlugLogger logger = new AutoPlugLogger();
-        logger.global_info(" Updating jar: "+path);
+        logger.global_info(" Updating jar: "+ jar_path);
 
-        File jar_path = path.toFile();
 
         Settings settings = new Settings();
-        String server = settings.getConfig_server_software();
-        String version = settings.getConfig_server_version();
+        String server = settings.getServer_software();
+        String version = settings.getServer_version();
 
-        String working_dir = System.getProperty("user.dir");
-        File autoplug_backups = new File(working_dir+"\\autoplug-backups");
-        File autoplug_backups_server = new File(working_dir+"\\autoplug-backups\\server");
-        File autoplug_backups_plugins = new File(working_dir+"\\autoplug-backups\\plugins");
 
         if (server.equals("PAPER")) {
 
-            if (version.equals("1.15")){
+            if (version.equals("1.15.x")){
                 try {
                     logger.global_info(" Downloading latest paper jar for 1.15.x");
                     if (jar_path.exists()){
-                        LocalDateTime myDateObj = LocalDateTime.now();
-                        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
-                        String formattedDate = myDateObj.format(myFormatObj);
-                        File dest = new File(autoplug_backups_server.getAbsolutePath()+"\\old-paper1.15.x-"+formattedDate+".jar");
-                        FileUtils.copyFile(jar_path, dest);
+
                         jar_path.delete();
                     }
                     URL url = new URL("https://papermc.io/api/v1/paper/1.15.2/latest/download");
@@ -55,15 +43,11 @@ public class UpdateServerJar {
                     e.printStackTrace();
                 }
             }
-            else if (version.equals("1.14")){
+            else if (version.equals("1.14.x")){
                 try {
                     logger.global_info(" Downloading latest paper jar for 1.14.x");
                     if (jar_path.exists()){
-                        LocalDateTime myDateObj = LocalDateTime.now();
-                        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
-                        String formattedDate = myDateObj.format(myFormatObj);
-                        File dest = new File(autoplug_backups_server.getAbsolutePath()+"\\old-paper1.14.x-"+formattedDate+".jar");
-                        FileUtils.copyFile(jar_path, dest);
+
                         jar_path.delete();
                     }
                     URL url = new URL("https://papermc.io/api/v1/paper/1.14.4/latest/download");
@@ -72,15 +56,11 @@ public class UpdateServerJar {
                     e.printStackTrace();
                 }
             }
-            else if (version.equals("1.13")){
+            else if (version.equals("1.13.x")){
                 try {
                     logger.global_info(" Downloading latest paper jar for 1.13.x");
                     if (jar_path.exists()){
-                        LocalDateTime myDateObj = LocalDateTime.now();
-                        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
-                        String formattedDate = myDateObj.format(myFormatObj);
-                        File dest = new File(autoplug_backups_server.getAbsolutePath()+"\\old-paper1.13.x-"+formattedDate+".jar");
-                        FileUtils.copyFile(jar_path, dest);
+
                         jar_path.delete();
                     }
                     URL url = new URL("https://papermc.io/api/v1/paper/1.13.2/latest/download");
@@ -89,15 +69,11 @@ public class UpdateServerJar {
                     e.printStackTrace();
                 }
             }
-            else if (version.equals("1.12")){
+            else if (version.equals("1.12.x")){
                 try {
                     logger.global_info(" Downloading latest paper jar for 1.12.x");
                     if (jar_path.exists()){
-                        LocalDateTime myDateObj = LocalDateTime.now();
-                        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
-                        String formattedDate = myDateObj.format(myFormatObj);
-                        File dest = new File(autoplug_backups_server.getAbsolutePath()+"\\old-paper1.12.x-"+formattedDate+".jar");
-                        FileUtils.copyFile(jar_path, dest);
+
                         jar_path.delete();
                     }
                     URL url = new URL("https://papermc.io/api/v1/paper/1.12.2/latest/download");
@@ -106,15 +82,11 @@ public class UpdateServerJar {
                     e.printStackTrace();
                 }
             }
-            else if (version.equals("1.8")){
+            else if (version.equals("1.8.x")){
                 try {
                     logger.global_info(" Downloading latest paper jar for 1.8.x");
                     if (jar_path.exists()){
-                        LocalDateTime myDateObj = LocalDateTime.now();
-                        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
-                        String formattedDate = myDateObj.format(myFormatObj);
-                        File dest = new File(autoplug_backups_server.getAbsolutePath()+"\\old-paper1.8.x-"+formattedDate+".jar");
-                        FileUtils.copyFile(jar_path, dest);
+
                         jar_path.delete();
                     }
                     URL url = new URL("https://papermc.io/api/v1/paper/1.8.8/latest/download");
@@ -131,19 +103,19 @@ public class UpdateServerJar {
         }
         else if (server.equals("SPIGOT")) {
             logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
-            if (version.equals("1.15")){
+            if (version.equals("1.15.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.14")){
+            else if (version.equals("1.14.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.13")){
+            else if (version.equals("1.13.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.12")){
+            else if (version.equals("1.12.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.8")){
+            else if (version.equals("1.8.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
             else {
@@ -154,19 +126,20 @@ public class UpdateServerJar {
         }
         else if (server.equals("CRAFTBUKKIT")) {
 
-            if (version.equals("1.15")){
+            logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
+            if (version.equals("1.15.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.14")){
+            else if (version.equals("1.14.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.13")){
+            else if (version.equals("1.13.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.12")){
+            else if (version.equals("1.12.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.8")){
+            else if (version.equals("1.8.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
             else {
@@ -178,27 +151,26 @@ public class UpdateServerJar {
 
         else if (server.equals("VANILLA")) {
 
-            if (version.equals("1.15")){
+            logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
+            if (version.equals("1.15.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.14")){
+            else if (version.equals("1.14.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.13")){
+            else if (version.equals("1.13.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.12")){
+            else if (version.equals("1.12.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
-            else if (version.equals("1.8")){
+            else if (version.equals("1.8.x")){
                 logger.global_warn("This server-software is currently not supported("+server+version+"), we are working on making it poosible! ");
             }
             else {
                 logger.global_warn("This server-version is NOT supported: " + version);
                 logger.global_warn("Please check the config file for supported server versions!");
             }
-
-
 
         }
         else{

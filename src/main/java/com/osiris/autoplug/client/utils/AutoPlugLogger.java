@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the

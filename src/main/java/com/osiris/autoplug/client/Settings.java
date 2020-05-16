@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -8,15 +8,11 @@
 
 package com.osiris.autoplug.client;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
 import org.simpleyaml.configuration.file.YamlFile;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * YAML is a human-readable data serialization language.<br>
@@ -28,11 +24,20 @@ public final class Settings {
     private AutoPlugLogger logger = new AutoPlugLogger();
 
     //User configuration
-    private static boolean config_server_check;
-    private static String config_server_software;
-    private static String config_server_version;
-    private static String config_profile;
-    private static boolean config_debug;
+    private static boolean server_check;
+    private static String server_software;
+    private static String server_version;
+
+    private static boolean backup_server;
+    private static int backup_server_max_days;
+
+    private static boolean backup_plugins;
+    private static int backup_plugins_max_days;
+
+    private static boolean plugin_check;
+    private static String profile;
+    private static List plugin_excluded;
+    private static boolean debug;
 
     public void create() {
 
@@ -59,9 +64,19 @@ public final class Settings {
 
         yamlFile.addDefault("autoplug-config.server-check.enable", false);
         yamlFile.addDefault("autoplug-config.server-check.software", "PAPER");
-        yamlFile.addDefault("autoplug-config.server-check.version", "1.15");
+        yamlFile.addDefault("autoplug-config.server-check.version", "1.15.x");
+
+        yamlFile.addDefault("autoplug-config.backup-server.enable", false);
+        yamlFile.addDefault("autoplug-config.backup-server.max-days", 7);
+
+        yamlFile.addDefault("autoplug-config.backup-plugins.enable", true);
+        yamlFile.addDefault("autoplug-config.backup-plugins.max-days", 7);
+
         //User can choose between MANUAL and AUTOMATIC
-        yamlFile.addDefault("autoplug-config.profile", "MANUAL");
+        yamlFile.addDefault("autoplug-config.plugins-check.enable", true);
+        yamlFile.addDefault("autoplug-config.plugins-check.profile", "MANUAL");
+        yamlFile.addDefault("autoplug-config.plugins-check.excluded-plugins", "[Plugin1,Plugin2]");
+
         yamlFile.addDefault("autoplug-config.debug", false);
 
         //Set logger
@@ -69,11 +84,22 @@ public final class Settings {
         logger.global_debugger("Settings", "create", "Copy default values: " + yamlFile.options().copyDefaults());
 
         //Set the data to be able to retrieve it accross the plugin
-        setConfig_server_check(yamlFile.getBoolean("autoplug-config.server-check.enable"));
-        setConfig_server_software(yamlFile.getString("autoplug-config.server-check.software"));
-        setConfig_server_version(yamlFile.getString("autoplug-config.server-check.version"));
-        setConfig_profile(yamlFile.getString("autoplug-config.profile"));
-        setConfig_debug(yamlFile.getBoolean("autoplug-config.debug"));
+        setServer_check(yamlFile.getBoolean("autoplug-config.server-check.enable"));
+        setServer_software(yamlFile.getString("autoplug-config.server-check.software"));
+        setServer_version(yamlFile.getString("autoplug-config.server-check.version"));
+
+        setBackupServer(yamlFile.getBoolean("autoplug-config.backup-server.enable"));
+        setBackupServerMaxDays(yamlFile.getInt("autoplug-config.backup-server.max-days"));
+
+        setBackupPlugins(yamlFile.getBoolean("autoplug-config.backup-plugins.enable"));
+        setBackupPluginsMaxDays(yamlFile.getInt("autoplug-config.backup-plugins.max-days"));
+
+        setPlugin_check(yamlFile.getBoolean("autoplug-config.plugins-check.enable"));
+        setProfile(yamlFile.getString("autoplug-config.plugins-check.profile"));
+        setPlugin_excluded(yamlFile.getStringList("autoplug-config.plugins-check.excluded-plugins")); //todo list
+        setDebug(yamlFile.getBoolean("autoplug-config.debug"));
+
+        System.out.println("PLUGINS EXCLUDED: "+getPlugin_excluded());
 
 
 
@@ -92,54 +118,102 @@ public final class Settings {
         // yamlFile.deleteFile();
     }
 
-    public boolean isConfig_server_check() {
-        logger.global_debugger("Settings", "getConfig_server_check" ,""+config_server_check);
-        return config_server_check;
+    public boolean isServer_check() {
+        logger.global_debugger("Settings", "getServer_check" ,""+server_check);
+        return server_check;
+    }
+    public void setServer_check(boolean server_check) {
+        Settings.server_check = server_check;
+        logger.global_debugger("Settings", "setServer_check" ,""+server_check);
     }
 
-    public void setConfig_server_check(boolean config_server_check) {
-        Settings.config_server_check = config_server_check;
-        logger.global_debugger("Settings", "setConfig_server_check" ,""+config_server_check);
+    public String getServer_software() {
+        logger.global_debugger("Settings", "getServer_software" ,""+server_software);
+        return server_software;
+    }
+    public void setServer_software(String server_software) {
+        Settings.server_software = server_software;
+        logger.global_debugger("Settings", "setServer_software" ,""+server_software);
     }
 
-
-    public String getConfig_server_software() {
-        logger.global_debugger("Settings", "getConfig_server_software" ,""+config_server_software);
-        return config_server_software;
+    public String getServer_version() {
+        logger.global_debugger("Settings", "getServer_version" ,""+server_version);
+        return server_version;
+    }
+    public void setServer_version(String server_version) {
+        Settings.server_version = server_version;
+        logger.global_debugger("Settings", "setServer_version" ,""+server_version);
     }
 
-    public void setConfig_server_software(String config_server_software) {
-        Settings.config_server_software = config_server_software;
-        logger.global_debugger("Settings", "setConfig_server_software" ,""+config_server_software);
+    public boolean isBackupServer() {
+        logger.global_debugger("Settings", "isBackupServer" ,""+backup_server);
+        return backup_server;
+    }
+    public void setBackupServer(boolean backup_server) {
+        Settings.backup_server = backup_server;
+        logger.global_debugger("Settings", "setBackupServer" ,""+backup_server);
     }
 
-    public String getConfig_server_version() {
-        logger.global_debugger("Settings", "getConfig_server_version" ,""+config_server_version);
-        return config_server_version;
+    public int getBackupServerMaxDays() {
+        logger.global_debugger("Settings", "getBackupServer" ,""+backup_server_max_days);
+        return backup_server_max_days;
+    }
+    public void setBackupServerMaxDays(int backup_server_max_days) {
+        Settings.backup_server_max_days = backup_server_max_days;
+        logger.global_debugger("Settings", "setBackupServer" ,""+backup_server_max_days);
     }
 
-    public void setConfig_server_version(String config_server_version) {
-        Settings.config_server_version = config_server_version;
-        logger.global_debugger("Settings", "setConfig_server_version" ,""+config_server_version);
+    public boolean isBackupPlugins() {
+        logger.global_debugger("Settings", "setBackupPlugins" ,""+backup_plugins);
+        return backup_plugins;
+    }
+    public void setBackupPlugins(boolean backup_plugins) {
+        Settings.backup_plugins = backup_plugins;
+        logger.global_debugger("Settings", "setBackupPlugins" ,""+backup_plugins);
     }
 
-    public String getConfig_profile() {
-        logger.global_debugger("Settings", "getConfig_server_version" ,""+config_profile);
-        return config_profile;
+    public int getBackupPluginsMaxDays() {
+        logger.global_debugger("Settings", "getBackupPluginsMaxDays" ,""+backup_plugins_max_days);
+        return backup_plugins_max_days;
+    }
+    public void setBackupPluginsMaxDays(int backup_plugins_max_days) {
+        Settings.backup_plugins_max_days = backup_plugins_max_days;
+        logger.global_debugger("Settings", "setBackupPluginsMaxDays" ,""+backup_plugins_max_days);
     }
 
-    public void setConfig_profile(String config_profile) {
-        Settings.config_profile = config_profile;
-        logger.global_debugger("Settings", "setConfig_server_version" ,""+config_profile);
+    public boolean isPlugin_check() {
+        logger.global_debugger("Settings", "isPlugin_check" ,""+plugin_check);
+        return plugin_check;
+    }
+    public void setPlugin_check(boolean plugin_check) {
+        Settings.plugin_check = plugin_check;
+        logger.global_debugger("Settings", "setPlugin_check" ,""+plugin_check);
     }
 
-    public boolean isConfig_debug() {
-        logger.global_debugger("Settings", "isConfig_debug" ,""+config_debug);
-        return config_debug;
+    public String getProfile() {
+        logger.global_debugger("Settings", "getServer_version" ,""+profile);
+        return profile;
+    }
+    public void setProfile(String profile) {
+        Settings.profile = profile;
+        logger.global_debugger("Settings", "setServer_version" ,""+profile);
     }
 
-    public void setConfig_debug(boolean config_debug) {
-        Settings.config_debug = config_debug;
-        logger.global_debugger("Settings", "setConfig_debug" ,""+config_debug);
+    public List getPlugin_excluded() {
+        logger.global_debugger("Settings", "getPlugin_excluded" ,""+plugin_excluded);
+        return plugin_excluded;
+    }
+    public void setPlugin_excluded(List plugin_excluded) {
+        Settings.plugin_excluded = plugin_excluded;
+        logger.global_debugger("Settings", "setPlugin_excluded" ,""+plugin_excluded);
+    }
+
+    public boolean isDebug() {
+        logger.global_debugger("Settings", "isDebug" ,""+debug);
+        return debug;
+    }
+    public void setDebug(boolean debug) {
+        Settings.debug = debug;
+        logger.global_debugger("Settings", "setDebug" ,""+debug);
     }
 }

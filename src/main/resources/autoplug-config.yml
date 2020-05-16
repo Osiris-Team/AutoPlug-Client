@@ -6,22 +6,43 @@
 #
 autoplug-config:
 
-  #This will check for the latest server jar available, backup your old server jar and replace it with the latest version
+  #This will check for the latest server jar available, download it and replace it with the latest version
   #Currently supported server software: PAPER
-  #Currently supported server versions (always latest): 1.15, 1.14, 1.13, 1.12, 1.8
+  #Currently supported server versions (always latest): 1.15.x, 1.14.x, 1.13.x, 1.12.x, 1.8.x
   server-check:
     enable: false
     software: PAPER
-    version: 1.15.2
+    version: 1.15.x
+
+  #Backups your server.jar before startup to /autoplug-backups/server/...zip
+  #Set max-days to 0 if you want to keep your backups forever.
+  backup-server:
+    enable: false
+    max-days: 7
+
+  #Backups your plugins folder before startup to /autoplug-backups/plugins/...zip
+  #Set max-days to 0 if you want to keep your backups forever.
+  backup-plugins:
+    enable: true
+    max-days: 7
 
   #Select your operating profile for plugins-check: MANUAL or AUTOMATIC
+  #You can exclude plugins from the check by adding them like this:
+  # - PluginName
+  # - AnotherPluginName
+  # (You can also remove them and leave it blank)
   #######################################################################################################################
   #### DISCLAIMER:
   #### Even though the AUTOMATIC profile is heavily tested for bugs, issues may happen!
   #### We (OsirisTeam) do NOT guarantee the safety of your files and we are not responsible for any loss of data.
-  #### By enabling this feature, you accept the risk and you take full responsibility for your files.
+  #### By enabling this feature, you accept the risk and you take full responsibility over your files.
   #######################################################################################################################
-  profile: MANUAL
+  plugins-check:
+    enable: true
+    profile: MANUAL
+    excluded-plugins:
+      - Plugin1
+      - Plugin2
   # Features of profile MANUAL :
   # -> Update-check [YES]  - Searches online (via Spiget) for plugin updates
   # -> Updates-download [YES]  - Downloads the updated jar files to /plugins/autoplug-cache
@@ -36,3 +57,4 @@ autoplug-config:
 
   # Toggles debug mode
   debug: false
+

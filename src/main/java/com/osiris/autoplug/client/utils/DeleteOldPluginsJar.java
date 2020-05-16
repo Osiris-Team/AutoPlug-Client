@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.utils;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.logging.Logger;
 
 /**
  * @author Crunchify.com

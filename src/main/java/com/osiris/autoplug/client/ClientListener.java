@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client;
 
 
-
 import com.osiris.autoplug.client.mcserver.MCServer;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
 import com.osiris.autoplug.client.utils.DeleteOldPluginsJar;
@@ -17,12 +16,13 @@ import com.osiris.autoplug.client.utils.DeleteOldPluginsJar;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientListener extends Thread {
 
@@ -45,7 +45,6 @@ public class ClientListener extends Thread {
 
         try{
             //Startup mc-server
-            logger.global_info(" All systems ready! Starting up server...");
             mcServer.startup();
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +85,8 @@ public class ClientListener extends Thread {
                 logger.global_debugger("ClientListener","run"," Total Plugin size: " + size);
                 for (int i = 0; i < size; i++) {
 
-                    if (dis.readUTF().equals("true")){
+                    String result = dis.readUTF();
+                    if (result.equals("true")){
 
                         logger.global_debugger("ClientListener","run"," Results for Plugin[" + i + "] :");
 
@@ -114,22 +114,30 @@ public class ClientListener extends Thread {
                     }
                 }
 
-                //Getting final response if we need to take actions
-                if (dis.readUTF().equals("true")){
-                    sleep(1000);
-                    logger.global_info(" There are updates available! Continuing with following profile:");
+                Settings settings = new Settings();
+                ArrayList excluded_plugins  = (ArrayList) settings.getPlugin_excluded();
+                if (!excluded_plugins.isEmpty()){
+                    logger.global_info("Excluded plugin(s): " + excluded_plugins);
+                }
 
-                    String profile = new Settings().getConfig_profile();
+                //Getting final response if we need to take actions
+                String final_result = dis.readUTF();
+                if (final_result.equals("true")){
+                    sleep(2000);
+                    logger.global_debugger("ClientListener","run"," There are updates available! Continuing with following profile:");
+
+
+                    String profile = new Settings().getProfile();
                     if (profile.equals("MANUAL")) {
                         dos.writeUTF("MANUAL");
-                        logger.global_info(" MANUAL");
-                        logger.global_info(" The plugins latest versions were downloaded to /plugins/autoplug-cache.");
-                        logger.global_info(" You have to manually replace your old plugins with the new ones.");
-                        logger.global_info(" If you want this process to be automatic, change profile to AUTOMATIC in autoplug-config.yml!");
+                        logger.global_debugger("ClientListener","run"," MANUAL");
+                        logger.global_debugger("ClientListener","run"," The plugins latest versions were downloaded to /plugins/autoplug-cache.");
+                        logger.global_debugger("ClientListener","run"," You have to manually replace your old plugins with the new ones.");
+                        logger.global_debugger("ClientListener","run"," If you want this process to be automatic, change profile to AUTOMATIC in autoplug-config.yml!");
                     }
                     else if(profile.equals("AUTOMATIC")) {
                         dos.writeUTF("AUTOMATIC");
-                        logger.global_info(" AUTOMATIC");
+                        logger.global_debugger("ClientListener","run"," AUTOMATIC");
                         logger.global_info(" Waiting for server to shutdown... 20...");
                         sleep(1000);
                         logger.global_info(" Waiting for server to shutdown... 19...");
@@ -179,20 +187,49 @@ public class ClientListener extends Thread {
 
                             if (!current_cache_path[i].equals("false")) {
 
-                                logger.global_debugger("ClientListener","run"," Transfering files for " + plugin_name[i] + "...");
-                                String plugins_dir = System.getProperty("user.dir") + "\\plugins";
-                                Path pluginPath = Paths.get(plugins_dir);
+                                if (!excluded_plugins.isEmpty()){
 
-                                //Delete old Plugin...
-                                String crunchifyExtension = "*"+plugin_name[i]+"**.jar"; //
-                                DeleteOldPluginsJar deleteOldPluginsJar = new DeleteOldPluginsJar(crunchifyExtension);
-                                Files.walkFileTree(pluginPath, deleteOldPluginsJar);
+                                    for (int f = 0; f < excluded_plugins.size(); f++) {
 
-                                //Copy from cache to plugins dir
-                                Path old_path = Paths.get(current_cache_path[i]);
-                                Path new_path = Paths.get(new_plugin_path[i]);
-                                Files.copy(old_path, new_path);
-                                logger.global_debugger("ClientListener","run"," Success!");
+                                        if (plugin_name[i].equals(excluded_plugins.get(f))){
+                                            logger.global_info("Skipping plugin: " + excluded_plugins.get(f));
+                                        } else{
+                                            logger.global_debugger("ClientListener","run"," Transfering files for " + plugin_name[i] + "...");
+                                            String plugins_dir = System.getProperty("user.dir") + "/plugins";
+                                            Path pluginPath = Paths.get(plugins_dir);
+
+                                            //Delete old Plugin...
+                                            String crunchifyExtension = "*"+plugin_name[i]+"**.jar"; //
+                                            DeleteOldPluginsJar deleteOldPluginsJar = new DeleteOldPluginsJar(crunchifyExtension);
+                                            Files.walkFileTree(pluginPath, deleteOldPluginsJar);
+
+                                            //Copy from cache to plugins dir
+                                            Path old_path = Paths.get(current_cache_path[i]);
+                                            Path new_path = Paths.get(new_plugin_path[i]);
+                                            Files.copy(old_path, new_path);
+                                            logger.global_debugger("ClientListener","run"," Success!");
+                                        }
+
+                                    }
+                                }
+                                else{
+                                    logger.global_debugger("ClientListener","run"," Transfering files for " + plugin_name[i] + "...");
+                                    String plugins_dir = System.getProperty("user.dir") + "/plugins";
+                                    Path pluginPath = Paths.get(plugins_dir);
+
+                                    //Delete old Plugin...
+                                    String crunchifyExtension = "*"+plugin_name[i]+"**.jar"; //
+                                    DeleteOldPluginsJar deleteOldPluginsJar = new DeleteOldPluginsJar(crunchifyExtension);
+                                    Files.walkFileTree(pluginPath, deleteOldPluginsJar);
+
+                                    //Copy from cache to plugins dir
+                                    Path old_path = Paths.get(current_cache_path[i]);
+                                    Path new_path = Paths.get(new_plugin_path[i]);
+                                    Files.copy(old_path, new_path);
+                                    logger.global_debugger("ClientListener","run"," Success!");
+                                }
+
+
                             }
 
                         }

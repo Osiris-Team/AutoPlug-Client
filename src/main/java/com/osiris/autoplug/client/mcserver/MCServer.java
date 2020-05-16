@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
+ * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
  *  All rights reserved.
  *
  *  This software is copyrighted work licensed under the terms of the
@@ -10,15 +10,22 @@ package com.osiris.autoplug.client.mcserver;
 
 import com.osiris.autoplug.client.Settings;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
-import com.osiris.autoplug.client.mcserver.SearchAndStartServerJar;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AgeFileFilter;
+import org.apache.commons.lang.time.DateUtils;
 
-import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Scanner;
 
 public class MCServer {
@@ -37,7 +44,7 @@ public class MCServer {
         if (command.equals(".help")){
             logger.global_info( " [All Console commands]");
             logger.global_info( " .help - prints out this (if you didn't notice)");
-            logger.global_info( " .stop - stops the autoplug client");
+            logger.global_info( " .stop - stops the autoplug client and the server (experimental)");
             logger.global_info( " .morerandomcommandscomingsoonmaboi");
 
             return true;
@@ -48,6 +55,7 @@ public class MCServer {
         }
         else if (command.equals(".stop")) {
             logger.global_info( " Stopping AutoPlug-Client! Good-by!");
+            destroy();
             System.exit(0);
             return true;
         }
@@ -60,11 +68,11 @@ public class MCServer {
 
         AutoPlugLogger logger = new AutoPlugLogger();
         String working_dir = System.getProperty("user.dir");
-        String directory_plugins = working_dir + "\\plugins";
+        String directory_plugins = working_dir + "/plugins";
         logger.global_debugger("MCServer","startup"," Searching for server.jar at " + working_dir + "...");
 
-        Path pluginPath = Paths.get(directory_plugins);
         Path mainPath = Paths.get(working_dir);
+        File file = new File(working_dir);
 
         boolean success = true;
         String crunchifyExtension = "*.jar";
@@ -77,9 +85,15 @@ public class MCServer {
 
             String path = searchAndStartServerJar.getServer_path();
             if (!path.equals("false")){
+                createBackups(path, directory_plugins);
+                updateServer(new File(path));
                 createProcess(path);
                 createConsole();
             }
+            else{
+            logger.global_warn(" Couldn't find a server jar file to startup!");
+            success = false;
+        }
 
 
             success = true;
@@ -91,6 +105,101 @@ public class MCServer {
         return success;
     }
 
+    private void createBackups(String server_path, String plugins_path) {
+
+        String working_dir = System.getProperty("user.dir");
+        File autoplug_backups = new File(working_dir+"/autoplug-backups");
+        File autoplug_backups_server = new File(working_dir+"/autoplug-backups/server");
+        File autoplug_backups_plugins = new File(working_dir+"/autoplug-backups/plugins");
+
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
+        String formattedDate = date.format(formatter);
+        String server_backup_dest = autoplug_backups_server.getAbsolutePath()+"/server-backup-"+formattedDate+".zip";
+        String plugins_backup_dest = autoplug_backups_plugins.getAbsolutePath()+"/plugins-backup-"+formattedDate+".zip";
+
+        Settings settings = new Settings();
+
+        int max_days_server = settings.getBackupServerMaxDays();
+        int max_days_plugins = settings.getBackupPluginsMaxDays();
+
+        //Removes files older than user defined days
+        if (max_days_server<=0) {logger.global_info(" Skipping delete of older server backups...");}
+        else{
+            logger.global_info(" Scanning for server backups older than "+max_days_server+" days...");
+
+            Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_server); //minus days from current date
+            Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_server, new AgeFileFilter(oldestAllowedFileDate), null);
+            //if deleting subdirs, replace null above with TrueFileFilter.INSTANCE
+            int deleted_files = 0;
+            while (filesToDelete.hasNext()) {
+                deleted_files++;
+                FileUtils.deleteQuietly(filesToDelete.next());
+            }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
+            logger.global_info(" Removed " +deleted_files+ " zips.");
+        }
+
+        if (max_days_plugins<=0) {logger.global_info(" Skipping delete of older plugin backups...");}
+        else{
+            logger.global_info(" Scanning for plugins backups older than "+max_days_plugins+" days...");
+
+            Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_plugins); //minus days from current date
+            Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_plugins, new AgeFileFilter(oldestAllowedFileDate), null);
+            //if deleting subdirs, replace null above with TrueFileFilter.INSTANCE
+            int deleted_files = 0;
+            while (filesToDelete.hasNext()) {
+                deleted_files++;
+                FileUtils.deleteQuietly(filesToDelete.next());
+            }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
+            logger.global_info(" Removed " +deleted_files+ " zips.");
+        }
+
+
+        if (settings.isBackupServer()) {
+            logger.global_info(" Creating server backup...");
+
+            try {
+                new ZipFile(server_backup_dest).addFile(new File(server_path));
+            } catch (ZipException e) {
+                e.printStackTrace();
+            }
+
+            logger.global_info(" Created server backup at:" + server_path);
+        } else{
+            logger.global_info(" Skipping backup-server...");
+        }
+        if (settings.isBackupPlugins()){
+            logger.global_info(" Creating plugins backup...");
+
+            try {
+                new ZipFile(plugins_backup_dest).addFolder(new File(plugins_path));
+            } catch (ZipException e) {
+                e.printStackTrace();
+            }
+
+            logger.global_info(" Created plugins backup at:" + plugins_path);
+        } else{
+            logger.global_info(" Skipping backup-plugins...");
+        }
+
+
+
+    }
+
+    private void updateServer(File server) {
+
+        Settings settings = new Settings();
+        if (settings.isServer_check()){
+
+            logger.global_info(" Searching for updates...");
+            new UpdateServerJar(server);
+
+        } else {
+            logger.global_info(" Skipping server-check...");
+        }
+
+    }
+
     private void createProcess(String path) throws IOException {
 
         ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar", path);
@@ -98,6 +207,8 @@ public class MCServer {
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
     }
+
+
 
     private void createConsole(){
 
@@ -163,6 +274,9 @@ public class MCServer {
         }
 
         if (!process.isAlive()) {
+            logger.global_info(" Server was stopped!");
+            logger.global_info(" To close this console enter .stop");
+            logger.global_info(" For all commands enter .help");
                 return true;
             } else{
                 return false;
@@ -208,20 +322,8 @@ class SearchAndStartServerJar extends SimpleFileVisitor<Path> {
         //System.out.println(inputPath.toAbsolutePath().toString());
         //System.out.println(System.getProperty("user.dir"));
         if (!inputPath.toFile().isDirectory() && !inputPath.getFileName().toString().equals("AutoPlug.jar") && PathMatcher.matches(inputPath.getFileName())){
-            counter++;
 
             logger.global_info(" Found server jar at: " + inputPath.toAbsolutePath());
-
-            Settings settings = new Settings();
-            if (settings.isConfig_server_check()){
-                logger.global_info(" Searching for updates...");
-
-                new UpdateServerJar(inputPath);
-            } else {
-                logger.global_info(" Skipping server-check...");
-            }
-
-            logger.global_info(" Starting up: " +  inputPath.getFileName());
             setServer_path(inputPath.toAbsolutePath().toString());
 
             counter++;
