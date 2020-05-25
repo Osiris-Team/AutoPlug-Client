@@ -5,7 +5,7 @@ An easy to use interface to manage and update all of your Plugins! No more wasti
 All you want, all you need at one place.
 
 # Client | Features
- - Manages deleting of old jar files and moving new jars from /autoplug-cache to /plugins dir.
+The AutoPlug.jar is now responsible for downloading the updates and managing profiles/file transfers (so move your server key to the autoplug-config.yml)
 
 
 # Join us!
