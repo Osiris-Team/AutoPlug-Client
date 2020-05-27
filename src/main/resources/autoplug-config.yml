@@ -1,36 +1,27 @@
-#
-#
-# Thank you for downloading AutoPlug!
-# For installation instructions check our Spigot post: https://www.spigotmc.org/members/osiristeam.935748/
-#
-#
 autoplug-config:
 
-  #This will check for the latest server jar available, download it and replace it with the latest version
-  #Currently supported server software: PAPER
-  #Currently supported server versions (always latest): 1.15.x, 1.14.x, 1.13.x, 1.12.x, 1.8.x
+  server:
+    key: 1111
+    jar: auto-find
+    flags:
+      - Xms2G
+      - Xmx2G
+
   server-check:
     enable: false
     software: PAPER
     version: 1.15.x
 
-  #Backups your server.jar before startup to /autoplug-backups/server/...zip
-  #Set max-days to 0 if you want to keep your backups forever.
-  backup-server:
+  backup-server-jar:
     enable: false
     max-days: 7
 
-  #Backups your plugins folder before startup to /autoplug-backups/plugins/...zip
-  #Set max-days to 0 if you want to keep your backups forever.
   backup-plugins:
     enable: true
     max-days: 7
 
   #Select your operating profile for plugins-check: MANUAL or AUTOMATIC
-  #You can exclude plugins from the check by adding them like this:
-  # - PluginName
-  # - AnotherPluginName
-  # (You can also remove them and leave it blank)
+  #You can exclude plugins from the check at /plugins/AutoPlugPlugin/config.yml
   #######################################################################################################################
   #### DISCLAIMER:
   #### Even though the AUTOMATIC profile is heavily tested for bugs, issues may happen!
@@ -40,9 +31,55 @@ autoplug-config:
   plugins-check:
     enable: true
     profile: MANUAL
-    excluded-plugins:
-      - Plugin1
-      - Plugin2
+
+  debug: false
+
+  #######################################################################################################################
+  #
+  #
+  # Thank you for downloading AutoPlug!
+  # For installation instructions check our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/
+  # All settings and their functionality explained:
+  #
+  #
+  #  server:
+  #   key: 1111
+  #Enter your server-key here. You get the key by registering on http://autoplug.ddns.net.
+  #This key is needed to check for plugin updates and download them.
+  #
+  #   jar: auto-find
+  #If you have more than 2 jars in your main folder,
+  #you must specify the jar we should look for by entering its name without the file extension.
+  #The auto-find feature will scan through your main directory and find the first jar with another name than AutoPlug.jar.
+  #
+  #   flags:
+  #      - Xms2G
+  #      - Xmx2G
+  #If you have java startup flags add them to this list one by one.
+  #
+  #  server-check:
+  #   enable: false
+  #   software: PAPER
+  #   version: 1.15.x
+  #This will check for the latest server jar available, download it and replace it with the latest version
+  #Currently supported server software: PAPER
+  #Currently supported server versions (always latest): 1.15.x, 1.14.x, 1.13.x, 1.12.x, 1.8.x
+  #
+  #  backup-server-jar:
+  #   enable: false
+  #   max-days: 7
+  #Backups your server.jar before startup to /autoplug-backups/server/...zip
+  #Set max-days to 0 if you want to keep your backups forever.
+  #
+  #  backup-plugins:
+  #   enable: true
+  #   max-days: 7
+  #Backups your plugins folder before startup to /autoplug-backups/plugins/...zip
+  #Set max-days to 0 if you want to keep your backups forever.
+  #
+  #  plugins-check:
+  #   enable: true
+  #   profile: MANUAL
   # Features of profile MANUAL :
   # -> Update-check [YES]  - Searches online (via Spiget) for plugin updates
   # -> Updates-download [YES]  - Downloads the updated jar files to /plugins/autoplug-cache
@@ -54,7 +91,9 @@ autoplug-config:
   # -> Updates-download [YES]
   # -> Delete-old [YES]
   # -> server-restart [YES]
+  #
+  # debug: false
+  #Toggles debug mode
 
-  # Toggles debug mode
-  debug: false
+
 

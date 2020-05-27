@@ -9,8 +9,6 @@
 package com.osiris.autoplug.client.utils;
 
 
-import com.osiris.autoplug.client.GLOBALDATA;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -38,7 +36,7 @@ public class AutoPlugLogger {
 
     private String tag(){
         String tag = "";
-        if (GLOBALDATA.WINDOWS_OS){
+        if (GD.WINDOWS_OS){
             ANSI_WHITE_BACKGROUND = "";
             ANSI_BLUE = "";
             ANSI_RESET = "";
@@ -48,7 +46,7 @@ public class AutoPlugLogger {
     }
     private String info (){
         String info = "";
-        if (GLOBALDATA.WINDOWS_OS){
+        if (GD.WINDOWS_OS){
             ANSI_WHITE_BACKGROUND = "";
             ANSI_CYAN = "";
             ANSI_RESET = "";
@@ -59,8 +57,8 @@ public class AutoPlugLogger {
 
     public void class_startup (String text) {
 
-        if (GLOBALDATA.DEBUG){
-            if (GLOBALDATA.WINDOWS_OS){
+        if (GD.DEBUG){
+            if (GD.WINDOWS_OS){
                 ANSI_WHITE_BACKGROUND = "";
                 ANSI_BLACK = "";
                 ANSI_RESET = "";
@@ -92,7 +90,7 @@ public class AutoPlugLogger {
 
     public void global_info(String text) {
 
-        if (GLOBALDATA.WINDOWS_OS){
+        if (GD.WINDOWS_OS){
             ANSI_WHITE_BACKGROUND = "";
             ANSI_BLACK = "";
             ANSI_RESET = "";
@@ -113,9 +111,9 @@ public class AutoPlugLogger {
 
     public void global_debugger(String class_name, String method_name, String text) {
 
-        if (GLOBALDATA.DEBUG) {
+        if (GD.DEBUG) {
 
-            if (GLOBALDATA.WINDOWS_OS){
+            if (GD.WINDOWS_OS){
                 ANSI_WHITE_BACKGROUND = "";
                 ANSI_BLACK = "";
                 ANSI_RESET = "";
@@ -151,9 +149,9 @@ public class AutoPlugLogger {
 
     public void spiget_info(String text) {
 
-        if (GLOBALDATA.DEBUG){
+        if (GD.DEBUG){
 
-            if (GLOBALDATA.WINDOWS_OS){
+            if (GD.WINDOWS_OS){
                 ANSI_WHITE_BACKGROUND = "";
                 ANSI_BLACK = "";
                 ANSI_RESET = "";
@@ -185,7 +183,7 @@ public class AutoPlugLogger {
 
     public void listener_info(String text, int port) {
 
-        if (GLOBALDATA.WINDOWS_OS){
+        if (GD.WINDOWS_OS){
             ANSI_WHITE_BACKGROUND = "";
             ANSI_BLACK = "";
             ANSI_RESET = "";
@@ -211,7 +209,7 @@ public class AutoPlugLogger {
 
     public void global_warn(String text) {
 
-        if (GLOBALDATA.WINDOWS_OS){
+        if (GD.WINDOWS_OS){
             ANSI_RED_BACKGROUND = "";
             ANSI_YELLOW = "";
             ANSI_RESET = "";

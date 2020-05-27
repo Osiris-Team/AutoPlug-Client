@@ -9,7 +9,11 @@
 package com.osiris.autoplug.client;
 
 
+import com.osiris.autoplug.client.online.Communication;
+import com.osiris.autoplug.client.server.UserInput;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.utils.Config;
+import com.osiris.autoplug.client.utils.GD;
 
 import java.io.File;
 
@@ -18,43 +22,64 @@ public class Main {
 
     public static void main(String[]args){
 
-        System.out.println("Powered by AutoPlug - " + GLOBALDATA.COPYRIGHT);
-        String working_dir = System.getProperty("user.dir");
+        System.out.println("Initialising " + GD.VERSION);
+
+
         try{
-            System.out.println("Current working directory: " + working_dir);
+            System.out.println("Current working directory: " + GD.WORKING_DIR);
             if (System.getProperty("sun.desktop").equals("windows")){
                 System.out.println("Detected windows os, disabling colors :/");
-                GLOBALDATA.setWindowsOs(true);
+                GD.WINDOWS_OS = true;
             }
         } catch (NullPointerException e) {
             if (System.getProperty("os.name").equals("windows")){
                 System.out.println("Detected windows os, disabling colors :/");
-                GLOBALDATA.setWindowsOs(true);
+                GD.WINDOWS_OS = true;
             }
-            //System.out.println("Detected system other than windows.");
         }
 
         AutoPlugLogger logger = new AutoPlugLogger();
 
-        logger.global_info(" Initialising system...");
+        logger.global_info("     ___       __       ___  __             ");
+        logger.global_info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
+        logger.global_info("   / __ / // / __/ _ \\/ ___/ / // / _ `/   ");
+        logger.global_info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
+        logger.global_info("                                 /___/    ");
+        logger.global_info("|----------------------------------------|");
+        logger.global_info("           "+ GD.VERSION+"           ");
+        logger.global_info("      Copyright (c) 2020 Osiris Team      ");
+        logger.global_info("         "+ GD.OFFICIAL_WEBSITE+"  ");
+        logger.global_info("                                          ");
+        logger.global_info(" - Checking directories...");
 
-        File autoplug_cache = new File(working_dir+"/autoplug-cache");
-        File autoplug_backups = new File(working_dir+"/autoplug-backups");
-        File autoplug_backups_server = new File(working_dir+"/autoplug-backups/server");
-        File autoplug_backups_plugins = new File(working_dir+"/autoplug-backups/plugins");
-        if (!autoplug_cache.exists()) {autoplug_cache.mkdirs();}
-        if (!autoplug_backups.exists()) {autoplug_backups.mkdirs();}
-        if (!autoplug_backups_server.exists()) {autoplug_backups_server.mkdirs();}
-        if (!autoplug_backups_plugins.exists()) {autoplug_backups_plugins.mkdirs();}
+        File autoplug_cache = new File(GD.WORKING_DIR+"/autoplug-cache");
+        File autoplug_backups = new File(GD.WORKING_DIR+"/autoplug-backups");
+        File autoplug_backups_server = new File(GD.WORKING_DIR+"/autoplug-backups/server");
+        File autoplug_backups_plugins = new File(GD.WORKING_DIR+"/autoplug-backups/plugins");
+        if (!autoplug_cache.exists()) {
+            logger.global_info(" - Generating: " + autoplug_cache);
+            autoplug_cache.mkdirs();}
+        if (!autoplug_backups.exists()) {
+            logger.global_info(" - Generating: " + autoplug_backups);
+            autoplug_backups.mkdirs();}
+        if (!autoplug_backups_server.exists()) {
+            logger.global_info(" - Generating: " + autoplug_backups_server);
+            autoplug_backups_server.mkdirs();}
+        if (!autoplug_backups_plugins.exists()) {
+            logger.global_info(" - Generating: " + autoplug_backups_plugins);
+            autoplug_backups_plugins.mkdirs();}
+        logger.global_info(" - Directories ok!");
 
 
-        //Checks if settings file exists and creates one
-        Settings settings = new Settings();
-        settings.create();
+        //Checks if settings file exists and creates one if not
+        Config config = new Config();
+        config.create();
 
-        //Starts a new thread for local communication with the Plugin
-        ClientListener clientListener = new ClientListener();
-        clientListener.start();
+        logger.global_info(" - AutoPlug initialised!");
+        logger.global_info("|----------------------------------------|");
+
+        UserInput.keyboard();
+        new Communication(Config.server_key);
 
 
         }
