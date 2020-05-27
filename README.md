@@ -72,4 +72,4 @@ If you are interested in this project and you have questions or you want to cont
 
 
 
-> MIT License - Copyright (c) 2020 Osiris Team
+ > Copyright (c) 2020 Osiris Team. All rights reserved. Check the file "LICENSE" for details.
