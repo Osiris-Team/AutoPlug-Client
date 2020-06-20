@@ -7,12 +7,12 @@
 - [Discord](https://discord.com/invite/GGNmtCC)
 
 # AutoPlug | Client
-1.Searches for server.jar
-2.Makes backups
-3.Starts server
-4.Receives plugin details
-5.Downloads updates
-6.Restarts the server and installs the plugins or does nothing depending on your choosed profile
+ 1. Searches for server.jar
+ 2. Makes backups
+ 3. Starts server
+ 4. Receives plugin details
+ 5. Downloads updates
+ 6. Restarts the server and installs the plugins or does nothing depending on your choosed profile
 
 # AutoPlug | The Idea
 AutoPlug is meant to be that what all Server-Owners are waiting for. 
