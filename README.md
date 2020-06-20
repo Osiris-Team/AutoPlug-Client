@@ -72,11 +72,4 @@ The AutoPlug.jar is now responsible for downloading the updates and managing pro
 
 ```
 
-# Join us!
-If you are interested in this project and you have questions or you want to contribute just contact us:
- - [Discord](https://discord.com/invite/GGNmtCC)
- - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
-
-
-
  > Copyright (c) 2020 Osiris Team. All rights reserved. Check the file "LICENSE" for details.
