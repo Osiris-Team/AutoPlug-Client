@@ -6,13 +6,18 @@
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 - [Discord](https://discord.com/invite/GGNmtCC)
 
+# AutoPlug | Client
+1.Searches for server.jar
+2.Makes backups
+3.Starts server
+4.Receives plugin details
+5.Downloads updates
+6.Restarts the server and installs the plugins or does nothing depending on your choosed profile
+
 # AutoPlug | The Idea
 AutoPlug is meant to be that what all Server-Owners are waiting for. 
 An easy to use interface to manage and update all of your Plugins! No more wasting time in searching links and changelogs!
 All you want, all you need at one place.
-
-# Client | Features
-The AutoPlug.jar is now responsible for downloading the updates and managing profiles/file transfers (so move your server key to the autoplug-config.yml)
 
 # Libraries
 ```xml
