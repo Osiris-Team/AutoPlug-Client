@@ -7,6 +7,12 @@ All you want, all you need at one place.
 # Client | Features
 The AutoPlug.jar is now responsible for downloading the updates and managing profiles/file transfers (so move your server key to the autoplug-config.yml)
 
+Links:
+- [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases)
+- [AutoPlug-Development](https://trello.com/b/zC8MKgEe/autoplug-development)
+- [AutoPlug-Client](https://github.com/Osiris-Team/AutoPlug-Client)
+- [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
+
 # Libraries
 ```xml
 
