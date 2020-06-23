@@ -8,13 +8,12 @@
 
 package com.osiris.autoplug.client.online;
 
-import com.google.common.base.Stopwatch;
+import com.osiris.autoplug.client.configs.CheckConfig;
+import com.osiris.autoplug.client.managers.DownloadManager;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.server.Server;
-import com.osiris.autoplug.client.utils.Config;
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.managers.DownloadManager;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.utils.GD;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -27,12 +26,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
 /**
- * Waits for incoming connection
+ * Waits for incoming connection on port 35556 from AutoPlugPlugin
  */
 public class Communication {
 
@@ -150,7 +148,7 @@ public class Communication {
             online_connection = new Socket("144.91.78.158",35555);
             online_dis = new DataInputStream(online_connection.getInputStream());
             online_dos = new DataOutputStream(online_connection.getOutputStream());
-            logger.global_info("AutoPlug-Server is online!");
+            logger.global_info("Connected to the AutoPlug-Server successfully!");
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.global_warn(" [!] Error connecting to the Online-Server at "+ GD.OFFICIAL_WEBSITE+" [!]");
@@ -163,7 +161,6 @@ public class Communication {
     private void checkForUpdates(){
 
         try {
-            Stopwatch timer = Stopwatch.createStarted();
 
             UpdateCounter = 0;
             updates_pl_names = new ArrayList<>();
@@ -181,7 +178,7 @@ public class Communication {
 
             //RECEIVE 3: get response
             if (online_dis.readUTF().equals("true")) {
-                logger.global_info("Connection successful!");
+                logger.global_info("All systems online!");
                 logger.global_info("Starting check...");
 
                 //SEND 4: send the size of for-loop
@@ -249,15 +246,6 @@ public class Communication {
 
                     }
 
-
-                    timer.stop();
-                    String time_result;
-                    if (timer.elapsed(TimeUnit.SECONDS)>90){
-                        time_result = ""+timer.elapsed(TimeUnit.MINUTES)+" min.";
-                    } else{
-                        time_result = ""+timer.elapsed(TimeUnit.SECONDS)+" sec.";
-                    }
-
                     logger.global_info("|----------------------------------------|");
                     logger.global_info("     ___       __       ___  __");
                     logger.global_info("    / _ |__ __/ /____  / _ \\/ /_ _____ _");
@@ -266,7 +254,6 @@ public class Communication {
                     logger.global_info("                                 /___/");
                     logger.global_info("                _/Result\\_               ");
                     logger.global_info("|----------------------------------------|");
-                    logger.global_info("|Elapsed time -> " + time_result);
                     logger.global_info("|Plugins checked total -> "+ amount);
                     logger.global_info("|Plugins to update total -> " + UpdateCounter);
 
@@ -274,8 +261,8 @@ public class Communication {
                     if (UpdateCounter>0){
 
                         try{
-                            if (Config.profile.equals("MANUAL")) {
-                                logger.global_info("|[MANUAL] Plugins downloaded to cache, please update them by yourself...");
+                            if (CheckConfig.profile.equals("MANUAL")) {
+                                logger.global_info("|[MANUAL] Plugins downloaded to cache, please update them by yourself or change your profile to AUTOMATIC");
                                 local_dos.writeInt(0);
                             }
                             else{
@@ -377,7 +364,7 @@ public class Communication {
 
     private void error() {
         try {
-            logger.global_warn(" - Result: Server error! No result!");
+            logger.global_warn(" - Result: Server-search error! No result!");
             logger.global_warn(" - Info: Abnormal result pls notify us -> https://discord.gg/GGNmtCC ");
             logger.global_warn(" ");
             //SEND 17: send final reponse
@@ -405,7 +392,7 @@ public class Communication {
                 UpdateCounter++;
 
                 try {
-                    if (Config.profile.equals("AUTOMATIC")) {
+                    if (CheckConfig.profile.equals("AUTOMATIC")) {
                         //Adds the plugins details to the updates list if profile automatic is selected
                         updates_pl_names.add(pl_name);
                         updates_current_cache.add(cache_path.toPath().toString());

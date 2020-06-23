@@ -8,11 +8,8 @@
 
 package com.osiris.autoplug.client.server;
 
-import com.osiris.autoplug.client.server.Server;
+import com.osiris.autoplug.client.scheduler.TaskScheduler;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
-
-import java.io.IOException;
-import java.util.Scanner;
 
 /**
  * Listens for input started with .
@@ -23,7 +20,14 @@ public final class ClientCommands {
     private static AutoPlugLogger logger = new AutoPlugLogger();
 
     public static boolean isCommand(String command) {
-        String first = Character.toString(command.charAt(0));
+
+        String first = ".";
+        try{
+            first = Character.toString(command.charAt(0));
+        }catch (Exception e){
+            logger.global_info(" Command not found! Enter .help for all available commands!");
+        }
+
         if (first.equals(".")){
             try{
 
@@ -37,7 +41,6 @@ public final class ClientCommands {
                         logger.global_info(" .stop - stops and saves the server (Shortcut: .st)");
                         logger.global_info(" .close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
                         logger.global_info(" .kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
-                        logger.global_info(" .morerandomcommandscomingsoonmaboi");
                         logger.global_info(" ");
                         return true;
                     case ".h":
@@ -78,8 +81,9 @@ public final class ClientCommands {
                         while(Server.isRunning()){
                             Thread.sleep(1000);
                         }
+                        TaskScheduler.safeShutdown();
                         logger.global_info(" See you soon!");
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                         System.exit(0);
                         return true;
                     case ".c":
@@ -87,8 +91,9 @@ public final class ClientCommands {
                         while(Server.isRunning()){
                             Thread.sleep(1000);
                         }
+                        TaskScheduler.safeShutdown();
                         logger.global_info(" See you soon!");
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                         System.exit(0);
                         return true;
 
@@ -96,12 +101,16 @@ public final class ClientCommands {
                         Server.kill();
                         logger.global_info(" Killing AutoPlug-Client! Ahhhh!");
                         logger.global_info(" Achievement unlocked: double kill!");
+                        TaskScheduler.safeShutdown();
+                        Thread.sleep(1000);
                         System.exit(0);
                         return true;
                     case ".k":
                         Server.kill();
                         logger.global_info(" Killing AutoPlug-Client! Ahhhh!");
                         logger.global_info(" Achievement unlocked: double kill!");
+                        TaskScheduler.safeShutdown();
+                        Thread.sleep(1000);
                         System.exit(0);
                         return true;
 

@@ -8,22 +8,18 @@
 
 package com.osiris.autoplug.client.managers;
 
-import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.logging.Logger;
 
 public class DownloadManager {
 
@@ -40,9 +36,9 @@ public class DownloadManager {
         client.getOptions().setThrowExceptionOnFailingStatusCode(false);
         client.getOptions().setRedirectEnabled(true);
         client.getCache().setMaxSize(0);
-        //client.waitForBackgroundJavaScript(10000);
-        //client.setJavaScriptTimeout(10000);
-        //client.waitForBackgroundJavaScriptStartingBefore(10000);
+        client.waitForBackgroundJavaScript(10000);
+        client.setJavaScriptTimeout(10000);
+        client.waitForBackgroundJavaScriptStartingBefore(10000);
 
         //Prevents the whole html being printed to the console (We always get code 503 when dealing with cloudflare)
         client.getOptions().setPrintContentOnFailingStatusCode(false);

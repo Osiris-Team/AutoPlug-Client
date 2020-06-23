@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.server;
 
+import com.osiris.autoplug.client.configs.ServerConfig;
 import com.osiris.autoplug.client.managers.BackupManager;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
-import com.osiris.autoplug.client.utils.Config;
 import com.osiris.autoplug.client.utils.GD;
 
 import java.io.IOException;
@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public final class Server {
 
@@ -30,23 +29,29 @@ public final class Server {
 
 
     public static void start(){
-        //Before starting make backups and check for updates
+
         try {
             if (isRunning()) {
                 logger.global_warn(" Server already running!");
             } else{
+                //Before starting make backups and check for updates
                 new BackupManager();
                 new ServerUpdater();
-                logger.global_info(" Starting server in 10sec...");
-                Thread.sleep(7000);
-                logger.global_info(" Starting server in 3sec...");
+
+                logger.global_info(" Found server jar at: "+ GD.SERVER_PATH.toPath().toString() );
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 2sec...");
+                logger.global_info(" Starting server in 5");
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 1sec...");
+                logger.global_info(" Starting server in 4");
+                Thread.sleep(1000);
+                logger.global_info(" Starting server in 3");
+                Thread.sleep(1000);
+                logger.global_info(" Starting server in 2");
+                Thread.sleep(1000);
+                logger.global_info(" Starting server in 1");
+                logger.global_info(" Note: AutoPlug has its own console commands. For details enter .help or .h");
                 Thread.sleep(1000);
                 createProcess(GD.SERVER_PATH.toPath().toString());
-                //synchronized (process){}
                 createConsole();
             }
 
@@ -57,6 +62,7 @@ public final class Server {
             logger.global_warn("[!] Could'nt find your server jar [!]");
             logger.global_warn("[!] Searched dir: "+GD.WORKING_DIR+" [!]");
             logger.global_warn("[!] Please check your config file [!]");
+            logger.global_warn("[!] You may need to specify the jars name [!]");
         }
     }
 
@@ -137,8 +143,8 @@ public final class Server {
         //First command
         commands.add("java");
 
-        for (int i = 0; i < Config.server_flags.size(); i++) {
-            commands.add("-"+Config.server_flags.get(i));
+        for (int i = 0; i < ServerConfig.server_flags.size(); i++) {
+            commands.add("-"+ServerConfig.server_flags.get(i));
         }
 
         //Last commands

@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.server;
 
-import com.osiris.autoplug.client.utils.Config;
-import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.configs.CheckConfig;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.utils.GD;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,20 +22,12 @@ public class ServerUpdater {
     public ServerUpdater()  {
         AutoPlugLogger logger = new AutoPlugLogger();
 
-        File server_jar = null;
-        FileManager fileManager = new FileManager();
-        //If server jar isn't auto-detect then we search for the specific name given in the config
-        if (!Config.server_jar.equals("auto-detect")){
-            server_jar = fileManager.serverJar(Config.server_jar);
-        } else {
-            server_jar = fileManager.serverJar();
-        }
+        File server_jar = GD.SERVER_PATH;
 
-
-        if (Config.server_check){
+        if (CheckConfig.server_check){
             logger.global_info(" Updating server-jar: "+ server_jar);
-            String server = Config.server_software;
-            String version = Config.server_version;
+            String server = CheckConfig.server_software;
+            String version = CheckConfig.server_version;
 
             try{
 

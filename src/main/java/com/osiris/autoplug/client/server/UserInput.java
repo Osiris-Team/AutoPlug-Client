@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.server;
 
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class UserInput {

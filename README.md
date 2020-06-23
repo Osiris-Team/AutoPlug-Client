@@ -29,20 +29,20 @@ All you want, all you need at one place.
         </repository>
     </repositories>
 	
-    <dependencies>
+<dependencies>
 
         <!-- https://htmlunit.sourceforge.io/ -->
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.40.0</version>
+            <version>2.41.0</version>
         </dependency>
 
         <!-- https://github.com/Carleslc/Simple-YAML -->
         <dependency>
             <groupId>com.github.Carleslc</groupId>
             <artifactId>Simple-YAML</artifactId>
-            <version>1.3</version>
+            <version>1.4.1</version>
         </dependency>
 
         <!-- https://github.com/srikanth-lingala/zip4j -->
@@ -71,6 +71,19 @@ All you want, all you need at one place.
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+
+        <!-- Quartz Core -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.1</version>
         </dependency>
 
     </dependencies>

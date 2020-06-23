@@ -1,0 +1,35 @@
+#######################################################################################################################
+#     ___       __       ___  __
+#    / _ |__ __/ /____  / _ \/ /_ _____ _
+#   / __ / // / __/ _ \/ ___/ / // / _ `/
+#  /_/ |_\_,_/\__/\___/_/  /_/\_,_/\_, /
+#                                 /___/ Server-Config
+# Thank you for using AutoPlug!
+# You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/
+# If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC
+#
+#######################################################################################################################
+autoplug-server-config:
+
+  #######################################################################################################################
+  # SERVER
+  #######################################################################################################################
+  #Options regarding your Minecraft server
+  server:
+
+    #Enter your server-key here. You get the key by registering on http://autoplug.ddns.net.
+    #The key is needed to perform plugin-update-checks and download them.
+    key: 1111
+
+    #The auto-find feature will scan through your main directory and find the first jar with another name than AutoPlug.jar.
+    #If you have more than 2 jars in your main folder, you must specify the jar we should look for
+    #by entering its file name below, without its .jar file extension.
+    jar: auto-find
+
+    #If you were using java startup flags add them to this list one by one.
+    flags:
+      - Xms2G
+      - Xmx2G
+
+  #Toggles debug mode
+  debug: false
