@@ -77,4 +77,4 @@ All you want, all you need at one place.
 
 ```
 
- > Copyright (c) 2020 Osiris Team. All rights reserved. Check the file "LICENSE" for details.
+ > Copyright (c) 2020 Osiris Team. All rights reserved. Read the file "LICENSE" file for details.
