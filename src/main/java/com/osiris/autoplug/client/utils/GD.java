@@ -15,15 +15,18 @@ import java.io.File;
  */
 public class GD {
 
+    public GD(){
+        AutoPlugLogger.newClassDebug("GD");
+    }
+
     public static final String SPIGOT_URL = "https://www.spigotmc.org/members/osiristeam.935748/";
-    public static String OFFICIAL_WEBSITE = "https://autoplug.ddns.net/";
-    public static String VERSION = "AutoPlugClient - v0.7";
-    public static String COPYRIGHT = "Copyright (c) 2020 Osiris Team";
-    public static String COPYRIGHT_WEBSITE = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Client/master/LICENSE";
+    public static final String OFFICIAL_WEBSITE = "https://autoplug.ddns.net/";
+    public static final String VERSION = "AutoPlug-Client - v0.8";
+    public static final String COPYRIGHT = "Copyright (c) 2020 Osiris Team";
+    public static final String COPYRIGHT_WEBSITE = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Client/master/LICENSE";
+
     public static File WORKING_DIR = new File(System.getProperty("user.dir"));
     public static File PLUGINS_DIR = new File(System.getProperty("user.dir")+"/plugins");
+    public static File LATEST_LOG = new File(WORKING_DIR+"/autoplug-logs/latest_log.txt");
     public static File SERVER_PATH = null; //Server_path gets defined in config
-
-    public static boolean DEBUG = true;
-    public static boolean WINDOWS_OS = false;
 }

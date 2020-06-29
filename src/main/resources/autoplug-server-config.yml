@@ -19,7 +19,7 @@ autoplug-server-config:
 
     #Enter your server-key here. You get the key by registering on http://autoplug.ddns.net.
     #The key is needed to perform plugin-update-checks and download them.
-    key: 1111
+    key: '1111'
 
     #The auto-find feature will scan through your main directory and find the first jar with another name than AutoPlug.jar.
     #If you have more than 2 jars in your main folder, you must specify the jar we should look for

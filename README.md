@@ -29,7 +29,28 @@ All you want, all you need at one place.
         </repository>
     </repositories>
 	
-<dependencies>
+    <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+
+        <!-- https://github.com/Minecrell/TerminalConsoleAppender -->
+        <dependency>
+            <groupId>net.minecrell</groupId>
+            <artifactId>terminalconsoleappender</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <!-- https://github.com/fusesource/jansi -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.18</version>
+        </dependency>
 
         <!-- https://htmlunit.sourceforge.io/ -->
         <dependency>

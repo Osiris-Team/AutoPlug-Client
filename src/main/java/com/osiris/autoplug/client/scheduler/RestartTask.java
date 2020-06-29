@@ -19,10 +19,13 @@ import java.util.List;
 
 public class RestartTask implements Job {
 
+    public RestartTask(){
+        AutoPlugLogger.newClassDebug("RestartTask");
+    }
+
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        AutoPlugLogger logger = new AutoPlugLogger();
-        logger.global_info(" - Executing scheduled restart in 10sec...");
+        AutoPlugLogger.info(" - Executing scheduled restart in 10sec...");
 
         //Before restarting execute commands
         List<String> commands = RestarterConfig.restarter_commands;

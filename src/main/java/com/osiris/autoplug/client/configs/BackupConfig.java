@@ -15,24 +15,27 @@ import java.io.IOException;
 
 public class BackupConfig {
 
-    private AutoPlugLogger logger = new AutoPlugLogger();
-    private YamlFile config = new YamlFile("autoplug-backup-config.yml");
+    public BackupConfig(){
+        AutoPlugLogger.newClassDebug("BackupConfig");
+    }
 
-    public void create(){
+    private final YamlFile config = new YamlFile("autoplug-backup-config.yml");
+
+    public void load(){
 
         // Load the YAML file if is already created or create new one otherwise
         try {
             if (!config.exists()) {
-                logger.global_info(" - autoplug-backup-config.yml not found! Creating new one...");
+                AutoPlugLogger.info(" - autoplug-backup-config.yml not found! Creating new one...");
                 config.createNewFile(true);
-                logger.global_debugger("BackupConfig", "create", "Created file at: " + config.getFilePath());
+                AutoPlugLogger.debug("create", "Created file at: " + config.getFilePath());
             }
             else {
-                logger.global_info(" - Loading autoplug-backup-config.yml...");
+                AutoPlugLogger.info(" - Loading autoplug-backup-config.yml...");
             }
             config.load(); // Loads the entire file
         } catch (Exception e) {
-            logger.global_warn(" [!] Failed to load autoplug-backup-config.yml...");
+            AutoPlugLogger.warn("Failed to load autoplug-backup-config.yml...");
             e.printStackTrace();
         }
 
@@ -53,13 +56,13 @@ public class BackupConfig {
     private void insertDefaults(){
 
         config.addDefault("autoplug-backup-config.server-files-backup.enable", false);
-        config.addDefault("autoplug-backup-config.server-files-backup.max-days", 7);
+        config.addDefault("autoplug-backup-config.server-files-backup.max-days", (int)7);
 
         config.addDefault("autoplug-backup-config.worlds-backup.enable", false);
-        config.addDefault("autoplug-backup-config.worlds-backup.max-days", 7);
+        config.addDefault("autoplug-backup-config.worlds-backup.max-days", (int)7);
 
         config.addDefault("autoplug-backup-config.plugins-backup.enable", true);
-        config.addDefault("autoplug-backup-config.plugins-backup.max-days", 7);
+        config.addDefault("autoplug-backup-config.plugins-backup.max-days", (int)7);
 
     }
 
@@ -74,6 +77,8 @@ public class BackupConfig {
     public static int backup_plugins_max_days;
 
     private void setUserOptions(){
+
+        AutoPlugLogger.debug("setUserOptions", "Applying values for autoplug-backup-config.yml");
 
         //SERVER JAR BACKUP
         backup_server = config.getBoolean("autoplug-backup-config.server-files-backup.enable");
@@ -98,9 +103,11 @@ public class BackupConfig {
     private void validateOptions() {
     }
 
+    //Shortcut for easier logging
     private void debugConfig(String config_name, String config_value){
-        logger.global_debugger("Config", "create", "Setting value "+config_name+": "+config_value+"");
+        AutoPlugLogger.debug("debugConfig", "Setting value "+config_name+": "+config_value+"");
     }
+
 
     private void save() {
 
@@ -109,10 +116,10 @@ public class BackupConfig {
             config.saveWithComments();
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Issues while saving config.yml [!]");
+            AutoPlugLogger.warn("Issues while saving config.yml");
         }
 
-        logger.global_info(" - Configuration file loaded!");
+        AutoPlugLogger.info(" - Configuration file loaded!");
 
     }
 

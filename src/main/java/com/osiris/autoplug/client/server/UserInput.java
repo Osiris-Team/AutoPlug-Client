@@ -9,10 +9,20 @@
 package com.osiris.autoplug.client.server;
 
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.utils.GD;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Scanner;
 
+import static com.osiris.autoplug.client.utils.AutoPlugLogger.error;
+import static com.osiris.autoplug.client.utils.AutoPlugLogger.info;
+
 public class UserInput {
+
+    public UserInput(){
+        AutoPlugLogger.newClassDebug("UserInput");
+    }
 
     private static Scanner scanner = new Scanner(System.in);
 
@@ -24,12 +34,18 @@ public class UserInput {
 
                     String user_input = scanner.nextLine();
                     if (ClientCommands.isCommand(user_input)){
-                        //Do nothing else if it is a client command
+                        //Do nothing else if it is a client command, just save it to log file
+                        try {
+                            Files.write(GD.LATEST_LOG.toPath(), user_input.getBytes());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            error(e.getMessage(), "Failed to update latest log file.");
+                        }
+
                     } else if (Server.isRunning()){
                         Server.submitServerCommand(user_input);
                     } else{
-                        AutoPlugLogger logger = new AutoPlugLogger();
-                        logger.global_info(" Enter .help for all available commands!");
+                        info("Enter .help for all available commands!");
                     }
 
                 }

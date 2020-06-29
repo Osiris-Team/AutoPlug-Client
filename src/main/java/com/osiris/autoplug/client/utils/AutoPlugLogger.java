@@ -8,228 +8,279 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.osiris.autoplug.client.configs.ServerConfig;
+import com.osiris.autoplug.client.server.ClientCommands;
+import org.fusesource.jansi.AnsiConsole;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@SuppressWarnings("ALL")
+import static org.fusesource.jansi.Ansi.Color.*;
+import static org.fusesource.jansi.Ansi.ansi;
+
+/* Colors Codes
+        BLACK(Color.BLACK),
+        RED(Color.RED),
+        GREEN(Color.GREEN),
+        YELLOW(Color.YELLOW),
+        BLUE(Color.BLUE),
+        MAGENTA(Color.MAGENTA),
+        CYAN(Color.CYAN),
+        WHITE(Color.WHITE),
+
+        // Attributes
+        RESET(Attribute.RESET),
+        INTENSITY_BOLD(Attribute.INTENSITY_BOLD),
+        INTENSITY_FAINT(Attribute.INTENSITY_FAINT),
+        ITALIC(Attribute.ITALIC),
+        UNDERLINE(Attribute.UNDERLINE),
+        BLINK_SLOW(Attribute.BLINK_SLOW),
+        BLINK_FAST(Attribute.BLINK_FAST),
+        BLINK_OFF(Attribute.BLINK_OFF),
+        NEGATIVE_ON(Attribute.NEGATIVE_ON),
+        NEGATIVE_OFF(Attribute.NEGATIVE_OFF),
+        CONCEAL_ON(Attribute.CONCEAL_ON),
+        CONCEAL_OFF(Attribute.CONCEAL_OFF),
+        UNDERLINE_DOUBLE(Attribute.UNDERLINE_DOUBLE),
+        UNDERLINE_OFF(Attribute.UNDERLINE_OFF),
+
+        // Aliases
+        BOLD(Attribute.INTENSITY_BOLD),
+        FAINT(Attribute.INTENSITY_FAINT),;
+         */
+
 public class AutoPlugLogger {
 
-    private static String ANSI_RESET = "\u001B[0m";
-    private static String ANSI_BLACK = "\u001B[30m";
-    private static String ANSI_RED = "\u001B[31m";
-    private static String ANSI_GREEN = "\u001B[32m";
-    private static String ANSI_YELLOW = "\u001B[33m";
-    private static String ANSI_BLUE = "\u001B[34m";
-    private static String ANSI_PURPLE = "\u001B[35m";
-    private static String ANSI_CYAN = "\u001B[36m";
-    private static String ANSI_WHITE = "\u001B[37m";
-
-    private static String ANSI_BLACK_BACKGROUND = "\u001B[40m";
-    private static String ANSI_RED_BACKGROUND = "\u001B[41m";
-    private static String ANSI_GREEN_BACKGROUND = "\u001B[42m";
-    private static String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
-    private static String ANSI_BLUE_BACKGROUND = "\u001B[44m";
-    private static String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-    private static String ANSI_CYAN_BACKGROUND = "\u001B[46m";
-    private static String ANSI_WHITE_BACKGROUND = "\u001B[47m";
-
-    private static String tag(){
-        String tag = "";
-        if (GD.WINDOWS_OS){
-            ANSI_WHITE_BACKGROUND = "";
-            ANSI_BLUE = "";
-            ANSI_RESET = "";
-        }
-        tag = ANSI_WHITE_BACKGROUND + ANSI_BLUE + "[AutoPlug-Client]" + ANSI_RESET;
-        return tag;
-    }
-    private static String info(){
-        String info = "";
-        if (GD.WINDOWS_OS){
-            ANSI_WHITE_BACKGROUND = "";
-            ANSI_CYAN = "";
-            ANSI_RESET = "";
-        }
-        info = ANSI_WHITE_BACKGROUND + ANSI_CYAN + " [INFO] " + ANSI_RESET;
-        return info;
+    public AutoPlugLogger(){
+        AutoPlugLogger.newClassDebug("AutoPlugLogger");
     }
 
-    public void class_startup (String text) {
+    /**
+     * Initialises the AutoPlugLogger.
+     */
+    public static void start(){
+        AnsiConsole.systemInstall();
+        debug("start","Started AutoPlugLogger");
 
-        if (GD.DEBUG){
-            if (GD.WINDOWS_OS){
-                ANSI_WHITE_BACKGROUND = "";
-                ANSI_BLACK = "";
-                ANSI_RESET = "";
-                ANSI_GREEN_BACKGROUND = "";
-                ANSI_WHITE = "";
+        //If old exists, delete and replace with new blank file
+        try {
+        if (GD.LATEST_LOG.exists()) {
+                GD.LATEST_LOG.delete();
+        }
+        GD.LATEST_LOG.createNewFile();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            error(e.getMessage(), "Failed to create latest_log.txt");
+        }
+
+        /*
+        //Start new Thread
+        PrintStream out = new PrintStream(
+                new FileOutputStream(GD.LATEST_LOG, true), true);
+        System.setOut(out);
+        */
+
+    }
+
+    /**
+     * Stops the AutoPlugLogger and saves the log to file.
+     */
+    public static void stop(){
+        AnsiConsole.systemUninstall();
+        debug("stop","Stopped AutoPlugLogger");
+
+        if (GD.LATEST_LOG.exists()) {
+            try {
+
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm");
+                LocalDateTime now = LocalDateTime.now();
+
+                File savedLog = new File(GD.WORKING_DIR+"/autoplug-logs/"+dtf.format(now)+".txt");
+
+                Files.copy(GD.LATEST_LOG.toPath(), savedLog.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                error(e.getMessage(), "Failed to save log file.");
             }
-        //Get actual date
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-
-        //Format date
-        String date = ANSI_WHITE_BACKGROUND + ANSI_BLACK +"["+dtf.format(now)+"]"+ ANSI_RESET;
-
-        //Format class_startup_tag
-        String class_startup_tag = ANSI_GREEN_BACKGROUND + ANSI_WHITE +"[*NEW CLASS*] "+ ANSI_RESET;
-
-        //Special text
-        String special_text = ANSI_GREEN_BACKGROUND + ANSI_BLACK +text + ANSI_RESET;
-
-        //RESULT:
-        String result = date + tag() + info() + class_startup_tag + special_text;
-
-
-        System.out.println(result);
         }
-
 
     }
 
-    public void global_info(String text) {
 
-        if (GD.WINDOWS_OS){
-            ANSI_WHITE_BACKGROUND = "";
-            ANSI_BLACK = "";
-            ANSI_RESET = "";
-        }
+    /**
+     * Formats a beautiful new class message.
+     * Use this as first line of every constructor.
+     * Helps understanding program flow.
+     */
+    public static void newClassDebug (String className) {
 
-        //Get actual date
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
+        if (ServerConfig.debug) {
 
-        //Format date
-        String date = ANSI_WHITE_BACKGROUND + ANSI_BLACK +"["+dtf.format(now)+"]"+ ANSI_RESET;
-
-        //RESULT:
-        String result = date + tag() + info() + text;
-
-        System.out.println(result);
-    }
-
-    public void global_debugger(String class_name, String method_name, String text) {
-
-        if (GD.DEBUG) {
-
-            if (GD.WINDOWS_OS){
-                ANSI_WHITE_BACKGROUND = "";
-                ANSI_BLACK = "";
-                ANSI_RESET = "";
-                ANSI_GREEN_BACKGROUND = "";
-                ANSI_WHITE = "";
-                ANSI_BLUE_BACKGROUND = "";
-                ANSI_YELLOW = "";
-                ANSI_PURPLE = "";
-            }
-
-            //Get actual date
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            //Get current date
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
 
-            //Format date
-            String date = ANSI_WHITE_BACKGROUND + ANSI_BLACK + "[" + dtf.format(now) + "]" + ANSI_RESET;
-
-            //Format debugger_tag
-            String debugger_tag = ANSI_BLUE_BACKGROUND + ANSI_YELLOW +" [DEBUG] "+ ANSI_RESET;
-
-            //Format class_tag
-            String class_tag = ANSI_BLUE_BACKGROUND + ANSI_YELLOW +" ["+class_name+"] "+ ANSI_RESET;
-
-            //Format method_tag
-            String method_tag = ANSI_BLUE_BACKGROUND + ANSI_PURPLE +" ["+method_name+"] "+ ANSI_RESET;
-
-            //RESULT:
-            String result = date + tag() + debugger_tag + class_tag + method_tag + text;
-
-            System.out.println(result);
+            //Format message
+            System.out.println( ansi().bg(WHITE)
+                    .fg(BLACK).a("["+dtf.format(now)+"]")
+                    .fg(CYAN).a("[AutoPlug-Client]")
+                    .fg(GREEN).a("[NEW]")
+                    .reset()
+                    .fg(GREEN).a("[" + className + "]")
+                    .reset()
+            );
         }
     }
 
-    public void spiget_info(String text) {
+    /**
+     * Formats standard info message.
+     * Output is at System.out.
+     */
+    public static void info(String text) {
 
-        if (GD.DEBUG){
-
-            if (GD.WINDOWS_OS){
-                ANSI_WHITE_BACKGROUND = "";
-                ANSI_BLACK = "";
-                ANSI_RESET = "";
-                ANSI_GREEN_BACKGROUND = "";
-                ANSI_WHITE = "";
-                ANSI_BLUE_BACKGROUND = "";
-                ANSI_YELLOW = "";
-                ANSI_PURPLE = "";
-            }
-
-        //Get actual date
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        //Get current date
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
-        //Format date
-        String date = ANSI_WHITE_BACKGROUND + ANSI_BLACK +"["+dtf.format(now)+"]"+ ANSI_RESET;
+        //Format message
+        System.out.println( ansi().bg(WHITE)
+                .fg(BLACK).a("["+dtf.format(now)+"]")
+                .fg(CYAN).a("[AutoPlug-Client]")
+                .fg(BLACK).a("[INFO]")
+                .reset()
+                .a(" | "+text)
+                .reset()
+                );
 
-        //Format spiget_tag
-        String spiget_tag = ANSI_YELLOW + "[Spiget] " + ANSI_RESET;
+        try {
 
-        //RESULT:
-        String result = date + tag() + info()+ spiget_tag + text;
-
-
-        System.out.println(result);
+            OutputStreamWriter writer = new OutputStreamWriter(AnsiConsole.out());
+            Files.write(GD.LATEST_LOG.toPath(), writer.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            error(e.getMessage(), "Failed to update latest log file.");
         }
 
     }
 
-    public void listener_info(String text, int port) {
+    /**
+     * Formats standard info message.
+     * Output is at System.out.
+     */
+    public static void barrier() {
 
-        if (GD.WINDOWS_OS){
-            ANSI_WHITE_BACKGROUND = "";
-            ANSI_BLACK = "";
-            ANSI_RESET = "";
-            ANSI_GREEN_BACKGROUND = "";
-            ANSI_GREEN = "";
-        }
-
-        //Get actual date
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        //Get current date
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
-        //Format date
-        String date = ANSI_WHITE_BACKGROUND + ANSI_BLACK +"["+dtf.format(now)+"]"+ ANSI_RESET;
+        //Format message
+        System.out.println( ansi().bg(WHITE)
+                .fg(BLACK).a("["+dtf.format(now)+"]")
+                .fg(CYAN).a("[AutoPlug-Client]")
+                .fg(BLACK).a("[INFO]")
+                .reset()
+                .a(" | ------------------------------------------- | ")
+                .reset()
+        );
 
-        //Format listener_tag
-        String listener_tag = ANSI_GREEN + "[Listener/"+port+"] " + ANSI_RESET;
-
-        //RESULT
-        String result = date + tag() + info()+ listener_tag + text;
-
-        System.out.println(result);
     }
 
-    public void global_warn(String text) {
+    /**
+     * Formats standard debug message.
+     * Output is at System.out.
+     */
+    public static void debug(String method, String text) {
 
-        if (GD.WINDOWS_OS){
-            ANSI_RED_BACKGROUND = "";
-            ANSI_YELLOW = "";
-            ANSI_RESET = "";
-            ANSI_RED = "";
+        if (ServerConfig.debug) {
+
+            //Get current date
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+
+            //Format message
+            System.out.println( ansi().bg(WHITE)
+                    .fg(BLACK).a("["+dtf.format(now)+"]")
+                    .fg(CYAN).a("[AutoPlug-Client]")
+                    .fg(MAGENTA).a("[DEBUG]")
+                    .reset()
+                    .fg(CYAN).a("[" + method + "]")
+                    .a(" "+text)
+                    .reset()
+            );
         }
+    }
 
-        //Get actual date
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    /**
+     * Formats standard warn message.
+     * Output is at System.out.
+     */
+    public static void warn (String text){
+
+        //Get current date
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
 
-        //Format date
-        String date = ANSI_RED_BACKGROUND + ANSI_YELLOW +"["+dtf.format(now)+"]"+ ANSI_RESET;
+        //Format message
+        System.out.println( ansi().bg(WHITE)
+                .fg(BLACK).a("["+dtf.format(now)+"]")
+                .fg(CYAN).a("[AutoPlug-Client]")
+                .fg(YELLOW).a("[WARN]")
+                .reset()
+                .fg(YELLOW).a(" "+text)
+                .reset()
+        );
+    }
 
-        //Format warn
-        String warn = ANSI_RED_BACKGROUND + ANSI_YELLOW +" [WARN] "+ ANSI_RESET;
+    /**
+     * Formats critical error message and closes program after that.
+     * This only should be used if program isn't able to continue after this error.
+     */
+    public static void error(String error, String errorMessage) {
 
-        String warn_text = ANSI_RED +text+ ANSI_RESET;
+        //Get current date
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
 
-        String result = date + tag() + warn + warn_text;
+        //Format error title
+        System.out.println( ansi().bg(RED)
+                        .fg(WHITE).a("["+dtf.format(now)+"]")
+                        .fg(WHITE).a("[AutoPlug-Client]")
+                        .fg(YELLOW).a("[ERROR][!]")
+                        .fg(YELLOW).a(" ["+error+"] [!]")
+                        .reset());
 
-        System.out.println(result);
+        //Format error message
+        System.out.println( ansi().bg(RED)
+                .fg(WHITE).a("["+dtf.format(now)+"]")
+                .fg(WHITE).a("[AutoPlug-Client]")
+                .fg(YELLOW).a("[ERROR][!]")
+                .fg(YELLOW).a(" ["+errorMessage+"] [!]")
+                .reset());
+
+        //Format shutdown notice
+        System.out.println( ansi().bg(RED)
+                .fg(WHITE).a("["+dtf.format(now)+"]")
+                .fg(WHITE).a("[AutoPlug-Client]")
+                .fg(YELLOW).a("[ERROR][!]")
+                .fg(YELLOW).a(" [AutoPlug is shutting down in 10 seconds. Log saved to /autoplug-logs.] [!]")
+                .reset());
+
+        try{
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Kills everything
+        ClientCommands.isCommand(".kill");
     }
 
 }

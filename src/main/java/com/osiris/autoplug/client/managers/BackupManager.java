@@ -28,19 +28,21 @@ import java.util.List;
 
 public class BackupManager {
 
-    private AutoPlugLogger logger = new AutoPlugLogger();
-    private File autoplug_backups_server = new File(GD.WORKING_DIR+"/autoplug-backups/server");
-    private File autoplug_backups_plugins = new File(GD.WORKING_DIR+"/autoplug-backups/plugins");
-    private File autoplug_backups_worlds = new File(GD.WORKING_DIR+"/autoplug-backups/worlds");
+    private final File autoplug_backups_server = new File(GD.WORKING_DIR+"/autoplug-backups/server");
+    private final File autoplug_backups_plugins = new File(GD.WORKING_DIR+"/autoplug-backups/plugins");
+    private final File autoplug_backups_worlds = new File(GD.WORKING_DIR+"/autoplug-backups/worlds");
 
     public BackupManager(){
-        logger.global_info("|----------------------------------------|");
-        logger.global_info("|                [BACKUP]                |");
+        AutoPlugLogger.newClassDebug("BackupManager");
+
+        AutoPlugLogger.info("BACKUP MANAGER |");
+        AutoPlugLogger.barrier();
+
         createBackupServerFiles();
         createBackupPlugins();
         createBackupWorldFolders();
-        logger.global_info(" ");
-        logger.global_info("|----------------------------------------|");
+
+        AutoPlugLogger.barrier();
     }
 
     public void createBackupServerFiles(){
@@ -53,10 +55,11 @@ public class BackupManager {
         int max_days_server = BackupConfig.backup_server_max_days;
 
         //Removes files older than user defined days
-        logger.global_info(" ");
-        if (max_days_server<=0) {logger.global_info(" - Skipping delete of older server backups...");}
+        AutoPlugLogger.info(" ");
+        if (max_days_server<=0) {
+            AutoPlugLogger.info(" - Skipping delete of older server backups...");}
         else{
-            logger.global_info(" - Scanning for server-files backups older than "+max_days_server+" days...");
+            AutoPlugLogger.info(" - Scanning for server-files backups older than "+max_days_server+" days...");
 
             Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_server); //minus days from current date
             Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_server, new AgeFileFilter(oldestAllowedFileDate), null);
@@ -66,12 +69,12 @@ public class BackupManager {
                 deleted_files++;
                 FileUtils.deleteQuietly(filesToDelete.next());
             }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
-            logger.global_info(" - Removed " +deleted_files+ " zips.");
+            AutoPlugLogger.info(" - Removed " +deleted_files+ " zips.");
         }
 
 
         if (BackupConfig.backup_server) {
-            logger.global_info(" - Creating server-files backup...");
+            AutoPlugLogger.info(" - Creating server-files backup...");
 
             List<File> serverFiles = new FileManager().serverFiles();
             ZipFile zip = new ZipFile(server_backup_dest);
@@ -92,9 +95,9 @@ public class BackupManager {
             }
 
 
-            logger.global_info(" - Created server-files backup at:" + server_backup_dest);
+            AutoPlugLogger.info(" - Created server-files backup at:" + server_backup_dest);
         } else{
-            logger.global_info(" - Skipping server-files backup...");
+            AutoPlugLogger.info(" - Skipping server-files backup...");
         }
 
     }
@@ -109,10 +112,11 @@ public class BackupManager {
         int max_days_plugins = BackupConfig.backup_plugins_max_days;
 
         //Removes files older than user defined days
-        logger.global_info(" ");
-        if (max_days_plugins<=0) {logger.global_info(" - Skipping delete of older plugin backups...");}
+        AutoPlugLogger.info(" ");
+        if (max_days_plugins<=0) {
+            AutoPlugLogger.info(" - Skipping delete of older plugin backups...");}
         else{
-            logger.global_info(" - Scanning for plugins backups older than "+max_days_plugins+" days...");
+            AutoPlugLogger.info(" - Scanning for plugins backups older than "+max_days_plugins+" days...");
 
             Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_plugins); //minus days from current date
             Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_plugins, new AgeFileFilter(oldestAllowedFileDate), null);
@@ -122,12 +126,12 @@ public class BackupManager {
                 deleted_files++;
                 FileUtils.deleteQuietly(filesToDelete.next());
             }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
-            logger.global_info(" - Removed " +deleted_files+ " zips.");
+            AutoPlugLogger.info(" - Removed " +deleted_files+ " zips.");
         }
 
 
         if (BackupConfig.backup_plugins){
-            logger.global_info(" - Creating plugins backup...");
+            AutoPlugLogger.info(" - Creating plugins backup...");
 
             try (ProgressBar pb = new ProgressBarBuilder()
                     .setInitialMax(1)
@@ -141,9 +145,9 @@ public class BackupManager {
                 e.printStackTrace();
             }
 
-            logger.global_info(" - Created plugins backup at:" + plugins_backup_dest);
+            AutoPlugLogger.info(" - Created plugins backup at:" + plugins_backup_dest);
         } else{
-            logger.global_info(" - Skipping plugins backup...");
+            AutoPlugLogger.info(" - Skipping plugins backup...");
         }
 
     }
@@ -158,10 +162,11 @@ public class BackupManager {
         int max_days_worlds = BackupConfig.backup_worlds_max_days;
 
         //Removes files older than user defined days
-        logger.global_info(" ");
-        if (max_days_worlds<=0) {logger.global_info(" - Skipping delete of older worlds backups...");}
+        AutoPlugLogger.info(" ");
+        if (max_days_worlds<=0) {
+            AutoPlugLogger.info(" - Skipping delete of older worlds backups...");}
         else{
-            logger.global_info(" - Scanning for worlds backups older than "+max_days_worlds+" days...");
+            AutoPlugLogger.info(" - Scanning for worlds backups older than "+max_days_worlds+" days...");
 
             Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_worlds); //minus days from current date
             Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_worlds, new AgeFileFilter(oldestAllowedFileDate), null);
@@ -171,12 +176,12 @@ public class BackupManager {
                 deleted_files++;
                 FileUtils.deleteQuietly(filesToDelete.next());
             }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
-            logger.global_info(" - Removed " +deleted_files+ " zips.");
+            AutoPlugLogger.info(" - Removed " +deleted_files+ " zips.");
         }
 
 
         if (BackupConfig.backup_worlds) {
-            logger.global_info(" - Creating worlds backup...");
+            AutoPlugLogger.info(" - Creating worlds backup...");
 
             List<File> worldsFiles = new FileManager().serverWorldsFolders();
             ZipFile zip = new ZipFile(worlds_backup_dest);
@@ -194,9 +199,9 @@ public class BackupManager {
                 e.printStackTrace();
             }
 
-            logger.global_info(" - Created worlds backup at:" + worlds_backup_dest);
+            AutoPlugLogger.info(" - Created worlds backup at:" + worlds_backup_dest);
         } else{
-            logger.global_info(" - Skipping worlds backup...");
+            AutoPlugLogger.info(" - Skipping worlds backup...");
         }
 
     }

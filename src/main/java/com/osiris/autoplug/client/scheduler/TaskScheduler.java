@@ -25,13 +25,20 @@ import static org.quartz.TriggerBuilder.newTrigger;
  */
 public class TaskScheduler {
 
+    public TaskScheduler(){
+        AutoPlugLogger.newClassDebug("TaskScheduler");
+    }
+
     private static Scheduler scheduler;
-    private AutoPlugLogger logger = new AutoPlugLogger();
 
     //Is created in config if enabled
     public void createScheduler(){
 
-        logger.global_info(" - Initialising scheduler...");
+
+        AutoPlugLogger.info("DAILY RESTARTER |");
+        AutoPlugLogger.barrier();
+
+        AutoPlugLogger.info("Initialising scheduler...");
 
         try {
             // Grab the Scheduler instance from the Factory
@@ -57,11 +64,13 @@ public class TaskScheduler {
 
             //Start it
             scheduler.start();
-            logger.global_info(" - Scheduler started!");
+            AutoPlugLogger.info("Scheduler initialised successfully!");
 
         } catch (SchedulerException se) {
             se.printStackTrace();
         }
+
+        AutoPlugLogger.barrier();
 
     }
 
@@ -69,7 +78,7 @@ public class TaskScheduler {
     private void createJob(String jobName, String triggerName, String min, String h){
 
         try {
-            logger.global_debugger("TaskScheduler", "createJob", "Creating job with name: "+jobName+" trigger:" + triggerName+" min:" + min+" hour:" + h);
+            AutoPlugLogger.debug("createJob", "Creating job with name: "+jobName+" trigger:" + triggerName+" min:" + min+" hour:" + h);
 
             //Specify scheduler details
             JobDetail job = newJob(RestartTask.class)
@@ -83,7 +92,7 @@ public class TaskScheduler {
 
             //Add details to the scheduler
             scheduler.scheduleJob(job, trigger);
-            logger.global_info(" - Created daily restart at "+h+":"+min);
+            AutoPlugLogger.info("Created daily restart at "+h+":"+min);
 
         } catch (SchedulerException e) {
             e.printStackTrace();

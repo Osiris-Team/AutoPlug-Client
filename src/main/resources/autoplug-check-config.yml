@@ -21,8 +21,8 @@ autoplug-check-config:
     #Currently supported server software: PAPER (https://papermc.io/)
     software: PAPER
 
-    #Currently supported server versions (always latest): 1.15.x, 1.14.x, 1.13.x, 1.12.x, 1.8.x
-    version: 1.15.x
+    #Currently supported server versions (always latest): 1.16.x, 1.15.x, 1.14.x, 1.13.x, 1.12.x, 1.8.x
+    version: 1.16.x
 
   #######################################################################################################################
   # PLUGINS CHECK
@@ -49,6 +49,3 @@ autoplug-check-config:
     # - Updates-download [YES]
     # - Delete-old [YES]
     # - server-restart [YES]
-
-  #Toggles debug mode
-  debug: false

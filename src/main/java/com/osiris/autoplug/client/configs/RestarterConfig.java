@@ -19,24 +19,27 @@ import java.util.List;
 
 public class RestarterConfig {
 
-    private AutoPlugLogger logger = new AutoPlugLogger();
-    private YamlFile config = new YamlFile("autoplug-restarter-config.yml");
+    public RestarterConfig(){
+        AutoPlugLogger.newClassDebug("RestarterConfig");
+    }
 
-    public void create(){
+    private final YamlFile config = new YamlFile("autoplug-restarter-config.yml");
+
+    public void load(){
 
         // Load the YAML file if is already created or create new one otherwise
         try {
             if (!config.exists()) {
-                logger.global_info(" - autoplug-restarter-config.yml not found! Creating new one...");
+                AutoPlugLogger.info(" - autoplug-restarter-config.yml not found! Creating new one...");
                 config.createNewFile(true);
-                logger.global_debugger("RestarterConfig", "create", "Created file at: " + config.getFilePath());
+                AutoPlugLogger.debug("create", "Created file at: " + config.getFilePath());
             }
             else {
-                logger.global_info(" - Loading autoplug-restarter-config.yml...");
+                AutoPlugLogger.info(" - Loading autoplug-restarter-config.yml...");
             }
             config.load(); // Loads the entire file
         } catch (Exception e) {
-            logger.global_warn(" [!] Failed to load autoplug-restarter-config.yml...");
+            AutoPlugLogger.warn("Failed to load autoplug-restarter-config.yml...");
             e.printStackTrace();
         }
 
@@ -73,6 +76,8 @@ public class RestarterConfig {
 
     private void setUserOptions(){
 
+        AutoPlugLogger.debug("setUserOptions", "Applying values for autoplug-restarter-config.yml");
+
         //DAILY RESTARTER
         restarter_enabled = config.getBoolean("autoplug-restarter-config.daily-restarter.enable");
         debugConfig("restarter_enabled", String.valueOf(restarter_enabled));
@@ -95,22 +100,22 @@ public class RestarterConfig {
                 //Splits up time. ex.: 22:10 into 22 and 10
                 String[] raw_times = restarter_times_raw.get(i).split(":");
 
-                logger.global_debugger("Config", "validateTimes", Arrays.toString(raw_times));
+                AutoPlugLogger.debug("validateTimes", Arrays.toString(raw_times));
 
                 //Validate:
                 //Hours must be between: 0-23
                 int hour = Integer.parseInt(raw_times[0]);
                 if (hour>23 || hour<0){
-                    logger.global_warn(" [!] Config error at daily-restarter.times -> " + hour +"h is not between 0h and 23h! Applying default: 0");
+                    AutoPlugLogger.warn("Config error at daily-restarter.times -> " + hour +"h is not between 0h and 23h! Applying default: 0");
                     raw_times[0] = "0";
-                };
+                }
 
                 //Minutes must be between: 0-59
                 int minute = Integer.parseInt(raw_times[1]);
                 if (minute>59 || minute<0){
-                    logger.global_warn(" [!] Config error at daily-restarter.times -> " + minute +"min is not between 0min and 59min! Applying default: 0");
+                    AutoPlugLogger.warn("Config error at daily-restarter.times -> " + minute +"min is not between 0min and 59min! Applying default: 0");
                     raw_times[1] = "0";
-                };
+                }
 
                 //Separate the validated values into two lists
                 restarter_times_hours.add(Integer.parseInt(raw_times[0]));
@@ -128,7 +133,7 @@ public class RestarterConfig {
     }
 
     private void debugConfig(String config_name, String config_value){
-        logger.global_debugger("Config", "create", "Setting value "+config_name+": "+config_value+"");
+        AutoPlugLogger.debug("debugConfig", "Setting value "+config_name+": "+config_value+"");
     }
 
     private void save() {
@@ -138,10 +143,10 @@ public class RestarterConfig {
             config.saveWithComments();
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Issues while saving config.yml [!]");
+            AutoPlugLogger.warn("Issues while saving config.yml");
         }
 
-        logger.global_info(" - Configuration file loaded!");
+        AutoPlugLogger.info(" - Configuration file loaded!");
 
     }
 

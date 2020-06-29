@@ -23,10 +23,12 @@ import java.util.List;
  */
 public class FileManager {
 
-    AutoPlugLogger logger = new AutoPlugLogger();
+    public FileManager(){
+        AutoPlugLogger.newClassDebug("FileManager");
+    }
 
     private File queryFile = null;
-    private List<File> queryFiles = new ArrayList<>();
+    private final List<File> queryFiles = new ArrayList<>();
 
     public void deleteOldPlugin(String pl_name) {
 
@@ -35,7 +37,7 @@ public class FileManager {
         findFileInPluginsDir(searchPattern);
         //Delete the file
         if ( !queryFile.delete() ) {
-            logger.global_warn(" [!] Couldn't remove old plugin jar at: " + queryFile.toPath() + " [!] ");
+            AutoPlugLogger.warn(" [!] Couldn't remove old plugin jar at: " + queryFile.toPath() + " [!] ");
         }
 
     }
@@ -99,7 +101,7 @@ public class FileManager {
                     //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
                     if (pathMatcher.matches(path.getFileName()) && !path.getFileName().toString().equals("AutoPlug.jar")) {
 
-                        logger.global_debugger("FileManager","findFileInWorkingDir","Found server jar at: "  + path.toString());
+                        AutoPlugLogger.debug("findJarFileInWorkingDir","Found server jar at: "  + path.toString());
                         queryFile = new File(path.toString());
                         return FileVisitResult.TERMINATE;
                     }
@@ -130,7 +132,7 @@ public class FileManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AutoPlugLogger.warn(" [!] Error: "+ e.getMessage() + " [!]");
         }
 
     }
@@ -150,7 +152,7 @@ public class FileManager {
                     //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
                     if (pathMatcher.matches(path.getFileName()) && !path.getFileName().toString().equals("AutoPlug.jar")) {
 
-                        logger.global_debugger("FileManager","findFilesInWorkingDir","Found file at: "  + path.toString());
+                        AutoPlugLogger.debug("findFilesInWorkingDir","Found file at: "  + path.toString());
                         //Adds files to list to return multiple files
                         queryFiles.add(new File(path.toString()));
                         return FileVisitResult.CONTINUE;
@@ -182,7 +184,7 @@ public class FileManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AutoPlugLogger.warn(" [!] Error: "+ e.getMessage() + " [!]");
         }
 
     }
@@ -231,7 +233,7 @@ public class FileManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AutoPlugLogger.warn(" [!] Error: "+ e.getMessage() + " [!]");
         }
 
     }
@@ -250,7 +252,7 @@ public class FileManager {
 
                     if (pathMatcher.matches(path.getFileName())) {
 
-                        logger.global_debugger("FileManager","findFilesInPluginsDir","Found plugin jar at: " + path.toString());
+                        AutoPlugLogger.debug("findFileInPluginsDir","Found plugin jar at: " + path.toString());
                         queryFile = new File(path.toString());
                         return FileVisitResult.TERMINATE;
                     }
@@ -281,7 +283,7 @@ public class FileManager {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AutoPlugLogger.warn(" [!] Error: "+ e.getMessage() + " [!]");
         }
 
     }

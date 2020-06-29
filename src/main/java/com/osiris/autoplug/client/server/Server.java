@@ -21,7 +21,9 @@ import java.util.List;
 
 public final class Server {
 
-    private static AutoPlugLogger logger = new AutoPlugLogger();
+    public Server(){
+        AutoPlugLogger.newClassDebug("Server");
+    }
 
     private static Process process;
 
@@ -32,24 +34,24 @@ public final class Server {
 
         try {
             if (isRunning()) {
-                logger.global_warn(" Server already running!");
+                AutoPlugLogger.warn(" Server already running!");
             } else{
                 //Before starting make backups and check for updates
                 new BackupManager();
                 new ServerUpdater();
 
-                logger.global_info(" Found server jar at: "+ GD.SERVER_PATH.toPath().toString() );
+                AutoPlugLogger.info(" Found server jar at: "+ GD.SERVER_PATH.toPath().toString() );
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 5");
+                AutoPlugLogger.info(" Starting server in 5");
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 4");
+                AutoPlugLogger.info(" Starting server in 4");
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 3");
+                AutoPlugLogger.info(" Starting server in 3");
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 2");
+                AutoPlugLogger.info(" Starting server in 2");
                 Thread.sleep(1000);
-                logger.global_info(" Starting server in 1");
-                logger.global_info(" Note: AutoPlug has its own console commands. For details enter .help or .h");
+                AutoPlugLogger.info(" Starting server in 1");
+                AutoPlugLogger.info(" Note: AutoPlug has its own console commands. For details enter .help or .h");
                 Thread.sleep(1000);
                 createProcess(GD.SERVER_PATH.toPath().toString());
                 createConsole();
@@ -59,16 +61,16 @@ public final class Server {
         }
         catch (NullPointerException | IOException | InterruptedException ex){
             ex.printStackTrace();
-            logger.global_warn("[!] Could'nt find your server jar [!]");
-            logger.global_warn("[!] Searched dir: "+GD.WORKING_DIR+" [!]");
-            logger.global_warn("[!] Please check your config file [!]");
-            logger.global_warn("[!] You may need to specify the jars name [!]");
+            AutoPlugLogger.warn("[!] Could'nt find your server jar [!]");
+            AutoPlugLogger.warn("[!] Searched dir: "+GD.WORKING_DIR+" [!]");
+            AutoPlugLogger.warn("[!] Please check your config file [!]");
+            AutoPlugLogger.warn("[!] You may need to specify the jars name [!]");
         }
     }
 
     public static void restart(){
         //Before starting make backups and check for updates
-        logger.global_info(" Restarting server...");
+        AutoPlugLogger.info(" Restarting server...");
         try {
             stop();
             start();
@@ -78,7 +80,7 @@ public final class Server {
 
     public static void stop(){
 
-        logger.global_info(" Stopping server...");
+        AutoPlugLogger.info(" Stopping server...");
         try {
             String stop_command = "stop\n"; //WARNING: Without the \n user input isn't registered by the server console
 
@@ -86,22 +88,22 @@ public final class Server {
                 os = process.getOutputStream();
                 os.write(stop_command.getBytes());
                 os.flush();
-                logger.global_info(" Stop command executed!");
+                AutoPlugLogger.info(" Stop command executed!");
             } else{
-                logger.global_warn(" Server is not running!");
+                AutoPlugLogger.warn(" Server is not running!");
             }
 
             while(isRunning()){
                 Thread.sleep(1000);
             }
-            logger.global_info(" Server was stopped!");
-            logger.global_info(" To close AutoPlug(this console) enter .close or .kill");
-            logger.global_info(" For all commands enter .help");
+            AutoPlugLogger.info(" Server was stopped!");
+            AutoPlugLogger.info(" To close AutoPlug(this console) enter .close or .kill");
+            AutoPlugLogger.info(" For all commands enter .help");
 
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error stopping server: "+e.getMessage()+" [!]");
+            AutoPlugLogger.warn(" [!] Error stopping server: "+e.getMessage()+" [!]");
         }
 
 
@@ -110,24 +112,24 @@ public final class Server {
 
     public static boolean kill(){
 
-        logger.global_info(" Killing server!");
+        AutoPlugLogger.info(" Killing server!");
         try {
 
             if (isRunning()) {
                 process.destroy();
             } else{
-                logger.global_warn(" Server is not running!");
+                AutoPlugLogger.warn(" Server is not running!");
             }
 
             while(isRunning()){
                 Thread.sleep(1000);
             }
-            logger.global_info(" Server killed!");
+            AutoPlugLogger.info(" Server killed!");
             return true;
 
         } catch (InterruptedException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Error killing server: "+e.getMessage()+" [!]");
+            AutoPlugLogger.warn(" [!] Error killing server: "+e.getMessage()+" [!]");
             return false;
 
         }

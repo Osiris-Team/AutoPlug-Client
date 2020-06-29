@@ -21,24 +21,27 @@ import java.util.logging.Logger;
 
 public class ServerConfig {
 
-    private AutoPlugLogger logger = new AutoPlugLogger();
-    private YamlFile config = new YamlFile("autoplug-server-config.yml");
+    public ServerConfig(){
+        AutoPlugLogger.newClassDebug("ServerConfig");
+    }
 
-    public void create(){
+    private final YamlFile config = new YamlFile("autoplug-server-config.yml");
+
+    public void load(){
 
         // Load the YAML file if is already created or create new one otherwise
         try {
             if (!config.exists()) {
-                logger.global_info(" - autoplug-server-config.yml not found! Creating new one...");
+                AutoPlugLogger.info(" - autoplug-server-config.yml not found! Creating new one...");
                 config.createNewFile(true);
-                logger.global_debugger("ServerConfig", "create", "Created file at: " + config.getFilePath());
+                AutoPlugLogger.debug("create", "Created file at: " + config.getFilePath());
             }
             else {
-                logger.global_info(" - Loading autoplug-server-config.yml...");
+                AutoPlugLogger.info(" - Loading autoplug-server-config.yml...");
             }
             config.load(); // Loads the entire file
         } catch (Exception e) {
-            logger.global_warn(" [!] Failed to load autoplug-server-config.yml...");
+            AutoPlugLogger.warn(" [!] Failed to load autoplug-server-config.yml...");
             e.printStackTrace();
         }
 
@@ -78,6 +81,10 @@ public class ServerConfig {
 
     private void setUserOptions(){
 
+        debug = config.getBoolean("autoplug-server-config.debug");
+        debugConfig("debug", String.valueOf(debug));
+        AutoPlugLogger.debug("setUserOptions", "Applying values for autoplug-server-config.yml");
+
         //SERVER
         server_key = config.getString("autoplug-server-config.server.key");
         debugConfig("server_key","##########");
@@ -86,8 +93,7 @@ public class ServerConfig {
         debugConfig("server_jar",server_jar);
         server_flags = config.getStringList("autoplug-server-config.server.flags");
         debugConfig("server_flags", String.valueOf(server_flags));
-        debug = config.getBoolean("autoplug-server-config.debug");
-        debugConfig("debug", String.valueOf(debug));
+
 
     }
 
@@ -95,21 +101,18 @@ public class ServerConfig {
     }
 
     private void debugConfig(String config_name, String config_value){
-        logger.global_debugger("Config", "create", "Setting value "+config_name+": "+config_value+"");
+        AutoPlugLogger.debug("debugConfig", "Setting value "+config_name+": "+config_value+"");
     }
 
     private void extraDebugOptions(){
 
-        //Set logger
-        GD.DEBUG = config.getBoolean("autoplug-server-config.debug");
-
         //Enable debug mode for libs
         Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
-        if (this.debug) {
-            logger.global_info(" - DEBUG mode enabled!");
+        if (debug) {
+            AutoPlugLogger.debug("extraDebugOptions", "Enabled HtmlUnit logger!");
             Logger.getLogger("com.gargoylesoftware").setLevel(Level.ALL);
         }
-        logger.global_debugger("Settings", "create", "Copy default values: " + config.options().copyDefaults());
+
     }
 
     //Set the path in GD so its easier to access
@@ -129,10 +132,10 @@ public class ServerConfig {
             config.saveWithComments();
         } catch (IOException e) {
             e.printStackTrace();
-            logger.global_warn(" [!] Issues while saving config.yml [!]");
+            AutoPlugLogger.warn(" [!] Issues while saving config.yml [!]");
         }
 
-        logger.global_info(" - Configuration file loaded!");
+        AutoPlugLogger.info(" - Configuration file loaded!");
 
     }
 

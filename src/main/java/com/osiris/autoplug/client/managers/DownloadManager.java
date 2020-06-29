@@ -23,36 +23,41 @@ import java.net.MalformedURLException;
 
 public class DownloadManager {
 
-    private AutoPlugLogger logger = new AutoPlugLogger();
+    public DownloadManager(){
+        AutoPlugLogger.newClassDebug("DownloadManager");
+    }
 
 
-    public boolean downloadJar(String download_url, File cache_path, String latest_version) {
-
+    public boolean downloadJar(String download_url, File download_path) {
 
         WebClient client = new WebClient(BrowserVersion.CHROME);
 
-        client.getOptions().setCssEnabled(false);
+        client.getOptions().setCssEnabled(false); //false
         client.getOptions().setJavaScriptEnabled(true);
         client.getOptions().setThrowExceptionOnFailingStatusCode(false);
         client.getOptions().setRedirectEnabled(true);
-        client.getCache().setMaxSize(0);
-        client.waitForBackgroundJavaScript(10000);
-        client.setJavaScriptTimeout(10000);
-        client.waitForBackgroundJavaScriptStartingBefore(10000);
+        client.getCache().setMaxSize(1);
+        client.setJavaScriptTimeout(0); //10000
 
         //Prevents the whole html being printed to the console (We always get code 503 when dealing with cloudflare)
         client.getOptions().setPrintContentOnFailingStatusCode(false);
+
         //This will always happen if its another website we get as result
         client.getOptions().setThrowExceptionOnScriptError(false);
-
+        client.getOptions().setDoNotTrackEnabled(true);
 
         try {
 
             HtmlPage page = client.getPage(download_url);
 
+            client.waitForBackgroundJavaScriptStartingBefore(5000); //10000
+            client.waitForBackgroundJavaScript(5000); //10000
+
             synchronized (page) {
                 page.wait(7000);
             }
+
+
 
             //Get response
             WebResponse response = client.getPage(download_url).getWebResponse();
@@ -60,9 +65,12 @@ public class DownloadManager {
             int response_status = response.getStatusCode();
 
             if (response_status != 200) {
-                logger.global_warn(" [!] Spigot-Error: " + response_status + " [!]");
-                logger.global_warn(" [!] Could be a premium resource... Check it for yourself: " + download_url + " [!]");
-                logger.global_warn(" [!] Skipping plugin [!]");
+                AutoPlugLogger.warn(" [!] Spigot-Error: " + response_status + " [!]");
+                AutoPlugLogger.warn(" [!] Could be a premium resource... Check it for yourself: " + download_url + " [!]");
+                AutoPlugLogger.warn(" [!] Skipping plugin [!]");
+
+
+                client.close();
                 return false;
             } else {
 
@@ -70,70 +78,83 @@ public class DownloadManager {
 
                     //Check if response is application(application/octet-stream) or html(text/html)
                     if (content_type.equals("text/html")){
-                        logger.global_warn(" [!] The download link forwards to another website [!]");
-                        logger.global_warn(" [!] Nothing will be downloaded [!]");
-                        logger.global_warn(" [!] In most cases its an external repository like github [!]");
-                        logger.global_warn(" [!] Notify the dev, that he should add a direct-download link [!]");
-                        logger.global_warn(" [!] Check it for yourself: " + download_url + " [!]");
+                        AutoPlugLogger.warn(" [!] The download link forwards to another website [!]");
+                        AutoPlugLogger.warn(" [!] Nothing will be downloaded [!]");
+                        AutoPlugLogger.warn(" [!] In most cases its an external repository like github [!]");
+                        AutoPlugLogger.warn(" [!] Notify the dev, that he should add a direct-download link [!]");
+                        AutoPlugLogger.warn(" [!] Check it for yourself: " + download_url + " [!]");
 
+                        client.close();
                         return false;
                     }
                     //This is 100% a jar file
                     else if (content_type.equals("application/octet-stream")) {
 
                         InputStream in = response.getContentAsStream();
-                        try (FileOutputStream fileOutputStream = new FileOutputStream(cache_path)) {
-                            byte dataBuffer[] = new byte[1024];
+                        try (FileOutputStream fileOutputStream = new FileOutputStream(download_path)) {
+                            byte[] dataBuffer = new byte[1024];
                             int bytesRead;
                             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
                                 fileOutputStream.write(dataBuffer, 0, bytesRead);
                             }
                         }catch (IOException e){e.printStackTrace();}
 
+                        client.close();
                         return true;
                     }
                     else {
-                        logger.global_warn(" [!] Couldn't determine response type [!]");
-                        logger.global_warn(" [!] But its not a jar file [!]");
-                        logger.global_warn(" [!] Notify the dev [!]");
-                        logger.global_warn(" [!] Check it for yourself: " + download_url + " [!]");
+                        AutoPlugLogger.warn(" [!] Couldn't determine response type [!]");
+                        AutoPlugLogger.warn(" [!] But its not a jar file [!]");
+                        AutoPlugLogger.warn(" [!] Notify the dev [!]");
+                        AutoPlugLogger.warn(" [!] Check it for yourself: " + download_url + " [!]");
 
+                        client.close();
                         return false;
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    logger.global_warn(" [!] Download-Error: "+e.getMessage());
-                    logger.global_warn(" [!] Please go and download the file yourself [!] ");
-                    logger.global_warn(" [!] Link: " + download_url + " [!]");
+                    AutoPlugLogger.warn(" [!] Download-Error: "+e.getMessage());
+                    AutoPlugLogger.warn(" [!] Please go and download the file yourself [!] ");
+                    AutoPlugLogger.warn(" [!] Link: " + download_url + " [!]");
+
+                    client.close();
                     return false;
                 }
 
             }
 
         } catch (FailingHttpStatusCodeException e) {
-            logger.global_warn(" [!] Download-link error: FailingHttpStatusCodeException");
-            logger.global_warn(" [!] Please go and download the file yourself [!] ");
-            logger.global_warn(" [!] Link: " + download_url + " [!]");
+            AutoPlugLogger.warn(" [!] Download-link error: FailingHttpStatusCodeException");
+            AutoPlugLogger.warn(" [!] Please go and download the file yourself [!] ");
+            AutoPlugLogger.warn(" [!] Link: " + download_url + " [!]");
             e.printStackTrace();
+
+            client.close();
             return false;
         } catch (MalformedURLException e) {
-            logger.global_warn(" [!] Download-link error: MalformedURLException [!]");
-            logger.global_warn(" [!] Currently this is unsupported, please go and download the file yourself [!] ");
-            logger.global_warn(" [!] Link: " + download_url + " [!]");
+            AutoPlugLogger.warn(" [!] Download-link error: MalformedURLException [!]");
+            AutoPlugLogger.warn(" [!] Currently this is unsupported, please go and download the file yourself [!] ");
+            AutoPlugLogger.warn(" [!] Link: " + download_url + " [!]");
             e.printStackTrace();
+
+            client.close();
             return false;
         } catch (IOException e) {
-            logger.global_warn(" [!] Download-link error: IOException [!]");
-            logger.global_warn(" [!] Please go and download the file yourself [!] ");
-            logger.global_warn(" [!] Link: " + download_url + " [!]");
+            AutoPlugLogger.warn(" [!] Download-link error: IOException [!]");
+            AutoPlugLogger.warn(" [!] Please go and download the file yourself [!] ");
+            AutoPlugLogger.warn(" [!] Link: " + download_url + " [!]");
             e.printStackTrace();
+
+            client.close();
             return false;
         } catch (InterruptedException e) {
-            logger.global_warn(" [!] Download-link error: InterruptedException [!]");
-            logger.global_warn(" [!] Please go and download the file yourself [!] ");
-            logger.global_warn(" [!] Link: " + download_url + " [!]");
+            AutoPlugLogger.warn(" [!] Download-link error: InterruptedException [!]");
+            AutoPlugLogger.warn(" [!] Please go and download the file yourself [!] ");
+            AutoPlugLogger.warn(" [!] Link: " + download_url + " [!]");
             e.printStackTrace();
+
+            client.close();
             return false;
         }
     }

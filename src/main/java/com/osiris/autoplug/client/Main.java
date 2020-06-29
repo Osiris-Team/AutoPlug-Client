@@ -13,7 +13,8 @@ import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.CheckConfig;
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.client.configs.ServerConfig;
-import com.osiris.autoplug.client.online.Communication;
+import com.osiris.autoplug.client.network.local.LocalListener;
+import com.osiris.autoplug.client.server.Server;
 import com.osiris.autoplug.client.server.UserInput;
 import com.osiris.autoplug.client.utils.AutoPlugLogger;
 import com.osiris.autoplug.client.utils.GD;
@@ -23,81 +24,89 @@ import java.io.File;
 public class Main {
 
 
+    public Main(){
+        AutoPlugLogger.newClassDebug("Main");
+    }
+
     public static void main(String[]args){
 
-        System.out.println("Initialising " + GD.VERSION);
+        System.out.println("Initialising "+GD.VERSION);
 
-        try{
-            System.out.println("Current working directory: " + GD.WORKING_DIR);
-            if (System.getProperty("sun.desktop").equals("windows")){
-                System.out.println("Detected windows os, disabling colors :/");
-                GD.WINDOWS_OS = true;
-            }
-        } catch (NullPointerException e) {
-            if (System.getProperty("os.name").equals("windows")){
-                System.out.println("Detected windows os, disabling colors :/");
-                GD.WINDOWS_OS = true;
-            }
-        }
-
-        AutoPlugLogger logger = new AutoPlugLogger();
-
-        logger.global_info("|----------------------------------------|");
-        logger.global_info("     ___       __       ___  __             ");
-        logger.global_info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
-        logger.global_info("   / __ / // / __/ _ \\/ ___/ / // / _ `/   ");
-        logger.global_info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
-        logger.global_info("                                 /___/    ");
-        logger.global_info("|----------------------------------------|");
-        logger.global_info("           "+ GD.VERSION+"                ");
-        logger.global_info("      Copyright (c) 2020 Osiris Team      ");
-        logger.global_info("         "+ GD.OFFICIAL_WEBSITE+"         ");
-        logger.global_info("|----------------------------------------|");
-        logger.global_info(" - Checking directories...");
-
+        //Check if all directories are there
         File autoplug_cache = new File(GD.WORKING_DIR+"/autoplug-cache");
         File autoplug_backups = new File(GD.WORKING_DIR+"/autoplug-backups");
+        File autoplug_logs = new File(GD.WORKING_DIR+"/autoplug-logs");
         File autoplug_backups_server = new File(GD.WORKING_DIR+"/autoplug-backups/server");
         File autoplug_backups_plugins = new File(GD.WORKING_DIR+"/autoplug-backups/plugins");
         File autoplug_backups_worlds = new File(GD.WORKING_DIR+"/autoplug-backups/worlds");
 
         if (!autoplug_cache.exists()) {
-            logger.global_info(" - Generating: " + autoplug_cache);
+            System.out.println(" - Generating: " + autoplug_cache);
             autoplug_cache.mkdirs();}
         if (!autoplug_backups.exists()) {
-            logger.global_info(" - Generating: " + autoplug_backups);
+            System.out.println(" - Generating: " + autoplug_backups);
             autoplug_backups.mkdirs();}
+        if (!autoplug_logs.exists()) {
+            System.out.println(" - Generating: " + autoplug_logs);
+            autoplug_logs.mkdirs();}
         if (!autoplug_backups_server.exists()) {
-            logger.global_info(" - Generating: " + autoplug_backups_server);
+            System.out.println(" - Generating: " + autoplug_backups_server);
             autoplug_backups_server.mkdirs();}
         if (!autoplug_backups_plugins.exists()) {
-            logger.global_info(" - Generating: " + autoplug_backups_plugins);
+            System.out.println(" - Generating: " + autoplug_backups_plugins);
             autoplug_backups_plugins.mkdirs();}
         if (!autoplug_backups_worlds.exists()) {
-            logger.global_info(" - Generating: " + autoplug_backups_worlds);
+            System.out.println(" - Generating: " + autoplug_backups_worlds);
             autoplug_backups_worlds.mkdirs();}
-        logger.global_info(" - All directories ok!");
+        System.out.println("All directories ok!");
 
+        //Initialises the logger
+        AutoPlugLogger.start();
+
+        AutoPlugLogger.barrier();
+        AutoPlugLogger.info("     ___       __       ___  __             ");
+        AutoPlugLogger.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
+        AutoPlugLogger.info("   / __ / // / __/ _ \\/ ___/ / // / _ `/   ");
+        AutoPlugLogger.info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
+        AutoPlugLogger.info("                                 /___/    ");
+        AutoPlugLogger.info("");
+        AutoPlugLogger.info("           "+GD.VERSION+"                ");
+        AutoPlugLogger.info("      "+GD.COPYRIGHT+"                   ");
+        AutoPlugLogger.info("         "+GD.OFFICIAL_WEBSITE+"         ");
+        AutoPlugLogger.barrier();
 
         // Loads or creates all needed config.yml files
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.create();
+        serverConfig.load();
 
         BackupConfig backupConfig = new BackupConfig();
-        backupConfig.create();
+        backupConfig.load();
 
         RestarterConfig restarterConfig = new RestarterConfig();
-        restarterConfig.create();
+        restarterConfig.load();
 
         CheckConfig checkConfig = new CheckConfig();
-        checkConfig.create();
+        checkConfig.load();
 
-        logger.global_info(" - AutoPlug initialised!");
-        logger.global_info("|----------------------------------------|");
+        AutoPlugLogger.info(" - AutoPlug initialised!");
+        AutoPlugLogger.barrier();
+
+        if (ServerConfig.debug){
+            AutoPlugLogger.debug("main","DEBUG DETAILS");
+            AutoPlugLogger.debug("main","SYSTEM OS: "+ System.getProperty("os.name"));
+            AutoPlugLogger.debug("main","SYSTEM VERSION: "+ System.getProperty("os.version"));
+            AutoPlugLogger.debug("main","JAVA VERSION: "+ System.getProperty("java.version"));
+            AutoPlugLogger.debug("main","WORKING DIR: "+ GD.WORKING_DIR);
+            AutoPlugLogger.debug("main","SERVER FILE: "+ GD.SERVER_PATH);
+        }
 
         UserInput.keyboard();
-        new Communication(ServerConfig.server_key);
 
+        //Start minecraft server
+        Server.start();
+
+        //This starts the updater
+        new LocalListener();
 
         }
 }

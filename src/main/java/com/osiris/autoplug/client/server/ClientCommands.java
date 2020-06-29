@@ -17,7 +17,9 @@ import com.osiris.autoplug.client.utils.AutoPlugLogger;
  */
 public final class ClientCommands {
 
-    private static AutoPlugLogger logger = new AutoPlugLogger();
+    public ClientCommands(){
+        AutoPlugLogger.newClassDebug("ClientCommands");
+    }
 
     public static boolean isCommand(String command) {
 
@@ -25,98 +27,66 @@ public final class ClientCommands {
         try{
             first = Character.toString(command.charAt(0));
         }catch (Exception e){
-            logger.global_info(" Command not found! Enter .help for all available commands!");
+            AutoPlugLogger.info(" Command not found! Enter .help for all available commands!");
         }
 
         if (first.equals(".")){
             try{
 
-                switch (command) {
-                    case ".help":
-                        logger.global_info(" ");
-                        logger.global_info(" [All AutoPlug-Console commands]");
-                        logger.global_info(" .help - prints out this (if you didn't notice)");
-                        logger.global_info(" .start - starts the server (Shortcut: .s)");
-                        logger.global_info(" .restart - restarts the server (Shortcut: .r)");
-                        logger.global_info(" .stop - stops and saves the server (Shortcut: .st)");
-                        logger.global_info(" .close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
-                        logger.global_info(" .kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
-                        logger.global_info(" ");
-                        return true;
-                    case ".h":
-                        logger.global_info(" ");
-                        logger.global_info(" [All AutoPlug-Console commands]");
-                        logger.global_info(" .help - prints out this (if you didn't notice)");
-                        logger.global_info(" .start - starts the server (Shortcut: .s)");
-                        logger.global_info(" .restart - restarts the server (Shortcut: .r)");
-                        logger.global_info(" .stop - stops and saves the server (Shortcut: .st)");
-                        logger.global_info(" .close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
-                        logger.global_info(" .kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
-                        logger.global_info(" ");
-                        return true;
+                if (command.equals(".help") || command.equals(".h")){
+                    AutoPlugLogger.info(" ");
+                    AutoPlugLogger.info(" [All AutoPlug-Console commands]");
+                    AutoPlugLogger.info(" .help - prints out this (if you didn't notice)");
+                    AutoPlugLogger.info(" .start - starts the server (Shortcut: .s)");
+                    AutoPlugLogger.info(" .restart - restarts the server (Shortcut: .r)");
+                    AutoPlugLogger.info(" .stop - stops and saves the server (Shortcut: .st)");
+                    AutoPlugLogger.info(" .close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
+                    AutoPlugLogger.info(" .kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
+                    AutoPlugLogger.info(" ");
+                    return true;
+                }
+                else if (command.equals(".start") || command.equals(".s")){
+                    Server.start();
+                    return true;
+                }
 
-                    case ".start":
-                        Server.start();
-                        return true;
-                    case ".s":
-                        Server.start();
-                        return true;
+                else if (command.equals(".restart") || command.equals(".r")){
+                    Server.restart();
+                    return true;
+                }
 
-                    case ".restart":
-                        Server.restart();
-                        return true;
-                    case ".r":
-                        Server.restart();
-                        return true;
+                else if (command.equals(".stop") || command.equals(".st")){
+                    Server.stop();
+                    return true;
+                }
 
-                    case ".stop":
-                        Server.stop();
-                        return true;
-                    case ".st":
-                        Server.stop();
-                        return true;
-
-                    case ".close":
-                        Server.stop();
-                        while(Server.isRunning()){
-                            Thread.sleep(1000);
-                        }
-                        TaskScheduler.safeShutdown();
-                        logger.global_info(" See you soon!");
-                        Thread.sleep(2000);
-                        System.exit(0);
-                        return true;
-                    case ".c":
-                        Server.stop();
-                        while(Server.isRunning()){
-                            Thread.sleep(1000);
-                        }
-                        TaskScheduler.safeShutdown();
-                        logger.global_info(" See you soon!");
-                        Thread.sleep(2000);
-                        System.exit(0);
-                        return true;
-
-                    case ".kill":
-                        Server.kill();
-                        logger.global_info(" Killing AutoPlug-Client! Ahhhh!");
-                        logger.global_info(" Achievement unlocked: double kill!");
-                        TaskScheduler.safeShutdown();
+                else if (command.equals(".close") || command.equals(".c")){
+                    Server.stop();
+                    while(Server.isRunning()){
                         Thread.sleep(1000);
-                        System.exit(0);
-                        return true;
-                    case ".k":
-                        Server.kill();
-                        logger.global_info(" Killing AutoPlug-Client! Ahhhh!");
-                        logger.global_info(" Achievement unlocked: double kill!");
-                        TaskScheduler.safeShutdown();
-                        Thread.sleep(1000);
-                        System.exit(0);
-                        return true;
+                    }
+                    TaskScheduler.safeShutdown();
+                    AutoPlugLogger.info(" See you soon!");
+                    AutoPlugLogger.stop();
+                    Thread.sleep(1000);
+                    System.exit(0);
+                    return true;
+                }
 
-                    default:
-                        logger.global_info(" Command not found! Enter .help for all available commands!");
-                        return false;
+                else if (command.equals(".kill") || command.equals(".k")){
+                    Server.kill();
+                    TaskScheduler.safeShutdown();
+                    AutoPlugLogger.info(" Killing AutoPlug-Client! Ahhhh!");
+                    AutoPlugLogger.info(" Achievement unlocked: double kill!");
+                    AutoPlugLogger.stop();
+                    Thread.sleep(1000);
+                    System.exit(0);
+                    return true;
+                }
+
+                else{
+                    AutoPlugLogger.info(" Command not found! Enter .help for all available commands!");
+                    return false;
                 }
 
             } catch (Exception e) {
