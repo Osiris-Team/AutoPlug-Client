@@ -10,13 +10,16 @@ package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.client.configs.ServerConfig;
 import com.osiris.autoplug.client.server.ClientCommands;
-import org.fusesource.jansi.AnsiConsole;
+import org.apache.commons.io.IOUtils;
+import org.fusesource.jansi.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -60,6 +63,10 @@ public class AutoPlugLogger {
         AutoPlugLogger.newClassDebug("AutoPlugLogger");
     }
 
+    private static FileOutputStream fos;
+    private static AnsiOutputStream out;
+    private static BufferedWriter bw;
+
     /**
      * Initialises the AutoPlugLogger.
      */
@@ -69,22 +76,21 @@ public class AutoPlugLogger {
 
         //If old exists, delete and replace with new blank file
         try {
+
         if (GD.LATEST_LOG.exists()) {
                 GD.LATEST_LOG.delete();
         }
         GD.LATEST_LOG.createNewFile();
+
+        fos = new FileOutputStream(GD.LATEST_LOG);
+        out = new AnsiOutputStream(fos);
+        bw = new BufferedWriter(new OutputStreamWriter(out));
 
         } catch (Exception e) {
             e.printStackTrace();
             error(e.getMessage(), "Failed to create latest_log.txt");
         }
 
-        /*
-        //Start new Thread
-        PrintStream out = new PrintStream(
-                new FileOutputStream(GD.LATEST_LOG, true), true);
-        System.setOut(out);
-        */
 
     }
 
@@ -105,6 +111,8 @@ public class AutoPlugLogger {
 
                 Files.copy(GD.LATEST_LOG.toPath(), savedLog.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
+
+                bw.close();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -129,7 +137,7 @@ public class AutoPlugLogger {
             LocalDateTime now = LocalDateTime.now();
 
             //Format message
-            System.out.println( ansi().bg(WHITE)
+            output( ansi().bg(WHITE)
                     .fg(BLACK).a("["+dtf.format(now)+"]")
                     .fg(CYAN).a("[AutoPlug-Client]")
                     .fg(GREEN).a("[NEW]")
@@ -151,7 +159,7 @@ public class AutoPlugLogger {
         LocalDateTime now = LocalDateTime.now();
 
         //Format message
-        System.out.println( ansi().bg(WHITE)
+        output( ansi().bg(WHITE)
                 .fg(BLACK).a("["+dtf.format(now)+"]")
                 .fg(CYAN).a("[AutoPlug-Client]")
                 .fg(BLACK).a("[INFO]")
@@ -159,15 +167,6 @@ public class AutoPlugLogger {
                 .a(" | "+text)
                 .reset()
                 );
-
-        try {
-
-            OutputStreamWriter writer = new OutputStreamWriter(AnsiConsole.out());
-            Files.write(GD.LATEST_LOG.toPath(), writer.toString().getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-            error(e.getMessage(), "Failed to update latest log file.");
-        }
 
     }
 
@@ -182,7 +181,7 @@ public class AutoPlugLogger {
         LocalDateTime now = LocalDateTime.now();
 
         //Format message
-        System.out.println( ansi().bg(WHITE)
+        output( ansi().bg(WHITE)
                 .fg(BLACK).a("["+dtf.format(now)+"]")
                 .fg(CYAN).a("[AutoPlug-Client]")
                 .fg(BLACK).a("[INFO]")
@@ -206,7 +205,7 @@ public class AutoPlugLogger {
             LocalDateTime now = LocalDateTime.now();
 
             //Format message
-            System.out.println( ansi().bg(WHITE)
+            output( ansi().bg(WHITE)
                     .fg(BLACK).a("["+dtf.format(now)+"]")
                     .fg(CYAN).a("[AutoPlug-Client]")
                     .fg(MAGENTA).a("[DEBUG]")
@@ -229,7 +228,7 @@ public class AutoPlugLogger {
         LocalDateTime now = LocalDateTime.now();
 
         //Format message
-        System.out.println( ansi().bg(WHITE)
+        output( ansi().bg(WHITE)
                 .fg(BLACK).a("["+dtf.format(now)+"]")
                 .fg(CYAN).a("[AutoPlug-Client]")
                 .fg(YELLOW).a("[WARN]")
@@ -250,7 +249,7 @@ public class AutoPlugLogger {
         LocalDateTime now = LocalDateTime.now();
 
         //Format error title
-        System.out.println( ansi().bg(RED)
+        output( ansi().bg(RED)
                         .fg(WHITE).a("["+dtf.format(now)+"]")
                         .fg(WHITE).a("[AutoPlug-Client]")
                         .fg(YELLOW).a("[ERROR][!]")
@@ -258,7 +257,7 @@ public class AutoPlugLogger {
                         .reset());
 
         //Format error message
-        System.out.println( ansi().bg(RED)
+        output( ansi().bg(RED)
                 .fg(WHITE).a("["+dtf.format(now)+"]")
                 .fg(WHITE).a("[AutoPlug-Client]")
                 .fg(YELLOW).a("[ERROR][!]")
@@ -266,7 +265,7 @@ public class AutoPlugLogger {
                 .reset());
 
         //Format shutdown notice
-        System.out.println( ansi().bg(RED)
+        output( ansi().bg(RED)
                 .fg(WHITE).a("["+dtf.format(now)+"]")
                 .fg(WHITE).a("[AutoPlug-Client]")
                 .fg(YELLOW).a("[ERROR][!]")
@@ -281,6 +280,28 @@ public class AutoPlugLogger {
 
         //Kills everything
         ClientCommands.isCommand(".kill");
+    }
+
+    private static void output(Ansi ansi){
+
+        try {
+            //Output to console
+            System.out.println(ansi);
+
+            bw.write(ansi.toString());
+            bw.newLine();
+            bw.flush();
+
+            /*
+            byte[] bytes = ansi.toString().getBytes();
+            AnsiOutputStream out = new AnsiOutputStream(new FileOutputStream(GD.LATEST_LOG));
+            out.write(bytes);
+             */
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
