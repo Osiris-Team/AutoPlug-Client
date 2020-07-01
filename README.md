@@ -31,20 +31,6 @@ All you want, all you need at one place.
 	
     <dependencies>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.13.3</version>
-        </dependency>
-
-        <!-- https://github.com/Minecrell/TerminalConsoleAppender -->
-        <dependency>
-            <groupId>net.minecrell</groupId>
-            <artifactId>terminalconsoleappender</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-
         <!-- https://github.com/fusesource/jansi -->
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -83,7 +69,7 @@ All you want, all you need at one place.
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>2.7</version>
             <scope>compile</scope>
         </dependency>
 
