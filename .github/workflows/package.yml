@@ -83,5 +83,6 @@ jobs:
     - name: Push/Upload update
       uses: ad-m/github-push-action@master
       with:
+        repository: 'Osiris-Team/AutoPlug-Releases'
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
