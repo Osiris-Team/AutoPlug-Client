@@ -29,18 +29,18 @@ jobs:
     - name: Create jar with Maven
       run: mvn -B clean package --file pom.xml
       
-      #This will delete the .github/workflow-cache folder if exists, create a new one and copy AutoPlug.jar into it
-    - name: Copy jar to .github/workflow-cache dir
+      #This will delete the workflow-cache folder if exists, create a new one and copy AutoPlug.jar into it
+    - name: Copy jar to workflow-cache dir
       run: |
-       rm -rf .github/workflow-cache
-       mkdir -p .github/workflow-cache
-       cp target/AutoPlug.jar .github/workflow-cache
+       rm -rf workflow-cache
+       mkdir -p workflow-cache
+       cp target/AutoPlug.jar workflow-cache
       
     - name: Add update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git add .github/workflow-cache/AutoPlug.jar
+        git add workflow-cache/AutoPlug.jar
       
     - name: Confirm update
       run: |
@@ -64,21 +64,21 @@ jobs:
       #Downloads the jar we uploaded 1sec ago to the AutoPlug-Client repo
     - name: Download jar
       run: |
-        rm -rf beta
-        mkdir beta
-        wget -O beta/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/.github/workflow-cache/AutoPlug.jar"
+        rm -rf beta-builds
+        mkdir beta-builds
+        wget -O beta-builds/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/workflow-cache/AutoPlug.jar"
       
     - name: Add update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git add beta/AutoPlug.jar
+        git add beta-builds/AutoPlug.jar
       
     - name: Confirm update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git commit -m "Add changes" -a
+        git commit -m "Added latest beta" -a
       
     - name: Push/Upload update
       uses: ad-m/github-push-action@master
