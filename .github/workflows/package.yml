@@ -28,9 +28,6 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B clean package --file pom.xml
-
-    - name: Copy build to upload dir
-      run: mkdir beta && cp target/AutoPlug.jar beta
       
     - name: Checkout AutoPlug-Releases
       uses: actions/checkout@master
@@ -38,6 +35,9 @@ jobs:
         repository: 'Osiris-Team/AutoPlug-Releases'
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+        
+    - name: Copy build to upload dir
+      run: mkdir beta && cp target/AutoPlug.jar beta
       
     - name: Add AutoPlug.jar
       run: |
