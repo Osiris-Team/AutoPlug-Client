@@ -29,8 +29,12 @@ jobs:
     - name: Create jar with Maven
       run: mvn -B clean package --file pom.xml
       
+      #This will delete the beta folder if exists, create a new one and copy AutoPlug.jar into it
     - name: Copy jar to beta dir
-      run: mkdir beta && cp target/AutoPlug.jar beta
+      run: |
+       rm -rf beta?
+       mkdir beta
+       cp target/AutoPlug.jar beta
       
     - name: Add update
       run: |
@@ -60,6 +64,7 @@ jobs:
       #Downloads the jar we uploaded 1sec ago to the AutoPlug-Client repo
     - name: Download jar
       run: |
+        rm -rf beta?
         mkdir beta
         wget -O /beta/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/beta/AutoPlug.jar"
       
