@@ -31,16 +31,16 @@ jobs:
       #This will delete the workflow-cache folder if exists, create a new one and copy AutoPlug.jar into it
     - name: Copy jar to workflow-cache dir
       run: |
-       rm -rf workflow-cache
-       mkdir -p workflow-cache
-       cp target/AutoPlug.jar workflow-cache
+       rm -rf latest-build
+       mkdir -p latest-build
+       cp target/AutoPlug.jar latest-build
       
     - name: Add and confirm update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git add workflow-cache/AutoPlug.jar
-        git commit -m "Updated to latest beta-build" -a
+        git add latest-build/AutoPlug.jar
+        git commit -m "Updated to latest build" -a
       
     - name: Push/Upload update
       uses: ad-m/github-push-action@master
@@ -49,32 +49,3 @@ jobs:
         branch: 'master'
         force: true
         repository: 'Osiris-Team/AutoPlug-Client'
-      
-      #We also want to have the jar at our Releases repo
-    - name: Checkout AutoPlug-Releases
-      uses: actions/checkout@master
-      with:
-        repository: 'Osiris-Team/AutoPlug-Releases'
-        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-        
-      #Downloads the jar we uploaded 1sec ago to the AutoPlug-Client repo
-    - name: Download jar
-      run: |
-        rm -rf beta-builds/AutoPlug.jar
-        wget -O beta-builds/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/workflow-cache/AutoPlug.jar"
-      
-    - name: Add and confirm update
-      run: |
-        git config --local user.email "osiris_support@pm.me"
-        git config --local user.name "GitHub Action"
-        git add beta-builds/AutoPlug.jar
-        git commit -m "Updated to latest beta-build" -a
-      
-    - name: Push/Upload update
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.WORKFLOW_TOKEN }}
-        branch: 'master'
-        force: true
-        repository: 'Osiris-Team/AutoPlug-Releases'
