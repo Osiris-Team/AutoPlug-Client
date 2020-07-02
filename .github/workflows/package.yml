@@ -27,6 +27,6 @@ jobs:
     - name: Upload jar
       uses: actions/upload-artifact@v1
       with:
-        name: AutoPlug
+        name: AutoPlug.jar
         path: staging
 
