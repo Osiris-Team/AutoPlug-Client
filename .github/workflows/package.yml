@@ -44,9 +44,8 @@ jobs:
         git config --local user.name "GitHub Action"
         git commit -m "Add changes" -a
         
-    - uses: actions/checkout@v2
-      with:
-       repository: 'Osiris-Team/AutoPlug-Releases'
+    - name: Refresh connection
+      run: git config --local --unset-all "http.https://github.com/.extraheader"
 
     - name: Push changes
       uses: ad-m/github-push-action@master
