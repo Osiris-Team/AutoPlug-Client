@@ -26,7 +26,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B clean package --file pom.xml
     - name: Copy build to staging
-      run: mkdir upload && mkdir /upload/beta && cp target/AutoPlug.jar /upload/beta
+      run: mkdir -p upload/beta && cp target/AutoPlug.jar upload/beta
     - name: Commit to GitHub
       run: |
         git config --local user.email "osris_support@pm.me"
