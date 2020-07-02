@@ -26,9 +26,30 @@ jobs:
       with:
         java-version: 1.14
 
-    - name: Build with Maven
+    - name: Create jar with Maven
       run: mvn -B clean package --file pom.xml
       
+    - name: Copy jar to beta dir
+      run: mkdir beta && cp target/AutoPlug.jar beta
+      
+    - name: Add update
+      run: |
+        git config --local user.email "osiris_support@pm.me"
+        git config --local user.name "GitHub Action"
+        git add beta/AutoPlug.jar
+      
+    - name: Confirm update
+      run: |
+        git config --local user.email "osiris_support@pm.me"
+        git config --local user.name "GitHub Action"
+        git commit -m "Add changes" -a
+      
+    - name: Push/Upload update
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      #We also want to have the jar at our Releases repo
     - name: Checkout AutoPlug-Releases
       uses: actions/checkout@master
       with:
@@ -36,25 +57,24 @@ jobs:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
         
-    - name: Copy build to upload dir
-      run: mkdir beta && cp target/AutoPlug.jar beta
+      #Downloads the jar we uploaded 1sec ago to the AutoPlug-Client repo
+    - name: Download jar
+      run: mkdir beta && wget  -O /beta/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/beta/AutoPlug.jar"
       
-    - name: Add AutoPlug.jar
+    - name: Add update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git add beta/AutoPlug.jar
-
-    - name: Commit all changes
+      
+    - name: Confirm update
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git commit -m "Add changes" -a
-
-    - name: Push changes
+      
+    - name: Push/Upload update
       uses: ad-m/github-push-action@master
       with:
-        repository: Osiris-Team/AutoPlug-Releases
-        branch: master
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
