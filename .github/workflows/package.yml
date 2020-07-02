@@ -27,6 +27,12 @@ jobs:
       run: mvn -B clean package --file pom.xml
     - name: Copy build to upload dir
       run: mkdir -p upload/beta && cp target/AutoPlug.jar upload/beta
+    - name: Add files
+      run: |
+        cd upload
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add --all
     - name: Commit files
       run: |
         cd upload
