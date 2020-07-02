@@ -30,7 +30,7 @@ jobs:
       run: mvn -B clean package --file pom.xml
       
       #This will delete the .github/workflow-cache folder if exists, create a new one and copy AutoPlug.jar into it
-    - name: Copy jar to beta dir
+    - name: Copy jar to .github/workflow-cache dir
       run: |
        rm -rf .github/workflow-cache
        mkdir -p .github/workflow-cache
