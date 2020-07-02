@@ -6,6 +6,7 @@
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 - [Discord](https://discord.com/invite/GGNmtCC)
 
+![Java CI with Maven](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Java%20CI%20with%20Maven/badge.svg)
 # AutoPlug | Client
  1. Searches for server.jar
  2. Makes backups
