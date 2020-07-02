@@ -78,11 +78,10 @@ jobs:
       run: |
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git commit -m "Added latest beta" -a
+        git commit -m "Updated to latest beta" -a
       
     - name: Push/Upload update
       uses: ad-m/github-push-action@master
       with:
-        repository: 'Osiris-Team/AutoPlug-Releases'
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
