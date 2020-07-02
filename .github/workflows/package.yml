@@ -27,11 +27,6 @@ jobs:
       run: mvn -B clean package --file pom.xml
     - name: Copy build to staging
       run: mkdir -p upload/beta && cp target/AutoPlug.jar upload/beta
-    - name: Commit to GitHub
-      run: |
-        git config --local user.email "osris_support@pm.me"
-        git config --local user.name "GitHub Action"
-        git commit -m "Uploaded latest version" -a
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
