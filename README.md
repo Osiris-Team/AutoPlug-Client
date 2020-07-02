@@ -7,7 +7,7 @@
 - [Discord](https://discord.com/invite/GGNmtCC)
 
 # AutoPlug | Client
-![Java CI with Maven](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
  1. Searches for server.jar
  2. Makes backups
  3. Starts server
