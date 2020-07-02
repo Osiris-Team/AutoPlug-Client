@@ -32,6 +32,13 @@ jobs:
     - name: Copy build to upload dir
       run: mkdir beta && cp target/AutoPlug.jar beta
       
+    - name: Checkout AutoPlug-Releases
+      uses: actions/checkout@master
+      with:
+        repository: 'Osiris-Team/AutoPlug-Releases'
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      
     - name: Add AutoPlug.jar
       run: |
         git config --local user.email "osiris_support@pm.me"
@@ -43,9 +50,6 @@ jobs:
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git commit -m "Add changes" -a
-        
-    - name: Refresh connection
-      run: git config --local --unset-all "http.https://github.com/.extraheader"
 
     - name: Push changes
       uses: ad-m/github-push-action@master
