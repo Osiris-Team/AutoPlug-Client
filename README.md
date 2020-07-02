@@ -17,7 +17,7 @@
 # AutoPlug | The Idea
 AutoPlug is meant to be that what all Server-Owners are waiting for. 
 An easy to use interface to manage and update all of your Plugins! No more wasting time in searching links and changelogs!
-All you want, all you need at one place.
+All you want, all you need at one place. TEST
 
 # Libraries
 ```xml
