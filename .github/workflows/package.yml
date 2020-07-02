@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@master
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
@@ -26,16 +26,14 @@ jobs:
     - name: Build with Maven
       run: mvn -B clean package --file pom.xml
     - name: Copy build to upload dir
-      run: mkdir -p upload/beta && cp target/AutoPlug.jar upload/beta
+      run: mkdir beta && cp target/AutoPlug.jar beta
     - name: Add files
       run: |
-        cd upload
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git add beta/AutoPlug.jar
     - name: Commit files
       run: |
-        cd upload
         git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git commit -m "Add changes" -a
@@ -44,6 +42,5 @@ jobs:
       with:
         repository: Osiris-Team/AutoPlug-Releases
         branch: master
-        directory: upload
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
