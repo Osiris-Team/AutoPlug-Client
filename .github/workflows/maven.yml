@@ -1,0 +1,6 @@
+# This workflow will create a jar each time code is changed on github
+
+- name: Creating a maven build
+  uses: PrajjawalBanati/Java_Programs@0.0.1
+
+      run: mvn -B clean package --file pom.xml
