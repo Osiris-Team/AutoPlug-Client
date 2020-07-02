@@ -59,7 +59,9 @@ jobs:
         
       #Downloads the jar we uploaded 1sec ago to the AutoPlug-Client repo
     - name: Download jar
-      run: mkdir beta && wget  -O /beta/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/beta/AutoPlug.jar"
+      run: |
+        mkdir beta
+        wget -O /beta/AutoPlug.jar "https://github.com/Osiris-Team/AutoPlug-Client/raw/master/beta/AutoPlug.jar"
       
     - name: Add update
       run: |
