@@ -49,10 +49,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
       
-      #This prevents overlapping
-    - name: Sleep 3sec.
-      run: sleep 3
-      
       #We also want to have the jar at our Releases repo
     - name: Checkout AutoPlug-Releases
       uses: actions/checkout@master
