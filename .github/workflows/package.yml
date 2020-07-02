@@ -30,13 +30,13 @@ jobs:
     - name: Add files
       run: |
         cd upload
-        git config --local user.email "action@github.com"
+        git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
-        git add --all
+        git add beta/AutoPlug.jar
     - name: Commit files
       run: |
         cd upload
-        git config --local user.email "action@github.com"
+        git config --local user.email "osiris_support@pm.me"
         git config --local user.name "GitHub Action"
         git commit -m "Add changes" -a
     - name: Push changes
