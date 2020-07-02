@@ -23,10 +23,10 @@ jobs:
     - name: Build with Maven
       run: mvn -B clean package --file pom.xml
     - name: Copy build to staging
-      run: mkdir staging && cp target/*.jar staging
-    - name: Upload build
+      run: mkdir staging && cp target/AutoPlug.jar staging
+    - name: Upload jar
       uses: actions/upload-artifact@v1
       with:
-        name: Package
+        name: AutoPlug
         path: staging
 
