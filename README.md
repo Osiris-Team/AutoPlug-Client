@@ -11,7 +11,9 @@
 AutoPlug-Client(AutoPlug.jar) interacts with our online server and performs all main tasks.
 
 ## AutoPlug-Client | Contribute
-If you are new to contributing read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. If you are planing to do big changes, create an issue first, where you explain what you want to do.
+If you are never contributed before read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. 
+If you are planing to do big changes, create an issue first, where you explain what you want to do.
+Othervise just remember to have logical commit messages and fun :smirk:
 
 ## AutoPlug-Client | Workflow
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
