@@ -6,7 +6,7 @@
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 - [Discord](https://discord.com/invite/GGNmtCC)
 
-# AutoPlug | Client
+## AutoPlug | Client
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
  1. Searches for mc-server jar file
  2. Performs backups
@@ -15,12 +15,12 @@
  5. Downloads updates
  6. Restarts the server and installs the plugins or only notifies, depending on your choosen profile
 
-# AutoPlug | The Idea
+## AutoPlug | The Idea
 AutoPlug is meant to be that what all Server-Owners are waiting for. 
 An easy to use interface to manage and update all of your Plugins! No more wasting time in searching links and changelogs!
 All you want, all you need at one place. TEST
 
-# Libraries
+## Libraries
 - [Jansi](https://github.com/fusesource/jansi)
 - [HtmlUnit](https://htmlunit.sourceforge.io/)
 - [Simple-Yaml](https://github.com/Carleslc/Simple-YAML)
