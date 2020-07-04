@@ -8,12 +8,12 @@
 
 # AutoPlug | Client
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
- 1. Searches for server.jar
- 2. Makes backups
- 3. Starts server
- 4. Receives plugin details
+ 1. Searches for mc-server jar file
+ 2. Performs backups
+ 3. Starts mc-server
+ 4. Receives plugin details from [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
  5. Downloads updates
- 6. Restarts the server and installs the plugins or does nothing depending on your choosen profile
+ 6. Restarts the server and installs the plugins or only notifies, depending on your choosen profile
 
 # AutoPlug | The Idea
 AutoPlug is meant to be that what all Server-Owners are waiting for. 
@@ -21,81 +21,11 @@ An easy to use interface to manage and update all of your Plugins! No more wasti
 All you want, all you need at one place. TEST
 
 # Libraries
-```xml
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-	
-    <dependencies>
-
-        <!-- https://github.com/fusesource/jansi -->
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>1.18</version>
-        </dependency>
-
-        <!-- https://htmlunit.sourceforge.io/ -->
-        <dependency>
-            <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <version>2.41.0</version>
-        </dependency>
-
-        <!-- https://github.com/Carleslc/Simple-YAML -->
-        <dependency>
-            <groupId>com.github.Carleslc</groupId>
-            <artifactId>Simple-YAML</artifactId>
-            <version>1.4.1</version>
-        </dependency>
-
-        <!-- https://github.com/srikanth-lingala/zip4j -->
-        <dependency>
-            <groupId>net.lingala.zip4j</groupId>
-            <artifactId>zip4j</artifactId>
-            <version>2.5.2</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>me.tongfei</groupId>
-            <artifactId>progressbar</artifactId>
-            <version>0.8.1</version>
-        </dependency>
-
-        <!-- Quartz Core -->
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-
-    </dependencies>
-
-```
+- [Jansi](https://github.com/fusesource/jansi)
+- [HtmlUnit](https://htmlunit.sourceforge.io/)
+- [Simple-Yaml](https://github.com/Carleslc/Simple-YAML)
+- [Zip4j](https://github.com/srikanth-lingala/zip4j)
+- [Progressbar](https://github.com/ctongfei/progressbar)
+- [Quartz](http://www.quartz-scheduler.org/)
 
  > Copyright (c) 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.
