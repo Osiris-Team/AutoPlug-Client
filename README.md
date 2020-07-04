@@ -1,10 +1,17 @@
 ![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
 - [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases)
-- [AutoPlug-Live-Development](https://trello.com/b/zC8MKgEe/autoplug-development)
 - [AutoPlug-Client](https://github.com/Osiris-Team/AutoPlug-Client)
+- [AutoPlug-Client-Development](https://github.com/Osiris-Team/AutoPlug-Client/projects/1?fullscreen=true)
 - [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
+- [AutoPlug-Plugin-Development](https://github.com/Osiris-Team/AutoPlug-Plugin/projects/1?fullscreen=true)
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 - [Discord](https://discord.com/invite/GGNmtCC)
+
+## AutoPlug-Client | General
+AutoPlug-Client(AutoPlug.jar) interacts with our online server and performs all main tasks.
+
+## AutoPlug-Client | Contribute
+If you are new to contributing read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. If you are planing to do big changes, please create an issue before, in which you explain your aims. We'll respond you as soon as possible.
 
 ## AutoPlug-Client | Workflow
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
