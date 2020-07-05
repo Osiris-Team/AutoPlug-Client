@@ -1,9 +1,9 @@
 ![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
 - [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases)
 - [AutoPlug-Client](https://github.com/Osiris-Team/AutoPlug-Client)
-- [AutoPlug-Client-Development](https://github.com/Osiris-Team/AutoPlug-Client/projects/1?fullscreen=true)
+- [AutoPlug-Client-Development](https://bit.ly/acprogress)
 - [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
-- [AutoPlug-Plugin-Development](https://github.com/Osiris-Team/AutoPlug-Plugin/projects/1?fullscreen=true)
+- [AutoPlug-Plugin-Development](https://bit.ly/approgress)
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
 - [Discord](https://discord.com/invite/GGNmtCC)
 
