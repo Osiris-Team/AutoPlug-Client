@@ -33,4 +33,4 @@ Othervise just remember to have logical commit messages and do your pull request
 - [Progressbar](https://github.com/ctongfei/progressbar)
 - [Quartz](http://www.quartz-scheduler.org/)
 
-<p style="font-size:50%;color:gray;">Copyright ©️ 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.</p>
+<p align="center"><i>Copyright ©️ 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.<i></p>
