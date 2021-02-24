@@ -16,7 +16,7 @@ If you never contributed before, read [this](https://akrabat.com/the-beginners-g
 If you are planing to do big changes, create an issue first, where you explain what you want to do.
 
 ## AutoPlug-Client | Workflow
-![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
+![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
  1. Performs before startup tasks
  2. Starts your minecraft server
 
