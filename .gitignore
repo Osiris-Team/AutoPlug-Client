@@ -1,8 +1,9 @@
 **/target/
+**/AP-TEST-SERVER/
 
 # IDEA
-.idea/
-*.iml
+**/.idea/
+**/*.iml
 
 # MacOS
 .DS_Store
