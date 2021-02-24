@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
- *  All rights reserved.
+ * Copyright Osiris Team
+ * All rights reserved.
  *
- *  This software is copyrighted work licensed under the terms of the
- *  AutoPlug License.  Please consult the file "LICENSE" for details.
+ * This software is copyrighted work licensed under the terms of the
+ * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
 package com.osiris.autoplug.client.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
-import com.osiris.autoplug.client.server.Server;
-import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.core.logger.AL;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -19,20 +19,16 @@ import java.util.List;
 
 public class RestartTask implements Job {
 
-    public RestartTask(){
-        AutoPlugLogger.newClassDebug("RestartTask");
-    }
-
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        AutoPlugLogger.info(" - Executing scheduled restart in 10sec...");
+        AL.info("Executing scheduled restart in 10sec...");
 
-        //Before restarting execute commands
-        List<String> commands = RestarterConfig.restarter_commands;
+        //Before restarting execute server
+        List<String> commands = new RestarterConfig().restarter_commands.asStringList();
 
         for (int i = 0; i < commands.size(); i++) {
 
-            Server.submitServerCommand(commands.get(i));
+            Server.submitCommand(commands.get(i));
         }
 
         //Wait for 10secs...

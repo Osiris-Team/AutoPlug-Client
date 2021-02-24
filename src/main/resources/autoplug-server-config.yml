@@ -18,15 +18,17 @@ autoplug-server-config:
   server:
 
     #Enter your server-key here. You get the key by registering on http://autoplug.ddns.net.
-    #The key is needed to perform plugin-update-checks and download them.
-    key: '1111'
+    #The key is essential to perform most of AutoPlugs main features and it enables remote access from your account (example: Online Console).
+    #No matter what, keep this key private to ensure your servers security!
+    key: '0'
 
-    #The auto-find feature will scan through your main directory and find the first jar with another name than AutoPlug.jar.
+    #The auto-find feature will scan through your main directory and find the first jar with another name than AutoPlugLauncher.jar.
     #If you have more than 2 jars in your main folder, you must specify the jar we should look for
     #by entering its file name below, without its .jar file extension.
     jar: auto-find
 
     #If you were using java startup flags add them to this list one by one.
+    #For flags like - -XX:+UseG1GC (with 2 bars) remove one bar, so it looks like this in the list: - XX:+UseG1GC
     flags:
       - Xms2G
       - Xmx2G

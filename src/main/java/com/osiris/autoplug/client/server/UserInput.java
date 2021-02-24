@@ -1,57 +1,72 @@
 /*
- * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
- *  All rights reserved.
+ * Copyright Osiris Team
+ * All rights reserved.
  *
- *  This software is copyrighted work licensed under the terms of the
- *  AutoPlug License.  Please consult the file "LICENSE" for details.
+ * This software is copyrighted work licensed under the terms of the
+ * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
 package com.osiris.autoplug.client.server;
 
-import com.osiris.autoplug.client.utils.AutoPlugLogger;
-import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.core.logger.AL;
+import com.osiris.autoplug.core.logger.LogFileWriter;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Scanner;
 
-import static com.osiris.autoplug.client.utils.AutoPlugLogger.error;
-import static com.osiris.autoplug.client.utils.AutoPlugLogger.info;
+import static com.osiris.autoplug.core.logger.AL.info;
 
 public class UserInput {
+    public static Thread inputListenerThread;
 
-    public UserInput(){
-        AutoPlugLogger.newClassDebug("UserInput");
-    }
-
-    private static Scanner scanner = new Scanner(System.in);
-
-    public static void keyboard(){
+    public static void keyboard() throws Exception{
         //New thread for user input
-        new Thread(new Runnable() {
-            public void run() {
+        if (inputListenerThread == null){
+            inputListenerThread = new Thread(()->{
+
+                Scanner scanner = new Scanner(System.in);
+
                 while (true) {
 
+                    // Get user input
                     String user_input = scanner.nextLine();
+
+                    // TODO WORK IN PROGRESS
+                    // Send to online console
+                    /*
+                    if (MainConnection.CON_CONSOLE.isConnected())
+                        try{
+                            MainConnection.CON_CONSOLE.send(user_input);
+                        } catch (Exception e) {
+                            AL.warn(e);
+                        }
+
+                     */
+
+
+                    //Check if user input is autoplug command or not
                     if (ClientCommands.isCommand(user_input)){
+
                         //Do nothing else if it is a client command, just save it to log file
                         try {
-                            Files.write(GD.LATEST_LOG.toPath(), user_input.getBytes());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            error(e.getMessage(), "Failed to update latest log file.");
+                            LogFileWriter.writeToLog(user_input);
+                        } catch (Exception e) {
+                            AL.error(e.getMessage(), e);
                         }
 
                     } else if (Server.isRunning()){
-                        Server.submitServerCommand(user_input);
+                        Server.submitCommand(user_input);
                     } else{
-                        info("Enter .help for all available commands!");
+                        info("Enter .help for all available server!");
                     }
 
                 }
 
-            }
-        }).start();
+            });
+            inputListenerThread.setName("InputListenerThread");
+            inputListenerThread.start();
+        }
+
 
     }
 

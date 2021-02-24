@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
- *  All rights reserved.
+ * Copyright Osiris Team
+ * All rights reserved.
  *
- *  This software is copyrighted work licensed under the terms of the
- *  AutoPlug License.  Please consult the file "LICENSE" for details.
+ * This software is copyrighted work licensed under the terms of the
+ * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
 package com.osiris.autoplug.client.network.local;
 
-import com.osiris.autoplug.client.network.online.OnlineConnection;
-import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.core.logger.AL;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+@Deprecated
 public class LocalTaskReceivePlugins {
 
 
@@ -26,7 +26,7 @@ public class LocalTaskReceivePlugins {
 
             try{
 
-                AutoPlugLogger.info("Waiting for plugins...");
+                AL.info("Waiting for plugins...");
                 int amount = local_dis.readInt();
 
                 String[] pl_names = new String[amount];
@@ -40,13 +40,13 @@ public class LocalTaskReceivePlugins {
                     pl_versions[i] = local_dis.readUTF();
 
                 }
-                AutoPlugLogger.info("Received "+ amount +" plugins!");
+                AL.info("Received "+ amount +" plugins!");
 
-                new OnlineConnection(local_socket, local_dis, local_dos, pl_names, pl_authors, pl_versions, amount);
+                //new MainConnection(local_socket, local_dis, local_dos, pl_names, pl_authors, pl_versions, amount);
 
             } catch (IOException e) {
                 e.printStackTrace();
-                AutoPlugLogger.warn(" [!] Error receiving plugin information [!]");
+                AL.warn(" [!] Error receiving plugin information [!]");
             }
 
         });

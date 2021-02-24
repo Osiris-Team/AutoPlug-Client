@@ -24,7 +24,7 @@ autoplug-restarter-config:
       - '23:00'
       - '11:00'
 
-    #Executes these commands as console before restarting
+    #Executes these server as console before restarting
     commands:
       - 'say [Server] Server is restarting...'
       - 'say [Server] Please allow up to 2min for this process to complete.'

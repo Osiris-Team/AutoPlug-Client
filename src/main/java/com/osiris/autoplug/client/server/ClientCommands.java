@@ -1,25 +1,21 @@
 /*
- * Copyright (c) 2020 [Osiris Team](https://github.com/Osiris-Team)
- *  All rights reserved.
+ * Copyright Osiris Team
+ * All rights reserved.
  *
- *  This software is copyrighted work licensed under the terms of the
- *  AutoPlug License.  Please consult the file "LICENSE" for details.
+ * This software is copyrighted work licensed under the terms of the
+ * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
 package com.osiris.autoplug.client.server;
 
-import com.osiris.autoplug.client.scheduler.TaskScheduler;
-import com.osiris.autoplug.client.utils.AutoPlugLogger;
+import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.core.logger.AL;
 
 /**
  * Listens for input started with .
- * List the commands with .help
+ * List the server with .help
  */
 public final class ClientCommands {
-
-    public ClientCommands(){
-        AutoPlugLogger.newClassDebug("ClientCommands");
-    }
 
     public static boolean isCommand(String command) {
 
@@ -27,22 +23,22 @@ public final class ClientCommands {
         try{
             first = Character.toString(command.charAt(0));
         }catch (Exception e){
-            AutoPlugLogger.info(" Command not found! Enter .help for all available commands!");
+            AL.info("Command not found! Enter .help for all available server!");
         }
 
         if (first.equals(".")){
             try{
 
                 if (command.equals(".help") || command.equals(".h")){
-                    AutoPlugLogger.info(" ");
-                    AutoPlugLogger.info(" [All AutoPlug-Console commands]");
-                    AutoPlugLogger.info(" .help - prints out this (if you didn't notice)");
-                    AutoPlugLogger.info(" .start - starts the server (Shortcut: .s)");
-                    AutoPlugLogger.info(" .restart - restarts the server (Shortcut: .r)");
-                    AutoPlugLogger.info(" .stop - stops and saves the server (Shortcut: .st)");
-                    AutoPlugLogger.info(" .close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
-                    AutoPlugLogger.info(" .kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
-                    AutoPlugLogger.info(" ");
+                    AL.info("");
+                    AL.info("[All AutoPlug-Console server]");
+                    AL.info(".help - prints out this (if you didn't notice)");
+                    AL.info(".start - starts the server (Shortcut: .s)");
+                    AL.info(".restart - restarts the server (Shortcut: .r)");
+                    AL.info(".stop - stops and saves the server (Shortcut: .st)");
+                    AL.info(".close - stops, saves your server and closes AutoPlug safely (Shortcut: .c)");
+                    AL.info(".kill - kills the server without saving and closes AutoPlug (Shortcut: .k)");
+                    AL.info("");
                     return true;
                 }
                 else if (command.equals(".start") || command.equals(".s")){
@@ -61,31 +57,21 @@ public final class ClientCommands {
                 }
 
                 else if (command.equals(".close") || command.equals(".c")){
-                    Server.stop();
-                    while(Server.isRunning()){
-                        Thread.sleep(1000);
-                    }
-                    TaskScheduler.safeShutdown();
-                    AutoPlugLogger.info(" See you soon!");
-                    AutoPlugLogger.stop();
-                    Thread.sleep(1000);
+                    // All the stuff that needs to be done before shutdown is done by the ShutdownHook.
                     System.exit(0);
                     return true;
                 }
 
                 else if (command.equals(".kill") || command.equals(".k")){
                     Server.kill();
-                    TaskScheduler.safeShutdown();
-                    AutoPlugLogger.info(" Killing AutoPlug-Client! Ahhhh!");
-                    AutoPlugLogger.info(" Achievement unlocked: double kill!");
-                    AutoPlugLogger.stop();
-                    Thread.sleep(1000);
+                    AL.info("Killing AutoPlug-Client and MC-Server! Ahhhh!");
+                    AL.info("Achievement unlocked: double kill!");
                     System.exit(0);
                     return true;
                 }
 
                 else{
-                    AutoPlugLogger.info(" Command not found! Enter .help for all available commands!");
+                    AL.info("Command not found! Enter .help for all available server!");
                     return false;
                 }
 
