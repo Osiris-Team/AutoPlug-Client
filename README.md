@@ -17,12 +17,8 @@ If you are planing to do big changes, create an issue first, where you explain w
 
 ## AutoPlug-Client | Workflow
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/Build%20test/badge.svg)
- 1. Searches for mc-server jar file
- 2. Performs backups
- 3. Starts mc-server
- 4. Receives plugin details from [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
- 5. Downloads updates
- 6. Restarts the server and installs the plugins or only notifies, depending on your choosen profile
+ 1. Performs before startup tasks
+ 2. Starts your minecraft server
 
 ## AutoPlug-Client | Libraries
 - [Jansi](https://github.com/fusesource/jansi)
@@ -32,4 +28,4 @@ If you are planing to do big changes, create an issue first, where you explain w
 - [Progressbar](https://github.com/ctongfei/progressbar)
 - [Quartz](http://www.quartz-scheduler.org/)
 
-<p align="center"><i>Copyright ©️ 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.<i></p>
+<p align="center"><i>Copyright ©️ 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.</i></p>
