@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>0.9</version>
+    <version>0.9.1</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
-            <version>2.6.3</version>
+            <version>2.7.0</version> <!--2.6.3-->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->

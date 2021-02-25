@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.tasks.backup;
 
 import com.osiris.autoplug.client.configs.BackupConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 public class TaskPluginsBackup extends BetterThread {
 
@@ -77,30 +79,39 @@ public class TaskPluginsBackup extends BetterThread {
         if (config.backup_plugins.asBoolean()){
             setStatus("Creating backup zip...");
 
-            File[] plDir = GD.PLUGINS_DIR.listFiles();
+            FileManager man = new FileManager();
+            List<File> pluginsFiles = man.getFilesFrom(GD.PLUGINS_DIR);
+            List<File> pluginsFolders = man.getFoldersFrom(GD.PLUGINS_DIR);
             ZipFile zip = new ZipFile(plugins_backup_dest);
 
-            assert plDir != null;
-            int size = plDir.length;
-            setMax(size);
+            setMax(pluginsFiles.size() + pluginsFolders.size());
 
-            //Add each file to the zip
-            File file = null;
-            try{
-                for (int i = 0; i < size; i++) {
-                    file = plDir[i];
-                    zip.addFile(file);
-                    setStatus("Creating backup zip... "+file.getName());
-                    step();
+            // Add each folder to the zip
+            for (File file : pluginsFolders) {
+                setStatus("Backing up plugins... " + file.getName());
+                try{
+                    zip.addFolder(file);
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to add folder "+file.getName()+" to zip."));
                 }
-            } catch (Exception e) {
-                getWarnings().add(new BetterWarning(this, e, "Failed to add "+file.getName()+" to zip."));
+                step();
             }
 
-            AL.debug(this.getClass(), "Created backup to: "+plugins_backup_dest);
+            //Add each file to the zip
+            for (File file : pluginsFiles) {
+                setStatus("Backing up plugins... " + file.getName());
+                try{
+                    zip.addFile(file);
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to add file "+file.getName()+" to zip."));
+                }
+                step();
+            }
+
+            AL.debug(this.getClass(), "Created plugins-backup to: "+plugins_backup_dest);
             setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
         } else{
-            setStatus("Skipped backup...");
+            setStatus("Skipped plugins-backup...");
             skip();
         }
         finish();

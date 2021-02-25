@@ -17,6 +17,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Search & find files!
@@ -27,7 +28,6 @@ public class FileManager {
     private final List<File> queryFiles = new ArrayList<>();
 
     public void deleteOldPlugin(String pl_name) {
-
         String searchPattern = "*"+pl_name+"**.jar";
         //Find the file
         findFileInPluginsDir(searchPattern);
@@ -51,7 +51,6 @@ public class FileManager {
 
     //Finds all folders starting with "world" in main working dir
     public List<File> serverWorldsFolders() {
-
         String searchPattern = "*world*";
         //Find the files
         findFoldersInWorkingDir(searchPattern);
@@ -65,7 +64,6 @@ public class FileManager {
      * Only files not folders!
      */
     public List<File> serverFiles() {
-
         String searchPattern = "*";
         //Find the files
         findFilesInWorkingDir(searchPattern);
@@ -79,7 +77,6 @@ public class FileManager {
      * @return server jar file.
      */
     public File serverJar(String server_jar_name) {
-
         String searchPattern = "*"+server_jar_name+"**.jar";
         //Find the file
         findJarFileInWorkingDir(searchPattern);
@@ -92,12 +89,76 @@ public class FileManager {
      * @return server jar file.
      */
     public File serverJar() {
-
         String searchPattern = "*.jar";
         //Find the file
         findJarFileInWorkingDir(searchPattern);
         //Return the result file
         return queryFile;
+    }
+
+    public List<File> getFilesFrom(String dirPath) throws IOException{
+        Objects.requireNonNull(dirPath);
+        return getFilesFrom(FileSystems.getDefault().getPath(dirPath));
+    }
+
+    public List<File> getFilesFrom(File dir) throws IOException{
+        Objects.requireNonNull(dir);
+        return getFilesFrom(dir.toPath());
+    }
+
+    /**
+     * Depth is 1. All folders are ignored.
+     * @param dirPath the directory path.
+     * @return a list of files in this directory.
+     * @throws IOException
+     */
+    public List<File> getFilesFrom(Path dirPath) throws IOException{
+        Objects.requireNonNull(dirPath);
+        List<File> list = new ArrayList<>();
+        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                list.add(new File(path.toString()));
+                return FileVisitResult.CONTINUE;
+            }
+        };
+        Files.walkFileTree(dirPath, visitor);
+        return list;
+    }
+
+    public List<File> getFoldersFrom(String dirPath) throws IOException{
+        Objects.requireNonNull(dirPath);
+        return getFoldersFrom(FileSystems.getDefault().getPath(dirPath));
+    }
+
+    public List<File> getFoldersFrom(File dir) throws IOException{
+        Objects.requireNonNull(dir);
+        return getFoldersFrom(dir.toPath());
+    }
+
+    /**
+     * Depth is 1. All sub-folders are ignored.
+     * @param dirPath the directory path.
+     * @return a list of folders in this directory.
+     * @throws IOException
+     */
+    public List<File> getFoldersFrom(Path dirPath) throws IOException{
+        Objects.requireNonNull(dirPath);
+        List<File> list = new ArrayList<>();
+        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs) throws IOException {
+                list.add(new File(path.toString()));
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+        };
+        Files.walkFileTree(dirPath, visitor);
+        return list;
     }
 
     //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds one jar

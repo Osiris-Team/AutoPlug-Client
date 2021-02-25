@@ -78,29 +78,26 @@ public class TaskServerFilesBackup extends BetterThread {
 
         if (config.backup_server_files.asBoolean()) {
             setStatus("Creating backup zip...");
-
             List<File> serverFiles = new FileManager().serverFiles();
             ZipFile zip = new ZipFile(server_backup_dest);
 
             setMax(serverFiles.size());
 
             //Add each file to the zip
-            File file = null;
-            try{
-                for (int i = 0; i < serverFiles.size(); i++) {
-                    file = serverFiles.get(i);
+            for (File file : serverFiles) {
+                setStatus("Backing up server-files... " + file.getName());
+                try{
                     zip.addFile(file);
-                    setStatus("Creating backup zip... "+file.getName());
-                    step();
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this,e, "Failed to add "+file.getName()+" to zip."));
                 }
-            } catch (Exception e) {
-                getWarnings().add(new BetterWarning(this,e, "Failed to add "+file.getName()+" to zip."));
+                step();
             }
 
-            AL.debug(this.getClass(), "Created backup to: "+server_backup_dest);
+            AL.debug(this.getClass(), "Created server-files-backup to: "+server_backup_dest);
             setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
         } else{
-            setStatus("Skipped backup...");
+            setStatus("Skipped server-files-backup...");
             skip();
         }
         finish();

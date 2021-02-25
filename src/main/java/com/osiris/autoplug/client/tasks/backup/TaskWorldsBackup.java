@@ -25,6 +25,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -77,30 +78,27 @@ public class TaskWorldsBackup extends BetterThread {
 
 
         if (config.backup_worlds.asBoolean()) {
-            setStatus("Creating backup zip...");
-
-            List<File> worldsFiles = new FileManager().serverWorldsFolders();
+            setStatus("Searching for worlds...");
+            List<File> worlds = new FileManager().serverWorldsFolders();
             ZipFile zip = new ZipFile(worlds_backup_dest);
 
-            setMax(worldsFiles.size());
+            setMax(worlds.size());
 
             //Add each file to the zip
-            File file = null;
-            try{
-                for (int i = 0; i < worldsFiles.size(); i++) {
-                    file = worldsFiles.get(i);
-                    zip.addFile(file);
-                    setStatus("Creating backup zip... "+file.getName());
-                    step();
+            for (File file : worlds) {
+                setStatus("Backing up worlds... "+file.getName());
+                try {
+                    zip.addFolder(file);
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }
-            } catch (Exception e) {
-                getWarnings().add(new BetterWarning(this, e, "Failed to add "+file.getName()+" to zip."));
+                step();
             }
 
-            AL.debug(this.getClass(), "Created backup to: "+worlds_backup_dest);
+            AL.debug(this.getClass(), "Created worlds-backup to: "+worlds_backup_dest);
             setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
         } else{
-            setStatus("Skipped backup...");
+            setStatus("Skipped worlds backup...");
             skip();
         }
         finish();
