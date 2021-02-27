@@ -21,11 +21,13 @@
     <description>Responsible for all the main actions.</description>
 
 
+    <!--Important for AutoPlugs SelfUpdater! -->
     <properties>
-        <java.version>1.8</java.version>
+        <id>0</id>
+        <name>${project.name}</name>
+        <version>${project.version}</version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
 
     <repositories>
         <repository>
@@ -127,8 +129,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 
@@ -169,7 +171,27 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--Important for AutoPlugs SelfUpdater! -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/autoplug</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

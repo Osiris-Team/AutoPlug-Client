@@ -10,6 +10,7 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.server.UserInput;
@@ -20,6 +21,9 @@ import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -34,6 +38,13 @@ public class Main {
             gc.checkFilePermission();
             gc.checkInternetAccess();
             gc.addShutDownHook();
+
+            // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
+            File curDir = new File(System.getProperty("user.dir"));
+            if(curDir.getName().equals("autoplug-downloads")){
+                doUpdateInstall(curDir.getParentFile());
+                return;
+            }
 
             FileChecker fc = new FileChecker();
             fc.check();
@@ -120,5 +131,30 @@ public class Main {
             AL.error(e.getMessage(), e);
         }
 
+    }
+
+    /**
+     * If this method is called, it means that the current jars location
+     * is in the downloads directory and we need to install it.
+     * For that we take the parent directory (which should be the server root)
+     * search for the AutoPlug-Client.jar in it and overwrite it with our current jar.
+     * @param parentDir
+     */
+    private static void doUpdateInstall(File parentDir) {
+        // Search for the AutoPlug-Client.jar in the parent folder
+        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                System.out.println("VISIT: "+path.toString());
+                if (path.toFile().getName().equals("AutoPlug-Client.jar"))
+                    System.out.println("FOUND IT YAYYY: "+path.toString());
+                return FileVisitResult.CONTINUE;
+            }
+        };
+        try{
+            Files.walkFileTree(parentDir.toPath(), visitor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

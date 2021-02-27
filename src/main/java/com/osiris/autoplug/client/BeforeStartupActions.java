@@ -34,7 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Stuff that is executed before starting the minecraft server
+ * Stuff that is executed before starting the minecraft server.
  */
 public class BeforeStartupActions {
     private TasksConfig tasksConfig = new TasksConfig();

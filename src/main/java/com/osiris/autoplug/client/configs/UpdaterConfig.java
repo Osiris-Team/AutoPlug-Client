@@ -14,6 +14,10 @@ import com.osiris.dyml.DreamYaml;
 
 public class UpdaterConfig extends DreamYaml {
 
+    public DYModule self_updater;
+    public DYModule self_updater_profile;
+    public DYModule self_updater_build;
+
     public DYModule server_updater;
     public DYModule server_updater_profile;
     public DYModule server_software;
@@ -44,6 +48,11 @@ public class UpdaterConfig extends DreamYaml {
                     "MANUAL: Only downloads the updates to /autoplug-downloads.\n" +
                     "AUTOMATIC: Downloads and installs updates automatically.");
 
+            self_updater = add(name,"self-updater","enable").setDefValue("true").setComments("Executed before mc server startup.",
+                    "Responsible for updating AutoPlug.");
+            self_updater_profile = add(name,"self-updater","profile").setDefValue("MANUAL");
+            self_updater_build = add(name,"self-updater","build").setDefValue("stable").setComments("Choose between 'stable' and 'beta' builds.",
+                    "Stable builds are recommended.");
 
             server_updater = add(name,"server-updater","enable").setDefValue("false").setComment("Executed before mc server startup.");
 
@@ -82,11 +91,18 @@ public class UpdaterConfig extends DreamYaml {
     }
 
     private void validateOptions() {
+        String selfP = self_updater_profile.asString();
         String sP = server_updater_profile.asString();
         String uP = plugin_updater_profile.asString();
 
-        if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC") ){
+        if (selfP.equals("NOTIFY") || selfP.equals("MANUAL") || selfP.equals("AUTOMATIC") ){
+        } else{
+            String correction = "NOTIFY";
+            AL.warn("Config error -> " + self_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            self_updater_profile.setValue(correction);
+        }
 
+        if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC") ){
         } else{
             String correction = "NOTIFY";
             AL.warn("Config error -> " + server_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
@@ -94,7 +110,6 @@ public class UpdaterConfig extends DreamYaml {
         }
 
         if (uP.equals("NOTIFY") || uP.equals("MANUAL") || uP.equals("AUTOMATIC") ){
-
         } else{
             String correction = "NOTIFY";
             AL.warn("Config error -> " + plugin_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
