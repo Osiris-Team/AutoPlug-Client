@@ -6,7 +6,7 @@
 - [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
 - [AutoPlug-Plugin-Development](https://bit.ly/approgress)
 - [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
-- [Discord](https://discord.com/invite/GGNmtCC)
+- Support and chat over on [Discord](https://discord.com/invite/GGNmtCC)
 
 ## AutoPlug-Client | General
 AutoPlug-Client(AutoPlug.jar) interacts with our online server and performs all main tasks.
