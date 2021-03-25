@@ -1,11 +1,8 @@
 ![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
-## Quick-Links
-- [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases)
-- [AutoPlug-Client](https://github.com/Osiris-Team/AutoPlug-Client)
-- [AutoPlug-Client-Development](https://bit.ly/acprogress)
-- [AutoPlug-Plugin](https://github.com/Osiris-Team/AutoPlug-Plugin)
-- [AutoPlug-Plugin-Development](https://bit.ly/approgress)
-- [Spigot](https://www.spigotmc.org/members/osiristeam.935748/)
+## Links
+- Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
+- For beta versions visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
+- Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
 - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC)
 
 ## AutoPlug-Client | General
