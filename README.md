@@ -18,11 +18,11 @@ If you are planing to do big changes, create an issue first, where you explain w
  2. Starts your minecraft server
 
 ## AutoPlug-Client | Libraries
-- [Jansi](https://github.com/fusesource/jansi)
-- [HtmlUnit](https://htmlunit.sourceforge.io/)
-- [Simple-Yaml](https://github.com/Carleslc/Simple-YAML)
-- [Zip4j](https://github.com/srikanth-lingala/zip4j)
-- [Progressbar](https://github.com/ctongfei/progressbar)
-- [Quartz](http://www.quartz-scheduler.org/)
+- [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug projects in one jar.
+- [Dream-Yaml](https://github.com/Osiris-Team/Dream-Yaml) is used for handling YAML files.
+- For console coloring and task display [Jansi](https://github.com/fusesource/jansi) is used.
+- [HtmlUnit](https://htmlunit.sourceforge.io/) simulates a browser and enables downloading plugin updates.
+- [Zip4j](https://github.com/srikanth-lingala/zip4j) to unpack and handle jar/zips. 
+- Server restarts are scheduled with [Quartz](http://www.quartz-scheduler.org/).
 
 <p align="center"><i>Copyright ©️ 2020 Osiris Team. All rights reserved. Read the "LICENSE" file for details.</i></p>
