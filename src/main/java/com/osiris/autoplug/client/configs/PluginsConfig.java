@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,12 @@ public class PluginsConfig extends DreamYaml {
             else
                 save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
 
-        } catch (Exception e) {
+        }
+        catch (DuplicateKeyException e){
+            AL.error("Duplicate plugin (or plugin name from its plugin.yml) found in your plugins directory. " +
+                    "Remove it and restart AutoPlug.", e);
+        }
+        catch (Exception e) {
             AL.error(e);
         }
     }
