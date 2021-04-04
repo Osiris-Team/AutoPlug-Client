@@ -1,0 +1,16 @@
+- name: Run Changelog CI
+    uses: saadmk11/changelog-ci@v0.7.0
+    with:
+      # Optional, only required when you want more customization
+      # e.g: group your changelog by labels with custom titles,
+      # different version prefix, pull request title and version number regex etc.
+      config_file: changelog-ci-config.json
+      # Optional, This will be used to configure git
+      # defaults to ``github-actions[bot]`` if not provided.
+      committer_username:  'changelog-bot'
+      committer_email:  'changelog@bot.com'
+    env:
+      # optional, only required for ``private`` repositories
+      # and required if the changelog comment 
+      # option is turned on through the config file
+      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
