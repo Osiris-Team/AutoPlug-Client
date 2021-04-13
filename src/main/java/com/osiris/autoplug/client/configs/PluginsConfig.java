@@ -99,7 +99,8 @@ public class PluginsConfig extends DreamYaml {
 
         }
         catch (DuplicateKeyException e){
-            AL.error("Duplicate plugin in /plugins! Please remove and restart AutoPlug.", e);
+            AL.error("Duplicate plugin (or plugin name from its plugin.yml) found in your plugins directory. " +
+                    "Remove it and restart AutoPlug.", e);
         }
         catch (Exception e) {
             AL.error(e);
