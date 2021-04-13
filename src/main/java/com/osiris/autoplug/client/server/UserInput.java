@@ -51,7 +51,7 @@ public class UserInput {
                         try {
                             LogFileWriter.writeToLog(user_input);
                         } catch (Exception e) {
-                            AL.error(e.getMessage(), e);
+                            AL.warn(e,"Failed to write command to log file.");
                         }
 
                     } else if (Server.isRunning()){

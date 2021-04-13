@@ -49,6 +49,8 @@ public class TaskPluginsUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
+
+        DetailedPlugin currentPl = null; // Used for exception details
         try{ // Create this try/catch only for being able to close the connection
             this.setAutoFinish(false); // So that the last finish message is shown.
 
@@ -115,8 +117,10 @@ public class TaskPluginsUpdater extends BetterThread {
             String resultSpigotId;
             String resultBukkitId;
 
+
             for (DetailedPlugin pl :
                     spigotIdPlugins) {
+                currentPl = pl;
                 setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
@@ -141,6 +145,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             for (DetailedPlugin pl :
                     bukkitIdPlugins) {
+                currentPl = pl;
                 setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
@@ -164,6 +169,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             for (DetailedPlugin pl :
                     customLinkPlugins) {
+                currentPl = pl;
                 setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
@@ -188,6 +194,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             for (DetailedPlugin pl :
                     unknownPlugins) {
+                currentPl = pl;
                 setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
@@ -216,6 +223,8 @@ public class TaskPluginsUpdater extends BetterThread {
             // Create this try/catch only for being able to close the connection
             // and rethrow this exception so the Thread finishes
             con.close();
+            if (currentPl!=null)
+                getWarnings().add(new BetterWarning(this, new Exception("Critical error which aborted the plugins updater, while checking plugin: "+currentPl.getName()+"("+currentPl.getVersion()+") from "+currentPl.getInstallationPath())));
             throw e;
         }
 

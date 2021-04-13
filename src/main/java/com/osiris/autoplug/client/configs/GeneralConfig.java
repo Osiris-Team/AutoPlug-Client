@@ -65,7 +65,8 @@ public class GeneralConfig extends DreamYaml {
                             "or by entering its file name below, without its .jar file extension (only if AutoPlug is also in the root directory).");
 
             server_flags_enabled = add(name,"server","flags","enable").setDefValue("true").setComment(
-                    "If you were using java startup flags add them to this list one by one.\n" +
+                    "If you were using java startup flags, add them to the list below.\n" +
+                            "Java startup flags are passed before the -jar part. Example: 'java <flags> -jar ...'\n" +
                     "For flags like - -XX:+UseG1GC (with 2 bars) remove one bar, so it looks like this in the list: - XX:+UseG1GC\n" +
                     "More on this topic:\n" +
                     "https://forums.spongepowered.org/t/optimized-startup-flags-for-consistent-garbage-collection/13239\n" +
@@ -73,12 +74,14 @@ public class GeneralConfig extends DreamYaml {
             server_flags_list = add(name,"server","flags","list").setDefValues("Xms2G","Xmx2G");
 
             server_arguments_enabled = add(name,"server","arguments","enable").setDefValue("true").setComment(
-                    "Arguments that are passed after '... -jar server.jar <arguments>' belong here.\n" +
+                    "If you were using arguments, add them to the list below.\n" +
+                            "Arguments are passed after the '-jar <file-name>.jar' part. Example: '... -jar server.jar <arguments>'\n" +
                     "They can be specific to the server software you are using.\n" +
                     "More on this topic:\n" +
+                            "https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server\n" +
                             "https://bukkit.gamepedia.com/CraftBukkit_Command_Line_Arguments\n" +
-                    "https://www.spigotmc.org/wiki/start-up-parameters/?noRedirect=1");
-            server_arguments_list = add(name,"server","arguments","list").setDefValue("nogui");
+                    "https://www.spigotmc.org/wiki/start-up-parameters");
+            server_arguments_list = add(name,"server","arguments","list").setDefValues("--help","--nogui");
 
 
             cool_down = add(name,"cool-down").setDefValue("5").setComment("Determines the 'before startup tasks' cool-down in minutes. Minimum is 5.");

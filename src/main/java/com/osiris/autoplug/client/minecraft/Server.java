@@ -24,8 +24,6 @@ public final class Server {
     private static Process process;
     private static OutputStream os;
 
-
-
     public static void start(){
 
         try {
@@ -66,7 +64,9 @@ public final class Server {
             stop();
             start();
         }
-        catch (Exception ex){ex.printStackTrace();}
+        catch (Exception e){
+            AL.warn(e);
+        }
     }
 
     public static void stop(){
@@ -93,8 +93,7 @@ public final class Server {
 
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            AL.warn("Error stopping server: "+e.getMessage());
+            AL.warn("Error stopping server!", e);
         }
 
     }
@@ -161,35 +160,36 @@ public final class Server {
 
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.directory();
-        processBuilder.redirectErrorStream(true);
+        //processBuilder.inheritIO();
+        // Fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
+        // but messes input up, because there are 2 scanners on the same stream
         process = processBuilder.start();
     }
 
+    @Deprecated
     private static void createConsole(){
 
         // Then retrieve the process streams
         MC_SERVER_IN = process.getInputStream();
 
         //New thread for input from server console
-        new Thread(new Runnable() {
-            public void run() {
-                try{
-
-                    if (isRunning()){
-                        int b = -1;
-                        while ( (b =  MC_SERVER_IN.read()) != -1 ) {
-                            System.out.write(b);
-                        }
-                        if (!isRunning()){ MC_SERVER_IN.close(); }
+        Thread thread =
+        new Thread(() -> {
+            try{
+                if (isRunning()){
+                    int b = -1;
+                    while ( (b =  MC_SERVER_IN.read()) != -1 ) {
+                        System.out.write(b);
                     }
-
-                } catch (IOException e) {
-                    AL.warn(e);
+                    if (!isRunning()){ MC_SERVER_IN.close(); }
                 }
 
+            } catch (IOException e) {
+                AL.warn(e);
             }
-        }).start();
-
+        });
+        thread.setName("McServerInToConsoleOutThread");
+        thread.start();
     }
 
     public static void submitCommand(String command){

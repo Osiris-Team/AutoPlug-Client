@@ -21,11 +21,23 @@
     <description>Responsible for all the main actions.</description>
 
 
-    <!--Important for AutoPlugs SelfUpdater! -->
+    <!--Important for AutoPlugs Self-Updater! -->
     <properties>
         <id>0</id>
         <name>${project.name}</name>
         <version>${project.version}</version>
+        <installation-path>./${name}.jar</installation-path>
+        <!--
+        The installation path, is where this jar should be installed to
+        You can enter a directory path in linux and windows format.
+        A dot "." like above means in the current jars working directory aka System.getProperty("user.dir").
+        Some examples:
+        ./installDir/MyApp.jar or C:/HelloDir/MyApp.jar
+        -->
+        <main-class>com.osiris.autoplug.client.Main</main-class>
+        <!--
+        The main class or this jars entry point. Is optional.
+        -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -52,7 +64,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>5.9</version>
+            <version>6.3</version>
         </dependency>
 
         <dependency>
@@ -138,16 +150,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
-                    <!-- DO NOT include log4j.properties file in your Jar -->
-                    <excludes>
-                        <exclude>**/log4j.properties</exclude>
-                    </excludes>
                     <archive>
                         <manifest>
                             <!-- Jar file entry point -->
-                            <mainClass>com.osiris.autoplug.client.Main</mainClass>
+                            <mainClass>${main-class}</mainClass>
                         </manifest>
                     </archive>
                     <!-- Output into directory for manual tests -->
@@ -184,7 +192,7 @@
                             <goal>write-project-properties</goal>
                         </goals>
                         <configuration>
-                            <outputFile>${project.build.outputDirectory}/autoplug</outputFile>
+                            <outputFile>${project.build.outputDirectory}/autoplug.properties</outputFile>
                         </configuration>
                     </execution>
                 </executions>
