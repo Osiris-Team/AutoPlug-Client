@@ -23,11 +23,11 @@ import static com.osiris.autoplug.client.utils.GD.MC_SERVER_IN;
  * Read the InputStreams of AutoPlug and the Minecraft server and
  * send it to the AutoPlug server when the user is online.
  */
-public class ConsoleConnection extends SecondaryConnection {
+public class OnlineConsoleConnection extends SecondaryConnection {
     private BufferedWriter bw;
     private Thread thread2;
 
-    public ConsoleConnection() {
+    public OnlineConsoleConnection() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 

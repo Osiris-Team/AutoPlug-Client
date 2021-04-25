@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.network.utils.ClientAuthenticationAtServer;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.InputStream;
@@ -33,12 +32,10 @@ public class SecondaryConnection {
     }
 
     public boolean open() throws Exception {
-        ClientAuthenticationAtServer auth = new ClientAuthenticationAtServer(auth_id);
-        if (auth.isSuccess()){
-            socket = auth.getSocket();
-            in = auth.getIn();
-            out = auth.getOut();
-        }
+        SecuredConnection auth = new SecuredConnection(auth_id);
+        socket = auth.getSocket();
+        in = auth.getInput();
+        out = auth.getOutput();
         return true;
     }
 

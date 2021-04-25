@@ -1,11 +1,9 @@
 package com.osiris.autoplug.client.tasks.updater;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.JsonTools;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 
