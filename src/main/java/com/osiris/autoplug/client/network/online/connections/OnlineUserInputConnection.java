@@ -13,9 +13,16 @@ import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * The user can send commands through the online console.<br>
+ * For that we got this connection, which listens for the user
+ * input at the online console and executes it. 
+ */
 public class OnlineUserInputConnection extends SecondaryConnection {
+    private Thread thread;
 
     public OnlineUserInputConnection(){
         super((byte) 1);
@@ -23,8 +30,9 @@ public class OnlineUserInputConnection extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (super.open()){
-            Thread thread = new Thread(()->{
+        super.open();
+        if (thread==null)
+            thread = new Thread(()->{
                 try{
                     Socket socket = getSocket();
                     socket.setSoTimeout(0);
@@ -32,17 +40,23 @@ public class OnlineUserInputConnection extends SecondaryConnection {
                     while(true){
                         String command = dis.readUTF();
                         Server.submitCommand(command);
-                        AL.info("Got command: "+command);
+                        AL.info("Received Web-Command: "+command);
                     }
                 } catch (Exception e) {
                     AL.warn(this.getClass(), e);
                 }
 
             });
-            thread.start();
-            return true;
+        thread.start();
+        return true;
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        if(thread.isAlive() && !thread.isInterrupted()) {
+            thread.interrupt();
+            thread = null;
         }
-        else
-            return false;
     }
 }

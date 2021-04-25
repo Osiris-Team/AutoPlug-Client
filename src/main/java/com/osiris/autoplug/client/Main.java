@@ -233,7 +233,7 @@ public class Main {
         String              fullyQualifiedClass = stackTraceElement.getClassName();
         String              entryMethod         = stackTraceElement.getMethodName();
         if (!entryMethod.equals("main"))
-            throw new AssertionError("Entry point is not a 'main()': " + fullyQualifiedClass + '.' + entryMethod);
+            throw new AssertionError("Entry method is not called 'main': " + fullyQualifiedClass + '.' + entryMethod);
 
         cmd.add(fullyQualifiedClass);
     }

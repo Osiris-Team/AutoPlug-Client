@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 
 import java.net.Socket;
@@ -17,7 +18,7 @@ import java.net.Socket;
 /**
  * This is a temporary connection, which gets closed after
  * finishing its tasks.
- * It starts a {@link com.osiris.betterthread.BetterThread} which is attached to the given {@link BetterThreadManager} (or creates a new Manager if null).
+ * It starts a {@link BetterThread} which is attached to the given {@link BetterThreadManager} (or creates a new Manager if null).
  */
 public class PluginsUpdaterConnection extends SecondaryConnection {
 
@@ -27,17 +28,13 @@ public class PluginsUpdaterConnection extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (super.open()){
-            try{
-                Socket socket = getSocket();
-                socket.setSoTimeout(0);
-            } catch (Exception e) {
-                AL.warn(e);
-            }
-            return true;
+        super.open();
+        try{
+            Socket socket = getSocket();
+            socket.setSoTimeout(0);
+        } catch (Exception e) {
+            AL.warn(e);
         }
-        else
-            return false;
-
+        return true;
     }
 }

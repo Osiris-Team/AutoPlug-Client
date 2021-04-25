@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Authenticates this clients to the AutoPlug server.
+ * Authenticates this client to the AutoPlug-Web server.
  * Must be extended by each connection.
  */
 public class SecuredConnection {

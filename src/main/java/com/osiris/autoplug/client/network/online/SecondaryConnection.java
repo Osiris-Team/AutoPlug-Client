@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.core.logger.AL;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -39,16 +40,10 @@ public class SecondaryConnection {
         return true;
     }
 
-    public boolean close(){
-        try{
-            if (in!=null) in.close();
-            if (out!=null) out.close();
-            if (socket.isConnected()) socket.close();
-        } catch (Exception e) {
-            AL.warn(this.getClass(), e,"Failed to stop/close connection.");
-            return false;
-        }
-        return true;
+    public void close() throws IOException {
+        if (in!=null) in.close();
+        if (out!=null) out.close();
+        if (socket.isConnected()) socket.close();
     }
 
     public boolean isConnected(){
