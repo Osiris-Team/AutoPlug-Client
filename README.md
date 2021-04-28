@@ -26,6 +26,7 @@ Thank you in advance for every contribution!
 ## AutoPlug-Client | Libraries
 - [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug projects in one jar.
 - [Dream-Yaml](https://github.com/Osiris-Team/Dream-Yaml) is used for handling YAML files.
+- [Better-Thread](https://github.com/Osiris-Team/Better-Thread) enables display of 'live-tasks'.
 - For console coloring and task display [Jansi](https://github.com/fusesource/jansi) is used.
 - [HtmlUnit](https://htmlunit.sourceforge.io/) simulates a browser and enables downloading plugin updates.
 - [Zip4j](https://github.com/srikanth-lingala/zip4j) to unpack and handle jar/zips. 
