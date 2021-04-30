@@ -5,12 +5,18 @@
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
 - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC)
 
-## AutoPlug-Client | General
-AutoPlug-Client(AutoPlug.jar) interacts with our online server and performs all main tasks.
+## AutoPlug-Client | What can it do?
+Well quite a bunch of things actually...
+The most outstanding one beeing (probably), an automated way of updating your servers plugins.
+Then there is some more stuff:
+ - automated server software updating
+ - automated, scheduled server restarting
+ - automated, modularized backup creation
 
 ## AutoPlug-Client | Contribute
-If you never contributed before, read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. 
+If you have never contributed before, we recommend you to read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. 
 If you are planing to do big changes, create an issue first, where you explain what you want to do.
+Thank you in advance for every contribution!
 
 ## AutoPlug-Client | Workflow
 ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
@@ -20,6 +26,7 @@ If you are planing to do big changes, create an issue first, where you explain w
 ## AutoPlug-Client | Libraries
 - [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug projects in one jar.
 - [Dream-Yaml](https://github.com/Osiris-Team/Dream-Yaml) is used for handling YAML files.
+- [Better-Thread](https://github.com/Osiris-Team/Better-Thread) enables display of 'live-tasks'.
 - For console coloring and task display [Jansi](https://github.com/fusesource/jansi) is used.
 - [HtmlUnit](https://htmlunit.sourceforge.io/) simulates a browser and enables downloading plugin updates.
 - [Zip4j](https://github.com/srikanth-lingala/zip4j) to unpack and handle jar/zips. 
