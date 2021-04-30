@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConne
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.DataInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public class MainConnection extends Thread {
     public static OnlineUserInputConnection CON_USER_INPUT;
     public static OnlineConsoleConnection CON_CONSOLE;
     public static PluginsUpdaterConnection CON_PLUGINS_UPDATER;
-    public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS;
+    public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
 
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
 
@@ -80,7 +81,7 @@ public class MainConnection extends Thread {
                             // User is online, so open secondary connections if they weren't already
                             if (!CON_USER_INPUT.isConnected()) CON_USER_INPUT.open();
                             if (!CON_CONSOLE.isConnected()) CON_CONSOLE.open();
-                            if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open();
+                            //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         }
                         else{
                             if (!msgOffline){
@@ -92,7 +93,7 @@ public class MainConnection extends Thread {
                             // Close secondary connections when user is offline/logged out
                             if (CON_USER_INPUT.isConnected()) CON_USER_INPUT.close();
                             if (CON_CONSOLE.isConnected()) CON_CONSOLE.close();
-                            if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close();
+                            //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                         }
                         Thread.sleep(1000);
                     }

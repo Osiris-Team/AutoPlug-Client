@@ -35,11 +35,12 @@ public class TasksConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            live_tasks = add(name,"live-tasks","enable").setDefValue("false").setComment(
-                    "Enable this to view the detailed progress of a task. Currently only works for windows.\n" +
-                            "Enabling this on unsupported OS will result in console spam.");
+            live_tasks = add(name,"live-tasks","enable").setDefValue("true").setComment(
+                    "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
+                            "Enabling this on unsupported platform will result in console spam.");
             refresh_interval = add(name,"live-tasks","refresh-interval").setDefValue("250").setComment(
-                    "How often a task should get refreshed and update its information. 250 milliseconds are recommended.");
+                    "Refresh interval in milliseconds.\n" +
+                            "How often a task should get refreshed and update its information. Default is: 250ms");
 
             save();
 
