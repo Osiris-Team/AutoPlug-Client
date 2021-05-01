@@ -10,13 +10,8 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.minecraft.Server;
-import com.osiris.autoplug.client.network.online.MainConnection;
-import com.osiris.autoplug.client.server.UserInput;
-import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 
 import java.io.File;
@@ -30,40 +25,51 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Stuff that starts before the logger
         try{
+            // Check various things to ensure an fully functioning application.
+            // If one of these checks fails this application is stopped.
             System.out.println("Initialising "+ GD.VERSION);
-
-            GeneralCheck gc = new GeneralCheck();
-            gc.checkFilePermission();
-            gc.checkInternetAccess();
-
-            // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
-            File curDir = new File(System.getProperty("user.dir"));
-            if(curDir.getName().equals("autoplug-downloads")){
-                doUpdateInstall(curDir.getParentFile());
-                return;
-            }
-
-            // After the self update check
-            gc.addShutDownHook();
+            SystemChecker system = new SystemChecker();
+            system.checkReadWritePermissions();
+            system.checkInternetAccess();
+            system.checkMissingFiles();
+            system.addShutDownHook();
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
+        // Start the logger
+        DreamYaml logC = new DreamYaml(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
+        new AL().start("AutoPlug",
+                logC, // must be a new DreamYaml and not the LoggerConfig
+                new File(System.getProperty("user.dir")+"/autoplug-logs")
+        );
+        logC.printAll();
 
         try{
-            FileChecker fc = new FileChecker();
-            fc.check();
+            // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
+            File curDir = new File(System.getProperty("user.dir"));
+            if(curDir.getName().equals("autoplug-downloads")){
+                installUpdateAndStartIt(curDir.getParentFile());
+                return;
+            }
 
-            // Initialises the logging system
-            DreamYaml logC = new DreamYaml(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
-            new AL().start("AutoPlug",
-                    logC, // must be a new DreamYaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir")+"/autoplug-logs")
-            );
-            logC.printAll();
+            // Check for updates
+            try{
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*
+        try{
+
+
+
 
 
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
@@ -142,16 +148,18 @@ public class Main {
         } catch (Exception e) {
             AL.error(e.getMessage(), e);
         }
+
+         */
     }
 
     /**
      * If this method is called, it means that the current jars location
      * is in the downloads directory and we need to install it.
      * For that we take the parent directory (which should be the server root)
-     * search for the AutoPlug-Client.jar in it and overwrite it with our current jar.
+     * search for the AutoPlug-Client.jar in it and overwrite it with our current jars copy.
      * @param parentDir
      */
-    private static void doUpdateInstall(File parentDir) throws Exception {
+    private static void installUpdateAndStartIt(File parentDir) throws Exception {
 
         UpdaterConfig updaterConfig = new UpdaterConfig();
         if (!updaterConfig.self_updater.asBoolean())
@@ -161,32 +169,51 @@ public class Main {
         // Search for the AutoPlug-Client.jar in the parent folder
         class MyVisitor<T> extends SimpleFileVisitor<Path>{
             private File oldJar = null;
+            private String fileToFindName;
+
+            public MyVisitor(String fileToFindName) {
+                this.fileToFindName = fileToFindName;
+            }
 
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                if (path.toFile().getName().equals("AutoPlug-Client.jar")){
+                if (path.toFile().getName().equals(fileToFindName)){
                     oldJar = path.toFile();
+                    System.out.println("Found: "+path);
                     return FileVisitResult.TERMINATE;
                 }
                 return FileVisitResult.CONTINUE;
             }
 
-            public File getOldJar(){
+            public File getResult(){
                 return oldJar;
             }
         }
 
-        MyVisitor<Path> visitor = new MyVisitor<>();
-        Files.walkFileTree(parentDir.toPath(), visitor);
-        File oldJar = visitor.getOldJar();
+        MyVisitor<Path> visitor = new MyVisitor<Path>("AutoPlug-Client.jar");
+        Files.walkFileTree(parentDir.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor);
+        File oldJar = visitor.getResult();
         if (oldJar == null)
             throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar in "+parentDir.getAbsolutePath());
 
-        // Copy and overwrite the old jar with the current new one
-        Files.copy(GD.WORKING_DIR.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // Since we can't copy this jar because its currently running
+        // we rely on a already made copy of it.
+        // That copy should've been done after downloading the update (this jar).
+        MyVisitor<Path> visitor2 = new MyVisitor<Path>("AutoPlug-Client-Copy.jar");
+        Files.walkFileTree(GD.WORKING_DIR.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor2);
+        File copyJar = visitor2.getResult();
+        if (copyJar == null)
+            throw new Exception("Self-Update failed! Cause: Couldn't find the update file 'AutoPlug-Client-Copy.jar' in "+GD.WORKING_DIR.getAbsolutePath());
+
+        // Copy and overwrite the old jar with the update file
+        // Note: Deletion of the current jar and the copy jar are done
+        // at startup.
+        System.out.println("Installing update...");
+        Files.copy(copyJar.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("Success!");
 
         // Start that updated old jar and close this one
-        doRestart(oldJar.getAbsolutePath());
+        startJar(oldJar.getAbsolutePath());
         System.exit(0);
     }
 
@@ -194,14 +221,22 @@ public class Main {
      * Original author: https://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application/48992863#48992863
      * @throws Exception
      */
-    public static void doRestart(String jarPath) throws Exception{
-        List<String> commandsList = new ArrayList<>(32);
-        appendJavaExecutable(commandsList);
-        appendVMArgs(commandsList);
-        appendClassPath(commandsList);
-        appendEntryPoint(commandsList);
+    public static void startJar(String jarPath) throws Exception{
+        class MyArrayList<E> extends ArrayList<E>{
+            @Override
+            public boolean add(E e) {
+                System.out.println("Added: "+e);
+                return super.add(e);
 
-        System.out.println("Restarting AutoPlug with: "+commandsList.toString());
+            }
+        }
+        List<String> commands = new MyArrayList<>();
+        appendJavaExecutable(commands);
+        appendVMArgs(commands);
+        commands.add("-jar");
+        commands.add(jarPath);
+
+        System.out.println("Restarting AutoPlug with: "+commands.toString());
         //new ProcessBuilder(command).inheritIO().start();
     }
 

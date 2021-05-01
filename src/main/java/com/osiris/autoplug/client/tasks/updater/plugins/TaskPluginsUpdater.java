@@ -6,13 +6,12 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater;
+package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.configs.PluginsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
-import com.osiris.autoplug.client.updater.plugins.DetailedPlugin;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;

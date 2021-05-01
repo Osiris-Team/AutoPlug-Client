@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.minecraft;
 
-import com.osiris.autoplug.client.BeforeStartupActions;
+import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
@@ -31,7 +31,7 @@ public final class Server {
                 AL.warn("Server already running!");
             } else{
                 // Runs all processes before starting the server
-                new BeforeStartupActions();
+                new BeforeServerStartupTasks();
 
                 if (GD.SERVER_PATH==null || !GD.SERVER_PATH.exists())
                     throw new Exception("Failed to find your server jar! " +

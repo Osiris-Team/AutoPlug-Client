@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
-import com.osiris.autoplug.client.scheduler.RestartTask;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
@@ -92,7 +91,7 @@ public class TaskDailyRestarter extends BetterThread {
             AL.debug(this.getClass(), "Creating job with name: "+jobName+" trigger:" + triggerName+" min:" + min+" hour:" + h);
 
             //Specify scheduler details
-            JobDetail job = newJob(RestartTask.class)
+            JobDetail job = newJob(RestartJob.class)
                     .withIdentity(jobName, "restartGroup")
                     .build();
 

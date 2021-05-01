@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client;
+package com.osiris.autoplug.client.tasks;
 
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
@@ -18,7 +18,7 @@ import com.osiris.autoplug.client.tasks.backup.TaskServerFilesBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
-import com.osiris.autoplug.client.tasks.updater.TaskPluginsUpdater;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.TaskServerUpdater;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.CoolDownReport;
@@ -36,10 +36,10 @@ import java.util.List;
 /**
  * Stuff that is executed before starting the minecraft server.
  */
-public class BeforeStartupActions {
+public class BeforeServerStartupTasks {
     private TasksConfig tasksConfig = new TasksConfig();
 
-    public BeforeStartupActions() {
+    public BeforeServerStartupTasks() {
 
         try{
 
@@ -50,14 +50,15 @@ public class BeforeStartupActions {
             // Do cool-down check stuff
             String format = "dd/MM/yyyy HH:mm:ss";
             CoolDownReport coolDownReport = new ConfigUtils().checkIfOutOfCoolDown(new SimpleDateFormat(format)); // Get the report first before saving any new values
+            if (!coolDownReport.isOutOfCoolDown()){
+                AL.info("Global cool-down still active! Time remaining: "+ (((coolDownReport.getMsRemaining()/1000)/60D))+" minutes.");
+                AL.info("Note: You can change the global cool-down in the general config.");
+                return;
+            }
+            // Update the cool-down with current time
             SystemConfig systemConfig = new SystemConfig();
             systemConfig.timestamp_last_tasks.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
             systemConfig.save(); // Save the current timestamp to file
-            if (!coolDownReport.isOutOfCoolDown()){
-                AL.info("Cool-down still active! Time remaining: "+ (((coolDownReport.getMsRemaining()/1000)/60D))+" minutes.");
-                AL.info("Note: You can change the cool-down in the general config.");
-                return;
-            }
 
 
             BetterThreadManager man = new BetterThreadManager();

@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater;
 
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import org.junit.jupiter.api.Test;

@@ -33,8 +33,8 @@ public class SystemConfig extends DreamYaml {
                             "#######################################################################################################################");
 
             timestamp_last_tasks = add(name,"timestamp-last-tasks").setComment(
-                    "The last tasks execution timestamp. Used for the 'cool-down' feature.");
-
+                    "The last tasks execution timestamp. Used for the global cool-down feature." +
+                            "Prevents spamming of tasks and execution of tasks through unwanted restarts.");
 
             save();
 

@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.updater.plugins;
+package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.core.logger.AL;

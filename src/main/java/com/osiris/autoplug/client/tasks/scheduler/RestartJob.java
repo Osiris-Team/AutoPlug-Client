@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.scheduler;
+package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.client.minecraft.Server;
@@ -17,14 +17,14 @@ import org.quartz.JobExecutionException;
 
 import java.util.List;
 
-public class CustomRestartTask implements Job {
+public class RestartJob implements Job {
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
         AL.info("Executing scheduled restart in 10sec...");
 
         //Before restarting execute server
-        List<String> commands = new RestarterConfig().c_restarter_commands.asStringList();
+        List<String> commands = new RestarterConfig().restarter_commands.asStringList();
 
         for (int i = 0; i < commands.size(); i++) {
 

@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.scheduler;
+package com.osiris.autoplug.client.tasks.scheduler;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -15,7 +15,7 @@ import org.quartz.impl.StdSchedulerFactory;
 /**
  * Responsible for scheduling restarts.
  */
-public class TaskScheduler {
+public class JobScheduler {
 
     private static Scheduler scheduler;
     private static Scheduler c_scheduler; //WORK IN PROGRESS!

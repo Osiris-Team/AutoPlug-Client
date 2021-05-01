@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
-import com.osiris.autoplug.client.scheduler.CustomRestartTask;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
@@ -72,7 +71,7 @@ public class TaskCustomRestarter extends BetterThread {
         AL.debug(this.getClass(), "Creating job with name: "+jobName+" trigger:" + triggerName+" cron:" + cron);
 
         //Specify scheduler details
-        JobDetail job = newJob(CustomRestartTask.class)
+        JobDetail job = newJob(CustomRestartJob.class)
                 .withIdentity(jobName, "restartGroup")
                 .build();
 

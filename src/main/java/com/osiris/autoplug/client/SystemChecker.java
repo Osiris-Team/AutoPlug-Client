@@ -1,16 +1,18 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.minecraft.Server;
-import com.osiris.autoplug.client.scheduler.TaskScheduler;
+import com.osiris.autoplug.client.tasks.scheduler.JobScheduler;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
-public class GeneralCheck {
+public class SystemChecker {
 
-    public void checkFilePermission() throws Exception{
+    public void checkReadWritePermissions() throws Exception{
         try{
             File test = new File(System.getProperty("user.dir")+"/read-write-test.txt");
             if (!test.exists()){
@@ -51,9 +53,40 @@ public class GeneralCheck {
                     exception.printStackTrace();
                 }
             }
-            TaskScheduler.safeShutdown();
+            JobScheduler.safeShutdown();
             AL.info("See you soon!");
             new AL().stop();
         }, "Shutdown-Thread"));
+    }
+
+
+    /**
+     * Searches for missing files and adds them.
+     */
+    public void checkMissingFiles() {
+        final File working_dir = new File(System.getProperty("user.dir"));
+        final File plugins = new File(working_dir +"/plugins");
+        final File autoplug_system = new File(working_dir +"/autoplug-system");
+        final File autoplug_downloads = new File(working_dir +"/autoplug-downloads");
+        final File autoplug_backups = new File(working_dir +"/autoplug-backups");
+        final File autoplug_backups_server = new File(working_dir +"/autoplug-backups/server");
+        final File autoplug_backups_plugins = new File(working_dir +"/autoplug-backups/plugins");
+        final File autoplug_backups_worlds = new File(working_dir +"/autoplug-backups/worlds");
+        final File autoplug_logs = new File(working_dir +"/autoplug-logs");
+
+        List<File> directories = Arrays.asList(
+                plugins,
+                autoplug_downloads, autoplug_backups, autoplug_backups_server,
+                autoplug_backups_plugins, autoplug_backups_worlds, autoplug_logs,
+                autoplug_system);
+
+        //Iterate through all directories and create missing ones
+        for (File dir :
+                directories) {
+            if (!dir.exists()) {
+                dir.mkdirs();
+                System.out.println(" + Created directory: " + dir.getName());
+            }
+        }
     }
 }

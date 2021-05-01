@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.updater.plugins.DetailedPlugin;
-import com.osiris.autoplug.client.updater.plugins.Plugin;
-import com.osiris.autoplug.client.updater.plugins.PluginManager;
+import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
+import com.osiris.autoplug.client.tasks.updater.plugins.Plugin;
+import com.osiris.autoplug.client.tasks.updater.plugins.PluginManager;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;

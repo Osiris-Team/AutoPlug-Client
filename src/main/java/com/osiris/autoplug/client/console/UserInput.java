@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.server;
+package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.core.logger.AL;
