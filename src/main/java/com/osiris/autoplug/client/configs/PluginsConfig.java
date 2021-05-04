@@ -50,7 +50,7 @@ public class PluginsConfig extends DreamYaml {
                             "The spigot-id of a plugin, can be found directly in the url. Example:\n" +
                             "Url: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
                             "The examples spigot-id is therefore 78414. For the bukkit-id (or project-id) you need to visit the plugins bukkit site and read it from the box at the right.\n" +
-                            "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it successes the spigot-id gets set, else it stays 0).\n" +
+                            "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                             "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
                             "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
                             "If multiple authors are provided, only the first author will be used by the search-algorithm.\n" +
