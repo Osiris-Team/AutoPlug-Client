@@ -10,8 +10,16 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.console.UserInput;
+import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.client.network.online.MainConnection;
+import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
+import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BetterThreadDisplayer;
+import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 
 import java.io.File;
@@ -25,9 +33,10 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // Check various things to ensure an fully functioning application.
+        // If one of these checks fails this application is stopped.
         try{
-            // Check various things to ensure an fully functioning application.
-            // If one of these checks fails this application is stopped.
+            System.out.println();
             System.out.println("Initialising "+ GD.VERSION);
             SystemChecker system = new SystemChecker();
             system.checkReadWritePermissions();
@@ -36,42 +45,57 @@ public class Main {
             system.addShutDownHook();
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("There was an error!");
+            System.err.println("This error is critical and prevents AutoPlugs startup!");
             return;
         }
 
         // Start the logger
-        DreamYaml logC = new DreamYaml(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
-        new AL().start("AutoPlug",
-                logC, // must be a new DreamYaml and not the LoggerConfig
-                new File(System.getProperty("user.dir")+"/autoplug-logs")
-        );
-        logC.printAll();
-
         try{
-            // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
+            DreamYaml logC = new DreamYaml(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
+            logC.load();
+            new AL().start("AutoPlug",
+                    logC.add("autoplug-logger-config", "debug").setDefValue("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    new File(System.getProperty("user.dir")+"/autoplug-logs")
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("There was an error starting the logger!");
+            System.err.println("This error is critical and prevents AutoPlugs startup!");
+            return;
+        }
+
+        // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
+        try{
             File curDir = new File(System.getProperty("user.dir"));
             if(curDir.getName().equals("autoplug-downloads")){
                 installUpdateAndStartIt(curDir.getParentFile());
                 return;
             }
 
-            // Check for updates
+            // Check for updates.
+            // Note that we have to do this, after checking in which directory we are!
             try{
+                BetterThreadManager manager = new BetterThreadManager();
+                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager);
+                displayer.setShowWarnings(true);
+                displayer.setShowDetailedWarnings(true);
+                TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
+                displayer.start();
+                selfUpdater.start();
+
+                while (!selfUpdater.isFinished()) // Wait until the async updating task is finished
+                    Thread.sleep(1000);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                AL.warn(e, "Update check failed!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            AL.warn(e, "Update installation failed!");
         }
 
-        /*
+
         try{
-
-
-
-
-
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
@@ -84,7 +108,7 @@ public class Main {
             AL.info("                                 /___/    ");
             AL.info("");
             AL.info("           "+GD.VERSION+"                ");
-            AL.info("      "+GD.COPYRIGHT+"                   ");
+            AL.info("      "+GD.BY_AUTHOR+"                   ");
             AL.info("         "+GD.OFFICIAL_WEBSITE+"         ");
             AL.info("| ------------------------------------------- |");
             AL.info("Loading configurations...");
@@ -149,7 +173,7 @@ public class Main {
             AL.error(e.getMessage(), e);
         }
 
-         */
+
     }
 
     /**
@@ -222,22 +246,14 @@ public class Main {
      * @throws Exception
      */
     public static void startJar(String jarPath) throws Exception{
-        class MyArrayList<E> extends ArrayList<E>{
-            @Override
-            public boolean add(E e) {
-                System.out.println("Added: "+e);
-                return super.add(e);
-
-            }
-        }
-        List<String> commands = new MyArrayList<>();
+        List<String> commands = new ArrayList<>();
         appendJavaExecutable(commands);
         appendVMArgs(commands);
         commands.add("-jar");
         commands.add(jarPath);
 
         System.out.println("Restarting AutoPlug with: "+commands.toString());
-        //new ProcessBuilder(command).inheritIO().start();
+        new ProcessBuilder(commands).inheritIO().start();
     }
 
     private static void appendJavaExecutable(List<String> cmd) {

@@ -19,7 +19,7 @@ import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
-import com.osiris.autoplug.client.tasks.updater.TaskServerUpdater;
+import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.core.logger.AL;

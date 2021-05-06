@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater;
+package com.osiris.autoplug.client.tasks.updater.server;
 
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;

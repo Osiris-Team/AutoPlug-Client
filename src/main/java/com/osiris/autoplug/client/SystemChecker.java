@@ -54,8 +54,13 @@ public class SystemChecker {
                 }
             }
             JobScheduler.safeShutdown();
-            AL.info("See you soon!");
-            new AL().stop();
+            if(AL.isStarted){
+                AL.info("See you soon!");
+                new AL().stop();
+            }
+            else{
+                System.out.println("See you soon!");
+            }
         }, "Shutdown-Thread"));
     }
 

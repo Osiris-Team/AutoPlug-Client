@@ -19,8 +19,8 @@ public class GD {
     public static final String OFFICIAL_WEBSITE = "https://autoplug.online/";
     public static final String OFFICIAL_WEBSITE_RAW = "autoplug.online";
     public static final String OFFICIAL_WEBSITE_IP = "144.91.78.158";
-    public static final String VERSION = "AutoPlug-Client - v0.9";
-    public static final String COPYRIGHT = "Copyright (c) 2020 Osiris Team";
+    public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
+    public static final String BY_AUTHOR = "by Osiris Team";
     public static final String COPYRIGHT_WEBSITE = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Client/master/LICENSE";
 
     public static File WORKING_DIR = new File(System.getProperty("user.dir"));
@@ -34,5 +34,13 @@ public class GD {
         if (LATEST_LOG==null) LATEST_LOG = new File(WORKING_DIR+"/autoplug-logs/latest.log");
         if (!LATEST_LOG.exists()) LATEST_LOG.mkdirs();
         return LATEST_LOG;
+    }
+
+    static {
+        try {
+            VERSION = "AutoPlug-Client - "+ new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

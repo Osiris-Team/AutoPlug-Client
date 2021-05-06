@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater;
+package com.osiris.autoplug.client.tasks.updater.server;
 
 import com.google.gson.JsonArray;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
