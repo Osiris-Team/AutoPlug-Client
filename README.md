@@ -14,8 +14,7 @@ Then there is some more stuff:
  - automated, modularized backup creation
  - note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
 
-## AutoPlug-Client | Contribute
-![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
+## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 If you have never contributed before, we recommend you to read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. 
 If you are planing to do big changes, create an issue first, where you explain what you want to do.
 Thank you in advance for every contribution!
