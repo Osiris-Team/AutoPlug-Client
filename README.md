@@ -3,7 +3,7 @@
 - Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
 - For beta versions visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
-- Support and chat over at [Discord](https://discord.com/invite/GGNmtCC)
+- Support, chat, updates and news over at [Discord](https://discord.com/invite/GGNmtCC)
 
 ## AutoPlug-Client | What can it do?
 Well quite a bunch of things actually...
