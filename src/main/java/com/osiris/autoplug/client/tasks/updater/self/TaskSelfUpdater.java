@@ -157,13 +157,13 @@ public class TaskSelfUpdater extends BetterThread {
                                 setSuccess(true);
                             }
                             else{
-                                setStatus("Downloaded server update is broken. Nothing changed!");
+                                setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
                                 setSuccess(false);
                             }
 
                         }
                         else{
-                            setStatus("Server update failed!");
+                            setStatus("AutoPlug update failed!");
                             setSuccess(false);
                         }
                         break;
@@ -173,7 +173,7 @@ public class TaskSelfUpdater extends BetterThread {
 
         }
         else{
-            setStatus("Your server is on the latest version!");
+            setStatus("AutoPlug is on the latest version!");
             setSuccess(true);
         }
 

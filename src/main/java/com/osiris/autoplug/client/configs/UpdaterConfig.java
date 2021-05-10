@@ -50,7 +50,7 @@ public class UpdaterConfig extends DreamYaml {
 
             self_updater = add(name,"self-updater","enable").setDefValue("true").setComments("Executed before mc server startup.",
                     "Responsible for updating AutoPlug.");
-            self_updater_profile = add(name,"self-updater","profile").setDefValue("MANUAL");
+            self_updater_profile = add(name,"self-updater","profile").setDefValue("AUTOMATIC");
             self_updater_build = add(name,"self-updater","build").setDefValue("stable").setComments("Choose between 'stable' and 'beta' builds.",
                     "Stable builds are recommended.");
 

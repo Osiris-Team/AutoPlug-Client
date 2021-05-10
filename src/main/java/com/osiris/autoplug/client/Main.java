@@ -77,7 +77,7 @@ public class Main {
             // Note that we have to do this, after checking in which directory we are!
             try{
                 BetterThreadManager manager = new BetterThreadManager();
-                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager);
+                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager, "AutoPlug", "TASK");
                 displayer.setShowWarnings(true);
                 displayer.setShowDetailedWarnings(true);
                 TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
@@ -107,9 +107,9 @@ public class Main {
             AL.info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
             AL.info("                                 /___/    ");
             AL.info("");
-            AL.info("           "+GD.VERSION+"                ");
-            AL.info("      "+GD.BY_AUTHOR+"                   ");
-            AL.info("         "+GD.OFFICIAL_WEBSITE+"         ");
+            AL.info("Version: "+GD.VERSION);
+            AL.info("Author: "+GD.BY_AUTHOR);
+            AL.info("Web-Panel: "+GD.OFFICIAL_WEBSITE);
             AL.info("| ------------------------------------------- |");
             AL.info("Loading configurations...");
 
@@ -149,7 +149,6 @@ public class Main {
             AL.debug(Main.class,"WORKING DIR: "+ GD.WORKING_DIR);
             AL.debug(Main.class,"SERVER FILE: "+ GD.SERVER_PATH);
 
-            AL.info("AutoPlug initialised!");
             AL.info("| ------------------------------------------- |");
 
             String key = generalConfig.server_key.asString();
