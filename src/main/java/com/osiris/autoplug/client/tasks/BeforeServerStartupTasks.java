@@ -123,7 +123,7 @@ public class BeforeServerStartupTasks {
                 all) {
             for (String s :
                     t.getSummary()) {
-                AL.info("[SUMMARY] ["+t.getName()+"] "+s);
+                AL.info(s);
             }
 
         }
@@ -133,10 +133,7 @@ public class BeforeServerStartupTasks {
 
         for (BetterWarning w :
                 allWarnings) {
-            String extra = w.getExtraInfo();
-            if (extra==null && w.getException()!=null && w.getException().getMessage()!=null)
-                extra = w.getException().getMessage();
-            AL.warn("["+w.getThread().getName()+"] "+extra , w.getException());
+            AL.warn(w.getException(), w.getExtraInfo());
         }
     }
 
