@@ -19,10 +19,11 @@ import static com.osiris.autoplug.client.utils.GD.MC_SERVER_IN;
 /**
  * Read the InputStreams of AutoPlug and the Minecraft server and
  * send it to the AutoPlug server when the user is online.
+ * Note that
  */
 public class OnlineConsoleConnection extends SecondaryConnection {
-    private BufferedWriter bw;
-    private Thread thread;
+    private static BufferedWriter bw;
+    private static Thread thread;
 
     public OnlineConsoleConnection() {
         super((byte) 2);  // Each connection has its own auth_id.
@@ -44,20 +45,27 @@ public class OnlineConsoleConnection extends SecondaryConnection {
         if (thread==null){
             thread = new Thread(()->{
                 try{
-                    if (MC_SERVER_IN!=null){
-                        byte counter = 0;
-                        InputStreamReader isr = new InputStreamReader(MC_SERVER_IN);
-                        BufferedReader br = new BufferedReader(isr);
-                        while(true)
-                            try {
-                                send(br.readLine());
-                            } catch (Exception e) {
-                                counter++;
-                                if (counter<3)
-                                    AL.warn("Failed to send message to online console!", e);
-                            }
+                    while(true){
+                        if (MC_SERVER_IN!=null){
+                            byte counter = 0;
+                            InputStreamReader isr = new InputStreamReader(MC_SERVER_IN);
+                            BufferedReader br = new BufferedReader(isr);
+                            while(true)
+                                try {
+                                    send(br.readLine());
+                                } catch (Exception e) {
+                                    counter++;
+                                    if (counter<3)
+                                        AL.warn("Failed to send message to online console!", e);
+                                }
+                        }
+                        else {
+                            AL.debug(this.getClass(), "Error while trying to fetch Minecraft servers InputStream: It's null. Retrying in 10 seconds...");
+                            Thread.sleep(10000);
+                        }
+
                     }
-                    else throw new Exception("Failed to get mc-server InputStream, because its null!");
+
                 } catch (Exception e) {
                     AL.warn(e);
                 }
@@ -72,13 +80,13 @@ public class OnlineConsoleConnection extends SecondaryConnection {
 
     @Override
     public void close() throws IOException {
-        super.close();
         if(thread.isAlive() && !thread.isInterrupted()) {
             thread.interrupt();
             thread = null;
             try{bw.close();} catch (Exception ignored){};
             bw = null;
         }
+        super.close();
     }
 
     public synchronized void send(String message) throws Exception{

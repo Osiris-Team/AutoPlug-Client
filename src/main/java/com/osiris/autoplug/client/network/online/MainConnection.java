@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConne
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,10 +100,22 @@ public class MainConnection extends Thread {
                     }
                 } catch (Exception e) {
                     AL.warn("Lost connection to AutoPlug-Web! Reconnecting in 30 seconds...", e);
+
+                    // Close child connections
+                    try{
+                        CON_USER_INPUT.close();
+                    } catch (IOException ignored) { }
+
+                    try{
+                        CON_CONSOLE.close();
+                    } catch (IOException ignored) { }
+
                     Thread.sleep(30000);
                     try{
+                        AL.info("Authenticating server...");
                         auth = new SecuredConnection((byte) 0);
                         dis = new DataInputStream(auth.getInput());
+                        AL.info("Authentication success!");
                     } catch (Exception exception) {
                         AL.warn(e);
                     }

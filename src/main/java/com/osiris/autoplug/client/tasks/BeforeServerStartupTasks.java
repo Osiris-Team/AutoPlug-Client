@@ -52,7 +52,7 @@ public class BeforeServerStartupTasks {
             CoolDownReport coolDownReport = new ConfigUtils().checkIfOutOfCoolDown(new SimpleDateFormat(format)); // Get the report first before saving any new values
             if (!coolDownReport.isOutOfCoolDown()){
                 AL.info("Global cool-down still active! Time remaining: "+ (((coolDownReport.getMsRemaining()/1000)/60D))+" minutes.");
-                AL.info("Note: You can change the global cool-down in the general config.");
+                AL.info("Note: The global cool-down can be changed in the general config.");
                 return;
             }
             // Update the cool-down with current time

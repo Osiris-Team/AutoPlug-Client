@@ -22,7 +22,7 @@ import java.net.Socket;
  * input at the online console and executes it. 
  */
 public class OnlineUserInputConnection extends SecondaryConnection {
-    private Thread thread;
+    private static Thread thread;
 
     public OnlineUserInputConnection(){
         super((byte) 1);
@@ -53,10 +53,10 @@ public class OnlineUserInputConnection extends SecondaryConnection {
 
     @Override
     public void close() throws IOException {
-        super.close();
         if(thread.isAlive() && !thread.isInterrupted()) {
             thread.interrupt();
             thread = null;
         }
+        super.close();
     }
 }

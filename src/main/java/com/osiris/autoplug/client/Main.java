@@ -77,7 +77,7 @@ public class Main {
             // Note that we have to do this, after checking in which directory we are!
             try{
                 BetterThreadManager manager = new BetterThreadManager();
-                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager, "AutoPlug", "TASK");
+                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager, "[AutoPlug]", "[TASK]");
                 displayer.setShowWarnings(true);
                 displayer.setShowDetailedWarnings(true);
                 TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
