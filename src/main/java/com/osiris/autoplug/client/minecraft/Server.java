@@ -48,7 +48,7 @@ public final class Server {
                 AL.info("Starting server in 1");
                 Thread.sleep(1000);
                 createProcess(GD.SERVER_PATH.toPath().toString());
-                createConsole();
+                //createConsole();
             }
 
         }
@@ -159,10 +159,10 @@ public final class Server {
 
 
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory();
-        //processBuilder.inheritIO();
+        processBuilder.inheritIO();
         // Fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
         // but messes input up, because there are 2 scanners on the same stream
+        // I temp disabled the AutoPlug Console input.
         process = processBuilder.start();
     }
 

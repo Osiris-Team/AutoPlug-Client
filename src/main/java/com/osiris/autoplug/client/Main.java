@@ -165,7 +165,8 @@ public class Main {
             MainConnection mainConnection = new MainConnection();
             mainConnection.start();
 
-            UserInput.keyboard();
+            // Temporarily disable user input
+            //UserInput.keyboard();
             Server.start();
 
         } catch (Exception e) {

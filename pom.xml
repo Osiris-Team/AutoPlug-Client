@@ -21,7 +21,10 @@
     <description>Responsible for all the main actions.</description>
 
 
-    <!--Important for AutoPlugs Self-Updater! -->
+    <!--
+    Important for AutoPlugs Self-Updater!
+    Also take look at <build> where these properties get turned into the actual autoplug.properties file.
+    -->
     <properties>
         <id>0</id>
         <name>${project.name}</name>
@@ -64,7 +67,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>6.8</version>
+            <version>7.0</version>
         </dependency>
 
         <dependency>
@@ -180,7 +183,7 @@
                 </executions>
             </plugin>
 
-            <!--Important for AutoPlugs SelfUpdater! -->
+            <!--Important for AutoPlugs Self-Updater! -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
