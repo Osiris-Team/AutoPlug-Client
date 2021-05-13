@@ -73,15 +73,16 @@ public class GeneralConfig extends DreamYaml {
                             "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
             server_flags_list = add(name,"server","flags","list").setDefValues("Xms2G","Xmx2G");
 
-            server_arguments_enabled = add(name,"server","arguments","enable").setDefValue("true").setComment(
+            server_arguments_enabled = add(name, "server", "arguments", "enable").setDefValue("true").setComment(
                     "If you were using arguments, add them to the list below.\n" +
                             "Arguments are passed after the '-jar <file-name>.jar' part. Example: '... -jar server.jar <arguments>'\n" +
-                    "They can be specific to the server software you are using.\n" +
-                    "More on this topic:\n" +
+                            "They can be specific to the server software you are using.\n" +
+                            "Note that typos/wrong arguments may prevent your server from starting!\n" +
+                            "More on this topic:\n" +
                             "https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server\n" +
                             "https://bukkit.gamepedia.com/CraftBukkit_Command_Line_Arguments\n" +
-                    "https://www.spigotmc.org/wiki/start-up-parameters");
-            server_arguments_list = add(name,"server","arguments","list").setDefValues("--help","--nogui");
+                            "https://www.spigotmc.org/wiki/start-up-parameters");
+            server_arguments_list = add(name, "server", "arguments", "list").setDefValues("--nogui");
 
 
             cool_down = add(name,"cool-down").setDefValue("5").setComment("Determines the 'before startup tasks' cool-down in minutes. Minimum is 5.");

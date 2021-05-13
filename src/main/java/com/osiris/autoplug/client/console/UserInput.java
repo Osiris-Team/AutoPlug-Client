@@ -11,9 +11,8 @@ package com.osiris.autoplug.client.console;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
-import jdk.internal.org.jline.reader.LineReader;
-import jdk.internal.org.jline.reader.LineReaderBuilder;
-import jdk.internal.org.jline.terminal.Terminal;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 
 import static com.osiris.autoplug.core.logger.AL.info;
 import static com.osiris.betterthread.Constants.TERMINAL;
@@ -28,7 +27,7 @@ public class UserInput {
 
                 //Scanner scanner = new Scanner(System.in); // Old
                 LineReader lineReader = LineReaderBuilder.builder()
-                        .terminal((Terminal) TERMINAL)
+                        .terminal(TERMINAL)
                         .build();
 
                 while (true) {

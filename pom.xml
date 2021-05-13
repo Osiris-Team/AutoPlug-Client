@@ -76,6 +76,13 @@
             <version>2.8.6</version>
         </dependency>
 
+        <!-- Extra terminal stuff -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>3.19.0</version>
+        </dependency>
+
         <!-- Requests -->
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
