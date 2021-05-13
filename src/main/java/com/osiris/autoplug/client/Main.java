@@ -10,7 +10,6 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
@@ -193,7 +192,7 @@ public class Main {
         // Search for the AutoPlug-Client.jar in the parent folder
         class MyVisitor<T> extends SimpleFileVisitor<Path>{
             private File oldJar = null;
-            private String fileToFindName;
+            private final String fileToFindName;
 
             public MyVisitor(String fileToFindName) {
                 this.fileToFindName = fileToFindName;
@@ -252,7 +251,7 @@ public class Main {
         commands.add("-jar");
         commands.add(jarPath);
 
-        System.out.println("Restarting AutoPlug with: "+commands.toString());
+        System.out.println("Restarting AutoPlug with: " + commands);
         new ProcessBuilder(commands).inheritIO().start();
     }
 

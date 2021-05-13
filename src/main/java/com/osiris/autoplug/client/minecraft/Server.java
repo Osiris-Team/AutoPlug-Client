@@ -8,23 +8,23 @@
 
 package com.osiris.autoplug.client.minecraft;
 
-import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.osiris.autoplug.client.utils.GD.MC_SERVER_IN;
+import static com.osiris.betterthread.Constants.TERMINAL;
+
 
 public final class Server {
     private static Process process;
-    private static OutputStream os;
+    private static Thread threadServerAliveChecker;
 
-    public static void start(){
+    public static void start() {
 
         try {
             if (isRunning()) {
@@ -73,26 +73,20 @@ public final class Server {
 
         AL.info("Stopping server...");
         try {
-            String stop_command = "stop\n"; //WARNING: Without the \n user input isn't registered by the server console
 
             if (isRunning()) {
-                os = process.getOutputStream();
-                os.write(stop_command.getBytes());
-                os.flush();
+                System.out.println("stop");
                 AL.info("Stop command executed!");
-            } else{
+            } else {
                 AL.warn("Server is not running!");
             }
 
-            while(isRunning()){
+            while (isRunning()) {
                 Thread.sleep(1000);
             }
-            AL.info("Server was stopped!");
-            AL.info("To close AutoPlug(this console) enter .close or .kill");
-            AL.info("or all server enter .help");
-
-
-        } catch (IOException | InterruptedException e) {
+            AL.info("Server was stopped.");
+            AL.info("To stop AutoPlug too, enter '.stop both'.");
+        } catch (InterruptedException e) {
             AL.warn("Error stopping server!", e);
         }
 
@@ -125,15 +119,14 @@ public final class Server {
         return process != null && process.isAlive();
     }
 
-    private static void createProcess(String path) throws IOException {
+    private static void createProcess(String path) throws IOException, InterruptedException {
         GeneralConfig config = new GeneralConfig();
 
         List<String> commands = new ArrayList<>();
         // 1. Which java version should be used
-        if (!config.server_java_version.asString().equals("java")){
+        if (!config.server_java_version.asString().equals("java")) {
             commands.add(config.server_java_version.asString());
-        }
-        else{
+        } else {
             commands.add("java");
         }
 
@@ -150,61 +143,50 @@ public final class Server {
         commands.add(path);
 
         // 4. Add all after-flags
-        if (config.server_arguments_enabled.asBoolean()){
+        if (config.server_arguments_enabled.asBoolean()) {
             List<String> list = config.server_arguments_list.asStringList();
             for (String s : list) {
                 commands.add("" + s);
             }
         }
 
-
-        ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.inheritIO();
         // Fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
-        // but messes input up, because there are 2 scanners on the same stream
-        // I temp disabled the AutoPlug Console input.
+        // but messes input up, because there are 2 scanners on the same stream.
+        // That's why we pause the current Terminal, which disables the user from entering console commands.
+        // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
+        AL.debug(Server.class, "Starting server with commands: " + commands);
+        TERMINAL.pause(true);
+        ProcessBuilder processBuilder = new ProcessBuilder(commands); // The commands list contains all we need.
+        processBuilder.inheritIO();
         process = processBuilder.start();
-    }
 
-    @Deprecated
-    private static void createConsole(){
-
-        // Then retrieve the process streams
-        MC_SERVER_IN = process.getInputStream();
-
-        //New thread for input from server console
-        Thread thread =
-        new Thread(() -> {
-            try{
-                if (isRunning()){
-                    int b = -1;
-                    while ( (b =  MC_SERVER_IN.read()) != -1 ) {
-                        System.out.write(b);
+        // Also create a thread which checks if the server is running or not.
+        // Resume the terminal if the server stopped running, to allow the use of AutoPlug-Commands
+        if (threadServerAliveChecker == null) {
+            threadServerAliveChecker = new Thread(() -> {
+                try {
+                    boolean lastIsRunningCheck = false;
+                    boolean currentIsRunningCheck;
+                    while (true) {
+                        Thread.sleep(5000);
+                        currentIsRunningCheck = Server.isRunning();
+                        if (!currentIsRunningCheck && lastIsRunningCheck) {
+                            TERMINAL.resume();
+                        }
+                        lastIsRunningCheck = currentIsRunningCheck;
                     }
-                    if (!isRunning()){ MC_SERVER_IN.close(); }
+                } catch (Exception e) {
+                    AL.warn("Thread for checking if MC-Server is alive was stopped due to an error.", e);
                 }
-
-            } catch (IOException e) {
-                AL.warn(e);
-            }
-        });
-        thread.setName("McServerInToConsoleOutThread");
-        thread.start();
+            });
+            threadServerAliveChecker.start();
+        }
     }
 
-    public static void submitCommand(String command){
-        try {
-            String final_user_input = command + "\n"; //WARNING: Without the \n user input isn't registered by the server console
-            if (isRunning()) {
-                os = process.getOutputStream();
-                os.write(final_user_input.getBytes());
-                os.flush();
-            }
-            os = null;
-        } catch (IOException e) {
-            AL.warn(e);
+    public static void submitCommand(String command) {
+        if (isRunning()) {
+            System.out.println(command); //WARNING: Without the \n user input isn't registered by the server console
         }
-
     }
 
 }

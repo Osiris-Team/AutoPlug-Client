@@ -11,10 +11,11 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-import static com.osiris.autoplug.client.utils.GD.MC_SERVER_IN;
 
 /**
  * Read the InputStreams of AutoPlug and the Minecraft server and
@@ -43,12 +44,13 @@ public class OnlineConsoleConnection extends SecondaryConnection {
         }
 
         if (thread==null){
+            /*
             thread = new Thread(()->{
                 try{
                     while(true){
-                        if (MC_SERVER_IN!=null){
+                        if (Server.IN!=null){
                             byte counter = 0;
-                            InputStreamReader isr = new InputStreamReader(MC_SERVER_IN);
+                            InputStreamReader isr = new InputStreamReader(Server.IN);
                             BufferedReader br = new BufferedReader(isr);
                             while(true)
                                 try {
@@ -74,6 +76,8 @@ public class OnlineConsoleConnection extends SecondaryConnection {
             });
             thread.setName("MinecraftServer-InputStreamReader-Thread");
             thread.start();
+
+             */
         }
         return true;
     }
@@ -83,7 +87,10 @@ public class OnlineConsoleConnection extends SecondaryConnection {
         if(thread.isAlive() && !thread.isInterrupted()) {
             thread.interrupt();
             thread = null;
-            try{bw.close();} catch (Exception ignored){};
+            try {
+                bw.close();
+            } catch (Exception ignored) {
+            }
             bw = null;
         }
         super.close();

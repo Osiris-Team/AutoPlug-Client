@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.utils;
 
 import java.io.File;
-import java.io.InputStream;
 
 /**
  * GlobalData, which is always static and used frequently in this project
@@ -26,7 +25,6 @@ public class GD {
     public static File WORKING_DIR = new File(System.getProperty("user.dir"));
     public static File PLUGINS_DIR = new File(System.getProperty("user.dir")+"/plugins");
 
-    public static InputStream MC_SERVER_IN; // Get input stream after starting the server
     public static File SERVER_PATH = null; // Gets defined in config
 
     private static File LATEST_LOG;

@@ -40,7 +40,7 @@ public class OnlineUserInputConnection extends SecondaryConnection {
                     while(true){
                         String command = dis.readUTF();
                         Server.submitCommand(command);
-                        AL.info("Received Web-Command: "+command);
+                        AL.info("Executed Web-Command: " + command);
                     }
                 } catch (Exception e) {
                     AL.warn(this.getClass(), e);

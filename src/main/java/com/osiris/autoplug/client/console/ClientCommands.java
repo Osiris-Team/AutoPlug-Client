@@ -17,17 +17,23 @@ import com.osiris.autoplug.core.logger.AL;
  */
 public final class ClientCommands {
 
-    public static boolean isCommand(String command) {
+    /**
+     * Returns true if the provided String is a command
+     * and was executed successfully.
+     *
+     * @param command An AutoPlug command like .help for example.
+     */
+    public static boolean executeCommand(String command) {
 
         String first = ".";
-        try{
+        try {
             first = Character.toString(command.charAt(0));
-        }catch (Exception e){
+        } catch (Exception e) {
             AL.info("Command not found! Enter .help for all available server!");
         }
 
-        if (first.equals(".")){
-            try{
+        if (first.equals(".")) {
+            try {
 
                 if (command.equals(".help") || command.equals(".h")){
                     AL.info("");
