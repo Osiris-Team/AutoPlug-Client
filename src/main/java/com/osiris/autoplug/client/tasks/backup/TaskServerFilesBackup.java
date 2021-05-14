@@ -16,6 +16,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
+import de.kastenklicker.backup.Upload;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -94,10 +95,36 @@ public class TaskServerFilesBackup extends BetterThread {
                 step();
             }
 
-            AL.debug(this.getClass(), "Created server-files-backup to: "+server_backup_dest);
+            //Upload
+            if (config.backup_server_files_upload.asBoolean()) {
+
+                setStatus("Starting upload of server-files backup...");
+
+                Upload upload = new Upload(config.backup_server_files_upload_host.asString(),
+                        config.backup_server_files_upload_port.asInt(),
+                        config.backup_server_files_upload_user.asString(),
+                        config.backup_server_files_upload_password.asString(),
+                        config.backup_server_files_upload_path.asString(),
+                        zip.getFile());
+
+                String rsa = config.backup_server_files_upload_rsa.asString();
+                try {
+                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
+                    else upload.sftp(rsa.trim());
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to upload server-files backup."));
+                }
+
+                setStatus("Uploaded server-files backup successfully with warnings " + getWarnings().size()+" warning(s)!");
+            } else{
+                setStatus("Skipped upload of server-files backup...");
+                skip();
+            }
+
+            AL.debug(this.getClass(), "Created server-files backup to: "+server_backup_dest);
             setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
         } else{
-            setStatus("Skipped server-files-backup...");
+            setStatus("Skipped server-files backup...");
             skip();
         }
         finish();

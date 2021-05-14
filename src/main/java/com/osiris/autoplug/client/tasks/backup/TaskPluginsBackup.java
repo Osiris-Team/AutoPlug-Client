@@ -16,6 +16,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
+import de.kastenklicker.backup.Upload;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -106,6 +107,32 @@ public class TaskPluginsBackup extends BetterThread {
                     getWarnings().add(new BetterWarning(this, e, "Failed to add file "+file.getName()+" to zip."));
                 }
                 step();
+            }
+
+            //Upload
+            if (config.backup_plugins_upload.asBoolean()) {
+
+                setStatus("Starting upload of plugins-backup...");
+
+                Upload upload = new Upload(config.backup_plugins_upload_host.asString(),
+                        config.backup_plugins_upload_port.asInt(),
+                        config.backup_plugins_upload_user.asString(),
+                        config.backup_plugins_upload_password.asString(),
+                        config.backup_plugins_upload_path.asString(),
+                        zip.getFile());
+
+                String rsa = config.backup_plugins_upload_rsa.asString();
+                try {
+                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
+                    else upload.sftp(rsa.trim());
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to upload plugins-backup."));
+                }
+
+                setStatus("Uploaded plugins backup successfully with warnings " + getWarnings().size()+" warning(s)!");
+            } else{
+                setStatus("Skipped upload of plugins-backup...");
+                skip();
             }
 
             AL.debug(this.getClass(), "Created plugins-backup to: "+plugins_backup_dest);
