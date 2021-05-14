@@ -1,4 +1,4 @@
-package de.kastenklicker.backup;
+package de.kastenklicker.upload;
 
 import com.jcraft.jsch.*;
 import org.apache.commons.net.PrintCommandListener;

@@ -16,7 +16,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
-import de.kastenklicker.backup.Upload;
+import de.kastenklicker.upload.Upload;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -117,14 +117,14 @@ public class TaskServerFilesBackup extends BetterThread {
 
                 setStatus("Uploaded server-files backup successfully with warnings " + getWarnings().size()+" warning(s)!");
             } else{
-                setStatus("Skipped upload of server-files backup...");
+                setStatus("Skipped upload of server-files-backup...");
                 skip();
             }
 
             AL.debug(this.getClass(), "Created server-files backup to: "+server_backup_dest);
             setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
         } else{
-            setStatus("Skipped server-files backup...");
+            setStatus("Skipped server-files-backup...");
             skip();
         }
         finish();
