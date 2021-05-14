@@ -16,6 +16,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
+import de.kastenklicker.upload.Upload;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -92,6 +93,32 @@ public class TaskWorldsBackup extends BetterThread {
                     getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }
                 step();
+            }
+
+            //Upload
+            if (config.backup_worlds_upload.asBoolean()) {
+
+                setStatus("Starting upload of worlds-backup...");
+
+                Upload upload = new Upload(config.backup_worlds_upload_host.asString(),
+                        config.backup_worlds_upload_port.asInt(),
+                        config.backup_worlds_upload_user.asString(),
+                        config.backup_worlds_upload_password.asString(),
+                        config.backup_worlds_upload_path.asString(),
+                        zip.getFile());
+
+                String rsa = config.backup_worlds_upload_rsa.asString();
+                try {
+                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
+                    else upload.sftp(rsa.trim());
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e, "Failed to upload worlds backup."));
+                }
+
+                setStatus("Uploaded worlds-backup successfully with warnings " + getWarnings().size()+" warning(s)!");
+            } else{
+                setStatus("Skipped upload of worlds backup...");
+                skip();
             }
 
             AL.debug(this.getClass(), "Created worlds-backup to: "+worlds_backup_dest);
