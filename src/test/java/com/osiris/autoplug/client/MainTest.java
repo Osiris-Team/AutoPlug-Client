@@ -38,7 +38,6 @@ class MainTest {
             actualReadLinesCount.getAndIncrement();
         });
 
-        pipedInput.startThread();
         t1.start();
 
         for (int i = 0; i < 30; i++) { // 30 seconds max waiting for threads to complete
