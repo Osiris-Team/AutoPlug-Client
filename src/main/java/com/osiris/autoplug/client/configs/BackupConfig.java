@@ -77,7 +77,7 @@ public class BackupConfig extends DreamYaml {
                     "The cool-down prevents exactly that from happening, saves you storage space and time.",
                     "Set to 0 to disable."
             );
-            backup_server_files_upload = add(name, "server-files-backup", "upload").setDefValue("false").setComment(
+            backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValue("false").setComment(
                     "Upload backup to FTPS/SFTP server.");
             backup_server_files_upload_host = add(name, "server-files-backup", "upload", "host").setComment(
                     "Set hostname of FTPS/SFTP server.");
@@ -94,7 +94,7 @@ public class BackupConfig extends DreamYaml {
                     "Backups all folders starting with \"world\" to /autoplug-backups/worlds/...zip");
             backup_worlds_max_days = add(name, "worlds-backup", "max-days").setDefValue("7");
             backup_worlds_cool_down = add(name, "worlds-backup", "cool-down").setDefValue("60");
-            backup_worlds_upload = add(name, "worlds-backup", "upload").setDefValue("false");
+            backup_worlds_upload = add(name, "worlds-backup", "upload", "enable").setDefValue("false");
             backup_worlds_upload_host = add(name, "worlds-backup", "upload", "host");
             backup_worlds_upload_port = add(name, "worlds-backup", "upload", "port");
             backup_worlds_upload_user = add(name, "worlds-backup", "upload", "username");
@@ -106,7 +106,7 @@ public class BackupConfig extends DreamYaml {
                     "Backups your plugins folder to /autoplug-backups/plugins/...zip");
             backup_plugins_max_days = add(name, "plugins-backup", "max-days").setDefValue("7");
             backup_plugins_cool_down = add(name, "plugins-backup", "cool-down").setDefValue("60");
-            backup_plugins_upload = add(name, "plugins-backup", "upload").setDefValue("false");
+            backup_plugins_upload = add(name, "plugins-backup", "upload", "enable").setDefValue("false");
             backup_plugins_upload_host = add(name, "plugins-backup", "upload", "host");
             backup_plugins_upload_port = add(name, "plugins-backup", "upload", "port");
             backup_plugins_upload_user = add(name, "plugins-backup", "upload", "username");

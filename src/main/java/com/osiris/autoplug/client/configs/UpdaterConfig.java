@@ -33,31 +33,35 @@ public class UpdaterConfig extends DreamYaml {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment("#######################################################################################################################\n" +
-                            "    ___       __       ___  __\n" +
-                            "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
-                            "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
-                            " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                            "                                /___/ Updater-Config\n" +
-                            "Thank you for using AutoPlug!\n" +
-                            "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                            "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
-                            "\n" +
-                            "#######################################################################################################################\n" +
+                    "    ___       __       ___  __\n" +
+                    "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
+                    "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
+                    " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
+                    "                                /___/ Updater-Config\n" +
+                    "Thank you for using AutoPlug!\n" +
+                    "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                    "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                    "\n" +
+                    "#######################################################################################################################\n" +
+                    "All the updaters below search for updates before your server gets started.\n" +
                     "Available profiles for all updaters are: NOTIFY, MANUAL and AUTOMATIC.\n" +
                     "NOTIFY: Only notifies when updates are available.\n" +
                     "MANUAL: Only downloads the updates to /autoplug-downloads.\n" +
                     "AUTOMATIC: Downloads and installs updates automatically.");
 
-            self_updater = add(name,"self-updater","enable").setDefValue("true").setComments("Executed before mc server startup.",
-                    "Responsible for updating AutoPlug.");
-            self_updater_profile = add(name,"self-updater","profile").setDefValue("AUTOMATIC");
-            self_updater_build = add(name,"self-updater","build").setDefValue("stable").setComments("Choose between 'stable' and 'beta' builds.",
+            self_updater = add(name, "self-updater", "enable").setDefValue("true").setComments(
+                    "AutoPlug is able to update itself automatically.",
+                    "Its strongly recommended to have this feature enabled,",
+                    "to benefit from new features, bug fixes and security enhancements.");
+            self_updater_profile = add(name, "self-updater", "profile").setDefValue("AUTOMATIC");
+            self_updater_build = add(name, "self-updater", "build").setDefValue("stable").setComments(
+                    "Choose between 'stable' and 'beta' builds.",
                     "Stable builds are recommended.");
 
-            server_updater = add(name,"server-updater","enable").setDefValue("false").setComment("Executed before mc server startup.");
+            server_updater = add(name, "server-updater", "enable").setDefValue("false").setComment("Executed before mc server startup.");
 
-            server_updater_profile = add(name,"server-updater","profile").setDefValue("MANUAL");
-            server_software = add(name,"server-updater","software").setDefValue("paper").setComment(
+            server_updater_profile = add(name, "server-updater", "profile").setDefValue("MANUAL");
+            server_software = add(name, "server-updater", "software").setDefValue("paper").setComment(
                     "Select your favorite server software. Enter the name below.\n" +
                             "Currently supported:\n" +
                             "- paper (https://papermc.io/)\n" +

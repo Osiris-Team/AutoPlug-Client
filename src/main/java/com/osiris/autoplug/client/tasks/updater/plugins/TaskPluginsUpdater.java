@@ -66,7 +66,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             long msLeft = online_dis.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
             if (msLeft!=0){
-                finish("Next check possible in " + (msLeft/3600000D) +" hours.");
+                skip("Skipped. Cool-down still active (" + (msLeft / 60000) + " minutes remaining).");
                 return;
             }
 

@@ -111,9 +111,9 @@ public class Main {
             AL.info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
             AL.info("                                 /___/    ");
             AL.info("");
-            AL.info("Version: "+GD.VERSION);
-            AL.info("Author: "+GD.BY_AUTHOR);
-            AL.info("Web-Panel: "+GD.OFFICIAL_WEBSITE);
+            AL.info("Version: " + GD.VERSION);
+            AL.info("Author: " + GD.AUTHOR);
+            AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
             AL.info("| ------------------------------------------- |");
             AL.info("Loading configurations...");
 
