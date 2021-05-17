@@ -9,8 +9,11 @@
 package com.osiris.autoplug.client.tasks.backup;
 
 import com.osiris.autoplug.client.configs.BackupConfig;
+import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.client.utils.ConfigUtils;
+import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
@@ -23,6 +26,7 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.lang.time.DateUtils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -50,16 +54,30 @@ public class TaskWorldsBackup extends BetterThread {
         createWorldFoldersBackup();
     }
 
-    private void createWorldFoldersBackup() throws Exception{
+    private void createWorldFoldersBackup() throws Exception {
         if (Server.isRunning()) throw new Exception("Cannot perform backup while server is running!");
+
+        // Do cool-down check stuff
+        String format = "dd/MM/yyyy HH:mm:ss";
+        CoolDownReport coolDownReport = new ConfigUtils().checkIfOutOfCoolDown(
+                new SimpleDateFormat(format),
+                new SystemConfig().timestamp_last_worlds_backup_task.asString()); // Get the report first before saving any new values
+        if (!coolDownReport.isOutOfCoolDown()) {
+            this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
+            return;
+        }
+        // Update the cool-down with current time
+        SystemConfig systemConfig = new SystemConfig();
+        systemConfig.timestamp_last_worlds_backup_task.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
+        systemConfig.save(); // Save the current timestamp to file
 
         BackupConfig config = new BackupConfig();
 
-        String worlds_backup_dest = autoplug_backups_worlds.getAbsolutePath()+"/worlds-backup-"+formattedDate+".zip";
+        String worlds_backup_dest = autoplug_backups_worlds.getAbsolutePath() + "/worlds-backup-" + formattedDate + ".zip";
         int max_days_worlds = config.backup_worlds_max_days.asInt();
 
         //Removes files older than user defined days
-        if (max_days_worlds<=0) {
+        if (max_days_worlds <= 0) {
             setStatus("Skipping delete of older backups...");
             Thread.sleep(1000);
         }
@@ -98,7 +116,7 @@ public class TaskWorldsBackup extends BetterThread {
             //Upload
             if (config.backup_worlds_upload.asBoolean()) {
 
-                setStatus("Starting upload of worlds-backup...");
+                setStatus("Uploading worlds-backup...");
 
                 Upload upload = new Upload(config.backup_worlds_upload_host.asString(),
                         config.backup_worlds_upload_port.asInt(),
@@ -115,18 +133,21 @@ public class TaskWorldsBackup extends BetterThread {
                     getWarnings().add(new BetterWarning(this, e, "Failed to upload worlds backup."));
                 }
 
-                setStatus("Uploaded worlds-backup successfully with warnings " + getWarnings().size()+" warning(s)!");
-            } else{
-                setStatus("Skipped upload of worlds backup...");
-                skip();
+                if (getWarnings().size() > 0)
+                    setStatus("Completed backup & upload (" + getWarnings().size() + " warnings).");
+                else
+                    setStatus("Completed backup & upload.");
+            } else {
+                if (getWarnings().size() > 0)
+                    setStatus("Completed backup & skipped upload (" + getWarnings().size() + " warnings).");
+                else
+                    setStatus("Completed backup & skipped upload.");
             }
 
-            AL.debug(this.getClass(), "Created worlds-backup to: "+worlds_backup_dest);
-            setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
-        } else{
-            setStatus("Skipped worlds backup...");
+            AL.debug(this.getClass(), "Created worlds-backup to: " + worlds_backup_dest);
+        } else
             skip();
-        }
+
         finish();
     }
 

@@ -14,11 +14,13 @@ import com.osiris.dyml.DreamYaml;
 
 public class SystemConfig extends DreamYaml {
 
-    public DYModule timestamp_last_tasks;
+    public DYModule timestamp_last_server_files_backup_task;
+    public DYModule timestamp_last_worlds_backup_task;
+    public DYModule timestamp_last_plugins_backup_task;
 
     public SystemConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-system/config.yml");
-        try{
+        super(System.getProperty("user.dir") + "/autoplug-system/config.yml");
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(
@@ -32,9 +34,9 @@ public class SystemConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            timestamp_last_tasks = add(name,"timestamp-last-tasks").setComment(
-                    "The last tasks execution timestamp. Used for the global cool-down feature." +
-                            "Prevents spamming of tasks and execution of tasks through unwanted restarts.");
+            timestamp_last_server_files_backup_task = add(name, "timestamp-last-server-files-backup-task");
+            timestamp_last_worlds_backup_task = add(name, "timestamp-last-worlds-backup-task");
+            timestamp_last_plugins_backup_task = add(name, "timestamp-last-plugins-backup-task");
 
             save();
 

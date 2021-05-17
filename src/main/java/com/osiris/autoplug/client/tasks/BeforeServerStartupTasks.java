@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks;
 
 import com.osiris.autoplug.client.configs.BackupConfig;
-import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.configs.TasksConfig;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
@@ -20,17 +19,12 @@ import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
-import com.osiris.autoplug.client.utils.ConfigUtils;
-import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -47,20 +41,6 @@ public class BeforeServerStartupTasks {
             while (!MainConnection.isDone)
                 Thread.sleep(1000);
 
-            // Do cool-down check stuff
-            String format = "dd/MM/yyyy HH:mm:ss";
-            CoolDownReport coolDownReport = new ConfigUtils().checkIfOutOfCoolDown(new SimpleDateFormat(format)); // Get the report first before saving any new values
-            if (!coolDownReport.isOutOfCoolDown()){
-                AL.info("Global cool-down still active! Time remaining: "+ (((coolDownReport.getMsRemaining()/1000)/60D))+" minutes.");
-                AL.info("Note: The global cool-down can be changed in the general config.");
-                return;
-            }
-            // Update the cool-down with current time
-            SystemConfig systemConfig = new SystemConfig();
-            systemConfig.timestamp_last_tasks.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-            systemConfig.save(); // Save the current timestamp to file
-
-
             BetterThreadManager man = new BetterThreadManager();
             BetterThreadDisplayer dis = new BetterThreadDisplayer(
                     man, "[AutoPlug]", "[TASK]", null, false,
@@ -76,9 +56,9 @@ public class BeforeServerStartupTasks {
 
 
             // Create processes
+            TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", man);
             TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", man);
             TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", man);
-            TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", man);
 
             TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", man);
             TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", man);

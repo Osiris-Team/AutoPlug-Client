@@ -38,8 +38,8 @@ public class MainConnection extends Thread {
 
     @Override
     public void run() {
-        super.run();
         try{
+            super.run();
             AL.info("Authenticating server...");
             SecuredConnection auth = new SecuredConnection((byte) 0);
             AL.info("Authentication success!");

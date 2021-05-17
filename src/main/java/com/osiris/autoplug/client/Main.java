@@ -173,15 +173,14 @@ public class Main {
             Server.start();
 
             // We have to keep this main Thread running.
-            // If we don't
+            // If we don't, the NonBlockingPipedInputStream stops working
+            // and thus no information will be sent to the online console, when the user is online.
             while (true)
                 Thread.sleep(1000);
 
         } catch (Exception e) {
             AL.error(e.getMessage(), e);
         }
-
-
     }
 
     /**
