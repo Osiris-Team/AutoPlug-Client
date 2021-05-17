@@ -9,6 +9,8 @@
 package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.client.network.online.MainConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleConnection;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
 import org.jline.reader.LineReader;
@@ -35,17 +37,15 @@ public class UserInput {
                     // Get user input
                     String user_input = lineReader.readLine(); // scanner.nextLine(); // Old
 
-                    // TODO WORK IN PROGRESS
+
                     // Send to online console
-                    /*
                     if (MainConnection.CON_CONSOLE.isConnected())
                         try{
-                            MainConnection.CON_CONSOLE.send(user_input);
+                            OnlineConsoleConnection.send(user_input);
                         } catch (Exception e) {
                             AL.warn(e);
                         }
 
-                     */
 
 
                     //Check if user input is autoplug command or not

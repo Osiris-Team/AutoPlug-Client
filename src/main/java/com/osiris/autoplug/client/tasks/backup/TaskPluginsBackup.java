@@ -135,8 +135,8 @@ public class TaskPluginsBackup extends BetterThread {
                 skip();
             }
 
-            AL.debug(this.getClass(), "Created plugins-backup to: "+plugins_backup_dest);
-            setStatus("Created backup zip successfully with "+ getWarnings().size()+" warning(s)!");
+            AL.debug(this.getClass(), "Created plugins-backup to: " + plugins_backup_dest);
+            setStatus("Created backup zip successfully with " + getWarnings().size() + " warning(s)!"); // TODO display different message when there are 0 warnings
         } else{
             setStatus("Skipped plugins-backup...");
             skip();

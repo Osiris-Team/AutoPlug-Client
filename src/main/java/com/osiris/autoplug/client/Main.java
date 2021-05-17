@@ -16,52 +16,56 @@ import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.MyTeeOutputStream;
+import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class Main {
+    public static NonBlockingPipedInputStream PIPED_IN;
 
     public static void main(String[] args) {
 
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
-        try{
+        try {
             System.out.println();
-            System.out.println("Initialising "+ GD.VERSION);
+            System.out.println("Initialising " + GD.VERSION);
             SystemChecker system = new SystemChecker();
             system.checkReadWritePermissions();
             system.checkInternetAccess();
             system.checkMissingFiles();
             system.addShutDownHook();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("There was an error!");
-            System.err.println("This error is critical and prevents AutoPlugs startup!");
-            return;
-        }
 
-        // Start the logger
-        try{
-            DreamYaml logC = new DreamYaml(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
+            // Set default SysOut to TeeOutput, for the OnlineConsole
+            PIPED_IN = new NonBlockingPipedInputStream();
+            OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
+            MyTeeOutputStream teeOut = new MyTeeOutputStream(System.out, pipedOut);
+            PrintStream newOut = new PrintStream(teeOut);
+            System.setOut(newOut); // This causes
+            // the standard System.out stream to be mirrored to pipedOut, which then can get
+            // read by PIPED_IN. This ensures, that the original System.out is not touched.
+
+            // Start the logger
+            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
             logC.load();
             new AL().start("AutoPlug",
                     logC.add("autoplug-logger-config", "debug").setDefValue("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir")+"/autoplug-logs")
+                    new File(System.getProperty("user.dir") + "/autoplug-logs")
             );
+
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("There was an error starting the logger!");
-            System.err.println("This error is critical and prevents AutoPlugs startup!");
+            System.err.println("There was a critical error that prevented AutoPlug from starting!");
             return;
         }
 
@@ -165,9 +169,13 @@ public class Main {
             MainConnection mainConnection = new MainConnection();
             mainConnection.start();
 
-            // Temporarily disable user input
             UserInput.keyboard();
             Server.start();
+
+            // We have to keep this main Thread running.
+            // If we don't
+            while (true)
+                Thread.sleep(1000);
 
         } catch (Exception e) {
             AL.error(e.getMessage(), e);

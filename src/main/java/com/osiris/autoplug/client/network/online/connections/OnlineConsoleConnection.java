@@ -8,7 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.BufferedWriter;
@@ -24,17 +26,29 @@ import java.net.Socket;
  */
 public class OnlineConsoleConnection extends SecondaryConnection {
     private static BufferedWriter bw;
-    private static Thread thread;
+    private static final NonBlockingPipedInputStream.WriteLineEvent<String> action = line -> {
+        try {
+            send(line);
+        } catch (Exception e) {
+            AL.warn("Failed to send message to online console!", e);
+        }
+    };
 
     public OnlineConsoleConnection() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
+    public static synchronized void send(String message) throws Exception {
+        bw.write(message);
+        bw.flush();
+        AL.debug(OnlineConsoleConnection.class, "SENT LINE: " + message);
+    }
+
     @Override
     public boolean open() throws Exception {
         super.open();
-        try{
-            if (bw==null){
+        try {
+            if (bw == null) {
                 Socket socket = getSocket();
                 socket.setSoTimeout(0);
                 bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -43,62 +57,26 @@ public class OnlineConsoleConnection extends SecondaryConnection {
             AL.warn(e);
         }
 
-        if (thread==null){
-            /*
-            thread = new Thread(()->{
-                try{
-                    while(true){
-                        if (Server.IN!=null){
-                            byte counter = 0;
-                            InputStreamReader isr = new InputStreamReader(Server.IN);
-                            BufferedReader br = new BufferedReader(isr);
-                            while(true)
-                                try {
-                                    send(br.readLine());
-                                } catch (Exception e) {
-                                    counter++;
-                                    if (counter<3)
-                                        AL.warn("Failed to send message to online console!", e);
-                                }
-                        }
-                        else {
-                            AL.debug(this.getClass(), "Error while trying to fetch Minecraft servers InputStream: It's null. Retrying in 10 seconds...");
-                            Thread.sleep(10000);
-                        }
-
-                    }
-
-                } catch (Exception e) {
-                    AL.warn(e);
-                }
-
-
-            });
-            thread.setName("MinecraftServer-InputStreamReader-Thread");
-            thread.start();
-
-             */
-        }
+        Main.PIPED_IN.actionsOnWriteLineEvent.add(action);
         return true;
     }
 
     @Override
     public void close() throws IOException {
-        if(thread.isAlive() && !thread.isInterrupted()) {
-            thread.interrupt();
-            thread = null;
-            try {
-                bw.close();
-            } catch (Exception ignored) {
-            }
-            bw = null;
-        }
-        super.close();
-    }
+        Main.PIPED_IN.actionsOnWriteLineEvent.remove(action);
 
-    public synchronized void send(String message) throws Exception{
-        bw.write(message);
-        bw.flush();
-        AL.info("SENT LINE: "+message);
+        try {
+            bw.close();
+        } catch (Exception e) {
+            AL.warn("Failed to close writer.", e);
+        }
+
+        try {
+            super.close();
+        } catch (Exception e) {
+            AL.warn("Failed to close connection.", e);
+        }
+
+        bw = null;
     }
 }

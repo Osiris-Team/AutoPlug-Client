@@ -11,16 +11,10 @@ import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 

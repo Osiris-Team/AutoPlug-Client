@@ -73,46 +73,34 @@ public class BackupConfig extends DreamYaml {
                     "Set hostname of FTPS/SFTP server.");
             backup_server_files_upload_port = add(name, "server-files-backup", "upload", "port").setComment(
                     "Set port of FTPS/SFTP server.");
-            backup_server_files_upload_user = add(name,"server-files-backup","upload","username");
-            backup_server_files_upload_password = add(name,"server-files-backup","upload","password");
-            backup_server_files_upload_path = add(name,"server-files-backup","upload","path").setComment(
+            backup_server_files_upload_user = add(name, "server-files-backup", "upload", "username");
+            backup_server_files_upload_password = add(name, "server-files-backup", "upload", "password");
+            backup_server_files_upload_path = add(name, "server-files-backup", "upload", "path").setComment(
                     "Set the folder, in which the backup should be stored.");
-            backup_server_files_upload_rsa = add(name, "server-files-backup","upload","rsa-key").setComment(
+            backup_server_files_upload_rsa = add(name, "server-files-backup", "upload", "rsa-key").setComment(
                     "Leave this field blank when using FTPS.");
 
-            backup_worlds = add(name,"worlds-backup","enable").setDefValue("false").setComment(
+            backup_worlds = add(name, "worlds-backup", "enable").setDefValue("false").setComment(
                     "Backups all folders starting with \"world\" to /autoplug-backups/worlds/...zip");
-            backup_worlds_max_days = add(name,"worlds-backup","max-days").setDefValue("7").setComment(
-                    "Set max-days to 0 if you want to keep your backups forever.");
-            backup_worlds_upload = add(name,"worlds-backup","upload").setDefValue("false").setComment(
-                    "Upload backup to FTPS/SFTP server.");
-            backup_worlds_upload_host = add(name, "worlds-backup","upload","host").setComment(
-                    "Set hostname of FTPS/SFTP server.");
-            backup_worlds_upload_port = add(name, "worlds-backup", "upload", "port").setComment(
-                    "Set port of FTPS/SFTP server.");
-            backup_worlds_upload_user = add(name,"worlds-backup","upload","username");
-            backup_worlds_upload_password = add(name,"worlds-backup","upload","password");
-            backup_worlds_upload_path = add(name,"worlds-backup","upload","path").setComment(
-                    "Set the folder, in which the backup should be stored.");
-            backup_worlds_upload_rsa = add(name, "worlds-backup","upload","rsa-key").setComment(
-                    "Leave this field blank when using FTPS.");
+            backup_worlds_max_days = add(name, "worlds-backup", "max-days").setDefValue("7");
+            backup_worlds_upload = add(name, "worlds-backup", "upload").setDefValue("false");
+            backup_worlds_upload_host = add(name, "worlds-backup", "upload", "host");
+            backup_worlds_upload_port = add(name, "worlds-backup", "upload", "port");
+            backup_worlds_upload_user = add(name, "worlds-backup", "upload", "username");
+            backup_worlds_upload_password = add(name, "worlds-backup", "upload", "password");
+            backup_worlds_upload_path = add(name, "worlds-backup", "upload", "path");
+            backup_worlds_upload_rsa = add(name, "worlds-backup", "upload", "rsa-key");
 
-            backup_plugins = add(name,"plugins-backup","enable").setDefValue("true").setComment(
+            backup_plugins = add(name, "plugins-backup", "enable").setDefValue("true").setComment(
                     "Backups your plugins folder to /autoplug-backups/plugins/...zip");
-            backup_plugins_max_days = add(name,"plugins-backup","max-days").setDefValue("7").setComment(
-                    "Set max-days to 0 if you want to keep your backups forever.");
-            backup_plugins_upload = add(name,"plugins-backup","upload").setDefValue("false").setComment(
-                    "Upload backup to FTPS/SFTP server.");
-            backup_plugins_upload_host = add(name, "plugins-backup","upload","host").setComment(
-                    "Set hostname of FTPS/SFTP server.");
-            backup_plugins_upload_port = add(name, "plugins-backup", "upload", "port").setComment(
-                    "Set port of FTPS/SFTP server.");
-            backup_plugins_upload_user = add(name,"plugins-backup","upload","username");
-            backup_plugins_upload_password = add(name,"plugins-backup","upload","password");
-            backup_plugins_upload_path = add(name,"plugins-backup","upload","path").setComment(
-                    "Set the folder, in which the backup should be stored.");
-            backup_plugins_upload_rsa = add(name, "plugins-backup","upload","rsa-key").setComment(
-                    "Leave this field blank when using FTPS.");
+            backup_plugins_max_days = add(name, "plugins-backup", "max-days").setDefValue("7");
+            backup_plugins_upload = add(name, "plugins-backup", "upload").setDefValue("false");
+            backup_plugins_upload_host = add(name, "plugins-backup", "upload", "host");
+            backup_plugins_upload_port = add(name, "plugins-backup", "upload", "port");
+            backup_plugins_upload_user = add(name, "plugins-backup", "upload", "username");
+            backup_plugins_upload_password = add(name, "plugins-backup", "upload", "password");
+            backup_plugins_upload_path = add(name, "plugins-backup", "upload", "path");
+            backup_plugins_upload_rsa = add(name, "plugins-backup", "upload", "rsa-key");
 
             save();
 

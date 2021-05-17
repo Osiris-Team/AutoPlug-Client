@@ -37,7 +37,7 @@ import java.util.List;
  * Stuff that is executed before starting the minecraft server.
  */
 public class BeforeServerStartupTasks {
-    private TasksConfig tasksConfig = new TasksConfig();
+    private final TasksConfig tasksConfig = new TasksConfig();
 
     public BeforeServerStartupTasks() {
 

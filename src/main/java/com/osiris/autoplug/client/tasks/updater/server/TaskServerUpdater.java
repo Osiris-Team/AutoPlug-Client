@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 
 public class TaskServerUpdater extends BetterThread {
-    private UpdaterConfig updaterConfig = new UpdaterConfig();
+    private final UpdaterConfig updaterConfig = new UpdaterConfig();
 
     public TaskServerUpdater(String name, BetterThreadManager manager) {
         super(name, manager);

@@ -8,8 +8,6 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.core.logger.AL;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,7 +21,7 @@ import java.net.Socket;
  * Active when the user is logged in on the website.
  */
 public class SecondaryConnection {
-    private byte auth_id; // Very important to identify the connection
+    private final byte auth_id; // Very important to identify the connection
     private Socket socket;
     private InputStream in;
     private OutputStream out;
@@ -47,8 +45,7 @@ public class SecondaryConnection {
     }
 
     public boolean isConnected(){
-        if (socket==null || socket.isClosed()) return false;
-        else return true;
+        return socket != null && !socket.isClosed();
     }
 
     public byte getAuthId() {

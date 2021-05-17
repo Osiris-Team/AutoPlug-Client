@@ -87,7 +87,7 @@ public class RestarterConfig extends DreamYaml {
         //Pass the int list over to the scheduler
         if (restarter_enabled.asBoolean()){
 
-            List<String> list = (List<String>) restarter_times_raw.asStringList();
+            List<String> list = restarter_times_raw.asStringList();
             for (int i = 0; i < list.size(); i++) {
 
                 //Splits up time. ex.: 22:10 into 22 and 10

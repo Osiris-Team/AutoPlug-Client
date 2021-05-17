@@ -53,10 +53,18 @@ public class OnlineUserInputConnection extends SecondaryConnection {
 
     @Override
     public void close() throws IOException {
-        if(thread.isAlive() && !thread.isInterrupted()) {
-            thread.interrupt();
-            thread = null;
+        try {
+            if (!thread.isInterrupted()) thread.interrupt();
+        } catch (Exception e) {
+            AL.warn("Failed to stop thread.", e);
         }
-        super.close();
+
+        try {
+            super.close();
+        } catch (Exception e) {
+            AL.warn("Failed to close connection.", e);
+        }
+
+        thread = null;
     }
 }

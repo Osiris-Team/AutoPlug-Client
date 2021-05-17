@@ -26,16 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskPluginsUpdater extends BetterThread {
-    private UpdaterConfig updaterConfig = new UpdaterConfig();
-    private PluginsConfig pluginsConfig = new PluginsConfig();
-    private PluginsUpdaterConnection con;
+    private final UpdaterConfig updaterConfig = new UpdaterConfig();
+    private final PluginsConfig pluginsConfig = new PluginsConfig();
+    private final PluginsUpdaterConnection con;
     private Socket online_socket;
     private DataInputStream online_dis;
     private DataOutputStream online_dos;
-    private String userProfile = updaterConfig.plugin_updater_profile.asString();
-    private String notifyProfile = "NOTIFY";
-    private String manualProfile = "MANUAL";
-    private String automaticProfile = "AUTOMATIC";
+    private final String userProfile = updaterConfig.plugin_updater_profile.asString();
+    private final String notifyProfile = "NOTIFY";
+    private final String manualProfile = "MANUAL";
+    private final String automaticProfile = "AUTOMATIC";
     private int updatesAvailable = 0;
     private int updatesDownloaded = 0;
 

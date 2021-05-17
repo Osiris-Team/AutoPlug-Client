@@ -29,7 +29,6 @@ public class ConfigUtils {
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);
-
         }
     }
 

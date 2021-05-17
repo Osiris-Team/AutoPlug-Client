@@ -48,7 +48,6 @@ public final class Server {
                 AL.info("Starting server in 1");
                 Thread.sleep(1000);
                 createProcess(GD.SERVER_PATH.toPath().toString());
-                //createConsole();
             }
 
         }
@@ -72,22 +71,12 @@ public final class Server {
     public static void stop(){
 
         AL.info("Stopping server...");
-        try {
 
-            if (isRunning()) {
-                System.out.println("stop");
-                AL.info("Stop command executed!");
-            } else {
-                AL.warn("Server is not running!");
-            }
-
-            while (isRunning()) {
-                Thread.sleep(1000);
-            }
-            AL.info("Server was stopped.");
-            AL.info("To stop AutoPlug too, enter '.stop both'.");
-        } catch (InterruptedException e) {
-            AL.warn("Error stopping server!", e);
+        if (isRunning()) {
+            System.out.println("stop");
+            AL.info("Stop command executed!");
+        } else {
+            AL.warn("Server is not running!");
         }
 
     }
@@ -121,8 +110,8 @@ public final class Server {
 
     private static void createProcess(String path) throws IOException, InterruptedException {
         GeneralConfig config = new GeneralConfig();
-
         List<String> commands = new ArrayList<>();
+
         // 1. Which java version should be used
         if (!config.server_java_version.asString().equals("java")) {
             commands.add(config.server_java_version.asString());
@@ -142,7 +131,7 @@ public final class Server {
         commands.add("-jar");
         commands.add(path);
 
-        // 4. Add all after-flags
+        // 4. Add all arguments
         if (config.server_arguments_enabled.asBoolean()) {
             List<String> list = config.server_arguments_list.asStringList();
             for (String s : list) {
@@ -150,7 +139,7 @@ public final class Server {
             }
         }
 
-        // Fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
+        // The stuff below fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
         // but messes input up, because there are 2 scanners on the same stream.
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
@@ -168,9 +157,11 @@ public final class Server {
                     boolean lastIsRunningCheck = false;
                     boolean currentIsRunningCheck;
                     while (true) {
-                        Thread.sleep(5000);
+                        Thread.sleep(2000);
                         currentIsRunningCheck = Server.isRunning();
                         if (!currentIsRunningCheck && lastIsRunningCheck) {
+                            AL.info("Minecraft server was stopped.");
+                            AL.info("To stop AutoPlug too, enter '.stop both'.");
                             TERMINAL.resume();
                         }
                         lastIsRunningCheck = currentIsRunningCheck;

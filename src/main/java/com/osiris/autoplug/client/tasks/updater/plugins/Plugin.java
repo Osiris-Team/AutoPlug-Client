@@ -15,17 +15,16 @@ import java.util.Arrays;
  */
 public class Plugin {
 
-    private String installationPath;
-    private String name;
-    private String version;
+    private final String installationPath;
+    private final String name;
+    private final String version;
     private String author;
 
     /**
-     *
      * @param installationPath
      * @param name
      * @param version
-     * @param author NOTE THAT THIS CAN BE A STRING IN A LIST FORMAT CONTAINING MULTIPLE AUTHORS
+     * @param author           NOTE THAT THIS CAN BE A STRING IN A LIST FORMAT CONTAINING MULTIPLE AUTHORS
      */
     public Plugin(String installationPath, Object name, Object version, Object author) {
         this.installationPath = installationPath;

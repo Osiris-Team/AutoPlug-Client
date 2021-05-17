@@ -25,18 +25,19 @@ import java.io.FileOutputStream;
 import java.util.Random;
 
 public class TaskPluginDownload extends BetterThread {
-    private String plName;
-    private String plLatestVersion;
-    private String url;
-    private String profile;
-    private File finalDest;
+    private final String plName;
+    private final String plLatestVersion;
+    private final String url;
+    private final String profile;
+    private final File finalDest;
     private File downloadDest;
 
     /**
      * Performs a plugin installation according to the users profile.
-     * @param name this processes name.
+     *
+     * @param name    this processes name.
      * @param manager the parent process manager.
-     * @param url the download-url.
+     * @param url     the download-url.
      * @param profile the users plugin updater profile.
      */
     public TaskPluginDownload(String name, BetterThreadManager manager,
