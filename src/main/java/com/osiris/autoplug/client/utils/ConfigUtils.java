@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.utils;
 
-import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 
@@ -32,14 +31,13 @@ public class ConfigUtils {
     }
 
 
-    public CoolDownReport checkIfOutOfCoolDown(SimpleDateFormat format, String lastTasksTimestamp) {
+    public CoolDownReport checkIfOutOfCoolDown(int coolDownInMinutes, SimpleDateFormat format, String lastTasksTimestamp) {
         try {
-            int cool_down = new GeneralConfig().cool_down.asInt(); // In minutes
             if (lastTasksTimestamp != null) {
                 long last = format.parse(lastTasksTimestamp).getTime();
                 long now = System.currentTimeMillis();
                 long msSinceLast = now - last;
-                long msCoolDown = ((cool_down * 60L) * 1000);
+                long msCoolDown = ((coolDownInMinutes * 60L) * 1000);
                 boolean isOutOfCoolDown = msSinceLast > msCoolDown;
                 return new CoolDownReport(isOutOfCoolDown, msSinceLast, msCoolDown);
             }

@@ -78,7 +78,7 @@ public class BackupConfig extends DreamYaml {
                     "Set to 0 to disable."
             );
             backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValue("false").setComment(
-                    "Upload backup to FTPS/SFTP server.");
+                    "Upload the newly generated backup to FTPS/SFTP server.");
             backup_server_files_upload_host = add(name, "server-files-backup", "upload", "host").setComment(
                     "Set hostname of FTPS/SFTP server.");
             backup_server_files_upload_port = add(name, "server-files-backup", "upload", "port").setComment(
