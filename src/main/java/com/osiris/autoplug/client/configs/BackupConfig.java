@@ -18,6 +18,7 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_server_files_max_days;
     public DYModule backup_server_files_cool_down;
     public DYModule backup_server_files_upload;
+    public DYModule backup_server_files_upload_delete_on_complete;
     public DYModule backup_server_files_upload_host;
     public DYModule backup_server_files_upload_port;
     public DYModule backup_server_files_upload_user;
@@ -29,6 +30,7 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_worlds_max_days;
     public DYModule backup_worlds_cool_down;
     public DYModule backup_worlds_upload;
+    public DYModule backup_worlds_upload_delete_on_complete;
     public DYModule backup_worlds_upload_host;
     public DYModule backup_worlds_upload_port;
     public DYModule backup_worlds_upload_user;
@@ -40,6 +42,7 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_plugins_max_days;
     public DYModule backup_plugins_cool_down;
     public DYModule backup_plugins_upload;
+    public DYModule backup_plugins_upload_delete_on_complete;
     public DYModule backup_plugins_upload_host;
     public DYModule backup_plugins_upload_port;
     public DYModule backup_plugins_upload_user;
@@ -79,6 +82,8 @@ public class BackupConfig extends DreamYaml {
             );
             backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValue("false").setComment(
                     "Upload the newly generated backup to FTPS/SFTP server.");
+            backup_server_files_upload_delete_on_complete = add(name, "server-files-backup", "upload", "delete-on-complete").setDefValue("false").setComment(
+                    "Deletes the newly generated backup zip, directly after the upload was completed.");
             backup_server_files_upload_host = add(name, "server-files-backup", "upload", "host").setComment(
                     "Set hostname of FTPS/SFTP server.");
             backup_server_files_upload_port = add(name, "server-files-backup", "upload", "port").setComment(
@@ -95,6 +100,7 @@ public class BackupConfig extends DreamYaml {
             backup_worlds_max_days = add(name, "worlds-backup", "max-days").setDefValue("7");
             backup_worlds_cool_down = add(name, "worlds-backup", "cool-down").setDefValue("60");
             backup_worlds_upload = add(name, "worlds-backup", "upload", "enable").setDefValue("false");
+            backup_worlds_upload_delete_on_complete = add(name, "worlds-backup", "upload", "delete-on-complete").setDefValue("false");
             backup_worlds_upload_host = add(name, "worlds-backup", "upload", "host");
             backup_worlds_upload_port = add(name, "worlds-backup", "upload", "port");
             backup_worlds_upload_user = add(name, "worlds-backup", "upload", "username");
@@ -107,6 +113,7 @@ public class BackupConfig extends DreamYaml {
             backup_plugins_max_days = add(name, "plugins-backup", "max-days").setDefValue("7");
             backup_plugins_cool_down = add(name, "plugins-backup", "cool-down").setDefValue("60");
             backup_plugins_upload = add(name, "plugins-backup", "upload", "enable").setDefValue("false");
+            backup_plugins_upload_delete_on_complete = add(name, "plugins-backup", "upload", "delete-on-complete").setDefValue("false");
             backup_plugins_upload_host = add(name, "plugins-backup", "upload", "host");
             backup_plugins_upload_port = add(name, "plugins-backup", "upload", "port");
             backup_plugins_upload_user = add(name, "plugins-backup", "upload", "username");

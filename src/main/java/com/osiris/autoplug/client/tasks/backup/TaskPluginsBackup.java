@@ -145,6 +145,9 @@ public class TaskPluginsBackup extends BetterThread {
                 try {
                     if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
                     else upload.sftp(rsa.trim());
+
+                    if (config.backup_plugins_upload_delete_on_complete.asBoolean())
+                        zip.getFile().delete();
                 } catch (Exception e) {
                     getWarnings().add(new BetterWarning(this, e, "Failed to upload plugins-backup."));
                 }
