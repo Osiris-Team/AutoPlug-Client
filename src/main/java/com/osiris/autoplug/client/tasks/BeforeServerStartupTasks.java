@@ -18,6 +18,7 @@ import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
+import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
@@ -56,6 +57,8 @@ public class BeforeServerStartupTasks {
 
 
             // Create processes
+            TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", man);
+
             TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", man);
             TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", man);
             TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", man);
@@ -68,6 +71,11 @@ public class BeforeServerStartupTasks {
 
 
             // Start processes
+            selfUpdater.start();
+
+            while (!selfUpdater.isFinished()) // Wait until the self updater finishes
+                Thread.sleep(1000);
+
             taskWorldsBackup.start();
             taskPluginsBackup.start();
             taskServerFilesBackup.start();

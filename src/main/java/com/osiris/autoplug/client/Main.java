@@ -13,16 +13,14 @@ import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
-import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.MyTeeOutputStream;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThreadDisplayer;
-import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import org.fusesource.jansi.AnsiConsole;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -62,6 +60,7 @@ public class Main {
                     logC.add("autoplug-logger-config", "debug").setDefValue("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug-logs")
             );
+            AnsiConsole.systemInstall();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,28 +75,9 @@ public class Main {
                 installUpdateAndStartIt(curDir.getParentFile());
                 return;
             }
-
-            // Check for updates.
-            // Note that we have to do this, after checking in which directory we are!
-            try {
-                BetterThreadManager manager = new BetterThreadManager();
-                BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager, "[AutoPlug]", "[TASK]");
-                displayer.setShowWarnings(true);
-                displayer.setShowDetailedWarnings(true);
-                TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
-                displayer.start();
-                selfUpdater.start();
-
-                while (!selfUpdater.isFinished()) // Wait until the async updating task is finished
-                    Thread.sleep(1000);
-
-            } catch (Exception e) {
-                AL.warn(e, "Update check failed!");
-            }
         } catch (Exception e) {
             AL.warn(e, "Update installation failed!");
         }
-
 
         try {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
