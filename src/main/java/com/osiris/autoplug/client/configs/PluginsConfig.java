@@ -26,9 +26,9 @@ public class PluginsConfig extends DreamYaml {
     public DYModule keep_removed;
 
     public PluginsConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-plugins-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
         this.detailedPlugins = new ArrayList<>();
-        try{
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(
@@ -55,54 +55,52 @@ public class PluginsConfig extends DreamYaml {
                             "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
                             "If multiple authors are provided, only the first author will be used by the search-algorithm.\n" +
                             "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
-                            "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit "+GD.OFFICIAL_WEBSITE+"faq");
+                            "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq");
 
             keep_removed = add(name, "general", "keep-removed").setDefValue("true").setComment("Keep the plugins entry in this file even after its removal/uninstallation?");
 
             PluginManager man = new PluginManager();
             List<Plugin> pls = man.getPlugins();
             if (!pls.isEmpty())
-            for (Plugin pl :
-                    pls) {
+                for (Plugin pl :
+                        pls) {
 
-                final String plName = pl.getName();
+                    final String plName = pl.getName();
 
-                DYModule exclude       = add(name, plName,"exclude").setDefValue("false"); // Check this plugin?
-                DYModule version       = add(name, plName,"version").setDefValue(pl.getVersion());
-                DYModule latestVersion = add(name, plName,"latest-version");
-                DYModule authors       = add(name, plName,"author").setDefValue(pl.getAuthor());
-                DYModule spigotId      = add(name, plName,"spigot-id").setDefValue("0");
-                //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
-                DYModule bukkitId      = add(name, plName,"bukkit-id").setDefValue("0");
-                DYModule customLink    = add(name, plName,"c-link");
+                    DYModule exclude = add(name, plName, "exclude").setDefValue("false"); // Check this plugin?
+                    DYModule version = add(name, plName, "version").setDefValue(pl.getVersion());
+                    DYModule latestVersion = add(name, plName, "latest-version");
+                    DYModule authors = add(name, plName, "author").setDefValue(pl.getAuthor());
+                    DYModule spigotId = add(name, plName, "spigot-id").setDefValue("0");
+                    //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
+                    DYModule bukkitId = add(name, plName, "bukkit-id").setDefValue("0");
+                    DYModule customLink = add(name, plName, "c-link");
 
-                if ((pl.getVersion()==null || pl.getVersion().isEmpty()) ||
-                        (pl.getAuthor()==null || pl.getAuthor().isEmpty())){
-                    exclude.setValue("true");
-                    AL.warn("Plugin "+pl.getName()+" is missing critical information and was excluded.");
-                }
+                    if ((pl.getVersion() == null || pl.getVersion().isEmpty()) ||
+                            (pl.getAuthor() == null || pl.getAuthor().isEmpty())) {
+                        exclude.setValue("true");
+                        AL.warn("Plugin " + pl.getName() + " is missing critical information and was excluded.");
+                    }
 
-                if (!exclude.asBoolean())
-                    detailedPlugins.add(
-                            new DetailedPlugin(
-                                    pl.getInstallationPath(),
-                                    pl.getName(), pl.getVersion(),
-                                    pl.getAuthor(), spigotId.asInt(),
-                                    bukkitId.asInt(), customLink.asString()
+                    if (!exclude.asBoolean())
+                        detailedPlugins.add(
+                                new DetailedPlugin(
+                                        pl.getInstallationPath(),
+                                        pl.getName(), pl.getVersion(),
+                                        pl.getAuthor(), spigotId.asInt(),
+                                        bukkitId.asInt(), customLink.asString()
                                 ));
-            }
+                }
 
             if (keep_removed.asBoolean())
                 save();
             else
                 save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
 
-        }
-        catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             AL.error("Duplicate plugin (or plugin name from its plugin.yml) found in your plugins directory. " +
                     "Remove it and restart AutoPlug.", e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             AL.error(e);
         }
     }

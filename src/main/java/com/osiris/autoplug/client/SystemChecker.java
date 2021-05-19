@@ -12,10 +12,10 @@ import java.util.List;
 
 public class SystemChecker {
 
-    public void checkReadWritePermissions() throws Exception{
-        try{
-            File test = new File(System.getProperty("user.dir")+"/read-write-test.txt");
-            if (!test.exists()){
+    public void checkReadWritePermissions() throws Exception {
+        try {
+            File test = new File(System.getProperty("user.dir") + "/read-write-test.txt");
+            if (!test.exists()) {
                 test.createNewFile();
             }
             test.delete();
@@ -25,13 +25,13 @@ public class SystemChecker {
         }
     }
 
-    public void checkInternetAccess() throws Exception{
-        try{
+    public void checkInternetAccess() throws Exception {
+        try {
             HttpURLConnection connection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
             connection.setRequestMethod("HEAD");
             int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
-                throw new Exception("Failed to get code 200 from "+connection.getURL().toString());
+                throw new Exception("Failed to get code 200 from " + connection.getURL().toString());
             }
         } catch (Exception e) {
             System.err.println("Make sure that you have an internet connection!");
@@ -43,10 +43,10 @@ public class SystemChecker {
      * This enables AutoPlug to securely
      * shutdown and closes all open things.
      */
-    public void addShutDownHook(){
+    public void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (Server.isRunning()) Server.stop();
-            while(Server.isRunning()){
+            while (Server.isRunning()) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException exception) {
@@ -54,11 +54,10 @@ public class SystemChecker {
                 }
             }
             JobScheduler.safeShutdown();
-            if(AL.isStarted){
+            if (AL.isStarted) {
                 AL.info("See you soon!");
                 new AL().stop();
-            }
-            else{
+            } else {
                 System.out.println("See you soon!");
             }
         }, "Shutdown-Thread"));
@@ -70,14 +69,14 @@ public class SystemChecker {
      */
     public void checkMissingFiles() {
         final File working_dir = new File(System.getProperty("user.dir"));
-        final File plugins = new File(working_dir +"/plugins");
-        final File autoplug_system = new File(working_dir +"/autoplug-system");
-        final File autoplug_downloads = new File(working_dir +"/autoplug-downloads");
-        final File autoplug_backups = new File(working_dir +"/autoplug-backups");
-        final File autoplug_backups_server = new File(working_dir +"/autoplug-backups/server");
-        final File autoplug_backups_plugins = new File(working_dir +"/autoplug-backups/plugins");
-        final File autoplug_backups_worlds = new File(working_dir +"/autoplug-backups/worlds");
-        final File autoplug_logs = new File(working_dir +"/autoplug-logs");
+        final File plugins = new File(working_dir + "/plugins");
+        final File autoplug_system = new File(working_dir + "/autoplug-system");
+        final File autoplug_downloads = new File(working_dir + "/autoplug-downloads");
+        final File autoplug_backups = new File(working_dir + "/autoplug-backups");
+        final File autoplug_backups_server = new File(working_dir + "/autoplug-backups/server");
+        final File autoplug_backups_plugins = new File(working_dir + "/autoplug-backups/plugins");
+        final File autoplug_backups_worlds = new File(working_dir + "/autoplug-backups/worlds");
+        final File autoplug_logs = new File(working_dir + "/autoplug-logs");
 
         List<File> directories = Arrays.asList(
                 plugins,

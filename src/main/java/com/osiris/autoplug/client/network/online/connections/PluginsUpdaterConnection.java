@@ -22,14 +22,14 @@ import java.net.Socket;
  */
 public class PluginsUpdaterConnection extends SecondaryConnection {
 
-    public PluginsUpdaterConnection(){
+    public PluginsUpdaterConnection() {
         super((byte) 3);
     }
 
     @Override
     public boolean open() throws Exception {
         super.open();
-        try{
+        try {
             Socket socket = getSocket();
             socket.setSoTimeout(0);
         } catch (Exception e) {

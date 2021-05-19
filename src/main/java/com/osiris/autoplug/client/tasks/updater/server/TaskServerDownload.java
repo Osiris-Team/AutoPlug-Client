@@ -32,10 +32,11 @@ public class TaskServerDownload extends BetterThread {
     /**
      * Downloads a file from an url to the cache first and then
      * to its final destination.
-     * @param name This processes name.
+     *
+     * @param name    This processes name.
      * @param manager the parent process manager.
-     * @param url the download-url.
-     * @param dest the downloads final destination.
+     * @param url     the download-url.
+     * @param dest    the downloads final destination.
      */
     public TaskServerDownload(String name, BetterThreadManager manager, String url, File dest) {
         this(name, manager);
@@ -52,19 +53,19 @@ public class TaskServerDownload extends BetterThread {
         super.runAtStart();
 
         final String fileName = dest.getName();
-        setStatus("Downloading "+fileName+"... (0mb/0mb)");
-        AL.debug(this.getClass(), "Downloading "+ fileName+" from: "+url);
+        setStatus("Downloading " + fileName + "... (0mb/0mb)");
+        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
         Request request = new Request.Builder().url(url)
-                .header("User-Agent", "AutoPlug Client/"+new Random().nextInt()+" - https://autoplug.online")
+                .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
                 .build();
         Response response = new OkHttpClient().newCall(request).execute();
 
-        if (response.code()!=200)
-            throw new Exception("Server download failed! Code: "+response.code()+" Message: "+response.message()+" Url: "+url);
+        if (response.code() != 200)
+            throw new Exception("Server download failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
 
         ResponseBody body = response.body();
-        if (body==null)
+        if (body == null)
             throw new Exception("Download failed because of empty response body!");
 
         long completeFileSize = body.contentLength();
@@ -81,7 +82,7 @@ public class TaskServerDownload extends BetterThread {
         while ((x = in.read(data, 0, 1024)) >= 0) {
             downloadedFileSize += x;
 
-            setStatus("Downloading "+fileName+"... ("+downloadedFileSize/(1024 * 1024)+"mb/"+completeFileSize/(1024 * 1024)+"mb)");
+            setStatus("Downloading " + fileName + "... (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
             setNow(downloadedFileSize);
 
             bout.write(data, 0, x);
@@ -92,7 +93,7 @@ public class TaskServerDownload extends BetterThread {
         response.close();
 
 
-        setStatus("Downloaded "+fileName+" ("+downloadedFileSize/(1024 * 1024)+"mb/"+completeFileSize/(1024 * 1024)+"mb)");
+        setStatus("Downloaded " + fileName + " (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
         finish(true);
     }
 
@@ -100,18 +101,19 @@ public class TaskServerDownload extends BetterThread {
      * Only use this method after finishing the download.
      * It will get the hash for the newly downloaded file and
      * compare it with the given hash.
+     *
      * @param sha256
      * @return true if the hashes match
      */
-    public boolean compareWithSHA256(String sha256){
+    public boolean compareWithSHA256(String sha256) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedhash = digest.digest(
                     FileUtils.readFileToByteArray(dest));
             final String hashResult = bytesToHex(encodedhash);
             AL.debug(this.getClass(), "Comparing hashes (SHA-256):");
-            AL.debug(this.getClass(), "Input-Hash: "+sha256);
-            AL.debug(this.getClass(), "File-Hash: "+hashResult);
+            AL.debug(this.getClass(), "Input-Hash: " + sha256);
+            AL.debug(this.getClass(), "File-Hash: " + hashResult);
             return hashResult.equals(sha256);
         } catch (Exception e) {
             getWarnings().add(new BetterWarning(this, e));
@@ -124,7 +126,7 @@ public class TaskServerDownload extends BetterThread {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) {
+            if (hex.length() == 1) {
                 hexString.append('0');
             }
             hexString.append(hex);

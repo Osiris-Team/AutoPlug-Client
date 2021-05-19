@@ -29,16 +29,16 @@ public final class Server {
         try {
             if (isRunning()) {
                 AL.warn("Server already running!");
-            } else{
+            } else {
                 // Runs all processes before starting the server
                 new BeforeServerStartupTasks();
 
-                if (GD.SERVER_PATH==null || !GD.SERVER_PATH.exists())
+                if (GD.SERVER_PATH == null || !GD.SERVER_PATH.exists())
                     throw new Exception("Failed to find your server jar! " +
-                                "Please check your config, you may need to specify the jars name/path! " +
-                                "Searched dir: '"+GD.WORKING_DIR+"'");
+                            "Please check your config, you may need to specify the jars name/path! " +
+                            "Searched dir: '" + GD.WORKING_DIR + "'");
 
-                AL.info("Starting server jar: "+ GD.SERVER_PATH.getName());
+                AL.info("Starting server jar: " + GD.SERVER_PATH.getName());
                 AL.info("Note: AutoPlug has some own console server. For details enter .help or .h");
                 Thread.sleep(1000);
                 AL.info("Starting server in 3");
@@ -50,25 +50,23 @@ public final class Server {
                 createProcess(GD.SERVER_PATH.toPath().toString());
             }
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             AL.warn(e);
         }
     }
 
-    public static void restart(){
+    public static void restart() {
         //Before starting make backups and check for updates
         AL.info("Restarting server...");
         try {
             stop();
             start();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             AL.warn(e);
         }
     }
 
-    public static void stop(){
+    public static void stop() {
 
         AL.info("Stopping server...");
 
@@ -81,18 +79,18 @@ public final class Server {
 
     }
 
-    public static boolean kill(){
+    public static boolean kill() {
 
         AL.info("Killing server!");
         try {
 
             if (isRunning()) {
                 process.destroy();
-            } else{
+            } else {
                 AL.warn("Server is not running!");
             }
 
-            while(isRunning()){
+            while (isRunning()) {
                 Thread.sleep(1000);
             }
             AL.info("Server killed!");
@@ -120,7 +118,7 @@ public final class Server {
         }
 
         // 2. Add all before-flags
-        if (config.server_flags_enabled.asBoolean()){
+        if (config.server_flags_enabled.asBoolean()) {
             List<String> list = config.server_flags_list.asStringList();
             for (String s : list) {
                 commands.add("-" + s);

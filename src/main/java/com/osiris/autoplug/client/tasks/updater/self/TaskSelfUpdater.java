@@ -49,30 +49,30 @@ public class TaskSelfUpdater extends BetterThread {
             doUpdating(betaUpdateUrl);
     }
 
-    private void doUpdating(String url) throws Exception{
+    private void doUpdating(String url) throws Exception {
         // This url contains a JsonArray with JsonObjects, each representing a java application.
         // In this case we are only interested in the AutoPlug-Client.jar with id 0.
         List<JsonObject> apps = new JsonTools().getJsonArrayAsList(url);
         JsonObject latestJar = null;
         for (JsonObject o :
                 apps) {
-            if(o.get("id").getAsInt()==0){
+            if (o.get("id").getAsInt() == 0) {
                 latestJar = o;
                 break;
             }
         }
 
-        if (latestJar==null)
-            throw new Exception("Failed to find a JsonObject with id=0! Url: "+url);
+        if (latestJar == null)
+            throw new Exception("Failed to find a JsonObject with id=0! Url: " + url);
 
         // Get latest jars details
-        int id                = latestJar.get("id")      .getAsInt();
+        int id = latestJar.get("id").getAsInt();
         File installationFile = convertIntoActualFile(latestJar.get("installation-path").getAsString());
-        String version        = latestJar.get("version") .getAsString();
-        String downloadUrl    = latestJar.get("download-url")     .getAsString();
-        String sha256         = latestJar.get("sha-256").getAsString();
-        long size             = latestJar.get("file-size")    .getAsLong();
-        String launchClass    = latestJar.get("main-class")   .getAsString();
+        String version = latestJar.get("version").getAsString();
+        String downloadUrl = latestJar.get("download-url").getAsString();
+        String sha256 = latestJar.get("sha-256").getAsString();
+        long size = latestJar.get("file-size").getAsLong();
+        String launchClass = latestJar.get("main-class").getAsString();
 
         // Get current jars details
         Properties currentJar = new UtilsJar().getThisJarsAutoPlugProperties();
@@ -81,82 +81,76 @@ public class TaskSelfUpdater extends BetterThread {
         String currentVersion = currentJar.getProperty("version");
 
         // Just to be sure we check if the ids match. Both should be 0.
-        if (id!=0 || currentId!=0)
+        if (id != 0 || currentId != 0)
             throw new Exception("The update jars and the current jars ids don't match!");
 
         // Now we are good to go! Start the download!
         // Check if the latest version is bigger than our current one.
-        if (new UtilsVersion().compare(currentVersion, version)){
+        if (new UtilsVersion().compare(currentVersion, version)) {
             String profile = updaterConfig.self_updater_profile.asString();
-            if (profile.equals("NOTIFY")){
-                setStatus("NOTIFY: Update found ("+currentVersion+" -> "+version+")!");
-            }
-            else if (profile.equals("MANUAL")){
-                setStatus("MANUAL: Update found ("+currentVersion+" -> "+version+"), started download!");
+            if (profile.equals("NOTIFY")) {
+                setStatus("NOTIFY: Update found (" + currentVersion + " -> " + version + ")!");
+            } else if (profile.equals("MANUAL")) {
+                setStatus("MANUAL: Update found (" + currentVersion + " -> " + version + "), started download!");
 
                 // Download the file
-                File cache_dest = new File(GD.WORKING_DIR+"/autoplug-downloads/"+installationFile.getName());
+                File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
-                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl , cache_dest);
+                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl, cache_dest);
                 download.start();
 
-                while(true){
+                while (true) {
                     Thread.sleep(500); // Wait until download is finished
-                    if (download.isFinished()){
-                        if (download.isSuccess()){
+                    if (download.isFinished()) {
+                        if (download.isSuccess()) {
                             setStatus("AutoPlug update downloaded. Checking checksum...");
-                            if (download.compareWithSHA256(sha256)){
+                            if (download.compareWithSHA256(sha256)) {
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR+"/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 setStatus("AutoPlug update downloaded successfully.");
                                 setSuccess(true);
-                            }
-                            else{
+                            } else {
                                 setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
                                 setSuccess(false);
                             }
 
-                        }
-                        else{
+                        } else {
                             setStatus("AutoPlug update failed!");
                             setSuccess(false);
                         }
                         break;
                     }
                 }
-            }
-            else {
-                setStatus("AUTOMATIC: Update found ("+currentVersion+" -> "+version+"), started download!");
+            } else {
+                setStatus("AUTOMATIC: Update found (" + currentVersion + " -> " + version + "), started download!");
                 if (installationFile.exists()) installationFile.delete();
                 installationFile.createNewFile();
 
                 // Download the file
-                File cache_dest = new File(GD.WORKING_DIR+"/autoplug-downloads/"+installationFile.getName());
+                File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
-                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl , cache_dest);
+                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl, cache_dest);
                 download.start();
 
-                while(true){
+                while (true) {
                     Thread.sleep(500);
-                    if (download.isFinished()){
-                        if (download.isSuccess()){
+                    if (download.isFinished()) {
+                        if (download.isSuccess()) {
                             setStatus("AutoPlug update downloaded. Checking hash...");
-                            if (download.compareWithSHA256(sha256)){
-                                setStatus("Installing AutoPlug update ("+currentVersion+" -> "+version+")...");
+                            if (download.compareWithSHA256(sha256)) {
+                                setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
                                 // Start that updated old jar and close this one
                                 Main.startJar(cache_dest.getAbsolutePath());
                                 System.exit(0);
                                 setSuccess(true);
-                            }
-                            else{
+                            } else {
                                 setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
                                 setSuccess(false);
                             }
 
-                        }
-                        else{
+                        } else {
                             setStatus("AutoPlug update failed!");
                             setSuccess(false);
                         }
@@ -165,8 +159,7 @@ public class TaskSelfUpdater extends BetterThread {
                 }
             }
 
-        }
-        else{
+        } else {
             setStatus("AutoPlug is on the latest version!");
             setSuccess(true);
         }
@@ -177,11 +170,12 @@ public class TaskSelfUpdater extends BetterThread {
     /**
      * Example input: ./AutoPlug-Client.jar <br>
      * Output: (complete-path)/AutoPlug-Client.jar
+     *
      * @param shortPath like example input above.
      * @return
      */
     private File convertIntoActualFile(String shortPath) {
-        return new File(shortPath.replace("./", GD.WORKING_DIR+"/"));
+        return new File(shortPath.replace("./", GD.WORKING_DIR + "/"));
     }
 
 }

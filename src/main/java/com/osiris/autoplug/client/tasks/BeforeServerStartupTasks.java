@@ -35,7 +35,7 @@ public class BeforeServerStartupTasks {
 
     public BeforeServerStartupTasks() {
 
-        try{
+        try {
 
             // Wait until the main connection stuff is done, so the log isn't a mess
             while (!MainConnection.isDone)
@@ -48,7 +48,7 @@ public class BeforeServerStartupTasks {
 
             if (tasksConfig.live_tasks.asBoolean())
                 dis.start();
-            else{
+            else {
                 AL.info("Waiting for before startup tasks to finish...");
                 if (new BackupConfig().backup_worlds.asBoolean())
                     AL.info("Remember that the bigger your world, the longer it will take to back it up!");
@@ -120,7 +120,7 @@ public class BeforeServerStartupTasks {
     private void printFinalStatus(List<BetterThread> all) {
         for (BetterThread t :
                 all) {
-            AL.info("["+t.getName()+"] "+t.getStatus());
+            AL.info("[" + t.getName() + "] " + t.getStatus());
         }
     }
 

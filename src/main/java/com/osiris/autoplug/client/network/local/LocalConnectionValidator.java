@@ -20,7 +20,7 @@ import java.net.Socket;
 public class LocalConnectionValidator {
 
 
-    LocalConnectionValidator(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos){
+    LocalConnectionValidator(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos) {
 
         Thread newThread = new Thread(() -> {
 
@@ -30,13 +30,12 @@ public class LocalConnectionValidator {
 
                 boolean matches = local_dis.readUTF().equals(new GeneralConfig().server_key.asString());
 
-                if (matches){
+                if (matches) {
                     local_dos.writeUTF("true");
                     AL.info("Keys match!");
 
                     new LocalTaskReceivePlugins(local_socket, local_dis, local_dos);
-                }
-                else{
+                } else {
                     local_dos.writeUTF("false");
                     AL.info("Wrong AutoPlugPlugin! Validation failed!");
                 }

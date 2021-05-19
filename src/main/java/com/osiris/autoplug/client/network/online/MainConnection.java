@@ -38,7 +38,7 @@ public class MainConnection extends Thread {
 
     @Override
     public void run() {
-        try{
+        try {
             super.run();
             AL.info("Authenticating server...");
             SecuredConnection auth = new SecuredConnection((byte) 0);
@@ -66,14 +66,14 @@ public class MainConnection extends Thread {
             isDone = true;
             boolean msgOnline = false; // Was the online message already send to log?
             boolean msgOffline = false;
-            while(true){
+            while (true) {
                 // It can happen that we don't get a response because the web server is offline
                 // In that case see the catch statement
-                try{
-                    while(true){
+                try {
+                    while (true) {
                         user_online = dis.readBoolean();
-                        if (user_online){
-                            if (!msgOnline){
+                        if (user_online) {
+                            if (!msgOnline) {
                                 AL.debug(this.getClass(), "User is online!");
                                 msgOnline = true;
                                 msgOffline = false;
@@ -83,9 +83,8 @@ public class MainConnection extends Thread {
                             if (!CON_USER_INPUT.isConnected()) CON_USER_INPUT.open();
                             if (!CON_CONSOLE.isConnected()) CON_CONSOLE.open();
                             //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
-                        }
-                        else{
-                            if (!msgOffline){
+                        } else {
+                            if (!msgOffline) {
                                 AL.debug(this.getClass(), "User logged out!");
                                 msgOffline = true;
                                 msgOnline = false;
@@ -102,16 +101,18 @@ public class MainConnection extends Thread {
                     AL.warn("Lost connection to AutoPlug-Web! Reconnecting in 30 seconds...", e);
 
                     // Close child connections
-                    try{
+                    try {
                         CON_USER_INPUT.close();
-                    } catch (IOException ignored) { }
+                    } catch (IOException ignored) {
+                    }
 
-                    try{
+                    try {
                         CON_CONSOLE.close();
-                    } catch (IOException ignored) { }
+                    } catch (IOException ignored) {
+                    }
 
                     Thread.sleep(30000);
-                    try{
+                    try {
                         AL.info("Authenticating server...");
                         auth = new SecuredConnection((byte) 0);
                         dis = new DataInputStream(auth.getInput());
@@ -122,7 +123,7 @@ public class MainConnection extends Thread {
                 }
             }
         } catch (Exception e) {
-            AL.warn(this.getClass(), e ,"Connection issues!");
+            AL.warn(this.getClass(), e, "Connection issues!");
             isDone = true;
         }
     }

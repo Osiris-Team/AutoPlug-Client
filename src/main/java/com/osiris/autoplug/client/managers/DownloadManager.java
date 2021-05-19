@@ -22,6 +22,10 @@ import java.util.Arrays;
 @Deprecated
 public class DownloadManager {
 
+    private WebClient client;
+    private HtmlPage page;
+    private WebResponse response;
+
     public static void main(String[] args) {
 
         //TODO MAKE THIS WORK
@@ -33,7 +37,11 @@ public class DownloadManager {
         final String finalDownloadUrl = testUrl3;
 
         File downloadTestFile = new File(System.getProperty("user.dir") + "/TEST.jar");
-        try{if (!downloadTestFile.exists()){downloadTestFile.createNewFile();}} catch (IOException e) {
+        try {
+            if (!downloadTestFile.exists()) {
+                downloadTestFile.createNewFile();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -44,10 +52,6 @@ public class DownloadManager {
         dm.downloadJar(finalDownloadUrl, downloadTestFile);
 
     }
-
-    private WebClient client;
-    private HtmlPage page;
-    private WebResponse response;
 
     public boolean downloadJar(String download_url, File download_path) {
 
@@ -74,7 +78,7 @@ public class DownloadManager {
         client.getOptions().setDoNotTrackEnabled(true);
 
         try {
-            
+
 
             page = client.getPage(download_url);
 
@@ -84,12 +88,12 @@ public class DownloadManager {
             //Print out the pages content for testing purposes
             System.out.println(" ");
             System.out.println("DEBUG 1 - BEFORE ########################################################");
-            System.out.println("Status: "+page.getWebResponse().getStatusMessage());
-            System.out.println("Status code: "+page.getWebResponse().getStatusCode());
-            System.out.println("Content type: "+page.getContentType());
+            System.out.println("Status: " + page.getWebResponse().getStatusMessage());
+            System.out.println("Status code: " + page.getWebResponse().getStatusCode());
+            System.out.println("Content type: " + page.getContentType());
             System.out.println("Page content before waiting: ");
             System.out.println(page.asText());
-            System.out.println("Cookies enabled: "+client.getCookieManager().isCookiesEnabled());
+            System.out.println("Cookies enabled: " + client.getCookieManager().isCookiesEnabled());
             System.out.println("Cookies: " + Arrays.toString(client.getCookieManager().getCookies().toArray()));
             System.out.println(" ");
 
@@ -116,14 +120,14 @@ public class DownloadManager {
             //Print out the pages content for testing purposes
             System.out.println(" ");
             System.out.println("DEBUG 2 - AFTER ########################################################");
-            System.out.println("Status: "+response.getStatusMessage());
-            System.out.println("Status code: "+response_status);
-            System.out.println("Content type: "+content_type);
+            System.out.println("Status: " + response.getStatusMessage());
+            System.out.println("Status code: " + response_status);
+            System.out.println("Content type: " + content_type);
             System.out.println("Page content after waiting: ");
             System.out.println(page2.asText());
             //System.out.println("Page response as String: ");
             //System.out.println(response.getContentAsString());
-            System.out.println("Cookies enabled: "+client.getCookieManager().isCookiesEnabled());
+            System.out.println("Cookies enabled: " + client.getCookieManager().isCookiesEnabled());
             System.out.println("Cookies: " + Arrays.toString(client.getCookieManager().getCookies().toArray()));
             System.out.println(" ");
 
@@ -137,10 +141,10 @@ public class DownloadManager {
                 return false;
             } else {
 
-                try{
+                try {
 
                     //Check if response is application(application/octet-stream) or html(text/html)
-                    if (content_type.equals("text/html")){
+                    if (content_type.equals("text/html")) {
                         System.out.println(" [!] The download link forwards to another website [!]");
                         System.out.println(" [!] Nothing will be downloaded [!]");
                         System.out.println(" [!] In most cases its an external repository like github [!]");
@@ -160,19 +164,18 @@ public class DownloadManager {
                             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
                                 fileOutputStream.write(dataBuffer, 0, bytesRead);
                             }
-                        }catch (IOException e){
+                        } catch (IOException e) {
                             e.printStackTrace();
                             System.out.println(" [!] Failed to download file [!]");
-                            System.out.println(" [!] Error: "+e.getMessage()+"[!]");
+                            System.out.println(" [!] Error: " + e.getMessage() + "[!]");
 
                             closeAll();
                             return false;
-                            }
+                        }
 
                         closeAll();
                         return true;
-                    }
-                    else {
+                    } else {
                         System.out.println(" [!] Couldn't determine response type [!]");
                         System.out.println(" [!] But its not a jar file [!]");
                         System.out.println(" [!] Notify the dev [!]");
@@ -184,7 +187,7 @@ public class DownloadManager {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    System.out.println(" [!] Download-Error: "+e.getMessage());
+                    System.out.println(" [!] Download-Error: " + e.getMessage());
                     System.out.println(" [!] Please go and download the file yourself [!] ");
                     System.out.println(" [!] Link: " + download_url + " [!]");
 
@@ -205,15 +208,15 @@ public class DownloadManager {
         }
     }
 
-    private void closeAll(){
+    private void closeAll() {
 
-        if (response!=null){
+        if (response != null) {
             response.cleanUp();
         }
-        if (page!=null){
+        if (page != null) {
             page.cleanUp();
         }
-        if (client!=null){
+        if (client != null) {
             client.close();
         }
 

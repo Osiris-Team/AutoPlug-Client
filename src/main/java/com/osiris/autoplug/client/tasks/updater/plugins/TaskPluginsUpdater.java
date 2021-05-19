@@ -29,13 +29,13 @@ public class TaskPluginsUpdater extends BetterThread {
     private final UpdaterConfig updaterConfig = new UpdaterConfig();
     private final PluginsConfig pluginsConfig = new PluginsConfig();
     private final PluginsUpdaterConnection con;
-    private Socket online_socket;
-    private DataInputStream online_dis;
-    private DataOutputStream online_dos;
     private final String userProfile = updaterConfig.plugin_updater_profile.asString();
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
     private final String automaticProfile = "AUTOMATIC";
+    private Socket online_socket;
+    private DataInputStream online_dis;
+    private DataOutputStream online_dos;
     private int updatesAvailable = 0;
     private int updatesDownloaded = 0;
 
@@ -50,7 +50,7 @@ public class TaskPluginsUpdater extends BetterThread {
         super.runAtStart();
 
         DetailedPlugin currentPl = null; // Used for exception details
-        try{ // Create this try/catch only for being able to close the connection
+        try { // Create this try/catch only for being able to close the connection
             this.setAutoFinish(false); // So that the last finish message is shown.
 
             if (!updaterConfig.plugin_updater.asBoolean()) {
@@ -65,7 +65,7 @@ public class TaskPluginsUpdater extends BetterThread {
             online_dos = new DataOutputStream(con.getOut());
 
             long msLeft = online_dis.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
-            if (msLeft!=0){
+            if (msLeft != 0) {
                 skip("Skipped. Cool-down still active (" + (msLeft / 60000) + " minutes remaining).");
                 return;
             }
@@ -80,7 +80,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             online_dos.writeInt(size);
 
-            if (size==0) throw new Exception("Plugins size is 0! Nothing to check...");
+            if (size == 0) throw new Exception("Plugins size is 0! Nothing to check...");
 
             // The yml config lets users define the spigot id,
             // bukkit id and custom link for the plugin.
@@ -95,7 +95,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     plugins) {
                 if (pl.getSpigotId() != 0) spigotIdPlugins.add(pl);
                 else if (pl.getBukkitId() != 0) bukkitIdPlugins.add(pl);
-                else if (pl.getCustomLink()!=null && !pl.getCustomLink().isEmpty()) customLinkPlugins.add(pl);
+                else if (pl.getCustomLink() != null && !pl.getCustomLink().isEmpty()) customLinkPlugins.add(pl);
                 else unknownPlugins.add(pl);
             }
 
@@ -120,14 +120,14 @@ public class TaskPluginsUpdater extends BetterThread {
             for (DetailedPlugin pl :
                     spigotIdPlugins) {
                 currentPl = pl;
-                setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
+                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
                 online_dos.writeUTF(pl.getAuthor());
                 online_dos.writeInt(pl.getSpigotId());
 
                 code = online_dis.readByte();
-                if (code==0 || code==1){
+                if (code == 0 || code == 1) {
                     type = online_dis.readUTF();
                     latest = online_dis.readUTF();
                     url = online_dis.readUTF();
@@ -135,24 +135,26 @@ public class TaskPluginsUpdater extends BetterThread {
                     resultBukkitId = online_dis.readUTF();
 
                     doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                }
-                else if (code==2) getWarnings().add(new BetterWarning(this, new Exception("Plugin "+pl.getName()+" was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
-                else if (code==3) getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for "+pl.getName()+"!")));
-                else getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: "+code+"."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                } else if (code == 2)
+                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
+                else if (code == 3)
+                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                else
+                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
             }
 
             for (DetailedPlugin pl :
                     bukkitIdPlugins) {
                 currentPl = pl;
-                setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
+                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
                 online_dos.writeUTF(pl.getAuthor());
                 online_dos.writeInt(pl.getBukkitId());
 
                 code = online_dis.readByte();
-                if (code==0 || code==1){
+                if (code == 0 || code == 1) {
                     type = online_dis.readUTF();
                     latest = online_dis.readUTF();
                     url = online_dis.readUTF();
@@ -160,16 +162,18 @@ public class TaskPluginsUpdater extends BetterThread {
                     resultBukkitId = online_dis.readUTF();
 
                     doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                }
-                else if (code==2) getWarnings().add(new BetterWarning(this, new Exception("Plugin "+pl.getName()+" was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
-                else if (code==3) getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for "+pl.getName()+"!")));
-                else getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: "+code+"."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                } else if (code == 2)
+                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
+                else if (code == 3)
+                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                else
+                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
             }
 
             for (DetailedPlugin pl :
                     customLinkPlugins) {
                 currentPl = pl;
-                setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
+                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
                 online_dos.writeUTF(pl.getAuthor());
@@ -177,7 +181,7 @@ public class TaskPluginsUpdater extends BetterThread {
                 online_dos.writeInt(pl.getBukkitId());
 
                 code = online_dis.readByte();
-                if (code==0 || code==1){
+                if (code == 0 || code == 1) {
                     type = online_dis.readUTF();
                     latest = online_dis.readUTF();
                     url = online_dis.readUTF();
@@ -185,22 +189,24 @@ public class TaskPluginsUpdater extends BetterThread {
                     resultBukkitId = online_dis.readUTF();
 
                     doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                }
-                else if (code==2) getWarnings().add(new BetterWarning(this, new Exception("Plugin "+pl.getName()+" was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
-                else if (code==3) getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for "+pl.getName()+"!")));
-                else getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: "+code+"."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                } else if (code == 2)
+                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
+                else if (code == 3)
+                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                else
+                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
             }
 
             for (DetailedPlugin pl :
                     unknownPlugins) {
                 currentPl = pl;
-                setStatus("Checking " + pl.getName() +"("+step()+"/"+size+") for updates...");
+                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
                 online_dos.writeUTF(pl.getName());
                 online_dos.writeUTF(pl.getVersion());
                 online_dos.writeUTF(pl.getAuthor());
 
                 code = online_dis.readByte();
-                if (code==0 || code==1){
+                if (code == 0 || code == 1) {
                     type = online_dis.readUTF();
                     latest = online_dis.readUTF();
                     url = online_dis.readUTF();
@@ -208,45 +214,46 @@ public class TaskPluginsUpdater extends BetterThread {
                     resultBukkitId = online_dis.readUTF();
 
                     doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                }
-                else if (code==2) getWarnings().add(new BetterWarning(this, new Exception("Plugin "+pl.getName()+" was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
-                else if (code==3) getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for "+pl.getName()+"!")));
-                else getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: "+code+"."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                } else if (code == 2)
+                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
+                else if (code == 3)
+                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                else
+                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
             }
 
             // Save the config
             pluginsConfig.save();
-            finish("Checked "+size+" plugins and found "+updatesAvailable+" updates!");
+            finish("Checked " + size + " plugins and found " + updatesAvailable + " updates!");
         } catch (Exception e) {
             // Create this try/catch only for being able to close the connection
             // and rethrow this exception so the Thread finishes
             con.close();
-            if (currentPl!=null)
-                getWarnings().add(new BetterWarning(this, new Exception("Critical error which aborted the plugins updater, while checking plugin: "+currentPl.getName()+"("+currentPl.getVersion()+") from "+currentPl.getInstallationPath())));
+            if (currentPl != null)
+                getWarnings().add(new BetterWarning(this, new Exception("Critical error which aborted the plugins updater, while checking plugin: " + currentPl.getName() + "(" + currentPl.getVersion() + ") from " + currentPl.getInstallationPath())));
             throw e;
         }
 
     }
 
     private void doDownloadLogic(DetailedPlugin pl, byte code, String type, String latest, String url, String resultSpigotId, String resultBukkitId) {
-        if (code==0) {
+        if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
-        }
-        else {
+        } else {
             updatesAvailable++;
-            getSummary().add("Plugin "+pl.getName()+" has an update available ("+pl.getVersion()+" -> "+latest+")");
-            try{
+            getSummary().add("Plugin " + pl.getName() + " has an update available (" + pl.getVersion() + " -> " + latest + ")");
+            try {
                 // Update the in-memory config
                 DYModule mLatest = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "latest-version");
                 mLatest.setValue(latest);
 
                 DYModule mSpigotId = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "spigot-id");
-                if(!resultSpigotId.equals("null")) // Because we can get a "null" string from the server
+                if (!resultSpigotId.equals("null")) // Because we can get a "null" string from the server
                     mSpigotId.setValue(resultSpigotId);
 
                 DYModule mBukkitId = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "bukkit-id");
-                if(!resultBukkitId.equals("null")) // Because we can get a "null" string from the server
+                if (!resultBukkitId.equals("null")) // Because we can get a "null" string from the server
                     mBukkitId.setValue(resultBukkitId);
 
                 // The config gets saved at the end of the runAtStart method.
@@ -257,22 +264,23 @@ public class TaskPluginsUpdater extends BetterThread {
 
             if (userProfile.equals(notifyProfile)) {
                 // Do nothing more
-            }
-            else{
+            } else {
                 if (type.equals(".jar")) {
                     if (userProfile.equals(manualProfile)) {
                         File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + pl.getName() + "[" + latest + "].jar");
                         new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest)
-                        .start();
+                                .start();
                         updatesDownloaded++;
                     } else {
-                        File dest = new File(pl.getInstallationPath());
+                        File oldPl = new File(pl.getInstallationPath());
+                        oldPl.delete();
+                        File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
                         new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest)
-                        .start();
+                                .start();
                         updatesDownloaded++;
                     }
-                }
-                else getWarnings().add(new BetterWarning(this, new Exception("Failed to download plugin update("+latest+") for "+pl.getName()+" because of unsupported type: "+type)));
+                } else
+                    getWarnings().add(new BetterWarning(this, new Exception("Failed to download plugin update(" + latest + ") for " + pl.getName() + " because of unsupported type: " + type)));
             }
         }
 

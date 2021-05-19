@@ -17,22 +17,21 @@ import java.util.logging.Level;
 
 public class UtilsWebClient {
 
-    public static String buildUniqueUserAgent(){
+    public static String buildUniqueUserAgent() {
         StringBuilder b = new StringBuilder();
         b.append("Mozilla/5.0 " +
                 "(Windows NT 10.0; Win64; x64) " +
-                "AppleWebKit/537."+new Random().nextInt(250)+" " +
+                "AppleWebKit/537." + new Random().nextInt(250) + " " +
                 "(KHTML, like Gecko) " +
-                "Chrome/87.0.4280."+new Random().nextInt(250)+" " +
-                "Safari/537."+new Random().nextInt(250));
+                "Chrome/87.0.4280." + new Random().nextInt(250) + " " +
+                "Safari/537." + new Random().nextInt(250));
         return b.toString();
     }
 
     /**
      * Provided by: https://github.com/HtmlUnit/htmlunit/issues/249
      */
-    public static WebClient getNewCustomClient(int pageTimeout, int jsTimeout, String UserAgent)
-    {
+    public static WebClient getNewCustomClient(int pageTimeout, int jsTimeout, String UserAgent) {
         java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
         java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
 

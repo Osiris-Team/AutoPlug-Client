@@ -16,9 +16,8 @@ import java.io.File;
 public class GD {
     public static final String OFFICIAL_WEBSITE = "https://autoplug.online/";
     public static final String OFFICIAL_WEBSITE_IP = "144.91.78.158";
-    public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
     public static final String AUTHOR = "Osiris Team";
-
+    public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
     public static File SERVER_PATH = null; // Gets set in UpdaterConfig

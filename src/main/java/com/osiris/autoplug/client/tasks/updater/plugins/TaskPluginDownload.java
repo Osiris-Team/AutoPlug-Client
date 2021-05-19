@@ -58,48 +58,46 @@ public class TaskPluginDownload extends BetterThread {
         this.setAutoFinish(false); // Disable so we can display the finish message
 
         if (profile.equals("NOTIFY")) {
-            setStatus("Your profile doesn't allow downloads! Profile: "+profile);
+            setStatus("Your profile doesn't allow downloads! Profile: " + profile);
             finish(false);
             return;
-        }
-        else if (profile.equals("MANUAL")){
+        } else if (profile.equals("MANUAL")) {
             download();
-        }
-        else{
+        } else {
             download();
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
             FileUtils.copyFile(downloadDest, finalDest);
-            setStatus(" Installed update for "+plName+" successfully!");
+            setStatus(" Installed update for " + plName + " successfully!");
         }
 
 
         finish(true);
     }
 
-    public void download() throws Exception{
+    public void download() throws Exception {
         GD.WORKING_DIR = new File(System.getProperty("user.dir"));
-        File dir = new File(GD.WORKING_DIR +"/autoplug-downloads");
+        File dir = new File(GD.WORKING_DIR + "/autoplug-downloads");
         if (!dir.exists()) dir.mkdirs();
 
-        downloadDest = new File(GD.WORKING_DIR+"/autoplug-downloads/"+plName+"-["+plLatestVersion+"].jar");
+        downloadDest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + plName + "-[" + plLatestVersion + "].jar");
         if (downloadDest.exists()) downloadDest.delete();
         downloadDest.createNewFile();
 
         final String fileName = downloadDest.getName();
-        setStatus("Downloading "+fileName+"... (0kb/0kb)");
-        AL.debug(this.getClass(), "Downloading "+fileName+" from: "+url);
+        setStatus("Downloading " + fileName + "... (0kb/0kb)");
+        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
         Request request = new Request.Builder().url(url)
-                .header("User-Agent", "AutoPlug Client/"+new Random().nextInt()+" - https://autoplug.online")
+                .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
                 .build();
         Response response = new OkHttpClient().newCall(request).execute();
 
-        if (response.code()!=200)
-            throw new Exception("Download error for "+plName+" code: "+response.code()+" message: "+response.message()+" url: "+url);
+        if (response.code() != 200)
+            throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
 
         ResponseBody body = response.body();
-        if (body==null)
+        if (body == null)
             throw new Exception("Download failed because of empty response body!");
 
         long completeFileSize = body.contentLength();
@@ -114,7 +112,7 @@ public class TaskPluginDownload extends BetterThread {
         while ((x = in.read(data, 0, 1024)) >= 0) {
             downloadedFileSize += x;
 
-            setStatus("Downloading "+fileName+"... ("+downloadedFileSize/1024+"kb/"+completeFileSize/1024+"kb)");
+            setStatus("Downloading " + fileName + "... (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
             setNow(downloadedFileSize);
 
             bout.write(data, 0, x);
@@ -124,7 +122,7 @@ public class TaskPluginDownload extends BetterThread {
         body.close();
         response.close();
 
-        setStatus("Downloaded "+fileName+" ("+downloadedFileSize/1024+"kb/"+completeFileSize/1024+"kb)");
+        setStatus("Downloaded " + fileName + " (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
     }
 
 }

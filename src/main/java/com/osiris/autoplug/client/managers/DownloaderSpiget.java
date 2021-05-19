@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.managers;
 import java.io.InputStream;
 
 @Deprecated
-public class DownloaderSpiget implements IDownloader{
+public class DownloaderSpiget implements IDownloader {
 
     @Override
     public InputStream getInputStreamFromDownload(String download_url) throws Exception {

@@ -38,7 +38,7 @@ public class TaskServerUpdater extends BetterThread {
         if (Server.isRunning()) throw new Exception("Cannot perform update while server is running!");
 
         UpdaterConfig config = new UpdaterConfig();
-        if (config.server_updater.asBoolean()){
+        if (config.server_updater.asBoolean()) {
 
             setStatus("Searching for updates...");
 
@@ -49,83 +49,77 @@ public class TaskServerUpdater extends BetterThread {
             int latest_build_id = getLatestBuildId(name, mc_version);
 
             // Check if the latest build-id is bigger than our current one.
-            if (latest_build_id > build_id){
+            if (latest_build_id > build_id) {
                 String profile = config.server_updater_profile.asString();
-                if (profile.equals("NOTIFY")){
-                    setStatus("Update found ("+build_id+" -> "+latest_build_id+")!");
-                }
-                else if (profile.equals("MANUAL")){
-                    setStatus("Update found ("+build_id+" -> "+latest_build_id+"), started download!");
+                if (profile.equals("NOTIFY")) {
+                    setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
+                } else if (profile.equals("MANUAL")) {
+                    setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
 
                     // Download the file
                     String build_hash = getLatestBuildHash(name, mc_version, latest_build_id);
                     String build_name = getLatestBuildFileName(name, mc_version, latest_build_id);
-                    String url = "https://papermc.io/api/v2/projects/"+name+"/versions/"+mc_version+"/builds/"+latest_build_id+"/downloads/"+build_name;
-                    File cache_dest = new File(GD.WORKING_DIR+"/autoplug-downloads/"+name+"-latest.jar");
+                    String url = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id + "/downloads/" + build_name;
+                    File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
                     if (cache_dest.exists()) cache_dest.delete();
                     cache_dest.createNewFile();
-                    TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url , cache_dest);
+                    TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url, cache_dest);
                     download.start();
 
-                    while(true){
+                    while (true) {
                         Thread.sleep(500); // Wait until download is finished
-                        if (download.isFinished()){
-                            if (download.isSuccess()){
+                        if (download.isFinished()) {
+                            if (download.isSuccess()) {
                                 setStatus("Server update downloaded. Checking hash...");
-                                if (download.compareWithSHA256(build_hash)){
+                                if (download.compareWithSHA256(build_hash)) {
                                     setStatus("Server update downloaded successfully.");
                                     setSuccess(true);
-                                }
-                                else{
+                                } else {
                                     setStatus("Downloaded server update is broken. Nothing changed!");
                                     setSuccess(false);
                                 }
 
-                            }
-                            else{
+                            } else {
                                 setStatus("Server update failed!");
                                 setSuccess(false);
                             }
                             break;
                         }
                     }
-                }
-                else {
-                    setStatus("Update found ("+build_id+" -> "+latest_build_id+"), started download!");
+                } else {
+                    setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
                     File final_dest = GD.SERVER_PATH;
-                    if (final_dest==null) final_dest = new File(GD.WORKING_DIR+"/"+name+"-latest.jar");
+                    if (final_dest == null) final_dest = new File(GD.WORKING_DIR + "/" + name + "-latest.jar");
                     if (final_dest.exists()) final_dest.delete();
                     final_dest.createNewFile();
 
                     // Download the file
                     String build_hash = getLatestBuildHash(name, mc_version, latest_build_id);
                     String build_name = getLatestBuildFileName(name, mc_version, latest_build_id);
-                    String url = "https://papermc.io/api/v2/projects/"+name+"/versions/"+mc_version+"/builds/"+latest_build_id+"/downloads/"+build_name;
-                    File cache_dest = new File(GD.WORKING_DIR+"/autoplug-downloads/"+name+"-latest.jar");
+                    String url = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id + "/downloads/" + build_name;
+                    File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
                     if (cache_dest.exists()) cache_dest.delete();
                     cache_dest.createNewFile();
-                    TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url , cache_dest);
+                    TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url, cache_dest);
                     download.start();
 
-                    while(true){
+                    while (true) {
                         Thread.sleep(500);
-                        if (download.isFinished()){
-                            if (download.isSuccess()){
+                        if (download.isFinished()) {
+                            if (download.isSuccess()) {
                                 setStatus("Server update downloaded. Checking hash...");
-                                if (download.compareWithSHA256(build_hash)){
+                                if (download.compareWithSHA256(build_hash)) {
                                     FileUtils.copyFile(cache_dest, final_dest);
-                                    setStatus("Server update was installed successfully ("+build_id+" -> "+latest_build_id+")!");
-                                    config.build_id.setValue(""+latest_build_id);
+                                    setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
+                                    config.build_id.setValue("" + latest_build_id);
                                     config.save();
                                     setSuccess(true);
-                                }
-                                else{
+                                } else {
                                     setStatus("Downloaded server update is broken. Nothing changed!");
                                     setSuccess(false);
                                 }
 
-                            }
-                            else{
+                            } else {
                                 setStatus("Server update failed!");
                                 setSuccess(false);
                             }
@@ -134,14 +128,12 @@ public class TaskServerUpdater extends BetterThread {
                     }
                 }
 
-            }
-            else{
+            } else {
                 setStatus("Your server is on the latest version!");
                 setSuccess(true);
             }
 
-        }
-        else{
+        } else {
             skip();
         }
         finish();
@@ -149,12 +141,12 @@ public class TaskServerUpdater extends BetterThread {
 
     private String getLatestBuildHash(String name, String mc_version, int latest_build_id) {
         String result = null;
-        final String address = "https://papermc.io/api/v2/projects/"+name+"/versions/"+mc_version+"/builds/"+latest_build_id;
-        try{
+        final String address = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id;
+        try {
             result = new JsonTools().getJsonObject(address).getAsJsonObject("downloads").getAsJsonObject("application").get("sha256").getAsString();
-            AL.debug(this.getClass(), "Got from paper-api: build-sha256="+result);
+            AL.debug(this.getClass(), "Got from paper-api: build-sha256=" + result);
         } catch (Exception e) {
-            getWarnings().add(new BetterWarning(this, e,"Failed to get build-sha256 from: "+address));
+            getWarnings().add(new BetterWarning(this, e, "Failed to get build-sha256 from: " + address));
             setSuccess(false);
         }
         return result;
@@ -162,27 +154,27 @@ public class TaskServerUpdater extends BetterThread {
 
     private String getLatestBuildFileName(String name, String mc_version, int latest_build_id) {
         String result = null;
-        final String address = "https://papermc.io/api/v2/projects/"+name+"/versions/"+mc_version+"/builds/"+latest_build_id;
-        try{
+        final String address = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id;
+        try {
             result = new JsonTools().getJsonObject(address).getAsJsonObject("downloads").getAsJsonObject("application").get("name").getAsString();
-            AL.debug(this.getClass(), "Got from paper-api: build-name="+result);
+            AL.debug(this.getClass(), "Got from paper-api: build-name=" + result);
         } catch (Exception e) {
-            getWarnings().add(new BetterWarning(this, e,"Failed to get build-name from: "+address));
+            getWarnings().add(new BetterWarning(this, e, "Failed to get build-name from: " + address));
             setSuccess(false);
         }
         return result;
     }
 
-    private int getLatestBuildId(String name, String mc_version){
+    private int getLatestBuildId(String name, String mc_version) {
         int result = 0;
-        final String address = "https://papermc.io/api/v2/projects/"+name+"/versions/"+mc_version;
-        try{
+        final String address = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version;
+        try {
             JsonArray builds = new JsonTools().getJsonObject(address).getAsJsonArray("builds");
             // Gets the last value in the array (latest). Example: size is 10 but an array starts at 0, that's why we do 10-1=9 to get the last value in the array.
-            result = builds.get(builds.size()-1).getAsInt();
-            AL.debug(this.getClass(), "Got from paper-api: build-id="+result);
+            result = builds.get(builds.size() - 1).getAsInt();
+            AL.debug(this.getClass(), "Got from paper-api: build-id=" + result);
         } catch (Exception e) {
-            getWarnings().add(new BetterWarning(this, e,"Failed to get latest build-id from: "+address));
+            getWarnings().add(new BetterWarning(this, e, "Failed to get latest build-id from: " + address));
             setSuccess(false);
         }
         return result;

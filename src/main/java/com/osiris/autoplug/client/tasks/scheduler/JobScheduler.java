@@ -24,11 +24,12 @@ public class JobScheduler {
      * Get the one and only scheduler, which is used for scheduling tasks (who would have though!).
      * All the tasks attached to this scheduler are created by its Process.
      * If there isn't one created already a new scheduler will be created.
+     *
      * @return Scheduler.
      * @throws Exception
      */
-    public static Scheduler getScheduler() throws Exception{
-        if (scheduler==null){
+    public static Scheduler getScheduler() throws Exception {
+        if (scheduler == null) {
             scheduler = StdSchedulerFactory.getDefaultScheduler();
         }
         return scheduler;
@@ -36,20 +37,21 @@ public class JobScheduler {
 
     /**
      * WORK IN PROGRESS!
+     *
      * @return
      * @throws Exception
      */
-    public static Scheduler getCustomScheduler() throws Exception{
+    public static Scheduler getCustomScheduler() throws Exception {
         // TODO
-        if (c_scheduler==null){
+        if (c_scheduler == null) {
             c_scheduler = StdSchedulerFactory.getDefaultScheduler();
         }
         return c_scheduler;
     }
 
-    public static void safeShutdown(){
+    public static void safeShutdown() {
         try {
-            if (scheduler!=null){
+            if (scheduler != null) {
                 scheduler.shutdown();
             }
         } catch (SchedulerException se) {

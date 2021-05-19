@@ -37,15 +37,15 @@ public class TaskCustomRestarter extends BetterThread {
     }
 
     //Is created in config if enabled
-    private void createAllJobs() throws Exception{
+    private void createAllJobs() throws Exception {
 
         RestarterConfig config = new RestarterConfig();
 
-        if (config.c_restarter_enabled.asBoolean()){
+        if (config.c_restarter_enabled.asBoolean()) {
 
             scheduler = StdSchedulerFactory.getDefaultScheduler();
 
-            if (scheduler.isStarted()){
+            if (scheduler.isStarted()) {
                 setStatus("Scheduler already running. Put into standby.");
                 scheduler.standby();
             }
@@ -54,21 +54,20 @@ public class TaskCustomRestarter extends BetterThread {
 
             String cron = config.c_restarter_cron.asString();
             createJob("customRestartJob", "customRestartTrigger", cron);
-            setStatus("Created job: customRestartJob with cron "+cron);
+            setStatus("Created job: customRestartJob with cron " + cron);
 
             scheduler.start(); // Create all jobs before starting the scheduler
             finish(true);
-        }
-        else{
+        } else {
             skip();
         }
 
     }
 
     //Creates jobs and links them to the scheduler
-    private void createJob(String jobName, String triggerName, String cron) throws Exception{
+    private void createJob(String jobName, String triggerName, String cron) throws Exception {
 
-        AL.debug(this.getClass(), "Creating job with name: "+jobName+" trigger:" + triggerName+" cron:" + cron);
+        AL.debug(this.getClass(), "Creating job with name: " + jobName + " trigger:" + triggerName + " cron:" + cron);
 
         //Specify scheduler details
         JobDetail job = newJob(CustomRestartJob.class)

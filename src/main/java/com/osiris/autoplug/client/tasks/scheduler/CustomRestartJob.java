@@ -32,8 +32,9 @@ public class CustomRestartJob implements Job {
         }
 
         //Wait for 10secs...
-        try{Thread.sleep(10000);}
-        catch (InterruptedException e) {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

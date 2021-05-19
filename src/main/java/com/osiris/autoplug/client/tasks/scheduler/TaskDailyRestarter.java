@@ -39,15 +39,15 @@ public class TaskDailyRestarter extends BetterThread {
     }
 
     //Is created in config if enabled
-    private void createAllJobs() throws Exception{
+    private void createAllJobs() throws Exception {
 
         RestarterConfig config = new RestarterConfig();
 
-        if (config.restarter_enabled.asBoolean()){
+        if (config.restarter_enabled.asBoolean()) {
 
             scheduler = StdSchedulerFactory.getDefaultScheduler();
 
-            if(scheduler.isStarted()){
+            if (scheduler.isStarted()) {
                 setStatus("Scheduler already running. Put into standby.");
                 scheduler.standby();
             }
@@ -64,22 +64,21 @@ public class TaskDailyRestarter extends BetterThread {
             for (int i = 0; i < size; i++) {
 
                 //Get values
-                jobName = "restartJob"+i;
-                triggerName = "restartTrigger"+i;
+                jobName = "restartJob" + i;
+                triggerName = "restartTrigger" + i;
 
                 min = String.valueOf(config.restarter_times_minutes.get(i));
                 h = String.valueOf(config.restarter_times_hours.get(i));
 
                 //Create job
                 createJob(jobName, triggerName, min, h);
-                setStatus("Created job: "+jobName+" at "+h+":"+min);
+                setStatus("Created job: " + jobName + " at " + h + ":" + min);
                 step();
             }
 
             scheduler.start(); // Create all jobs before starting the scheduler
             finish(true);
-        }
-        else{
+        } else {
             skip();
         }
     }
@@ -88,7 +87,7 @@ public class TaskDailyRestarter extends BetterThread {
     private void createJob(String jobName, String triggerName, String min, String h) {
 
         try {
-            AL.debug(this.getClass(), "Creating job with name: "+jobName+" trigger:" + triggerName+" min:" + min+" hour:" + h);
+            AL.debug(this.getClass(), "Creating job with name: " + jobName + " trigger:" + triggerName + " min:" + min + " hour:" + h);
 
             //Specify scheduler details
             JobDetail job = newJob(RestartJob.class)
@@ -97,7 +96,7 @@ public class TaskDailyRestarter extends BetterThread {
 
             CronTrigger trigger = newTrigger()
                     .withIdentity(triggerName, "restartGroup")
-                    .withSchedule(cronSchedule("0 "+min+" "+h+" * * ? *"))
+                    .withSchedule(cronSchedule("0 " + min + " " + h + " * * ? *"))
                     .build();
 
             //Add details to the scheduler

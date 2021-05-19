@@ -38,23 +38,24 @@ public class SecuredConnection {
     /**
      * Creates a new secured connection to the AutoPlug server.
      * Needs a connection type.
+     *
      * @param con_type 0 = {@link MainConnection};
      *                 1 = {@link OnlineUserInputConnection};
      *                 2 = {@link OnlineConsoleConnection};
      *                 3 = {@link PluginsUpdaterConnection};
      * @throws Exception if authentication fails. Details are in the message.
      */
-    public SecuredConnection(byte con_type) throws Exception{
+    public SecuredConnection(byte con_type) throws Exception {
         int counter = 1;
-        while(counter < 11){
+        while (counter < 11) {
             try {
                 counter++;
                 AL.debug(this.getClass(), "Connecting to AutoPlug-Web...");
-                connect(GD.OFFICIAL_WEBSITE_IP,35555);
+                connect(GD.OFFICIAL_WEBSITE_IP, 35555);
                 break;
             } catch (Exception ex) {
                 //ex.printStackTrace();
-                AL.warn("Error connecting to the AutoPlug-Web("+counter+"/10). Retrying in 5 seconds...", ex);
+                AL.warn("Error connecting to the AutoPlug-Web(" + counter + "/10). Retrying in 5 seconds...", ex);
                 try {
                     Thread.sleep(5000);
                 } catch (Exception e) {
@@ -63,13 +64,13 @@ public class SecuredConnection {
             }
         }
 
-        if (socket==null || socket.isClosed() || !socket.isConnected())
+        if (socket == null || socket.isClosed() || !socket.isConnected())
             throw new Exception("Failed to connect to the online server after retrying 10 times. Please try again later.");
 
         DataInputStream dis = new DataInputStream(input);
         DataOutputStream dos = new DataOutputStream(output);
 
-        AL.debug(this.getClass(),"Authenticating server-key from con-type: "+con_type);
+        AL.debug(this.getClass(), "Authenticating server-key from con-type: " + con_type);
         dos.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
         dos.writeByte(con_type); // Send connection type
 
@@ -79,23 +80,24 @@ public class SecuredConnection {
                 AL.debug(this.getClass(), "Authentication succeeded!");
                 break;
             case 1:
-                throw new Exception("Authentication failed (code:"+response+"): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
+                throw new Exception("Authentication failed (code:" + response + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
             case 2:
-                throw new Exception("Authentication failed (code:"+response+"): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
+                throw new Exception("Authentication failed (code:" + response + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
             case 3:
-                throw new Exception("Authentication failed (code:"+response+"): Make sure that the primary connection is established before all the secondary connections!");
+                throw new Exception("Authentication failed (code:" + response + "): Make sure that the primary connection is established before all the secondary connections!");
             case 4:
-                throw new Exception("Authentication failed (code:"+response+"): Unknown connection type! Make sure that AutoPlug is up-to-date!");
+                throw new Exception("Authentication failed (code:" + response + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
             case 5:
-                throw new Exception("Authentication failed (code:"+response+"): No user account found for the provided server key!");
+                throw new Exception("Authentication failed (code:" + response + "): No user account found for the provided server key!");
             default:
-                throw new Exception("Authentication failed (code:"+response+"): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
+                throw new Exception("Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
         }
     }
 
     /**
      * Connects to a server with SSL.
      * After this you can use the get methods.
+     *
      * @param host Server ip-address.
      * @param port Server port.
      * @throws Exception
@@ -107,7 +109,7 @@ public class SecuredConnection {
 
         //System.setProperty("javax.net.debug", "all");
         ((SSLSocket) socket).setEnabledProtocols(
-                new String[] {"TLSv1.2"});
+                new String[]{"TLSv1.2"});
         ((SSLSocket) socket).getSSLParameters().setEndpointIdentificationAlgorithm("HTTPS");
 
         registerHandshakeCallback(socket);

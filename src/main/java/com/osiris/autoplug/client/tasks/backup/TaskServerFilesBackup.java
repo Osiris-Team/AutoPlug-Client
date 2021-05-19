@@ -35,9 +35,9 @@ import java.util.List;
 
 public class TaskServerFilesBackup extends BetterThread {
 
-    private final File autoplug_backups_server = new File(GD.WORKING_DIR+"/autoplug-backups/server");
-    private final File autoplug_backups_plugins = new File(GD.WORKING_DIR+"/autoplug-backups/plugins");
-    private final File autoplug_backups_worlds = new File(GD.WORKING_DIR+"/autoplug-backups/worlds");
+    private final File autoplug_backups_server = new File(GD.WORKING_DIR + "/autoplug-backups/server");
+    private final File autoplug_backups_plugins = new File(GD.WORKING_DIR + "/autoplug-backups/plugins");
+    private final File autoplug_backups_worlds = new File(GD.WORKING_DIR + "/autoplug-backups/worlds");
 
     private final LocalDateTime date = LocalDateTime.now();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
@@ -80,8 +80,7 @@ public class TaskServerFilesBackup extends BetterThread {
         //Removes files older than user defined days
         if (max_days_server <= 0) {
             setStatus("Skipping delete of older backups...");
-        }
-        else{
+        } else {
             Date oldestAllowedFileDate = DateUtils.addDays(new Date(), -max_days_server); //minus days from current date
             Iterator<File> filesToDelete = FileUtils.iterateFiles(autoplug_backups_server, new AgeFileFilter(oldestAllowedFileDate), null);
             //if deleting subdirs, replace null above with TrueFileFilter.INSTANCE
@@ -89,9 +88,9 @@ public class TaskServerFilesBackup extends BetterThread {
             while (filesToDelete.hasNext()) {
                 deleted_files++;
                 FileUtils.deleteQuietly(filesToDelete.next());
-                setStatus("Deleting backups older than "+max_days_server+" days... Deleted: "+deleted_files+" zips");
+                setStatus("Deleting backups older than " + max_days_server + " days... Deleted: " + deleted_files + " zips");
             }  //I don't want an exception if a file is not deleted. Otherwise use filesToDelete.next().delete() in a try/catch
-            setStatus("Deleting backups older than "+max_days_server+" days... Deleted: "+deleted_files+" zips");
+            setStatus("Deleting backups older than " + max_days_server + " days... Deleted: " + deleted_files + " zips");
         }
         Thread.sleep(1000);
 
@@ -106,10 +105,10 @@ public class TaskServerFilesBackup extends BetterThread {
             //Add each file to the zip
             for (File file : serverFiles) {
                 setStatus("Backing up server-files... " + file.getName());
-                try{
+                try {
                     zip.addFile(file);
                 } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this,e, "Failed to add "+file.getName()+" to zip."));
+                    getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }
                 step();
             }

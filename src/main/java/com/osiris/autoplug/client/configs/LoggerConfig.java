@@ -20,8 +20,8 @@ public class LoggerConfig extends DreamYaml {
     public DYModule debug;
 
     public LoggerConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-logger-config.yml");
-        try{
+        super(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(
@@ -37,7 +37,7 @@ public class LoggerConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            debug = add(name,"debug").setDefValue("false").setComment(
+            debug = add(name, "debug").setDefValue("false").setComment(
                     "Writes the debug output to console.\n" +
                             "The log file contains the debug output by default and this option wont affect that.\n" +
                             "This is the only setting that needs a restart to work.");
@@ -50,7 +50,7 @@ public class LoggerConfig extends DreamYaml {
         }
     }
 
-    private void extraDebugOptions(){
+    private void extraDebugOptions() {
         //Enable debug mode for libs
         Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
         if (debug.asBoolean()) {

@@ -39,12 +39,12 @@ public class SecondaryConnection {
     }
 
     public void close() throws IOException {
-        if (in!=null) in.close();
-        if (out!=null) out.close();
+        if (in != null) in.close();
+        if (out != null) out.close();
         if (socket.isConnected()) socket.close();
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         return socket != null && !socket.isClosed();
     }
 

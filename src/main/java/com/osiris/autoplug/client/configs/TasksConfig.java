@@ -18,8 +18,8 @@ public class TasksConfig extends DreamYaml {
     public DYModule refresh_interval;
 
     public TasksConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-tasks-config.yml");
-        try{
+        super(System.getProperty("user.dir") + "/autoplug-tasks-config.yml");
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(
@@ -35,10 +35,10 @@ public class TasksConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            live_tasks = add(name,"live-tasks","enable").setDefValue("true").setComment(
+            live_tasks = add(name, "live-tasks", "enable").setDefValue("true").setComment(
                     "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
                             "Enabling this on unsupported platform will result in console spam.");
-            refresh_interval = add(name,"live-tasks","refresh-interval").setDefValue("250").setComment(
+            refresh_interval = add(name, "live-tasks", "refresh-interval").setDefValue("250").setComment(
                     "Refresh interval in milliseconds.\n" +
                             "How often a task should get refreshed and update its information. Default is: 250ms");
 

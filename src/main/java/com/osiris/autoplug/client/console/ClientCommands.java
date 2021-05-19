@@ -35,7 +35,7 @@ public final class ClientCommands {
         if (first.equals(".")) {
             try {
 
-                if (command.equals(".help") || command.equals(".h")){
+                if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info("All available AutoPlug-Console commands:");
                     AL.info(".help      | Prints out this (Shortcut: .h)");
@@ -47,52 +47,39 @@ public final class ClientCommands {
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
                     AL.info("");
                     return true;
-                }
-                else if (command.equals(".start") || command.equals(".s")){
+                } else if (command.equals(".start") || command.equals(".s")) {
                     Server.start();
                     return true;
-                }
-
-                else if (command.equals(".restart") || command.equals(".r")){
+                } else if (command.equals(".restart") || command.equals(".r")) {
                     Server.restart();
                     return true;
-                }
-
-                else if (command.equals(".stop") || command.equals(".st")){
+                } else if (command.equals(".stop") || command.equals(".st")) {
                     Server.stop();
                     return true;
-                }
-
-                else if (command.equals(".stop both") || command.equals(".stb")){
+                } else if (command.equals(".stop both") || command.equals(".stb")) {
                     // All the stuff that needs to be done before shutdown is done by the ShutdownHook.
                     // See SystemChecker.addShutdownHook() for details.
                     System.exit(0);
                     return true;
-                }
-
-                else if (command.equals(".kill") || command.equals(".k")){
+                } else if (command.equals(".kill") || command.equals(".k")) {
                     Server.kill();
                     return true;
-                }
-
-                else if (command.equals(".kill both") || command.equals(".kb")){
+                } else if (command.equals(".kill both") || command.equals(".kb")) {
                     Server.kill();
                     AL.info("Killing AutoPlug-Client and MC-Server! Ahhhh!");
                     AL.info("Achievement unlocked: Double kill!");
                     System.exit(0);
                     return true;
-                }
-
-                else{
+                } else {
                     AL.info("Command not found! Enter .help or .h for all available server!");
                     return false;
                 }
 
             } catch (Exception e) {
-                AL.warn("Error at execution of '"+command+"' command!",e);
+                AL.warn("Error at execution of '" + command + "' command!", e);
                 return false;
             }
-        } else{
+        } else {
             return false;
         }
     }

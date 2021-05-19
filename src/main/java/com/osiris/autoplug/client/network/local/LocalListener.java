@@ -28,11 +28,11 @@ public class LocalListener {
      * OnlineConnection ->
      * OnlineTaskUpdatePlugins
      */
-    public LocalListener(){
+    public LocalListener() {
 
         Thread newThread = new Thread(() -> {
 
-            try{
+            try {
                 ServerSocket local_server_socket = null;
                 //Search for a free port starting at 35565 and connect to it
                 int port = 35565;
@@ -45,11 +45,11 @@ public class LocalListener {
                     } catch (IOException e) {
                         local_server_socket = null;
                         port++;
-                        AL.warn("Failed to bind on port " + port + "! "+e.getMessage());
+                        AL.warn("Failed to bind on port " + port + "! " + e.getMessage());
                     }
                 }
 
-                while(true) {
+                while (true) {
 
                     //This blocks the thread till a client connects
                     AL.info("Waiting for AutoPlugPlugin to connect...");

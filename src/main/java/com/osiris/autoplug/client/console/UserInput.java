@@ -22,10 +22,10 @@ import static com.osiris.betterthread.Constants.TERMINAL;
 public class UserInput {
     public static Thread inputListenerThread;
 
-    public static void keyboard() throws Exception{
+    public static void keyboard() throws Exception {
         //New thread for user input
-        if (inputListenerThread == null){
-            inputListenerThread = new Thread(()-> {
+        if (inputListenerThread == null) {
+            inputListenerThread = new Thread(() -> {
 
                 //Scanner scanner = new Scanner(System.in); // Old
                 LineReader lineReader = LineReaderBuilder.builder()
@@ -40,12 +40,11 @@ public class UserInput {
 
                     // Send to online console
                     if (MainConnection.CON_CONSOLE.isConnected())
-                        try{
+                        try {
                             OnlineConsoleConnection.send(user_input);
                         } catch (Exception e) {
                             AL.warn(e);
                         }
-
 
 
                     //Check if user input is autoplug command or not
@@ -60,7 +59,7 @@ public class UserInput {
 
                     } else if (Server.isRunning()) {
                         Server.submitCommand(user_input);
-                    } else{
+                    } else {
                         info("Enter .help for all available server!");
                     }
 

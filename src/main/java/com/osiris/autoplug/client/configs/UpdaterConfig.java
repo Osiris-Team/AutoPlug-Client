@@ -27,9 +27,9 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
 
-    public UpdaterConfig(){
-        super(System.getProperty("user.dir")+"/autoplug-updater-config.yml");
-        try{
+    public UpdaterConfig() {
+        super(System.getProperty("user.dir") + "/autoplug-updater-config.yml");
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment("#######################################################################################################################\n" +
@@ -68,7 +68,7 @@ public class UpdaterConfig extends DreamYaml {
                             "- waterfall (https://github.com/PaperMC/Waterfall)\n" +
                             "- travertine (https://github.com/PaperMC/Travertine)\n" +
                             "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-            server_version = add(name,"server-updater","version").setDefValue("1.16.4").setComment(
+            server_version = add(name, "server-updater", "version").setDefValue("1.16.4").setComment(
                     "Currently supported minecraft versions:\n" +
                             "- paper versions: https://papermc.io/api/v2/projects/paper\n" +
                             "- waterfall versions: https://papermc.io/api/v2/projects/waterfall\n" +
@@ -76,15 +76,17 @@ public class UpdaterConfig extends DreamYaml {
                             "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                             "Note: Remember that worlds may not be converted to older versions.\n" +
                             "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-            build_id = add(name,"server-updater","build-id").setDefValue("0").setComment(
+            build_id = add(name, "server-updater", "build-id").setDefValue("0").setComment(
                     "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                             "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                             "Otherwise don't touch this. It will get incremented after every successful update automatically.");
 
 
-            plugin_updater = add(name,"plugins-updater","enable").setDefValue("true").setComment(
-                    "Executed before mc server startup.");
-            plugin_updater_profile = add(name,"plugins-updater","profile").setDefValue("MANUAL");
+            plugin_updater = add(name, "plugins-updater", "enable").setDefValue("true").setComments(
+                    "Updates your plugins in to /plugins directory.",
+                    "Note that there is a cool-down (that cannot be changed) of a few hours,",
+                    "because the check can be very demanding for the AutoPlug-Webserver.");
+            plugin_updater_profile = add(name, "plugins-updater", "profile").setDefValue("MANUAL");
 
             validateOptions();
             save();
@@ -99,24 +101,24 @@ public class UpdaterConfig extends DreamYaml {
         String sP = server_updater_profile.asString();
         String uP = plugin_updater_profile.asString();
 
-        if (selfP.equals("NOTIFY") || selfP.equals("MANUAL") || selfP.equals("AUTOMATIC") ){
-        } else{
+        if (selfP.equals("NOTIFY") || selfP.equals("MANUAL") || selfP.equals("AUTOMATIC")) {
+        } else {
             String correction = "NOTIFY";
-            AL.warn("Config error -> " + self_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            AL.warn("Config error -> " + self_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             self_updater_profile.setValue(correction);
         }
 
-        if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC") ){
-        } else{
+        if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC")) {
+        } else {
             String correction = "NOTIFY";
-            AL.warn("Config error -> " + server_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            AL.warn("Config error -> " + server_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             server_updater_profile.setValue(correction);
         }
 
-        if (uP.equals("NOTIFY") || uP.equals("MANUAL") || uP.equals("AUTOMATIC") ){
-        } else{
+        if (uP.equals("NOTIFY") || uP.equals("MANUAL") || uP.equals("AUTOMATIC")) {
+        } else {
             String correction = "NOTIFY";
-            AL.warn("Config error -> " + plugin_updater_profile.getKeys() +" must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugin_updater_profile.setValue(correction);
         }
 

@@ -16,6 +16,7 @@ public interface IDownloader {
     /**
      * This is used to get the InputStream of an online file.
      * The download_url must point directly to that file.
+     *
      * @return null if the download wasn't successful.
      */
     InputStream getInputStreamFromDownload(String download_url) throws Exception;

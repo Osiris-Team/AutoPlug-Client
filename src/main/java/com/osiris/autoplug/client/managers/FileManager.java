@@ -24,15 +24,15 @@ import java.util.Objects;
  * (Not efficient code. Rework needed!)
  */
 public class FileManager {
-    private File queryFile = null;
     private final List<File> queryFiles = new ArrayList<>();
+    private File queryFile = null;
 
     public void deleteOldPlugin(String pl_name) {
-        String searchPattern = "*"+pl_name+"**.jar";
+        String searchPattern = "*" + pl_name + "**.jar";
         //Find the file
         findFileInPluginsDir(searchPattern);
         //Delete the file
-        if ( !queryFile.delete() ) {
+        if (!queryFile.delete()) {
             AL.warn(" [!] Couldn't remove old plugin jar at: " + queryFile.toPath() + " [!] ");
         }
 
@@ -40,6 +40,7 @@ public class FileManager {
 
     /**
      * Gets all plugins located in the /plugins folder.
+     *
      * @return list of files.
      */
     public List<File> getAllPlugins() {
@@ -74,10 +75,11 @@ public class FileManager {
 
     /**
      * Finds the server jar by its name.
+     *
      * @return server jar file.
      */
     public File serverJar(String server_jar_name) {
-        String searchPattern = "*"+server_jar_name+"**.jar";
+        String searchPattern = "*" + server_jar_name + "**.jar";
         //Find the file
         findJarFileInWorkingDir(searchPattern);
         //Return the result file
@@ -86,6 +88,7 @@ public class FileManager {
 
     /**
      * Finds the first jar file with another name than AutoPlugLauncher.jar.
+     *
      * @return server jar file.
      */
     public File serverJar() {
@@ -96,26 +99,27 @@ public class FileManager {
         return queryFile;
     }
 
-    public List<File> getFilesFrom(String dirPath) throws IOException{
+    public List<File> getFilesFrom(String dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         return getFilesFrom(FileSystems.getDefault().getPath(dirPath));
     }
 
-    public List<File> getFilesFrom(File dir) throws IOException{
+    public List<File> getFilesFrom(File dir) throws IOException {
         Objects.requireNonNull(dir);
         return getFilesFrom(dir.toPath());
     }
 
     /**
      * Depth is 1. All folders are ignored.
+     *
      * @param dirPath the directory path.
      * @return a list of files in this directory.
      * @throws IOException
      */
-    public List<File> getFilesFrom(Path dirPath) throws IOException{
+    public List<File> getFilesFrom(Path dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         List<File> list = new ArrayList<>();
-        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>(){
+        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 return FileVisitResult.SKIP_SUBTREE;
@@ -131,26 +135,27 @@ public class FileManager {
         return list;
     }
 
-    public List<File> getFoldersFrom(String dirPath) throws IOException{
+    public List<File> getFoldersFrom(String dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         return getFoldersFrom(FileSystems.getDefault().getPath(dirPath));
     }
 
-    public List<File> getFoldersFrom(File dir) throws IOException{
+    public List<File> getFoldersFrom(File dir) throws IOException {
         Objects.requireNonNull(dir);
         return getFoldersFrom(dir.toPath());
     }
 
     /**
      * Depth is 1. All sub-folders are ignored.
+     *
      * @param dirPath the directory path.
      * @return a list of folders in this directory.
      * @throws IOException
      */
-    public List<File> getFoldersFrom(Path dirPath) throws IOException{
+    public List<File> getFoldersFrom(Path dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         List<File> list = new ArrayList<>();
-        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>(){
+        SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs) throws IOException {
                 list.add(new File(path.toString()));
@@ -164,7 +169,7 @@ public class FileManager {
     //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds one jar
     private void findJarFileInWorkingDir(String searchPattern) {
 
-        try{
+        try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
@@ -191,10 +196,9 @@ public class FileManager {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()){
+                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
-                    }
-                    else{
+                    } else {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -209,10 +213,9 @@ public class FileManager {
             });
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-            AL.warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
         }
 
     }
@@ -220,7 +223,7 @@ public class FileManager {
     //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds ALL files
     private void findFilesInWorkingDir(String searchPattern) {
 
-        try{
+        try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
@@ -248,10 +251,9 @@ public class FileManager {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()){
+                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
-                    }
-                    else{
+                    } else {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -266,10 +268,9 @@ public class FileManager {
             });
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-            AL.warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
         }
 
     }
@@ -277,7 +278,7 @@ public class FileManager {
     //Walks through files and finds ALL sub-folders in main working dir
     private void findFoldersInWorkingDir(String searchPattern) {
 
-        try{
+        try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
@@ -292,15 +293,13 @@ public class FileManager {
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
                     //Skip subdirectories of non main worki dirs and non matching dirs
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory() && !pathMatcher.matches(dir.getFileName())){
+                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory() && !pathMatcher.matches(dir.getFileName())) {
                         return FileVisitResult.SKIP_SUBTREE;
-                    }
-                    else if(!dir.toString().equals(GD.WORKING_DIR.toString())){
+                    } else if (!dir.toString().equals(GD.WORKING_DIR.toString())) {
                         //Adds folders to list
                         queryFiles.add(new File(dir.toString()));
                         return FileVisitResult.CONTINUE;
-                    }
-                    else {
+                    } else {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -315,10 +314,9 @@ public class FileManager {
             });
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-            AL.warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
         }
 
     }
@@ -326,7 +324,7 @@ public class FileManager {
     //Walks through files (skips all Plugin directories) and finds one jar
     private void findFileInPluginsDir(String searchPattern) {
 
-        try{
+        try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
 
             Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
@@ -347,10 +345,9 @@ public class FileManager {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
-                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()){
+                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
-                    }
-                    else{
+                    } else {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -365,10 +362,9 @@ public class FileManager {
             });
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-            AL.warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
         }
 
     }
@@ -376,7 +372,7 @@ public class FileManager {
     //Walks through files (skips all Plugin directories)
     private void findFilesInPluginsDir(String searchPattern) {
 
-        try{
+        try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
 
             Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
@@ -397,10 +393,9 @@ public class FileManager {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
-                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()){
+                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
-                    }
-                    else{
+                    } else {
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -415,10 +410,9 @@ public class FileManager {
             });
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-            AL.warn(" [!] Error: "+ e.getMessage() + " [!]");
+            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
         }
 
     }

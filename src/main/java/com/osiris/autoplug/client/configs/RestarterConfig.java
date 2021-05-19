@@ -29,9 +29,9 @@ public class RestarterConfig extends DreamYaml {
     public DYModule c_restarter_commands;
 
     public RestarterConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-restarter-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug-restarter-config.yml");
 
-        try{
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(
@@ -47,27 +47,27 @@ public class RestarterConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            restarter_enabled = add(name,"daily-restarter","enable").setDefValue("false").setComment(
+            restarter_enabled = add(name, "daily-restarter", "enable").setDefValue("false").setComment(
                     "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
                             "Make sure to have the other scheduler disabled.");
 
-            restarter_times_raw = add(name,"daily-restarter","times").setDefValues("23:00","11:00").setComment(
+            restarter_times_raw = add(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComment(
                     "Restarts your server daily at the times below.\n" +
                             "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
 
-            restarter_commands = add(name,"daily-restarter","server").setDefValues("say [Server] Server is restarting...","say [Server] Please allow up to 2min for this process to complete.")
+            restarter_commands = add(name, "daily-restarter", "server").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
                     .setComment("Executes these server as console, 10 seconds before restarting the server.");
 
-            c_restarter_enabled = add(name,"custom-restarter","enable").setDefValue("false").setComment(
+            c_restarter_enabled = add(name, "custom-restarter", "enable").setDefValue("false").setComment(
                     "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
                             "Make sure to have the other scheduler disabled.\n" +
                             "This scheduler uses a quartz-cron-expression (https://wikipedia.org/wiki/Cron) to execute the restart.");
 
-            c_restarter_cron = add(name,"custom-restarter","cron").setDefValue("0 30 9 * * ? *").setComment(
+            c_restarter_cron = add(name, "custom-restarter", "cron").setDefValue("0 30 9 * * ? *").setComment(
                     "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
                             "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
-            c_restarter_commands = add(name,"custom-restarter","server").setDefValues("say [Server] Server is restarting...","say [Server] Please allow up to 2min for this process to complete.")
+            c_restarter_commands = add(name, "custom-restarter", "server").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
                     .setComment("Executes these server as console, 10 seconds before restarting the server.");
 
             validateOptions();
@@ -85,7 +85,7 @@ public class RestarterConfig extends DreamYaml {
         //Get the config string list
         //Split each time up into hours and min to validate them
         //Pass the int list over to the scheduler
-        if (restarter_enabled.asBoolean()){
+        if (restarter_enabled.asBoolean()) {
 
             List<String> list = restarter_times_raw.asStringList();
             for (int i = 0; i < list.size(); i++) {
@@ -98,15 +98,15 @@ public class RestarterConfig extends DreamYaml {
                 //Validate:
                 //Hours must be between: 0-23
                 int hour = Integer.parseInt(raw_times[0]);
-                if (hour>23 || hour<0){
-                    AL.warn("Config error at daily-restarter.times -> " + hour +"h is not between 0h and 23h! Applying default: 0");
+                if (hour > 23 || hour < 0) {
+                    AL.warn("Config error at daily-restarter.times -> " + hour + "h is not between 0h and 23h! Applying default: 0");
                     raw_times[0] = "0";
                 }
 
                 //Minutes must be between: 0-59
                 int minute = Integer.parseInt(raw_times[1]);
-                if (minute>59 || minute<0){
-                    AL.warn("Config error at daily-restarter.times -> " + minute +"min is not between 0min and 59min! Applying default: 0");
+                if (minute > 59 || minute < 0) {
+                    AL.warn("Config error at daily-restarter.times -> " + minute + "min is not between 0min and 59min! Applying default: 0");
                     raw_times[1] = "0";
                 }
 

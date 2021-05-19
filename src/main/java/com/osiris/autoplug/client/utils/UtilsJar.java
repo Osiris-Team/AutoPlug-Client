@@ -26,24 +26,24 @@ public class UtilsJar {
 
     /**
      * This creates an URLClassLoader so we can access the autoplug.properties file inside the jar and then returns the properties file.
-     * @param path The jars path
+     *
+     * @param path               The jars path
      * @param propertiesFileName Properties file name without its .properties extension.
      * @return autoplug.properties
      * @throws Exception
      */
-    public Properties getPropertiesFromJar(String path, String propertiesFileName) throws Exception{
+    public Properties getPropertiesFromJar(String path, String propertiesFileName) throws Exception {
         File file = new File(path); // The properties file
-        if (file.exists()){
+        if (file.exists()) {
             Collection<URL> urls = new ArrayList<URL>();
             urls.add(file.toURI().toURL());
             URLClassLoader fileClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 
-            java.io.InputStream is = fileClassLoader.getResourceAsStream(propertiesFileName+".properties");
+            java.io.InputStream is = fileClassLoader.getResourceAsStream(propertiesFileName + ".properties");
             java.util.Properties p = new java.util.Properties();
             p.load(is);
             return p;
-        }
-        else
+        } else
             throw new Exception("Couldn't find the properties file at: " + path);
     }
 

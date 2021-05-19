@@ -70,16 +70,16 @@ public class Main {
         }
 
         // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
-        try{
+        try {
             File curDir = new File(System.getProperty("user.dir"));
-            if(curDir.getName().equals("autoplug-downloads")){
+            if (curDir.getName().equals("autoplug-downloads")) {
                 installUpdateAndStartIt(curDir.getParentFile());
                 return;
             }
 
             // Check for updates.
             // Note that we have to do this, after checking in which directory we are!
-            try{
+            try {
                 BetterThreadManager manager = new BetterThreadManager();
                 BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager, "[AutoPlug]", "[TASK]");
                 displayer.setShowWarnings(true);
@@ -99,7 +99,7 @@ public class Main {
         }
 
 
-        try{
+        try {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
@@ -144,22 +144,22 @@ public class Main {
             new ConfigUtils().printAllModulesToDebug(allModules);
             AL.info("Configurations loaded.");
 
-            AL.debug(Main.class," ");
-            AL.debug(Main.class,"DEBUG DETAILS:");
-            AL.debug(Main.class,"SYSTEM OS: "+ System.getProperty("os.name"));
-            AL.debug(Main.class,"SYSTEM VERSION: "+ System.getProperty("os.version"));
-            AL.debug(Main.class,"JAVA VERSION: "+ System.getProperty("java.version"));
-            AL.debug(Main.class,"JAVA VENDOR: "+ System.getProperty("java.vendor")+" "+System.getProperty("java.vendor.url"));
-            AL.debug(Main.class,"WORKING DIR: "+ GD.WORKING_DIR);
-            AL.debug(Main.class,"SERVER FILE: "+ GD.SERVER_PATH);
+            AL.debug(Main.class, " ");
+            AL.debug(Main.class, "DEBUG DETAILS:");
+            AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
+            AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
+            AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
+            AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
+            AL.debug(Main.class, "WORKING DIR: " + GD.WORKING_DIR);
+            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_PATH);
 
             AL.info("| ------------------------------------------- |");
 
             String key = generalConfig.server_key.asString();
-            if (key==null || key.isEmpty() || key.equals("INSERT_KEY_HERE")){
+            if (key == null || key.isEmpty() || key.equals("INSERT_KEY_HERE")) {
                 AL.info("Thank you for installing AutoPlug!");
                 AL.info("It seems like this is your first run and you haven't set your server key yet.");
-                AL.info("For that, register yourself at "+GD.OFFICIAL_WEBSITE+" and add a new server.");
+                AL.info("For that, register yourself at " + GD.OFFICIAL_WEBSITE + " and add a new server.");
                 AL.info("Enter the key below:");
                 Scanner scanner = new Scanner(System.in);
                 generalConfig.server_key.setValue(scanner.nextLine());
@@ -188,6 +188,7 @@ public class Main {
      * is in the downloads directory and we need to install it.
      * For that we take the parent directory (which should be the server root)
      * search for the AutoPlug-Client.jar in it and overwrite it with our current jars copy.
+     *
      * @param parentDir
      */
     private static void installUpdateAndStartIt(File parentDir) throws Exception {
@@ -198,9 +199,9 @@ public class Main {
 
 
         // Search for the AutoPlug-Client.jar in the parent folder
-        class MyVisitor<T> extends SimpleFileVisitor<Path>{
-            private File oldJar = null;
+        class MyVisitor<T> extends SimpleFileVisitor<Path> {
             private final String fileToFindName;
+            private File oldJar = null;
 
             public MyVisitor(String fileToFindName) {
                 this.fileToFindName = fileToFindName;
@@ -208,15 +209,15 @@ public class Main {
 
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                if (path.toFile().getName().equals(fileToFindName)){
+                if (path.toFile().getName().equals(fileToFindName)) {
                     oldJar = path.toFile();
-                    System.out.println("Found: "+path);
+                    System.out.println("Found: " + path);
                     return FileVisitResult.TERMINATE;
                 }
                 return FileVisitResult.CONTINUE;
             }
 
-            public File getResult(){
+            public File getResult() {
                 return oldJar;
             }
         }
@@ -225,7 +226,7 @@ public class Main {
         Files.walkFileTree(parentDir.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor);
         File oldJar = visitor.getResult();
         if (oldJar == null)
-            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar in "+parentDir.getAbsolutePath());
+            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar in " + parentDir.getAbsolutePath());
 
         // Since we can't copy this jar because its currently running
         // we rely on a already made copy of it.
@@ -234,7 +235,7 @@ public class Main {
         Files.walkFileTree(GD.WORKING_DIR.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor2);
         File copyJar = visitor2.getResult();
         if (copyJar == null)
-            throw new Exception("Self-Update failed! Cause: Couldn't find the update file 'AutoPlug-Client-Copy.jar' in "+GD.WORKING_DIR.getAbsolutePath());
+            throw new Exception("Self-Update failed! Cause: Couldn't find the update file 'AutoPlug-Client-Copy.jar' in " + GD.WORKING_DIR.getAbsolutePath());
 
         // Copy and overwrite the old jar with the update file
         // Note: Deletion of the current jar and the copy jar are done
@@ -250,9 +251,10 @@ public class Main {
 
     /**
      * Original author: https://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application/48992863#48992863
+     *
      * @throws Exception
      */
-    public static void startJar(String jarPath) throws Exception{
+    public static void startJar(String jarPath) throws Exception {
         List<String> commands = new ArrayList<>();
         appendJavaExecutable(commands);
         appendVMArgs(commands);
@@ -286,10 +288,10 @@ public class Main {
     }
 
     private static void appendEntryPoint(List<String> cmd) {
-        StackTraceElement[] stackTrace          = new Throwable().getStackTrace();
-        StackTraceElement   stackTraceElement   = stackTrace[stackTrace.length - 1];
-        String              fullyQualifiedClass = stackTraceElement.getClassName();
-        String              entryMethod         = stackTraceElement.getMethodName();
+        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        StackTraceElement stackTraceElement = stackTrace[stackTrace.length - 1];
+        String fullyQualifiedClass = stackTraceElement.getClassName();
+        String entryMethod = stackTraceElement.getMethodName();
         if (!entryMethod.equals("main"))
             throw new AssertionError("Entry method is not called 'main': " + fullyQualifiedClass + '.' + entryMethod);
 

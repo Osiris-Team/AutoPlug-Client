@@ -19,8 +19,8 @@ public class CoolDownReport {
         this.msCoolDown = msCoolDown;
     }
 
-    public long getMsRemaining(){
-        return msCoolDown-msPassedSinceLast;
+    public long getMsRemaining() {
+        return msCoolDown - msPassedSinceLast;
     }
 
     public boolean isOutOfCoolDown() {

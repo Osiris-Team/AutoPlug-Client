@@ -16,14 +16,15 @@ public class UtilsVersion {
      * Compares the current version with the latest
      * version and returns true if the latest version is
      * bigger than the current version.
+     *
      * @param currentVersion
      * @param latestVersion
      * @return
      */
     public boolean compare(String currentVersion, String latestVersion) {
-        try{
-            if(currentVersion==null) throw new NullPointerException("Null currentVersion!");
-            if(latestVersion==null)  throw new NullPointerException("Null latestVersion!");
+        try {
+            if (currentVersion == null) throw new NullPointerException("Null currentVersion!");
+            if (latestVersion == null) throw new NullPointerException("Null latestVersion!");
 
             // First duplicate the strings so the original ones don't get altered
             String currentVersionDUPLICATE = "" + currentVersion;
@@ -37,8 +38,8 @@ public class UtilsVersion {
             currentVersionDUPLICATE = currentVersionDUPLICATE.replaceAll("[^0-9.]", "");
             latestVersionDUPLICATE = latestVersionDUPLICATE.replaceAll("[^0-9.]", "");
 
-            if(currentVersionDUPLICATE.isEmpty()) throw new Exception("Empty currentVersion string!");
-            if(latestVersionDUPLICATE.isEmpty())  throw new Exception("Empty latestVersion string!");
+            if (currentVersionDUPLICATE.isEmpty()) throw new Exception("Empty currentVersion string!");
+            if (latestVersionDUPLICATE.isEmpty()) throw new Exception("Empty latestVersion string!");
 
             // If there are dots in the string we split it up
             String[] currentVersionArray = null;
@@ -49,25 +50,25 @@ public class UtilsVersion {
             // Then we create a new String which contains all numbers but with one dot after the first number
             StringBuilder currentVersionBuilder = null;
             StringBuilder latestVersionBuilder = null;
-            if (currentVersionArray!=null) {
+            if (currentVersionArray != null) {
                 currentVersionBuilder = new StringBuilder();
-                currentVersionBuilder.append(currentVersionArray[0]+".");
+                currentVersionBuilder.append(currentVersionArray[0] + ".");
                 for (int i = 1; i < currentVersionArray.length; i++) {
                     currentVersionBuilder.append(currentVersionArray[i]);
                 }
             }
 
-            if (latestVersionArray!=null) {
+            if (latestVersionArray != null) {
                 latestVersionBuilder = new StringBuilder();
-                latestVersionBuilder.append(latestVersionArray[0]+".");
+                latestVersionBuilder.append(latestVersionArray[0] + ".");
                 for (int i = 1; i < latestVersionArray.length; i++) {
                     latestVersionBuilder.append(latestVersionArray[i]);
                 }
             }
 
             // Replace the main version strings
-            if (currentVersionBuilder!=null) currentVersionDUPLICATE = currentVersionBuilder.toString();
-            if (latestVersionBuilder!=null) latestVersionDUPLICATE = latestVersionBuilder.toString();
+            if (currentVersionBuilder != null) currentVersionDUPLICATE = currentVersionBuilder.toString();
+            if (latestVersionBuilder != null) latestVersionDUPLICATE = latestVersionBuilder.toString();
 
             // Finally we compare the versions and return true if the latest version is bigger than the current one
             return Double.parseDouble(currentVersionDUPLICATE) < Double.parseDouble(latestVersionDUPLICATE);

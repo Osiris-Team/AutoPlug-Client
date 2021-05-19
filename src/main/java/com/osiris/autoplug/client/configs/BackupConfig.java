@@ -52,8 +52,8 @@ public class BackupConfig extends DreamYaml {
 
 
     public BackupConfig() {
-        super(System.getProperty("user.dir")+"/autoplug-backup-config.yml");
-        try{
+        super(System.getProperty("user.dir") + "/autoplug-backup-config.yml");
+        try {
             load();
             String name = getFileNameWithoutExt();
             add(name).setComment(

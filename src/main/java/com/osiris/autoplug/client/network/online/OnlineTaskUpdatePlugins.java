@@ -36,7 +36,7 @@ public class OnlineTaskUpdatePlugins {
     public OnlineTaskUpdatePlugins(Socket online_socket, DataInputStream online_dis, DataOutputStream online_dos,
                                    Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos,
                                    String[] pl_names, String[] pl_authors, String[] pl_versions,
-                                   int amount){
+                                   int amount) {
 
 
         Thread newThread = new Thread(() -> {
@@ -59,8 +59,7 @@ public class OnlineTaskUpdatePlugins {
                     AL.info("Starting check...");
 
                     //SEND 4: send the size of for-loop
-                    if (amount==0)
-                    {
+                    if (amount == 0) {
                         AL.warn("No plugins to update! Closing connections!");
                         online_socket.close();
                         local_socket.close();
@@ -76,7 +75,7 @@ public class OnlineTaskUpdatePlugins {
                             //SEND 8: Send Plugin Name
                             online_dos.writeUTF(pl_names[i]);
                             int logical_num = i + 1;
-                            AL.info(" - Checking [" + pl_names[i] +"]["+logical_num+"/"+amount+"] for updates...");
+                            AL.info(" - Checking [" + pl_names[i] + "][" + logical_num + "/" + amount + "] for updates...");
 
                             //SEND 9: Send Plugin Author
                             online_dos.writeUTF(pl_authors[i]);
@@ -182,21 +181,20 @@ public class OnlineTaskUpdatePlugins {
                         AL.info("                                 /___/");
                         AL.info("                _/Result\\_               ");
                         AL.info("");
-                        AL.info("Plugins checked total -> "+ amount);
+                        AL.info("Plugins checked total -> " + amount);
                         AL.info("Plugins to update total -> " + updateCounter);
 
-                        if (updateCounter >0){
+                        if (updateCounter > 0) {
 
                             if (new UpdaterConfig().plugin_updater_profile.asString().equals("MANUAL")) {
                                 AL.info("[MANUAL] Plugins downloaded to cache, please update them by yourself or change your profile to AUTOMATIC");
                                 local_dos.writeInt(0);
-                            }
-                            else{
+                            } else {
                                 AL.info("[AUTOMATIC] Restarting server and enabling downloaded plugins...");
                                 local_dos.writeInt(1);
 
                                 //Waiting for server to get closed
-                                while(Server.isRunning()){
+                                while (Server.isRunning()) {
                                     sleep(3000);
                                     AL.info("Waiting for server to shutdown...");
                                 }
@@ -227,14 +225,14 @@ public class OnlineTaskUpdatePlugins {
                             }
 
 
-                        } else{
+                        } else {
                             local_dos.writeInt(0);
                             AL.info("|All plugins are up-to-date!");
                             //Close connections
-                            if (!online_socket.isClosed()){
+                            if (!online_socket.isClosed()) {
                                 online_socket.close();
                             }
-                            if (!local_socket.isClosed()){
+                            if (!local_socket.isClosed()) {
                                 local_socket.close();
                             }
 
@@ -244,37 +242,35 @@ public class OnlineTaskUpdatePlugins {
 
                     }
 
-                }
-                else {
+                } else {
                     AL.warn(" [!] Authentication failed! Please check your config and be sure, that your server_key matches the key on our website [!] " + GD.OFFICIAL_WEBSITE);
                     //Close connections
-                    if (!online_socket.isClosed()){
+                    if (!online_socket.isClosed()) {
                         online_socket.close();
                     }
-                    if (!local_socket.isClosed()){
+                    if (!local_socket.isClosed()) {
                         local_socket.close();
                     }
                 }
 
                 //Close connections
-                if (!online_socket.isClosed()){
+                if (!online_socket.isClosed()) {
                     online_socket.close();
                 }
-                if (!local_socket.isClosed()){
+                if (!local_socket.isClosed()) {
                     local_socket.close();
                 }
 
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
-                AL.warn(" [!] Exception caught: "+ex.getMessage()+" (Connection closed) [!] ");
+                AL.warn(" [!] Exception caught: " + ex.getMessage() + " (Connection closed) [!] ");
                 try {
                     //Close connections
                     //Close connections
-                    if (!online_socket.isClosed()){
+                    if (!online_socket.isClosed()) {
                         online_socket.close();
                     }
-                    if (!local_socket.isClosed()){
+                    if (!local_socket.isClosed()) {
                         local_socket.close();
                     }
 

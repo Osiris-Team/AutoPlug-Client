@@ -19,12 +19,12 @@ import java.net.Socket;
 public class LocalTaskReceivePlugins {
 
 
-    public LocalTaskReceivePlugins(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos){
+    public LocalTaskReceivePlugins(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos) {
 
 
         Thread newThread = new Thread(() -> {
 
-            try{
+            try {
 
                 AL.info("Waiting for plugins...");
                 int amount = local_dis.readInt();
@@ -40,7 +40,7 @@ public class LocalTaskReceivePlugins {
                     pl_versions[i] = local_dis.readUTF();
 
                 }
-                AL.info("Received "+ amount +" plugins!");
+                AL.info("Received " + amount + " plugins!");
 
                 //new MainConnection(local_socket, local_dis, local_dos, pl_names, pl_authors, pl_versions, amount);
 
@@ -51,7 +51,6 @@ public class LocalTaskReceivePlugins {
 
         });
         newThread.start();
-
 
 
     }

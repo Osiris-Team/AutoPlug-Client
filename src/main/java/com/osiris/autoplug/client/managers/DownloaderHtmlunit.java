@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Deprecated
-public class DownloaderHtmlunit implements IDownloader{
+public class DownloaderHtmlunit implements IDownloader {
     private WebClient client;
     private HtmlPage page;
     private WebResponse response;
@@ -70,13 +70,12 @@ public class DownloaderHtmlunit implements IDownloader{
             return null;
         } else {
 
-            try{
+            try {
 
                 //Check if response is application(application/octet-stream) or html(text/html)
                 if (content_type.equals("application/octet-stream")) {
                     return response.getContentAsStream();
-                }
-                else if (content_type.equals("text/html")){
+                } else if (content_type.equals("text/html")) {
                     AL.warn("The download link forwards to another website");
                     AL.warn("Nothing will be downloaded");
                     AL.warn("In most cases its an external repository like github");
@@ -85,8 +84,7 @@ public class DownloaderHtmlunit implements IDownloader{
 
                     closeAll();
                     return null;
-                }
-                else {
+                } else {
                     AL.warn("Couldn't determine response type");
                     AL.warn("But its not a jar file");
                     AL.warn("Notify the dev");
@@ -99,7 +97,7 @@ public class DownloaderHtmlunit implements IDownloader{
 
             } catch (IOException e) {
                 e.printStackTrace();
-                AL.warn("Download-Error: "+e.getMessage());
+                AL.warn("Download-Error: " + e.getMessage());
                 AL.warn("Please go and download the file yourself");
                 AL.warn("Link: " + download_url);
 
@@ -112,15 +110,15 @@ public class DownloaderHtmlunit implements IDownloader{
 
     }
 
-    private void closeAll(){
+    private void closeAll() {
 
-        if (response!=null){
+        if (response != null) {
             response.cleanUp();
         }
-        if (page!=null){
+        if (page != null) {
             page.cleanUp();
         }
-        if (client!=null){
+        if (client != null) {
             client.close();
         }
 

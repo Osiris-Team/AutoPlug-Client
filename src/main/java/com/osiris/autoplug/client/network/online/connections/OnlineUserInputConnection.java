@@ -19,25 +19,25 @@ import java.net.Socket;
 /**
  * The user can send commands through the online console.<br>
  * For that we got this connection, which listens for the user
- * input at the online console and executes it. 
+ * input at the online console and executes it.
  */
 public class OnlineUserInputConnection extends SecondaryConnection {
     private static Thread thread;
 
-    public OnlineUserInputConnection(){
+    public OnlineUserInputConnection() {
         super((byte) 1);
     }
 
     @Override
     public boolean open() throws Exception {
         super.open();
-        if (thread==null)
-            thread = new Thread(()->{
-                try{
+        if (thread == null)
+            thread = new Thread(() -> {
+                try {
                     Socket socket = getSocket();
                     socket.setSoTimeout(0);
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
-                    while(true){
+                    while (true) {
                         String command = dis.readUTF();
                         Server.submitCommand(command);
                         AL.info("Executed Web-Command: " + command);

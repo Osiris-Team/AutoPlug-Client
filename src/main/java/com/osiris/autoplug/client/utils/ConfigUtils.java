@@ -19,11 +19,11 @@ import java.util.List;
  */
 public class ConfigUtils {
 
-    public void printAllModulesToDebug(List<DYModule> modules){
-        try{
+    public void printAllModulesToDebug(List<DYModule> modules) {
+        try {
             for (DYModule module :
                     modules) {
-                AL.debug(this.getClass(), "Setting value "+module.getKeys()+": "+module.getValues()+" Default: "+module.getDefaultValues());
+                AL.debug(this.getClass(), "Setting value " + module.getKeys() + ": " + module.getValues() + " Default: " + module.getDefaultValues());
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);
