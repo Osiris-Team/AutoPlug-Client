@@ -8,8 +8,8 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleConnection;
-import com.osiris.autoplug.client.network.online.connections.OnlineUserInputConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiveConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.core.logger.AL;
 
@@ -29,8 +29,8 @@ public class MainConnection extends Thread {
 
     // TODO WORK IN PROGRESS
     // Secondary connections:
-    public static OnlineUserInputConnection CON_USER_INPUT;
-    public static OnlineConsoleConnection CON_CONSOLE;
+    public static OnlineConsoleReceiveConnection CON_CONSOLE_RECEIVE;
+    public static OnlineConsoleSendConnection CON_CONSOLE_SEND;
     public static PluginsUpdaterConnection CON_PLUGINS_UPDATER;
     public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
 
@@ -53,13 +53,13 @@ public class MainConnection extends Thread {
                 Note: To establish a connection to the server, the open() method
                 must have been called before.
                  */
-            CON_USER_INPUT = new OnlineUserInputConnection();
-            CON_CONSOLE = new OnlineConsoleConnection();
+            CON_CONSOLE_RECEIVE = new OnlineConsoleReceiveConnection();
+            CON_CONSOLE_SEND = new OnlineConsoleSendConnection();
             CON_PLUGINS_UPDATER = new PluginsUpdaterConnection();
 
             // Add to connections
-            LIST_SECONDARY_CONNECTIONS.add(CON_USER_INPUT);
-            LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE);
+            LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE_RECEIVE);
+            LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE_SEND);
             LIST_SECONDARY_CONNECTIONS.add(CON_PLUGINS_UPDATER);
 
 
@@ -72,6 +72,7 @@ public class MainConnection extends Thread {
                 try {
                     while (true) {
                         user_online = dis.readBoolean();
+                        AL.debug(this.getClass(), "" + user_online);
                         if (user_online) {
                             if (!msgOnline) {
                                 AL.debug(this.getClass(), "User is online!");
@@ -80,8 +81,8 @@ public class MainConnection extends Thread {
                             }
 
                             // User is online, so open secondary connections if they weren't already
-                            if (!CON_USER_INPUT.isConnected()) CON_USER_INPUT.open();
-                            if (!CON_CONSOLE.isConnected()) CON_CONSOLE.open();
+                            if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
+                            if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();
                             //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         } else {
                             if (!msgOffline) {
@@ -91,8 +92,8 @@ public class MainConnection extends Thread {
                             }
 
                             // Close secondary connections when user is offline/logged out
-                            if (CON_USER_INPUT.isConnected()) CON_USER_INPUT.close();
-                            if (CON_CONSOLE.isConnected()) CON_CONSOLE.close();
+                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                             //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                         }
                         Thread.sleep(1000);
@@ -102,12 +103,12 @@ public class MainConnection extends Thread {
 
                     // Close child connections
                     try {
-                        CON_USER_INPUT.close();
+                        CON_CONSOLE_RECEIVE.close();
                     } catch (IOException ignored) {
                     }
 
                     try {
-                        CON_CONSOLE.close();
+                        CON_CONSOLE_SEND.close();
                     } catch (IOException ignored) {
                     }
 

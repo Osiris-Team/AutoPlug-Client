@@ -26,16 +26,19 @@ public class CustomRestartJob implements Job {
         //Before restarting execute server
         List<String> commands = new RestarterConfig().c_restarter_commands.asStringList();
 
-        for (int i = 0; i < commands.size(); i++) {
-
-            Server.submitCommand(commands.get(i));
+        for (String command : commands) {
+            try {
+                Server.submitCommand(command);
+            } catch (Exception e) {
+                AL.warn(e, "Error executing '" + command + "' command!");
+            }
         }
 
         //Wait for 10secs...
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            AL.warn(e);
         }
 
         //Restart the server

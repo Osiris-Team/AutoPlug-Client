@@ -273,9 +273,8 @@ public class TaskPluginsUpdater extends BetterThread {
                         updatesDownloaded++;
                     } else {
                         File oldPl = new File(pl.getInstallationPath());
-                        oldPl.delete();
                         File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                        new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest)
+                        new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl)
                                 .start();
                         updatesDownloaded++;
                     }

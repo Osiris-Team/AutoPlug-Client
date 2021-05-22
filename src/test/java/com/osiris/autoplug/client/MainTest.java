@@ -1,6 +1,8 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
+import org.fusesource.jansi.Ansi;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,19 +13,49 @@ class MainTest {
 
     @Test
     void nonBlockingPipedInputStreamExample() throws IOException, InterruptedException {
+
+        class MyPipedOutputStream extends OutputStream {
+            final InputStream in;
+
+            public MyPipedOutputStream(InputStream in) {
+                this.in = in;
+            }
+
+            @Override
+            public void write(@NotNull byte[] b) throws IOException {
+                in.read(b);
+            }
+
+            @Override
+            public void write(@NotNull byte[] b, int off, int len) throws IOException {
+                in.read(b, off, len);
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                String s = String.valueOf(b);
+                int length = s.length();
+                byte by = Byte.parseByte(s.substring(length - 9, length)); // To retrieve the last 8 digits
+                byte[] byAr = new byte[1];
+                byAr[0] = by;
+                in.read(byAr);
+            }
+        }
+
         NonBlockingPipedInputStream pipedInput = new NonBlockingPipedInputStream();
-        OutputStream pipedOutput = new PipedOutputStream(pipedInput);
+        OutputStream pipedOutput = new MyPipedOutputStream(pipedInput);//new PipedOutputStream(pipedInput);
         MyTeeOutputStream teeOutput = new MyTeeOutputStream(System.out, pipedOutput);
         PrintStream out = new PrintStream(teeOutput);
+        //AnsiConsole.systemInstall(); // If do this before the stuff above, the teeOutput won't get the ansi chars
 
-        final int expectedPrintedLinesCount = 1000;
+        final int expectedPrintedLinesCount = 200;
         AtomicInteger actualPrintedLinesCount = new AtomicInteger();
         AtomicInteger actualReadLinesCount = new AtomicInteger();
 
         Thread t1 = new Thread(() -> { // Thread for writing data to OUT
             try {
                 for (int i = 1; i <= expectedPrintedLinesCount; i++) {
-                    out.println("Hello! " + i);
+                    out.println(Ansi.ansi().bg(Ansi.Color.GREEN).a("Hello! " + i));
                     actualPrintedLinesCount.incrementAndGet();
                     Thread.sleep(10);
                 }

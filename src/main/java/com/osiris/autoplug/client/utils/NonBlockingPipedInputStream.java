@@ -1,12 +1,14 @@
 package com.osiris.autoplug.client.utils;
 
+import com.osiris.autoplug.core.logger.AL;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class NonBlockingPipedInputStream extends PipedInputStream {
+public class NonBlockingPipedInputStream extends PipedInputStream { // PipedInputStream
     private final Thread thread;
     /**
      * Add actions to this list, which get run after a line has been written.
@@ -29,7 +31,7 @@ public class NonBlockingPipedInputStream extends PipedInputStream {
                     actionsOnWriteLineEvent.forEach(action -> action.executeOnEvent(finalLine));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                AL.warn(e);
             }
         });
         thread.start();

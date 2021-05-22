@@ -21,10 +21,10 @@ import java.net.Socket;
  * For that we got this connection, which listens for the user
  * input at the online console and executes it.
  */
-public class OnlineUserInputConnection extends SecondaryConnection {
+public class OnlineConsoleReceiveConnection extends SecondaryConnection {
     private static Thread thread;
 
-    public OnlineUserInputConnection() {
+    public OnlineConsoleReceiveConnection() {
         super((byte) 1);
     }
 

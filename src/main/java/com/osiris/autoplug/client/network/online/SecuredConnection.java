@@ -9,8 +9,8 @@
 package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleConnection;
-import com.osiris.autoplug.client.network.online.connections.OnlineUserInputConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiveConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
@@ -40,8 +40,8 @@ public class SecuredConnection {
      * Needs a connection type.
      *
      * @param con_type 0 = {@link MainConnection};
-     *                 1 = {@link OnlineUserInputConnection};
-     *                 2 = {@link OnlineConsoleConnection};
+     *                 1 = {@link OnlineConsoleReceiveConnection};
+     *                 2 = {@link OnlineConsoleSendConnection};
      *                 3 = {@link PluginsUpdaterConnection};
      * @throws Exception if authentication fails. Details are in the message.
      */

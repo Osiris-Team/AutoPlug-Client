@@ -15,7 +15,7 @@ import com.osiris.autoplug.core.logger.AL;
  * Listens for input started with .
  * List the server with .help
  */
-public final class ClientCommands {
+public final class AutoPlugConsole {
 
     /**
      * Returns true if the provided String is a command

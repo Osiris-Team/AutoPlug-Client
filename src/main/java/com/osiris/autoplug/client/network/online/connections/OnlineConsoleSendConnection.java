@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
@@ -17,6 +18,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.Date;
 
 
 /**
@@ -24,7 +26,7 @@ import java.net.Socket;
  * send it to the AutoPlug server when the user is online.
  * Note that
  */
-public class OnlineConsoleConnection extends SecondaryConnection {
+public class OnlineConsoleSendConnection extends SecondaryConnection {
     private static BufferedWriter bw;
     private static final NonBlockingPipedInputStream.WriteLineEvent<String> action = line -> {
         try {
@@ -34,39 +36,58 @@ public class OnlineConsoleConnection extends SecondaryConnection {
         }
     };
 
-    public OnlineConsoleConnection() {
+    public OnlineConsoleSendConnection() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
     public static synchronized void send(String message) throws Exception {
-        bw.write(message);
+        if (!message.contains("\n")) {
+            bw.write(message + "\n");
+        } else {
+            bw.write(message);
+        }
         bw.flush();
-        AL.debug(OnlineConsoleConnection.class, "SENT LINE: " + message);
+
+        AL.debug(OnlineConsoleSendConnection.class, "SENT LINE: " + message);
     }
 
     @Override
     public boolean open() throws Exception {
-        super.open();
         try {
-            if (bw == null) {
-                Socket socket = getSocket();
-                socket.setSoTimeout(0);
-                bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            if (new WebConfig().online_console_send.asBoolean()) {
+                super.open();
+                if (bw == null) {
+                    Socket socket = getSocket();
+                    socket.setSoTimeout(0);
+                    bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    Main.PIPED_IN.actionsOnWriteLineEvent.add(action);
+                }
+                AL.debug(this.getClass(), "Online-Console-SEND connected.");
+                send("Online-Console-SEND connected at " + new Date() + ".");
+                return true;
+            } else {
+                AL.debug(this.getClass(), "Online-Console-SEND functionality is disabled.");
+                return false;
             }
         } catch (Exception e) {
-            AL.warn(e);
+            AL.warn(e, "There was an error connecting to the Online-Console.");
         }
 
-        Main.PIPED_IN.actionsOnWriteLineEvent.add(action);
         return true;
     }
 
     @Override
     public void close() throws IOException {
-        Main.PIPED_IN.actionsOnWriteLineEvent.remove(action);
 
         try {
-            bw.close();
+            Main.PIPED_IN.actionsOnWriteLineEvent.remove(action);
+        } catch (Exception ignored) {
+        }
+
+
+        try {
+            if (bw != null)
+                bw.close();
         } catch (Exception e) {
             AL.warn("Failed to close writer.", e);
         }

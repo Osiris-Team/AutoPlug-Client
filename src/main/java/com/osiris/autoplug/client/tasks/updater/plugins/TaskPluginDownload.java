@@ -24,31 +24,46 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Random;
 
+/**
+ * See {@link #TaskPluginDownload(String, BetterThreadManager, String, String, String, String, File, File)} for details.
+ */
 public class TaskPluginDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
     private final String profile;
     private final File finalDest;
+    private final File deleteDest;
     private File downloadDest;
 
-    /**
-     * Performs a plugin installation according to the users profile.
-     *
-     * @param name    this processes name.
-     * @param manager the parent process manager.
-     * @param url     the download-url.
-     * @param profile the users plugin updater profile.
-     */
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
                               String url, String profile, File finalDest) {
+        this(name, manager, plName, plLatestVersion, url, profile, finalDest, null);
+    }
+
+    /**
+     * Performs a plugin installation/download according to the users profile.
+     *
+     * @param name            this processes name.
+     * @param manager         the parent process manager.
+     * @param plName          plugin name.
+     * @param plLatestVersion plugins latest version.
+     * @param url             the download-url.
+     * @param profile         the users plugin updater profile. NOTIFY, MANUAL or AUTOMATIC.
+     * @param finalDest       the final download destination.
+     * @param deleteDest      the file that should be deleted on a successful download. If null nothing gets deleted.
+     */
+    public TaskPluginDownload(String name, BetterThreadManager manager,
+                              String plName, String plLatestVersion,
+                              String url, String profile, File finalDest, File deleteDest) {
         super(name, manager);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;
         this.profile = profile;
         this.finalDest = finalDest;
+        this.deleteDest = deleteDest;
     }
 
     @Override
@@ -67,8 +82,9 @@ public class TaskPluginDownload extends BetterThread {
             download();
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
+            if (deleteDest != null && deleteDest.exists()) deleteDest.delete();
             FileUtils.copyFile(downloadDest, finalDest);
-            setStatus(" Installed update for " + plName + " successfully!");
+            setStatus("Installed update for " + plName + " successfully!");
         }
 
 

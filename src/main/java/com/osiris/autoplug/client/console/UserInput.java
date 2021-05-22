@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleConnection;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
 import org.jline.reader.LineReader;
@@ -26,45 +26,47 @@ public class UserInput {
         //New thread for user input
         if (inputListenerThread == null) {
             inputListenerThread = new Thread(() -> {
+                try {
+                    //Scanner scanner = new Scanner(System.in); // Old
+                    LineReader lineReader = LineReaderBuilder.builder()
+                            .terminal(TERMINAL)
+                            .build();
 
-                //Scanner scanner = new Scanner(System.in); // Old
-                LineReader lineReader = LineReaderBuilder.builder()
-                        .terminal(TERMINAL)
-                        .build();
+                    while (true) {
 
-                while (true) {
-
-                    // Get user input
-                    String user_input = lineReader.readLine(); // scanner.nextLine(); // Old
+                        // Get user input
+                        String user_input = lineReader.readLine(); // scanner.nextLine(); // Old
 
 
-                    // Send to online console
-                    if (MainConnection.CON_CONSOLE.isConnected())
-                        try {
-                            OnlineConsoleConnection.send(user_input);
-                        } catch (Exception e) {
-                            AL.warn(e);
+                        // Send to online console
+                        if (MainConnection.CON_CONSOLE_SEND.isConnected())
+                            try {
+                                OnlineConsoleSendConnection.send(user_input);
+                            } catch (Exception e) {
+                                AL.warn(e);
+                            }
+
+
+                        //Check if user input is autoplug command or not
+                        if (AutoPlugConsole.executeCommand(user_input)) {
+
+                            //Do nothing else if it is a client command, just save it to log file
+                            try {
+                                LogFileWriter.writeToLog(user_input);
+                            } catch (Exception e) {
+                                AL.warn(e, "Failed to write command to log file.");
+                            }
+
+                        } else if (Server.isRunning()) {
+                            Server.submitCommand(user_input);
+                        } else {
+                            info("Enter .help for all available server!");
                         }
 
-
-                    //Check if user input is autoplug command or not
-                    if (ClientCommands.executeCommand(user_input)) {
-
-                        //Do nothing else if it is a client command, just save it to log file
-                        try {
-                            LogFileWriter.writeToLog(user_input);
-                        } catch (Exception e) {
-                            AL.warn(e, "Failed to write command to log file.");
-                        }
-
-                    } else if (Server.isRunning()) {
-                        Server.submitCommand(user_input);
-                    } else {
-                        info("Enter .help for all available server!");
                     }
-
+                } catch (Exception e) {
+                    AL.warn(e);
                 }
-
             });
             inputListenerThread.setName("InputListenerThread");
             inputListenerThread.start();

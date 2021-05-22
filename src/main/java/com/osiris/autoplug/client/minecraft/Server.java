@@ -14,6 +14,9 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,10 +175,23 @@ public final class Server {
         }
     }
 
-    public static void submitCommand(String command) {
+    public static void submitCommand(String command) throws IOException {
         if (isRunning()) {
-            System.out.println(command); //WARNING: Without the \n user input isn't registered by the server console
+            // Since the command won't be executed if it doesn't end with a new line char we do the below:
+            if (command.contains(System.lineSeparator()))
+                process.getOutputStream().write(command.getBytes(StandardCharsets.UTF_8));
+            else
+                process.getOutputStream().write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));
+
         }
+    }
+
+    public InputStream getInput() {
+        return process.getInputStream();
+    }
+
+    public OutputStream getOutput() {
+        return process.getOutputStream();
     }
 
 }

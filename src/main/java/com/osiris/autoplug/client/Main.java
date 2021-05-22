@@ -28,6 +28,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
+import static com.osiris.betterthread.Constants.TERMINAL;
+
 public class Main {
     public static NonBlockingPipedInputStream PIPED_IN;
 
@@ -45,9 +47,11 @@ public class Main {
             system.addShutDownHook();
 
             // Set default SysOut to TeeOutput, for the OnlineConsole
+            AnsiConsole.systemInstall(); // This must happen before the stuff below.
+            // Else the pipedOut won't display ansi. Idk why though...
             PIPED_IN = new NonBlockingPipedInputStream();
             OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
-            MyTeeOutputStream teeOut = new MyTeeOutputStream(System.out, pipedOut);
+            MyTeeOutputStream teeOut = new MyTeeOutputStream(TERMINAL.output(), pipedOut);
             PrintStream newOut = new PrintStream(teeOut);
             System.setOut(newOut); // This causes
             // the standard System.out stream to be mirrored to pipedOut, which then can get
@@ -60,7 +64,7 @@ public class Main {
                     logC.add("autoplug-logger-config", "debug").setDefValue("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug-logs")
             );
-            AnsiConsole.systemInstall();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,6 +109,9 @@ public class Main {
 
             LoggerConfig loggerConfig = new LoggerConfig();
             allModules.addAll(loggerConfig.getAllAdded());
+
+            WebConfig webConfig = new WebConfig();
+            allModules.addAll(webConfig.getAllAdded());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllAdded()); // Do not do this because its A LOT of unneeded log spam
