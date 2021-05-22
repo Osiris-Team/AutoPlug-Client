@@ -18,3 +18,4 @@ jobs:
       if: github.event.action == 'opened'
       with:
         project: 'https://github.com/Osiris-Team/AutoPlug-Client/projects/1'
+        column_name: '🔍 Evaluating...'
