@@ -56,6 +56,7 @@ public class Main {
             System.setOut(newOut); // This causes
             // the standard System.out stream to be mirrored to pipedOut, which then can get
             // read by PIPED_IN. This ensures, that the original System.out is not touched.
+            //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
 
             // Start the logger
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");

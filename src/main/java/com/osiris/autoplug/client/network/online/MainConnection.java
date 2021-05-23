@@ -72,7 +72,6 @@ public class MainConnection extends Thread {
                 try {
                     while (true) {
                         user_online = dis.readBoolean();
-                        AL.debug(this.getClass(), "" + user_online);
                         if (user_online) {
                             if (!msgOnline) {
                                 AL.debug(this.getClass(), "User is online!");

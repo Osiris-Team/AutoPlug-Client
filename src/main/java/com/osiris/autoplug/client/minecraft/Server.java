@@ -16,7 +16,6 @@ import com.osiris.autoplug.core.logger.AL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -179,9 +178,9 @@ public final class Server {
         if (isRunning()) {
             // Since the command won't be executed if it doesn't end with a new line char we do the below:
             if (command.contains(System.lineSeparator()))
-                process.getOutputStream().write(command.getBytes(StandardCharsets.UTF_8));
+                TERMINAL.writer().write(command);
             else
-                process.getOutputStream().write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));
+                TERMINAL.writer().write(command + System.lineSeparator());
 
         }
     }
