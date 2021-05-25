@@ -55,8 +55,21 @@ public class RestarterConfig extends DreamYaml {
                     "Restarts your server daily at the times below.\n" +
                             "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
 
-            restarter_commands = add(name, "daily-restarter", "server").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
+            restarter_commands = add(name, "daily-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
                     .setComment("Executes these server as console, 10 seconds before restarting the server.");
+            /*
+            TODO WORK IN PROGRESS
+            restarter_commands_countdown = add(name, "daily-restarter", "commands", "countdown").setDefValue("10")
+                    .setComment("The amount of seconds to wait before restarting the server.");
+            restarter_commands = add(name, "daily-restarter", "commands","list").setDefValues(
+                    new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
+                    new DYModule("3").addValue("say [Server] Server is restarting 3..."),
+                    new DYModule("2").addValue("say [Server] Server is restarting 2..."),
+                    new DYModule("1").addValue("say [Server] Server is restarting 1..."),
+                    new DYModule("0").addValue("say [Server] Server is restarting..."))
+                    .setComments("Executes these commands as console, before restarting the server.",
+                            "You can execute multiple/single commands at any given second of the countdown.");
+             */
 
             c_restarter_enabled = add(name, "custom-restarter", "enable").setDefValue("false").setComment(
                     "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
@@ -67,8 +80,19 @@ public class RestarterConfig extends DreamYaml {
                     "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
                             "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
-            c_restarter_commands = add(name, "custom-restarter", "server").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
+            c_restarter_commands = add(name, "custom-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
                     .setComment("Executes these server as console, 10 seconds before restarting the server.");
+            /*
+            TODO WORK IN PROGRESS
+            c_restarter_commands_countdown = add(name, "custom-restarter", "commands", "countdown").setDefValue("10");
+            c_restarter_commands = add(name, "custom-restarter", "commands", "list").setDefValues(
+                    new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
+                    new DYModule("3").addValue("say [Server] Server is restarting 3..."),
+                    new DYModule("2").addValue("say [Server] Server is restarting 2..."),
+                    new DYModule("1").addValue("say [Server] Server is restarting 1..."),
+                    new DYModule("0").addValue("say [Server] Server is restarting...")
+            );
+             */
 
             validateOptions();
 

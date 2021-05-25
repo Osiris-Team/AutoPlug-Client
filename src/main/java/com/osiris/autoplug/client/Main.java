@@ -15,23 +15,20 @@ import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.MyTeeOutputStream;
-import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import org.fusesource.jansi.AnsiConsole;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-import static com.osiris.betterthread.Constants.TERMINAL;
-
 public class Main {
-    public static NonBlockingPipedInputStream PIPED_IN;
+    //public static NonBlockingPipedInputStream PIPED_IN;
 
     public static void main(String[] args) {
 
@@ -49,11 +46,11 @@ public class Main {
             // Set default SysOut to TeeOutput, for the OnlineConsole
             AnsiConsole.systemInstall(); // This must happen before the stuff below.
             // Else the pipedOut won't display ansi. Idk why though...
-            PIPED_IN = new NonBlockingPipedInputStream();
-            OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
-            MyTeeOutputStream teeOut = new MyTeeOutputStream(TERMINAL.output(), pipedOut);
-            PrintStream newOut = new PrintStream(teeOut);
-            System.setOut(newOut); // This causes
+            //PIPED_IN = new NonBlockingPipedInputStream();
+            //OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
+            //MyTeeOutputStream teeOut = new MyTeeOutputStream(TERMINAL.output(), pipedOut);
+            //PrintStream newOut = new PrintStream(teeOut);
+            //System.setOut(newOut); // This causes
             // the standard System.out stream to be mirrored to pipedOut, which then can get
             // read by PIPED_IN. This ensures, that the original System.out is not touched.
             //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging

@@ -45,20 +45,17 @@ public class SystemChecker {
      */
     public void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (Server.isRunning()) Server.stop();
-            while (Server.isRunning()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException exception) {
-                    exception.printStackTrace();
+            try {
+                if (Server.isRunning()) Server.stop();
+                JobScheduler.safeShutdown();
+                if (AL.isStarted) {
+                    AL.info("See you soon!");
+                    new AL().stop();
+                } else {
+                    System.out.println("See you soon!");
                 }
-            }
-            JobScheduler.safeShutdown();
-            if (AL.isStarted) {
-                AL.info("See you soon!");
-                new AL().stop();
-            } else {
-                System.out.println("See you soon!");
+            } catch (Exception e) {
+                AL.warn(e);
             }
         }, "Shutdown-Thread"));
     }

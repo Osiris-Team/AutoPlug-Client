@@ -12,9 +12,9 @@ import java.io.PrintWriter;
 import java.util.Base64;
 
 public class Upload {
-        private final String host, user, password,path;
-        private final int port;
-        private final File zipFile;
+    private final String host, user, password, path;
+    private final int port;
+    private final File zipFile;
 
     public Upload(String host, int port, String user, String password, String path, File zipFile) {
         this.host = host;
@@ -30,7 +30,7 @@ public class Upload {
         JSch jSch = new JSch();
 
         //HostKey verification
-        byte [] key = Base64.getDecoder().decode(rsa);
+        byte[] key = Base64.getDecoder().decode(rsa);
         HostKey hostKey1 = new HostKey(host, key);
         jSch.getHostKeyRepository().add(hostKey1, null);
 
@@ -71,7 +71,8 @@ public class Upload {
         ftps.enterLocalPassiveMode();
 
         //Upload
-        if(!ftps.storeFile(path + zipFile.getName(), zipFileStream)) throw new Exception("Exception in uploading to FTPS Server.");
+        if (!ftps.storeFile(path + zipFile.getName(), zipFileStream))
+            throw new Exception("Exception in uploading to FTPS Server.");
         ftps.logout();
         ftps.disconnect();
     }

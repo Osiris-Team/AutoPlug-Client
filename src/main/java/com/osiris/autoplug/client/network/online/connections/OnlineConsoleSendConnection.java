@@ -8,8 +8,8 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
@@ -60,7 +60,10 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
                     Socket socket = getSocket();
                     socket.setSoTimeout(0);
                     bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                    Main.PIPED_IN.actionsOnWriteLineEvent.add(action);
+                    while (Server.NB_PIPED_IN == null)
+                        Thread.sleep(1000); // Wait until we got a server outputstream
+
+                    Server.NB_PIPED_IN.actionsOnWriteLineEvent.add(action);
                 }
                 AL.debug(this.getClass(), "Online-Console-SEND connected.");
                 send("Online-Console-SEND connected at " + new Date() + ".");
@@ -80,10 +83,9 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
     public void close() throws IOException {
 
         try {
-            Main.PIPED_IN.actionsOnWriteLineEvent.remove(action);
+            Server.NB_PIPED_IN.actionsOnWriteLineEvent.remove(action);
         } catch (Exception ignored) {
         }
-
 
         try {
             if (bw != null)

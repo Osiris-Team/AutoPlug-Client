@@ -11,20 +11,25 @@ package com.osiris.autoplug.client.minecraft;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.osiris.betterthread.Constants.TERMINAL;
-
 
 public final class Server {
+    public static NonBlockingPipedInputStream NB_PIPED_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
+    private static Thread threadReadOutputStream;
 
     public static void start() {
 
@@ -68,19 +73,27 @@ public final class Server {
         }
     }
 
-    public static void stop() {
+    /**
+     * Blocks until the server was stopped.
+     */
+    public static void stop() throws IOException, InterruptedException {
 
         AL.info("Stopping server...");
 
         if (isRunning()) {
-            System.out.println("stop");
-            AL.info("Stop command executed!");
+            submitCommand("stop");
+            while (Server.isRunning())
+                Thread.sleep(1000);
+            NB_PIPED_IN = null;
         } else {
-            AL.warn("Server is not running!");
+            AL.warn("Server not running!");
         }
 
     }
 
+    /**
+     * Blocks until server was killed.
+     */
     public static boolean kill() {
 
         AL.info("Killing server!");
@@ -139,15 +152,56 @@ public final class Server {
             }
         }
 
+        // 5. Check if the jar has jline installed and enable colors if it has
+        boolean supportsColors = false;
+        try {
+            //TODO supportsColors = hasColorSupport(path);
+            if (supportsColors)
+                commands.add("-Dorg.jline.terminal.dumb.color=true");
+        } catch (Exception e) {
+            AL.warn("Your server jar does not contain the required dependency to enable colors.", e);
+        }
+
+
         // The stuff below fixes https://github.com/Osiris-Team/AutoPlug-Client/issues/32
         // but messes input up, because there are 2 scanners on the same stream.
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
         AL.debug(Server.class, "Starting server with commands: " + commands);
-        TERMINAL.pause(true);
+        //TERMINAL.pause(true);
         ProcessBuilder processBuilder = new ProcessBuilder(commands); // The commands list contains all we need.
-        processBuilder.inheritIO();
+        processBuilder.redirectErrorStream(true);
+        //processBuilder.inheritIO(); // BACK TO PIPED, BECAUSE OF MASSIVE ERRORS LIKE COMMANDS NOT BEEING EXECUTED, which affects the restarter
+        processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         process = processBuilder.start();
+
+        if (threadReadOutputStream == null) {
+            threadReadOutputStream = new Thread(() -> {
+                try {
+                    while (true) {
+                        InputStream in = process.getInputStream();
+                        if (isRunning() && in != null) {
+                            // Get Servers OutputStream, and forward it to a NonBlockingInputStream.
+                            // From there multiple listeners can be attached.
+                            NB_PIPED_IN = new NonBlockingPipedInputStream();
+                            OutputStream pipedOut = new PipedOutputStream(NB_PIPED_IN);
+                            NB_PIPED_IN.actionsOnWriteLineEvent.add(line -> {
+                                System.out.println(line);
+                            });
+                            int b = -1;
+                            while ((b = in.read()) != -1) {
+                                pipedOut.write(b);
+                            }
+                        }
+                        Thread.sleep(250);
+                    }
+                } catch (Exception e) {
+                    AL.warn(e);
+                }
+            });
+            threadReadOutputStream.start();
+        }
 
         // Also create a thread which checks if the server is running or not.
         // Resume the terminal if the server stopped running, to allow the use of AutoPlug-Commands
@@ -162,7 +216,13 @@ public final class Server {
                         if (!currentIsRunningCheck && lastIsRunningCheck) {
                             AL.info("Minecraft server was stopped.");
                             AL.info("To stop AutoPlug too, enter '.stop both'.");
-                            TERMINAL.resume();
+                            //TERMINAL.resume();
+                            try {
+                                if (NB_PIPED_IN != null) NB_PIPED_IN.close();
+                            } catch (Exception e) {
+                                AL.warn(e);
+                            }
+                            NB_PIPED_IN = null;
                         }
                         lastIsRunningCheck = currentIsRunningCheck;
                     }
@@ -174,14 +234,27 @@ public final class Server {
         }
     }
 
+    private static boolean hasColorSupport(String path) throws IOException {
+        ZipFile zipFile = new ZipFile(path);
+        FileHeader fileHeader = zipFile.getFileHeader("fileNameInZipToRemove");
+
+        if (fileHeader == null) {
+            // file does not exist
+        }
+
+        zipFile.removeFile(fileHeader);
+        return false;
+    }
+
     public static void submitCommand(String command) throws IOException {
         if (isRunning()) {
+            OutputStream os = process.getOutputStream();
             // Since the command won't be executed if it doesn't end with a new line char we do the below:
             if (command.contains(System.lineSeparator()))
-                TERMINAL.writer().write(command);
+                os.write(command.getBytes(StandardCharsets.UTF_8));//TERMINAL.writer().write(command);
             else
-                TERMINAL.writer().write(command + System.lineSeparator());
-
+                os.write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));//TERMINAL.writer().write(command + System.lineSeparator());
+            os.flush();
         }
     }
 
