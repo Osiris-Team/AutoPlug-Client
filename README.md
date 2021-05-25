@@ -9,6 +9,7 @@
 Well quite a bunch of things actually...
 The most outstanding one beeing (probably), an automated way of updating your servers plugins.
 Then there is some more stuff:
+ - automated self updating
  - automated server software updating
  - automated, scheduled server restarting
  - automated, modularized backup creation
