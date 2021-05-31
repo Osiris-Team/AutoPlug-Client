@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>1.20.1</version>
+    <version>1.20.5</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
