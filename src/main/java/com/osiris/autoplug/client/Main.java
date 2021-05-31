@@ -19,6 +19,8 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -185,7 +187,7 @@ public class Main {
      *
      * @param parentDir
      */
-    private static void installUpdateAndStartIt(File parentDir) throws Exception {
+    private static void installUpdateAndStartIt(@NotNull File parentDir) throws Exception {
 
         UpdaterConfig updaterConfig = new UpdaterConfig();
         if (!updaterConfig.self_updater.asBoolean())
@@ -195,14 +197,16 @@ public class Main {
         // Search for the AutoPlug-Client.jar in the parent folder
         class MyVisitor<T> extends SimpleFileVisitor<Path> {
             private final String fileToFindName;
+            @Nullable
             private File oldJar = null;
 
             public MyVisitor(String fileToFindName) {
                 this.fileToFindName = fileToFindName;
             }
 
+            @NotNull
             @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
                 if (path.toFile().getName().equals(fileToFindName)) {
                     oldJar = path.toFile();
                     System.out.println("Found: " + path);
@@ -211,6 +215,7 @@ public class Main {
                 return FileVisitResult.CONTINUE;
             }
 
+            @Nullable
             public File getResult() {
                 return oldJar;
             }
@@ -259,11 +264,11 @@ public class Main {
         new ProcessBuilder(commands).inheritIO().start();
     }
 
-    private static void appendJavaExecutable(List<String> cmd) {
+    private static void appendJavaExecutable(@NotNull List<String> cmd) {
         cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
     }
 
-    private static void appendVMArgs(Collection<String> cmd) {
+    private static void appendVMArgs(@NotNull Collection<String> cmd) {
         Collection<String> vmArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
 
         String javaToolOptions = System.getenv("JAVA_TOOL_OPTIONS");
@@ -276,12 +281,12 @@ public class Main {
         cmd.addAll(vmArguments);
     }
 
-    private static void appendClassPath(List<String> cmd) {
+    private static void appendClassPath(@NotNull List<String> cmd) {
         cmd.add("-cp");
         cmd.add(ManagementFactory.getRuntimeMXBean().getClassPath());
     }
 
-    private static void appendEntryPoint(List<String> cmd) {
+    private static void appendEntryPoint(@NotNull List<String> cmd) {
         StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         StackTraceElement stackTraceElement = stackTrace[stackTrace.length - 1];
         String fullyQualifiedClass = stackTraceElement.getClassName();

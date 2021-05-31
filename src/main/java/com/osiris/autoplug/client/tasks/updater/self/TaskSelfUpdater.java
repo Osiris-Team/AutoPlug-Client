@@ -11,6 +11,7 @@ import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -174,7 +175,8 @@ public class TaskSelfUpdater extends BetterThread {
      * @param shortPath like example input above.
      * @return
      */
-    private File convertIntoActualFile(String shortPath) {
+    @NotNull
+    private File convertIntoActualFile(@NotNull String shortPath) {
         return new File(shortPath.replace("./", GD.WORKING_DIR + "/"));
     }
 

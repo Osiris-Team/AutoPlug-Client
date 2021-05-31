@@ -14,6 +14,7 @@ import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +25,9 @@ public class RestarterConfig extends DreamYaml {
 
     public DYModule restarter_enabled;
     public DYModule restarter_times_raw;
+    @NotNull
     public List<Integer> restarter_times_minutes = new ArrayList<>();
+    @NotNull
     public List<Integer> restarter_times_hours = new ArrayList<>();
     public DYModule restarter_commands;
 

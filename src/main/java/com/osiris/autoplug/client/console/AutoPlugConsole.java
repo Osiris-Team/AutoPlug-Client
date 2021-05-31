@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Listens for input started with .
@@ -23,7 +24,7 @@ public final class AutoPlugConsole {
      *
      * @param command An AutoPlug command like .help for example.
      */
-    public static boolean executeCommand(String command) {
+    public static boolean executeCommand(@NotNull String command) {
 
         String first = ".";
         try {

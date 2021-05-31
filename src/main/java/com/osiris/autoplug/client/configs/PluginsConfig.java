@@ -18,12 +18,14 @@ import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PluginsConfig extends DreamYaml {
+    @NotNull
     private final List<DetailedPlugin> detailedPlugins;
 
     public DYModule keep_removed;
@@ -108,6 +110,7 @@ public class PluginsConfig extends DreamYaml {
         }
     }
 
+    @NotNull
     public List<DetailedPlugin> getDetailedPlugins() {
         return detailedPlugins;
     }

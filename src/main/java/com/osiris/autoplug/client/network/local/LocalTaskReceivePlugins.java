@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.local;
 
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,7 +20,7 @@ import java.net.Socket;
 public class LocalTaskReceivePlugins {
 
 
-    public LocalTaskReceivePlugins(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos) {
+    public LocalTaskReceivePlugins(Socket local_socket, @NotNull DataInputStream local_dis, DataOutputStream local_dos) {
 
 
         Thread newThread = new Thread(() -> {

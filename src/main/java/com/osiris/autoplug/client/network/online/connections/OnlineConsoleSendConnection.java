@@ -13,6 +13,8 @@ import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.Date;
  * Note that
  */
 public class OnlineConsoleSendConnection extends SecondaryConnection {
+    @Nullable
     private static BufferedWriter bw;
     private static final NonBlockingPipedInputStream.WriteLineEvent<String> action = line -> {
         try {
@@ -40,7 +43,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
-    public static synchronized void send(String message) throws Exception {
+    public static synchronized void send(@NotNull String message) throws Exception {
         if (!message.contains("\n")) {
             bw.write(message + "\n");
         } else {

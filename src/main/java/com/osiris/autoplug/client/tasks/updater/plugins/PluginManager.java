@@ -13,6 +13,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import net.lingala.zip4j.ZipFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ import java.util.zip.ZipInputStream;
 
 public class PluginManager {
 
+    @NotNull
     public List<Plugin> getPlugins() {
         List<Plugin> plugins = new ArrayList<>();
 
@@ -112,8 +114,9 @@ public class PluginManager {
         return plugins;
     }
 
+    @NotNull
     @Deprecated
-    private File extractPluginYmlFile(File jar) throws Exception {
+    private File extractPluginYmlFile(@NotNull File jar) throws Exception {
         // A jar file is actually a zip file, thats why we can use this method
         ZipFile zip = new ZipFile(jar);
 

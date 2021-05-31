@@ -17,6 +17,7 @@ import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
 import com.osiris.dyml.DYModule;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,7 +32,7 @@ public class TaskPluginsUpdater extends BetterThread {
     private final String manualProfile = "MANUAL";
     private final String automaticProfile = "AUTOMATIC";
     private UpdaterConfig updaterConfig;
-    private final String userProfile = updaterConfig.plugin_updater_profile.asString();
+    private String userProfile;
     private PluginsConfig pluginsConfig;
     private Socket online_socket;
     private DataInputStream online_dis;
@@ -50,6 +51,7 @@ public class TaskPluginsUpdater extends BetterThread {
         super.runAtStart();
         pluginsConfig = new PluginsConfig();
         updaterConfig = new UpdaterConfig();
+        userProfile = updaterConfig.plugin_updater_profile.asString();
 
         DetailedPlugin currentPl = null; // Used for exception details
         try { // Create this try/catch only for being able to close the connection
@@ -239,7 +241,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
     }
 
-    private void doDownloadLogic(DetailedPlugin pl, byte code, String type, String latest, String url, String resultSpigotId, String resultBukkitId) {
+    private void doDownloadLogic(@NotNull DetailedPlugin pl, byte code, @NotNull String type, String latest, String url, @NotNull String resultSpigotId, @NotNull String resultBukkitId) {
         if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {

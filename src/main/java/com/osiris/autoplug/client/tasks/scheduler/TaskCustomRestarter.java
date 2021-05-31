@@ -12,6 +12,7 @@ import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
+import org.jetbrains.annotations.NotNull;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -65,7 +66,7 @@ public class TaskCustomRestarter extends BetterThread {
     }
 
     //Creates jobs and links them to the scheduler
-    private void createJob(String jobName, String triggerName, String cron) throws Exception {
+    private void createJob(String jobName, String triggerName, @NotNull String cron) throws Exception {
 
         AL.debug(this.getClass(), "Creating job with name: " + jobName + " trigger:" + triggerName + " cron:" + cron);
 

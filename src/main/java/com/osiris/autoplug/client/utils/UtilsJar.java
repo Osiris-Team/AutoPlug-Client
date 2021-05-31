@@ -1,6 +1,7 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.client.Main;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.URL;
@@ -11,6 +12,7 @@ import java.util.Properties;
 
 public class UtilsJar {
 
+    @NotNull
     public Properties getThisJarsAutoPlugProperties() throws Exception {
         return getAutoPlugPropertiesFromJar(Main.class
                 .getProtectionDomain()
@@ -20,7 +22,8 @@ public class UtilsJar {
                 .getPath());
     }
 
-    public Properties getAutoPlugPropertiesFromJar(String path) throws Exception {
+    @NotNull
+    public Properties getAutoPlugPropertiesFromJar(@NotNull String path) throws Exception {
         return getPropertiesFromJar(path, "autoplug");
     }
 
@@ -32,7 +35,8 @@ public class UtilsJar {
      * @return autoplug.properties
      * @throws Exception
      */
-    public Properties getPropertiesFromJar(String path, String propertiesFileName) throws Exception {
+    @NotNull
+    public Properties getPropertiesFromJar(@NotNull String path, String propertiesFileName) throws Exception {
         File file = new File(path); // The properties file
         if (file.exists()) {
             Collection<URL> urls = new ArrayList<URL>();

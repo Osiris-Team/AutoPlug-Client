@@ -13,6 +13,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -23,7 +24,7 @@ import java.net.Socket;
 public class LocalConnectionValidator {
 
 
-    LocalConnectionValidator(Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos) {
+    LocalConnectionValidator(Socket local_socket, @NotNull DataInputStream local_dis, @NotNull DataOutputStream local_dos) {
 
         Thread newThread = new Thread(() -> {
 
@@ -43,7 +44,7 @@ public class LocalConnectionValidator {
                     AL.info("Wrong AutoPlugPlugin! Validation failed!");
                 }
 
-            } catch (IOException | DuplicateKeyException | DYReaderException | IllegalListException e) {
+            } catch (@NotNull IOException | DuplicateKeyException | DYReaderException | IllegalListException e) {
                 e.printStackTrace();
             }
 

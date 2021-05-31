@@ -10,6 +10,8 @@ package com.osiris.autoplug.client.managers;
 
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.util.Objects;
  */
 public class FileManager {
     private final List<File> queryFiles = new ArrayList<>();
+    @Nullable
     private File queryFile = null;
 
     public void deleteOldPlugin(String pl_name) {
@@ -43,6 +46,7 @@ public class FileManager {
      *
      * @return list of files.
      */
+    @NotNull
     public List<File> getAllPlugins() {
         String searchPattern = "*.jar";
         //Find the file
@@ -51,6 +55,7 @@ public class FileManager {
     }
 
     //Finds all folders starting with "world" in main working dir
+    @NotNull
     public List<File> serverWorldsFolders() {
         String searchPattern = "*world*";
         //Find the files
@@ -64,6 +69,7 @@ public class FileManager {
      * Finds all files with another name than AutoPlug.jar in main working dir.
      * Only files not folders!
      */
+    @NotNull
     public List<File> serverFiles() {
         String searchPattern = "*";
         //Find the files
@@ -78,6 +84,7 @@ public class FileManager {
      *
      * @return server jar file.
      */
+    @Nullable
     public File serverJar(String server_jar_name) {
         String searchPattern = "*" + server_jar_name + "**.jar";
         //Find the file
@@ -91,6 +98,7 @@ public class FileManager {
      *
      * @return server jar file.
      */
+    @Nullable
     public File serverJar() {
         String searchPattern = "*.jar";
         //Find the file
@@ -99,12 +107,14 @@ public class FileManager {
         return queryFile;
     }
 
-    public List<File> getFilesFrom(String dirPath) throws IOException {
+    @NotNull
+    public List<File> getFilesFrom(@NotNull String dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         return getFilesFrom(FileSystems.getDefault().getPath(dirPath));
     }
 
-    public List<File> getFilesFrom(File dir) throws IOException {
+    @NotNull
+    public List<File> getFilesFrom(@NotNull File dir) throws IOException {
         Objects.requireNonNull(dir);
         return getFilesFrom(dir.toPath());
     }
@@ -116,17 +126,20 @@ public class FileManager {
      * @return a list of files in this directory.
      * @throws IOException
      */
-    public List<File> getFilesFrom(Path dirPath) throws IOException {
+    @NotNull
+    public List<File> getFilesFrom(@NotNull Path dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         List<File> list = new ArrayList<>();
         SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
+            @NotNull
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 return FileVisitResult.SKIP_SUBTREE;
             }
 
+            @NotNull
             @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
                 list.add(new File(path.toString()));
                 return FileVisitResult.CONTINUE;
             }
@@ -135,12 +148,14 @@ public class FileManager {
         return list;
     }
 
-    public List<File> getFoldersFrom(String dirPath) throws IOException {
+    @NotNull
+    public List<File> getFoldersFrom(@NotNull String dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         return getFoldersFrom(FileSystems.getDefault().getPath(dirPath));
     }
 
-    public List<File> getFoldersFrom(File dir) throws IOException {
+    @NotNull
+    public List<File> getFoldersFrom(@NotNull File dir) throws IOException {
         Objects.requireNonNull(dir);
         return getFoldersFrom(dir.toPath());
     }
@@ -152,12 +167,14 @@ public class FileManager {
      * @return a list of folders in this directory.
      * @throws IOException
      */
-    public List<File> getFoldersFrom(Path dirPath) throws IOException {
+    @NotNull
+    public List<File> getFoldersFrom(@NotNull Path dirPath) throws IOException {
         Objects.requireNonNull(dirPath);
         List<File> list = new ArrayList<>();
         SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
+            @NotNull
             @Override
-            public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult preVisitDirectory(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
                 list.add(new File(path.toString()));
                 return FileVisitResult.SKIP_SUBTREE;
             }
@@ -174,8 +191,9 @@ public class FileManager {
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
 
+                @NotNull
                 @Override
-                public FileVisitResult visitFile(Path path,
+                public FileVisitResult visitFile(@NotNull Path path,
                                                  BasicFileAttributes attrs) throws IOException {
 
                     //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
@@ -193,8 +211,9 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -205,6 +224,7 @@ public class FileManager {
 
                 }
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc)
                         throws IOException {
@@ -228,8 +248,9 @@ public class FileManager {
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
 
+                @NotNull
                 @Override
-                public FileVisitResult visitFile(Path path,
+                public FileVisitResult visitFile(@NotNull Path path,
                                                  BasicFileAttributes attrs) throws IOException {
 
                     //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
@@ -248,8 +269,9 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -260,6 +282,7 @@ public class FileManager {
 
                 }
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc)
                         throws IOException {
@@ -283,14 +306,16 @@ public class FileManager {
 
             Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFile(Path path,
                                                  BasicFileAttributes attrs) throws IOException {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     //Skip subdirectories of non main worki dirs and non matching dirs
                     if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory() && !pathMatcher.matches(dir.getFileName())) {
@@ -306,6 +331,7 @@ public class FileManager {
 
                 }
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc)
                         throws IOException {
@@ -329,8 +355,9 @@ public class FileManager {
 
             Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
 
+                @NotNull
                 @Override
-                public FileVisitResult visitFile(Path path,
+                public FileVisitResult visitFile(@NotNull Path path,
                                                  BasicFileAttributes attrs) throws IOException {
 
                     if (pathMatcher.matches(path.getFileName())) {
@@ -342,8 +369,9 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -354,6 +382,7 @@ public class FileManager {
 
                 }
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc)
                         throws IOException {
@@ -377,8 +406,9 @@ public class FileManager {
 
             Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
 
+                @NotNull
                 @Override
-                public FileVisitResult visitFile(Path path,
+                public FileVisitResult visitFile(@NotNull Path path,
                                                  BasicFileAttributes attrs) throws IOException {
 
                     if (pathMatcher.matches(path.getFileName())) {
@@ -390,8 +420,9 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -402,6 +433,7 @@ public class FileManager {
 
                 }
 
+                @NotNull
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc)
                         throws IOException {

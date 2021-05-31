@@ -17,6 +17,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -122,7 +123,8 @@ public class TaskServerDownload extends BetterThread {
 
     }
 
-    private String bytesToHex(byte[] hash) {
+    @NotNull
+    private String bytesToHex(@NotNull byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);

@@ -10,6 +10,8 @@ package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
  */
 public class ConfigUtils {
 
-    public void printAllModulesToDebug(List<DYModule> modules) {
+    public void printAllModulesToDebug(@NotNull List<DYModule> modules) {
         try {
             for (DYModule module :
                     modules) {
@@ -31,7 +33,8 @@ public class ConfigUtils {
     }
 
 
-    public CoolDownReport checkIfOutOfCoolDown(int coolDownInMinutes, SimpleDateFormat format, String lastTasksTimestamp) {
+    @NotNull
+    public CoolDownReport checkIfOutOfCoolDown(int coolDownInMinutes, @NotNull SimpleDateFormat format, @Nullable String lastTasksTimestamp) {
         try {
             if (lastTasksTimestamp != null) {
                 long last = format.parse(lastTasksTimestamp).getTime();

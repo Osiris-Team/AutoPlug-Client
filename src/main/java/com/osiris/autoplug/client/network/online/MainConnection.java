@@ -12,6 +12,7 @@ import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiv
 import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class MainConnection extends Thread {
     public static OnlineConsoleReceiveConnection CON_CONSOLE_RECEIVE;
     public static OnlineConsoleSendConnection CON_CONSOLE_SEND;
     public static PluginsUpdaterConnection CON_PLUGINS_UPDATER;
+    @NotNull
     public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
 
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.

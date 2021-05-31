@@ -12,6 +12,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,7 +54,7 @@ public class DownloadManager {
 
     }
 
-    public boolean downloadJar(String download_url, File download_path) {
+    public boolean downloadJar(String download_url, @NotNull File download_path) {
 
         client = new WebClient(BrowserVersion.CHROME);
 

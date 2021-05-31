@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +30,7 @@ public class JsonTools {
      * @return JsonElement
      * @throws Exception When status code other than 200.
      */
-    private JsonElement getJsonElement(String url) throws Exception {
+    private JsonElement getJsonElement(@NotNull String url) throws Exception {
 
         //Requests and connections
         final URL url1 = new URL(url);
@@ -54,7 +55,8 @@ public class JsonTools {
      * @param url The url where to find the json file.
      * @return A list with JsonObjects or null if there was a error with the url.
      */
-    public List<JsonObject> getJsonArrayAsList(String url) throws Exception {
+    @NotNull
+    public List<JsonObject> getJsonArrayAsList(@NotNull String url) throws Exception {
         List<JsonObject> objectList = new ArrayList<>();
         JsonElement element = getJsonElement(url);
         if (element != null && element.isJsonArray()) {
@@ -75,7 +77,7 @@ public class JsonTools {
      * @param url The url where to find the json file.
      * @return A JsonObject or null if there was a error with the url.
      */
-    public JsonObject getJsonObject(String url) throws Exception {
+    public JsonObject getJsonObject(@NotNull String url) throws Exception {
         JsonElement element = getJsonElement(url);
         if (element != null && element.isJsonObject()) {
             return element.getAsJsonObject();

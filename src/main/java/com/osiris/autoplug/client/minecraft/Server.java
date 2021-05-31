@@ -18,6 +18,8 @@ import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +31,7 @@ import java.util.List;
 
 
 public final class Server {
+    @Nullable
     public static NonBlockingPipedInputStream NB_PIPED_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
@@ -237,7 +240,7 @@ public final class Server {
         }
     }
 
-    private static boolean hasColorSupport(String path) throws IOException {
+    private static boolean hasColorSupport(@NotNull String path) throws IOException {
         ZipFile zipFile = new ZipFile(path);
         FileHeader fileHeader = zipFile.getFileHeader("fileNameInZipToRemove");
 
@@ -249,7 +252,7 @@ public final class Server {
         return false;
     }
 
-    public static void submitCommand(String command) throws IOException {
+    public static void submitCommand(@NotNull String command) throws IOException {
         if (isRunning()) {
             OutputStream os = process.getOutputStream();
             // Since the command won't be executed if it doesn't end with a new line char we do the below:

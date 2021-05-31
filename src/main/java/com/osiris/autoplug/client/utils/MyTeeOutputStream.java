@@ -1,5 +1,8 @@
 package com.osiris.autoplug.client.utils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,10 +12,12 @@ import java.io.OutputStream;
  */
 public final class MyTeeOutputStream extends OutputStream {
 
+    @Nullable
     private final OutputStream out;
+    @Nullable
     private final OutputStream tee;
 
-    public MyTeeOutputStream(OutputStream out, OutputStream tee) {
+    public MyTeeOutputStream(@Nullable OutputStream out, @Nullable OutputStream tee) {
         if (out == null)
             throw new NullPointerException();
         else if (tee == null)
@@ -30,13 +35,13 @@ public final class MyTeeOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b) throws IOException {
+    public void write(@NotNull byte[] b) throws IOException {
         out.write(b);
         tee.write(b);
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(@NotNull byte[] b, int off, int len) throws IOException {
         out.write(b, off, len);
         tee.write(b, off, len);
     }

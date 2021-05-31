@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,8 +34,8 @@ public class OnlineTaskUpdatePlugins {
 
     private int updateCounter = 0;
 
-    public OnlineTaskUpdatePlugins(Socket online_socket, DataInputStream online_dis, DataOutputStream online_dos,
-                                   Socket local_socket, DataInputStream local_dis, DataOutputStream local_dos,
+    public OnlineTaskUpdatePlugins(@NotNull Socket online_socket, @NotNull DataInputStream online_dis, @NotNull DataOutputStream online_dos,
+                                   @NotNull Socket local_socket, DataInputStream local_dis, @NotNull DataOutputStream local_dos,
                                    String[] pl_names, String[] pl_authors, String[] pl_versions,
                                    int amount) {
 

@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.net.Socket;
  * input at the online console and executes it.
  */
 public class OnlineConsoleReceiveConnection extends SecondaryConnection {
+    @Nullable
     private static Thread thread;
 
     public OnlineConsoleReceiveConnection() {

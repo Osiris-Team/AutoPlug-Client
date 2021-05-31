@@ -1,6 +1,7 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -9,11 +10,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NonBlockingPipedInputStream extends PipedInputStream { // PipedInputStream
+    @NotNull
     private final Thread thread;
     /**
      * Add actions to this list, which get run after a line has been written.
      * Contains the line as parameter.
      */
+    @NotNull
     public List<WriteLineEvent<String>> actionsOnWriteLineEvent = new CopyOnWriteArrayList<>();
 
     /**
@@ -38,6 +41,7 @@ public class NonBlockingPipedInputStream extends PipedInputStream { // PipedInpu
 
     }
 
+    @NotNull
     public Thread getThread() {
         return thread;
     }

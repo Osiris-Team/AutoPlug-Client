@@ -14,6 +14,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import org.jetbrains.annotations.NotNull;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -41,7 +42,7 @@ public class CustomRestartJob implements Job {
             Thread.sleep(10000);
             //Restart the server
             Server.restart();
-        } catch (InterruptedException | IOException | DuplicateKeyException | DYReaderException | IllegalListException e) {
+        } catch (@NotNull InterruptedException | IOException | DuplicateKeyException | DYReaderException | IllegalListException e) {
             AL.warn("Error while executing restart!", e);
         }
     }

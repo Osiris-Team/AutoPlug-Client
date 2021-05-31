@@ -25,6 +25,7 @@ import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -35,7 +36,8 @@ public class BeforeServerStartupTasks {
     private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
-
+        BetterThreadManager man = null;
+        BetterThreadDisplayer dis; // We have our own way of displaying the warnings, that's why its set to false
         try {
             tasksConfig = new TasksConfig();
 
@@ -43,8 +45,8 @@ public class BeforeServerStartupTasks {
             while (!MainConnection.isDone)
                 Thread.sleep(1000);
 
-            BetterThreadManager man = new BetterThreadManager();
-            BetterThreadDisplayer dis = new BetterThreadDisplayer(
+            man = new BetterThreadManager();
+            dis = new BetterThreadDisplayer(
                     man, "[AutoPlug]", "[TASK]", null, false,
                     false, tasksConfig.refresh_interval.asInt()); // We have our own way of displaying the warnings, that's why its set to false
 
@@ -102,12 +104,23 @@ public class BeforeServerStartupTasks {
             printWarnings(man.getAllWarnings());
 
         } catch (Exception e) {
-            AL.warn(e);
+            AL.warn("A severe error occurred while executing the before server startup tasks! Interrupting tasks...");
+            try {
+                if (man != null)
+                    for (BetterThread t :
+                            man.getAll()) {
+                        if (t != null && !t.isInterrupted())
+                            t.interrupt();
+                    }
+            } catch (Exception exception) {
+                AL.warn(exception);
+            }
+            AL.warn("Severe error while executing before server startup tasks!", e);
         }
 
     }
 
-    private void printSummary(List<BetterThread> all) {
+    private void printSummary(@NotNull List<BetterThread> all) {
         for (BetterThread t :
                 all) {
             for (String s :
@@ -118,7 +131,7 @@ public class BeforeServerStartupTasks {
         }
     }
 
-    private void printWarnings(List<BetterWarning> allWarnings) {
+    private void printWarnings(@NotNull List<BetterWarning> allWarnings) {
 
         for (BetterWarning w :
                 allWarnings) {
@@ -126,7 +139,7 @@ public class BeforeServerStartupTasks {
         }
     }
 
-    private void printFinalStatus(List<BetterThread> all) {
+    private void printFinalStatus(@NotNull List<BetterThread> all) {
         for (BetterThread t :
                 all) {
             AL.info("[" + t.getName() + "] " + t.getStatus());

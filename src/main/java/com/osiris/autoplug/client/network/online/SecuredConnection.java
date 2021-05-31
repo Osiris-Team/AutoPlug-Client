@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendCo
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.HandshakeCompletedEvent;
@@ -121,11 +122,11 @@ public class SecuredConnection {
         output = socket.getOutputStream();
     }
 
-    private void registerHandshakeCallback(Socket socket) {
+    private void registerHandshakeCallback(@NotNull Socket socket) {
         ((SSLSocket) socket).addHandshakeCompletedListener(
                 new HandshakeCompletedListener() {
                     public void handshakeCompleted(
-                            HandshakeCompletedEvent event) {
+                            @NotNull HandshakeCompletedEvent event) {
                         AL.debug(this.getClass(),
                                 "Handshake finished!");
                         AL.debug(this.getClass(),

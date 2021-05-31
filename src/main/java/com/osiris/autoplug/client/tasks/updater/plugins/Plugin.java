@@ -8,6 +8,8 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 /**
@@ -26,7 +28,7 @@ public class Plugin {
      * @param version
      * @param author           NOTE THAT THIS CAN BE A STRING IN A LIST FORMAT CONTAINING MULTIPLE AUTHORS
      */
-    public Plugin(String installationPath, Object name, Object version, Object author) {
+    public Plugin(String installationPath, Object name, Object version, @Nullable Object author) {
         this.installationPath = installationPath;
         this.name = String.valueOf(name);
         this.version = String.valueOf(version);

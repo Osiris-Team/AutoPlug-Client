@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>1.20.6</version>
+    <version>1.20.7</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -68,6 +68,12 @@
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
             <version>7.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
         </dependency>
 
         <!-- Extra terminal stuff -->

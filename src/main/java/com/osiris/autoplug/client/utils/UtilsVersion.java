@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.Nullable;
 
 public class UtilsVersion {
 
@@ -21,7 +22,7 @@ public class UtilsVersion {
      * @param latestVersion
      * @return
      */
-    public boolean compare(String currentVersion, String latestVersion) {
+    public boolean compare(@Nullable String currentVersion, @Nullable String latestVersion) {
         try {
             if (currentVersion == null) throw new NullPointerException("Null currentVersion!");
             if (latestVersion == null) throw new NullPointerException("Null latestVersion!");

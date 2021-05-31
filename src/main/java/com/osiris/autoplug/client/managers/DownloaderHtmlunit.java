@@ -13,6 +13,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.osiris.autoplug.core.logger.AL;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,7 @@ public class DownloaderHtmlunit implements IDownloader {
     private HtmlPage page;
     private WebResponse response;
 
+    @Nullable
     @Override
     public InputStream getInputStreamFromDownload(String download_url) throws Exception {
 

@@ -11,12 +11,14 @@ package com.osiris.autoplug.client.managers;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 import java.util.logging.Level;
 
 public class UtilsWebClient {
 
+    @NotNull
     public static String buildUniqueUserAgent() {
         StringBuilder b = new StringBuilder();
         b.append("Mozilla/5.0 " +
@@ -31,6 +33,7 @@ public class UtilsWebClient {
     /**
      * Provided by: https://github.com/HtmlUnit/htmlunit/issues/249
      */
+    @NotNull
     public static WebClient getNewCustomClient(int pageTimeout, int jsTimeout, String UserAgent) {
         java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
         java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);

@@ -18,6 +18,7 @@ import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -140,6 +141,7 @@ public class TaskServerUpdater extends BetterThread {
         finish();
     }
 
+    @Nullable
     private String getLatestBuildHash(String name, String mc_version, int latest_build_id) {
         String result = null;
         final String address = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id;
@@ -153,6 +155,7 @@ public class TaskServerUpdater extends BetterThread {
         return result;
     }
 
+    @Nullable
     private String getLatestBuildFileName(String name, String mc_version, int latest_build_id) {
         String result = null;
         final String address = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id;
