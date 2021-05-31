@@ -11,7 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,12 +23,12 @@ public class LoggerConfig extends DreamYaml {
 
     public DYModule debug;
 
-    public LoggerConfig() {
+    public LoggerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -37,7 +41,7 @@ public class LoggerConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            debug = add(name, "debug").setDefValue("false").setComment(
+            debug = put(name, "debug").setDefValues("false").setComments(
                     "Writes the debug output to console.\n" +
                             "The log file contains the debug output by default and this option wont affect that.\n" +
                             "This is the only setting that needs a restart to work.");

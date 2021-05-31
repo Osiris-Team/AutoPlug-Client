@@ -11,18 +11,23 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class TasksConfig extends DreamYaml {
 
     public DYModule live_tasks;
     public DYModule refresh_interval;
 
-    public TasksConfig() {
+    public TasksConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-tasks-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -35,10 +40,10 @@ public class TasksConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            live_tasks = add(name, "live-tasks", "enable").setDefValue("true").setComment(
+            live_tasks = put(name, "live-tasks", "enable").setDefValues("true").setComments(
                     "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
                             "Enabling this on unsupported platform will result in console spam.");
-            refresh_interval = add(name, "live-tasks", "refresh-interval").setDefValue("250").setComment(
+            refresh_interval = put(name, "live-tasks", "refresh-interval").setDefValues("250").setComment(
                     "Refresh interval in milliseconds.\n" +
                             "How often a task should get refreshed and update its information. Default is: 250ms");
 

@@ -15,8 +15,11 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +28,13 @@ public class PluginsConfig extends DreamYaml {
 
     public DYModule keep_removed;
 
-    public PluginsConfig() {
+    public PluginsConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
         this.detailedPlugins = new ArrayList<>();
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -57,7 +60,7 @@ public class PluginsConfig extends DreamYaml {
                             "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
                             "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq");
 
-            keep_removed = add(name, "general", "keep-removed").setDefValue("true").setComment("Keep the plugins entry in this file even after its removal/uninstallation?");
+            keep_removed = put(name, "general", "keep-removed").setDefValues("true").setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
             PluginManager man = new PluginManager();
             List<Plugin> pls = man.getPlugins();
@@ -67,18 +70,18 @@ public class PluginsConfig extends DreamYaml {
 
                     final String plName = pl.getName();
 
-                    DYModule exclude = add(name, plName, "exclude").setDefValue("false"); // Check this plugin?
-                    DYModule version = add(name, plName, "version").setDefValue(pl.getVersion());
-                    DYModule latestVersion = add(name, plName, "latest-version");
-                    DYModule authors = add(name, plName, "author").setDefValue(pl.getAuthor());
-                    DYModule spigotId = add(name, plName, "spigot-id").setDefValue("0");
+                    DYModule exclude = put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
+                    DYModule version = put(name, plName, "version").setDefValues(pl.getVersion());
+                    DYModule latestVersion = put(name, plName, "latest-version");
+                    DYModule authors = put(name, plName, "author").setDefValues(pl.getAuthor());
+                    DYModule spigotId = put(name, plName, "spigot-id").setDefValues("0");
                     //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
-                    DYModule bukkitId = add(name, plName, "bukkit-id").setDefValue("0");
-                    DYModule customLink = add(name, plName, "c-link");
+                    DYModule bukkitId = put(name, plName, "bukkit-id").setDefValues("0");
+                    DYModule customLink = put(name, plName, "c-link");
 
                     if ((pl.getVersion() == null || pl.getVersion().isEmpty()) ||
                             (pl.getAuthor() == null || pl.getAuthor().isEmpty())) {
-                        exclude.setValue("true");
+                        exclude.setValues("true");
                         AL.warn("Plugin " + pl.getName() + " is missing critical information and was excluded.");
                     }
 

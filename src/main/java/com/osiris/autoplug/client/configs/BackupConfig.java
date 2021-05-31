@@ -11,6 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class BackupConfig extends DreamYaml {
 
@@ -51,12 +56,12 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_plugins_upload_rsa;
 
 
-    public BackupConfig() {
+    public BackupConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-backup-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -69,57 +74,57 @@ public class BackupConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            backup_server_files = add(name, "server-files-backup", "enable").setDefValue("false").setComment(
+            backup_server_files = put(name, "server-files-backup", "enable").setDefValues("false").setComments(
                     "Backups all files in root (except folders) to /autoplug-backups/server/...zip.");
-            backup_server_files_max_days = add(name, "server-files-backup", "max-days").setDefValue("7").setComment(
+            backup_server_files_max_days = put(name, "server-files-backup", "max-days").setDefValues("7").setComments(
                     "Set max-days to 0 if you want to keep your backups forever.");
-            backup_server_files_cool_down = add(name, "server-files-backup", "cool-down").setDefValue("60").setComments(
+            backup_server_files_cool_down = put(name, "server-files-backup", "cool-down").setDefValues("60").setComments(
                     "The cool-down for this task in minutes.",
                     "If you restart your server multiple times in a short amount of time,",
                     "you probably won't want to create backups each time you restart your server.",
                     "The cool-down prevents exactly that from happening, saves you storage space and time.",
                     "Set to 0 to disable."
             );
-            backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValue("false").setComment(
+            backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValues("false").setComments(
                     "Upload the newly generated backup to FTPS/SFTP server.");
-            backup_server_files_upload_delete_on_complete = add(name, "server-files-backup", "upload", "delete-on-complete").setDefValue("false").setComment(
+            backup_server_files_upload_delete_on_complete = put(name, "server-files-backup", "upload", "delete-on-complete").setDefValues("false").setComments(
                     "Deletes the newly generated backup zip, directly after the upload was completed.");
-            backup_server_files_upload_host = add(name, "server-files-backup", "upload", "host").setComment(
+            backup_server_files_upload_host = put(name, "server-files-backup", "upload", "host").setComments(
                     "Set hostname of FTPS/SFTP server.");
-            backup_server_files_upload_port = add(name, "server-files-backup", "upload", "port").setComment(
+            backup_server_files_upload_port = put(name, "server-files-backup", "upload", "port").setComments(
                     "Set port of FTPS/SFTP server.");
-            backup_server_files_upload_user = add(name, "server-files-backup", "upload", "username");
-            backup_server_files_upload_password = add(name, "server-files-backup", "upload", "password");
-            backup_server_files_upload_path = add(name, "server-files-backup", "upload", "path").setComment(
+            backup_server_files_upload_user = put(name, "server-files-backup", "upload", "username");
+            backup_server_files_upload_password = put(name, "server-files-backup", "upload", "password");
+            backup_server_files_upload_path = put(name, "server-files-backup", "upload", "path").setComments(
                     "Set the folder, in which the backup should be stored.");
-            backup_server_files_upload_rsa = add(name, "server-files-backup", "upload", "rsa-key").setComment(
+            backup_server_files_upload_rsa = put(name, "server-files-backup", "upload", "rsa-key").setComments(
                     "Leave this field blank when using FTPS.");
 
-            backup_worlds = add(name, "worlds-backup", "enable").setDefValue("false").setComment(
+            backup_worlds = put(name, "worlds-backup", "enable").setDefValues("false").setComments(
                     "Backups all folders starting with \"world\" to /autoplug-backups/worlds/...zip");
-            backup_worlds_max_days = add(name, "worlds-backup", "max-days").setDefValue("7");
-            backup_worlds_cool_down = add(name, "worlds-backup", "cool-down").setDefValue("60");
-            backup_worlds_upload = add(name, "worlds-backup", "upload", "enable").setDefValue("false");
-            backup_worlds_upload_delete_on_complete = add(name, "worlds-backup", "upload", "delete-on-complete").setDefValue("false");
-            backup_worlds_upload_host = add(name, "worlds-backup", "upload", "host");
-            backup_worlds_upload_port = add(name, "worlds-backup", "upload", "port");
-            backup_worlds_upload_user = add(name, "worlds-backup", "upload", "username");
-            backup_worlds_upload_password = add(name, "worlds-backup", "upload", "password");
-            backup_worlds_upload_path = add(name, "worlds-backup", "upload", "path");
-            backup_worlds_upload_rsa = add(name, "worlds-backup", "upload", "rsa-key");
+            backup_worlds_max_days = put(name, "worlds-backup", "max-days").setDefValues("7");
+            backup_worlds_cool_down = put(name, "worlds-backup", "cool-down").setDefValues("60");
+            backup_worlds_upload = put(name, "worlds-backup", "upload", "enable").setDefValues("false");
+            backup_worlds_upload_delete_on_complete = put(name, "worlds-backup", "upload", "delete-on-complete").setDefValues("false");
+            backup_worlds_upload_host = put(name, "worlds-backup", "upload", "host");
+            backup_worlds_upload_port = put(name, "worlds-backup", "upload", "port");
+            backup_worlds_upload_user = put(name, "worlds-backup", "upload", "username");
+            backup_worlds_upload_password = put(name, "worlds-backup", "upload", "password");
+            backup_worlds_upload_path = put(name, "worlds-backup", "upload", "path");
+            backup_worlds_upload_rsa = put(name, "worlds-backup", "upload", "rsa-key");
 
-            backup_plugins = add(name, "plugins-backup", "enable").setDefValue("true").setComment(
+            backup_plugins = put(name, "plugins-backup", "enable").setDefValues("true").setComments(
                     "Backups your plugins folder to /autoplug-backups/plugins/...zip");
-            backup_plugins_max_days = add(name, "plugins-backup", "max-days").setDefValue("7");
-            backup_plugins_cool_down = add(name, "plugins-backup", "cool-down").setDefValue("60");
-            backup_plugins_upload = add(name, "plugins-backup", "upload", "enable").setDefValue("false");
-            backup_plugins_upload_delete_on_complete = add(name, "plugins-backup", "upload", "delete-on-complete").setDefValue("false");
-            backup_plugins_upload_host = add(name, "plugins-backup", "upload", "host");
-            backup_plugins_upload_port = add(name, "plugins-backup", "upload", "port");
-            backup_plugins_upload_user = add(name, "plugins-backup", "upload", "username");
-            backup_plugins_upload_password = add(name, "plugins-backup", "upload", "password");
-            backup_plugins_upload_path = add(name, "plugins-backup", "upload", "path");
-            backup_plugins_upload_rsa = add(name, "plugins-backup", "upload", "rsa-key");
+            backup_plugins_max_days = put(name, "plugins-backup", "max-days").setDefValues("7");
+            backup_plugins_cool_down = put(name, "plugins-backup", "cool-down").setDefValues("60");
+            backup_plugins_upload = put(name, "plugins-backup", "upload", "enable").setDefValues("false");
+            backup_plugins_upload_delete_on_complete = put(name, "plugins-backup", "upload", "delete-on-complete").setDefValues("false");
+            backup_plugins_upload_host = put(name, "plugins-backup", "upload", "host");
+            backup_plugins_upload_port = put(name, "plugins-backup", "upload", "port");
+            backup_plugins_upload_user = put(name, "plugins-backup", "upload", "username");
+            backup_plugins_upload_password = put(name, "plugins-backup", "upload", "password");
+            backup_plugins_upload_path = put(name, "plugins-backup", "upload", "path");
+            backup_plugins_upload_rsa = put(name, "plugins-backup", "upload", "rsa-key");
 
             save();
 

@@ -11,6 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class CleanerConfig extends DreamYaml {
 
@@ -27,12 +32,12 @@ public class CleanerConfig extends DreamYaml {
     public DYModule downloads_cleaner_custom_dir;
 
 
-    public CleanerConfig() {
+    public CleanerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-cleaner-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -45,22 +50,22 @@ public class CleanerConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            logs_cleaner = add(name, "logs-cleaner", "enable").setDefValue("false")
-                    .setComment("Deletes log files from /autoplug-logs/...");
-            logs_cleaner_max = add(name, "logs-cleaner", "max-days").setDefValue("7")
-                    .setComment("If a file is older than this amount of days, it gets deleted. \nMinimum value is 1.");
-            logs_cleaner_custom_dir = add(name, "logs-cleaner", "custom-dir")
-                    .setComment("Enter a custom directory path (linux and windows formats are supported).\nLeave empty if default path should be used.");
+            logs_cleaner = put(name, "logs-cleaner", "enable").setDefValues("false")
+                    .setComments("Deletes log files from /autoplug-logs/...");
+            logs_cleaner_max = put(name, "logs-cleaner", "max-days").setDefValues("7")
+                    .setComments("If a file is older than this amount of days, it gets deleted. \nMinimum value is 1.");
+            logs_cleaner_custom_dir = put(name, "logs-cleaner", "custom-dir")
+                    .setComments("Enter a custom directory path (linux and windows formats are supported).\nLeave empty if default path should be used.");
 
-            mc_logs_cleaner = add(name, "mc-logs-cleaner", "enable").setDefValue("false")
-                    .setComment("Deletes log files from /logs/...");
-            mc_logs_cleaner_max = add(name, "mc-logs-cleaner", "max-days").setDefValue("7");
-            mc_logs_cleaner_custom_dir = add(name, "mc-logs-cleaner", "custom-dir");
+            mc_logs_cleaner = put(name, "mc-logs-cleaner", "enable").setDefValues("false")
+                    .setComments("Deletes log files from /logs/...");
+            mc_logs_cleaner_max = put(name, "mc-logs-cleaner", "max-days").setDefValues("7");
+            mc_logs_cleaner_custom_dir = put(name, "mc-logs-cleaner", "custom-dir");
 
-            downloads_cleaner = add(name, "downloads-cleaner", "enable").setDefValue("false")
-                    .setComment("Deletes files from /autoplug-downloads/...");
-            downloads_cleaner_max = add(name, "downloads-cleaner", "max-days").setDefValue("7");
-            downloads_cleaner_custom_dir = add(name, "downloads-cleaner", "custom-dir");
+            downloads_cleaner = put(name, "downloads-cleaner", "enable").setDefValues("false")
+                    .setComments("Deletes files from /autoplug-downloads/...");
+            downloads_cleaner_max = put(name, "downloads-cleaner", "max-days").setDefValues("7");
+            downloads_cleaner_custom_dir = put(name, "downloads-cleaner", "custom-dir");
 
             save();
 

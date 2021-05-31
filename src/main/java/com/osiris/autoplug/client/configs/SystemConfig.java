@@ -11,6 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class SystemConfig extends DreamYaml {
 
@@ -18,12 +23,12 @@ public class SystemConfig extends DreamYaml {
     public DYModule timestamp_last_worlds_backup_task;
     public DYModule timestamp_last_plugins_backup_task;
 
-    public SystemConfig() {
+    public SystemConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-system/config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -34,9 +39,9 @@ public class SystemConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            timestamp_last_server_files_backup_task = add(name, "timestamp-last-server-files-backup-task");
-            timestamp_last_worlds_backup_task = add(name, "timestamp-last-worlds-backup-task");
-            timestamp_last_plugins_backup_task = add(name, "timestamp-last-plugins-backup-task");
+            timestamp_last_server_files_backup_task = put(name, "timestamp-last-server-files-backup-task");
+            timestamp_last_worlds_backup_task = put(name, "timestamp-last-worlds-backup-task");
+            timestamp_last_plugins_backup_task = put(name, "timestamp-last-plugins-backup-task");
 
             save();
 

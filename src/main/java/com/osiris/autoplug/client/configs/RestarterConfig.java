@@ -11,7 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,13 +32,13 @@ public class RestarterConfig extends DreamYaml {
     public DYModule c_restarter_cron;
     public DYModule c_restarter_commands;
 
-    public RestarterConfig() {
+    public RestarterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-restarter-config.yml");
 
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            add(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -47,45 +51,45 @@ public class RestarterConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            restarter_enabled = add(name, "daily-restarter", "enable").setDefValue("false").setComment(
+            restarter_enabled = add(name, "daily-restarter", "enable").setDefValues("false").setComments(
                     "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
                             "Make sure to have the other scheduler disabled.");
 
-            restarter_times_raw = add(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComment(
+            restarter_times_raw = add(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComments(
                     "Restarts your server daily at the times below.\n" +
                             "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
 
             restarter_commands = add(name, "daily-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                    .setComment("Executes these server as console, 10 seconds before restarting the server.");
+                    .setComments("Executes these server as console, 10 seconds before restarting the server.");
             /*
             TODO WORK IN PROGRESS
-            restarter_commands_countdown = add(name, "daily-restarter", "commands", "countdown").setDefValue("10")
-                    .setComment("The amount of seconds to wait before restarting the server.");
-            restarter_commands = add(name, "daily-restarter", "commands","list").setDefValues(
+            restarter_commands_countdown = add(name, "daily-restarter", "commands", "countdown").setDefValues("10")
+                    .setComments("The amount of seconds to wait before restarting the server.");
+            restarter_commands = add(name, "daily-restarter", "commands","list").setDefValuess(
                     new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
                     new DYModule("3").addValue("say [Server] Server is restarting 3..."),
                     new DYModule("2").addValue("say [Server] Server is restarting 2..."),
                     new DYModule("1").addValue("say [Server] Server is restarting 1..."),
                     new DYModule("0").addValue("say [Server] Server is restarting..."))
-                    .setComments("Executes these commands as console, before restarting the server.",
+                    .setCommentss("Executes these commands as console, before restarting the server.",
                             "You can execute multiple/single commands at any given second of the countdown.");
              */
 
-            c_restarter_enabled = add(name, "custom-restarter", "enable").setDefValue("false").setComment(
+            c_restarter_enabled = add(name, "custom-restarter", "enable").setDefValues("false").setComments(
                     "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
                             "Make sure to have the other scheduler disabled.\n" +
                             "This scheduler uses a quartz-cron-expression (https://wikipedia.org/wiki/Cron) to execute the restart.");
 
-            c_restarter_cron = add(name, "custom-restarter", "cron").setDefValue("0 30 9 * * ? *").setComment(
+            c_restarter_cron = add(name, "custom-restarter", "cron").setDefValues("0 30 9 * * ? *").setComments(
                     "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
                             "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
             c_restarter_commands = add(name, "custom-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                    .setComment("Executes these server as console, 10 seconds before restarting the server.");
+                    .setComments("Executes these server as console, 10 seconds before restarting the server.");
             /*
             TODO WORK IN PROGRESS
-            c_restarter_commands_countdown = add(name, "custom-restarter", "commands", "countdown").setDefValue("10");
-            c_restarter_commands = add(name, "custom-restarter", "commands", "list").setDefValues(
+            c_restarter_commands_countdown = add(name, "custom-restarter", "commands", "countdown").setDefValues("10");
+            c_restarter_commands = add(name, "custom-restarter", "commands", "list").setDefValuess(
                     new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
                     new DYModule("3").addValue("say [Server] Server is restarting 3..."),
                     new DYModule("2").addValue("say [Server] Server is restarting 2..."),

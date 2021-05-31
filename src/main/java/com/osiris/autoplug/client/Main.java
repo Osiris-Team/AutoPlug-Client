@@ -32,6 +32,15 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // FOR TESTING
+        /*
+        BetterThreadManager manager = new BetterThreadManager();
+        BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager);
+        displayer.start();
+        BetterThread task = new BetterThread(manager);
+        AL.error
+         */
+
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
         try {

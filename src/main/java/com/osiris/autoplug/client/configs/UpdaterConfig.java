@@ -11,6 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class UpdaterConfig extends DreamYaml {
 
@@ -27,12 +32,12 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
 
-    public UpdaterConfig() {
+    public UpdaterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-updater-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment("#######################################################################################################################\n" +
+            put(name).setComments("#######################################################################################################################\n" +
                     "    ___       __       ___  __\n" +
                     "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
                     "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
@@ -49,26 +54,26 @@ public class UpdaterConfig extends DreamYaml {
                     "MANUAL: Only downloads the updates to /autoplug-downloads.\n" +
                     "AUTOMATIC: Downloads and installs updates automatically.");
 
-            self_updater = add(name, "self-updater", "enable").setDefValue("true").setComments(
+            self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
                     "AutoPlug is able to update itself automatically.",
                     "Its strongly recommended to have this feature enabled,",
                     "to benefit from new features, bug fixes and security enhancements.");
-            self_updater_profile = add(name, "self-updater", "profile").setDefValue("AUTOMATIC");
-            self_updater_build = add(name, "self-updater", "build").setDefValue("stable").setComments(
+            self_updater_profile = put(name, "self-updater", "profile").setDefValues("AUTOMATIC");
+            self_updater_build = put(name, "self-updater", "build").setDefValues("stable").setComments(
                     "Choose between 'stable' and 'beta' builds.",
                     "Stable builds are recommended.");
 
-            server_updater = add(name, "server-updater", "enable").setDefValue("false").setComment("Executed before mc server startup.");
+            server_updater = put(name, "server-updater", "enable").setDefValues("false").setComments("Executed before mc server startup.");
 
-            server_updater_profile = add(name, "server-updater", "profile").setDefValue("MANUAL");
-            server_software = add(name, "server-updater", "software").setDefValue("paper").setComment(
+            server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
+            server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                     "Select your favorite server software. Enter the name below.\n" +
                             "Currently supported:\n" +
                             "- paper (https://papermc.io/)\n" +
                             "- waterfall (https://github.com/PaperMC/Waterfall)\n" +
                             "- travertine (https://github.com/PaperMC/Travertine)\n" +
                             "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-            server_version = add(name, "server-updater", "version").setDefValue("1.16.4").setComment(
+            server_version = put(name, "server-updater", "version").setDefValues("1.16.4").setComments(
                     "Currently supported minecraft versions:\n" +
                             "- paper versions: https://papermc.io/api/v2/projects/paper\n" +
                             "- waterfall versions: https://papermc.io/api/v2/projects/waterfall\n" +
@@ -76,17 +81,17 @@ public class UpdaterConfig extends DreamYaml {
                             "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                             "Note: Remember that worlds may not be converted to older versions.\n" +
                             "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-            build_id = add(name, "server-updater", "build-id").setDefValue("0").setComment(
+            build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                     "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                             "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                             "Otherwise don't touch this. It will get incremented after every successful update automatically.");
 
 
-            plugin_updater = add(name, "plugins-updater", "enable").setDefValue("true").setComments(
+            plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
                     "Updates your plugins in to /plugins directory.",
                     "Note that there is a cool-down (that cannot be changed) of a few hours,",
                     "because the check can be very demanding for the AutoPlug-Webserver.");
-            plugin_updater_profile = add(name, "plugins-updater", "profile").setDefValue("MANUAL");
+            plugin_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
 
             validateOptions();
             save();
@@ -105,21 +110,21 @@ public class UpdaterConfig extends DreamYaml {
         } else {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + self_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
-            self_updater_profile.setValue(correction);
+            self_updater_profile.setValues(correction);
         }
 
         if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC")) {
         } else {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + server_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
-            server_updater_profile.setValue(correction);
+            server_updater_profile.setValues(correction);
         }
 
         if (uP.equals("NOTIFY") || uP.equals("MANUAL") || uP.equals("AUTOMATIC")) {
         } else {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
-            plugin_updater_profile.setValue(correction);
+            plugin_updater_profile.setValues(correction);
         }
 
     }

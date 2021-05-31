@@ -11,6 +11,11 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+
+import java.io.IOException;
 
 public class WebConfig extends DreamYaml {
 
@@ -18,12 +23,12 @@ public class WebConfig extends DreamYaml {
     public DYModule online_console_receive;
 
 
-    public WebConfig() {
+    public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         super(System.getProperty("user.dir") + "/autoplug-web-config.yml");
         try {
             load();
             String name = getFileNameWithoutExt();
-            add(name).setComment(
+            put(name).setComments(
                     "#######################################################################################################################\n" +
                             "    ___       __       ___  __\n" +
                             "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
@@ -36,11 +41,11 @@ public class WebConfig extends DreamYaml {
                             "\n" +
                             "#######################################################################################################################");
 
-            online_console_send = add(name, "online-console", "send").setDefValue("false")
+            online_console_send = put(name, "online-console", "send").setDefValues("false")
                     .setComments("Sends the recent log messages (and future messages) to the Online-Console.",
                             "To have as little impact on your server as possible, this only happens when you are logged in.");
-            online_console_receive = add(name, "online-console", "receive").setDefValue("false")
-                    .setComment("Receives messages from the Online-Console and executes them.");
+            online_console_receive = put(name, "online-console", "receive").setDefValues("false")
+                    .setComments("Receives messages from the Online-Console and executes them.");
 
             save();
 
