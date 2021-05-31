@@ -54,7 +54,7 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
     @Override
     public void close() throws IOException {
         try {
-            if (!thread.isInterrupted()) thread.interrupt();
+            if (thread != null && !thread.isInterrupted()) thread.interrupt();
         } catch (Exception e) {
             AL.warn("Failed to stop thread.", e);
         }
