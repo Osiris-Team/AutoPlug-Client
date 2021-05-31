@@ -85,7 +85,7 @@ public class BackupConfig extends DreamYaml {
                     "The cool-down prevents exactly that from happening, saves you storage space and time.",
                     "Set to 0 to disable."
             );
-            backup_server_files_upload = add(name, "server-files-backup", "upload", "enable").setDefValues("false").setComments(
+            backup_server_files_upload = put(name, "server-files-backup", "upload", "enable").setDefValues("false").setComments(
                     "Upload the newly generated backup to FTPS/SFTP server.");
             backup_server_files_upload_delete_on_complete = put(name, "server-files-backup", "upload", "delete-on-complete").setDefValues("false").setComments(
                     "Deletes the newly generated backup zip, directly after the upload was completed.");

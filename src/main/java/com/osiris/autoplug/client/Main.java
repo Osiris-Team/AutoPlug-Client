@@ -68,7 +68,7 @@ public class Main {
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
             logC.load();
             new AL().start("AutoPlug",
-                    logC.add("autoplug-logger-config", "debug").setDefValues("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    logC.put("autoplug-logger-config", "debug").setDefValues("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug-logs")
             );
 

@@ -72,10 +72,10 @@ public class PluginManager {
                             final DreamYaml ymlConfig = new DreamYaml(ymlFile);
                             ymlConfig.load();
 
-                            DYModule name = ymlConfig.add("name");
-                            DYModule version = ymlConfig.add("version");
-                            DYModule authorRaw = ymlConfig.add("author");
-                            DYModule authorsRaw = ymlConfig.add("authors");
+                            DYModule name = ymlConfig.put("name");
+                            DYModule version = ymlConfig.put("version");
+                            DYModule authorRaw = ymlConfig.put("author");
+                            DYModule authorsRaw = ymlConfig.put("authors");
                             String author = null;
                             if (!authorRaw.getValues().isEmpty())
                                 author = authorRaw.asString();
