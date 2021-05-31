@@ -98,9 +98,7 @@ public class RestarterConfig extends DreamYaml {
              */
 
         validateOptions();
-
         save();
-
     }
 
     private void validateOptions() {

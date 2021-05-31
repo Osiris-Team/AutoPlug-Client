@@ -45,7 +45,6 @@ public class LoggerConfig extends DreamYaml {
 
         extraDebugOptions();
         save();
-
     }
 
     private void extraDebugOptions() {

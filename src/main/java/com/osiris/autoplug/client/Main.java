@@ -166,7 +166,9 @@ public class Main {
             mainConnection.start();
 
             UserInput.keyboard();
-            Server.start();
+
+            if (generalConfig.server_auto_start.asBoolean())
+                Server.start();
 
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working

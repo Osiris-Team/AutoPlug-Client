@@ -45,6 +45,5 @@ public class WebConfig extends DreamYaml {
                 .setComments("Receives messages from the Online-Console and executes them.");
 
         save();
-
     }
 }

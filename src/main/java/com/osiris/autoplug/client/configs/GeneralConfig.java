@@ -19,6 +19,7 @@ import java.io.IOException;
 
 public class GeneralConfig extends DreamYaml {
     public DYModule server_key;
+    public DYModule server_auto_start;
     public DYModule server_java_version;
     public DYModule server_jar;
     public DYModule server_flags_enabled;
@@ -49,6 +50,9 @@ public class GeneralConfig extends DreamYaml {
                 "Enter your server-key here. You get the key by registering on https://autoplug.online.\n" +
                         "The key is essential to perform most of AutoPlugs main operations and it enables remote access from your account.\n" +
                         "No matter what, keep this key private to ensure your servers security!");
+
+        server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
+                "Starts your server with the start of AutoPlug.");
 
         server_java_version = put(name, "server", "java-version").setDefValues("java").setComments(
                 "This is the java version your server will be running on.\n" +

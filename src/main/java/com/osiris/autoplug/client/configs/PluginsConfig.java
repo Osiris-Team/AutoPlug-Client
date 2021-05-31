@@ -58,7 +58,8 @@ public class PluginsConfig extends DreamYaml {
                         "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
                         "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq");
 
-        keep_removed = put(name, "general", "keep-removed").setDefValues("true").setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
+        keep_removed = put(name, "general", "keep-removed").setDefValues("true")
+                .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
         PluginManager man = new PluginManager();
         List<DetailedPlugin> pls = man.getPlugins();
@@ -84,13 +85,14 @@ public class PluginsConfig extends DreamYaml {
                     AL.warn("Plugin " + pl.getName() + " is missing critical information and was excluded.");
                 }
 
+                this.setReturnDefaultWhenValueIsNullEnabled(false);
+
                 if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
                     spigotId.setValues("" + pl.getSpigotId());
                 if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
                     bukkitId.setValues("" + pl.getBukkitId());
 
-                spigotId.setReturnDefaultWhenValueIsNullEnabled(true);
-                bukkitId.setReturnDefaultWhenValueIsNullEnabled(true);
+                this.setReturnDefaultWhenValueIsNullEnabled(true);
 
                 if (!exclude.asBoolean())
                     detailedPlugins.add(

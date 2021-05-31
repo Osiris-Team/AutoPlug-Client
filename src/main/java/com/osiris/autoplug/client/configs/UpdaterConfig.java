@@ -32,7 +32,6 @@ public class UpdaterConfig extends DreamYaml {
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-updater-config.yml");
-        load();
         String name = getFileNameWithoutExt();
         put(name).setComments("#######################################################################################################################\n" +
                 "    ___       __       ___  __\n" +
@@ -92,7 +91,6 @@ public class UpdaterConfig extends DreamYaml {
 
         validateOptions();
         save();
-
     }
 
     private void validateOptions() {

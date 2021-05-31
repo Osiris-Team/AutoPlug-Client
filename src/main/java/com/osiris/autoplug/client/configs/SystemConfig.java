@@ -41,6 +41,5 @@ public class SystemConfig extends DreamYaml {
         timestamp_last_plugins_backup_task = put(name, "timestamp-last-plugins-backup-task");
 
         save();
-
     }
 }

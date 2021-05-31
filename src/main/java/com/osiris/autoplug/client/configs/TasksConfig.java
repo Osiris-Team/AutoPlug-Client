@@ -44,6 +44,5 @@ public class TasksConfig extends DreamYaml {
                         "How often a task should get refreshed and update its information. Default is: 250ms");
 
         save();
-
     }
 }
