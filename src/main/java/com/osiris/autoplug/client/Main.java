@@ -68,7 +68,7 @@ public class Main {
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
             logC.load();
             new AL().start("AutoPlug",
-                    logC.add("autoplug-logger-config", "debug").setDefValue("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    logC.add("autoplug-logger-config", "debug").setDefValues("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug-logs")
             );
 
@@ -112,28 +112,28 @@ public class Main {
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
-            allModules.addAll(generalConfig.getAllAdded());
+            allModules.addAll(generalConfig.getAll());
 
             LoggerConfig loggerConfig = new LoggerConfig();
-            allModules.addAll(loggerConfig.getAllAdded());
+            allModules.addAll(loggerConfig.getAll());
 
             WebConfig webConfig = new WebConfig();
-            allModules.addAll(webConfig.getAllAdded());
+            allModules.addAll(webConfig.getAll());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
-            //allModules.addAll(pluginsConfig.getAllAdded()); // Do not do this because its A LOT of unneeded log spam
+            //allModules.addAll(pluginsConfig.getAll()); // Do not do this because its A LOT of unneeded log spam
 
             BackupConfig backupConfig = new BackupConfig();
-            allModules.addAll(backupConfig.getAllAdded());
+            allModules.addAll(backupConfig.getAll());
 
             RestarterConfig restarterConfig = new RestarterConfig();
-            allModules.addAll(restarterConfig.getAllAdded());
+            allModules.addAll(restarterConfig.getAll());
 
             UpdaterConfig updaterConfig = new UpdaterConfig();
-            allModules.addAll(updaterConfig.getAllAdded());
+            allModules.addAll(updaterConfig.getAll());
 
             TasksConfig tasksConfig = new TasksConfig();
-            allModules.addAll(tasksConfig.getAllAdded());
+            allModules.addAll(tasksConfig.getAll());
 
             new ConfigUtils().printAllModulesToDebug(allModules);
             AL.info("Configurations loaded.");
@@ -156,7 +156,7 @@ public class Main {
                 AL.info("For that, register yourself at " + GD.OFFICIAL_WEBSITE + " and add a new server.");
                 AL.info("Enter the key below:");
                 Scanner scanner = new Scanner(System.in);
-                generalConfig.server_key.setValue(scanner.nextLine());
+                generalConfig.server_key.setValues(scanner.nextLine());
                 generalConfig.save();
             }
 

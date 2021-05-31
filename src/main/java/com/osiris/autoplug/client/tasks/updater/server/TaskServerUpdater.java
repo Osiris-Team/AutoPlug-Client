@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 
 public class TaskServerUpdater extends BetterThread {
-    private final UpdaterConfig updaterConfig = new UpdaterConfig();
+    private UpdaterConfig updaterConfig;
 
     public TaskServerUpdater(String name, BetterThreadManager manager) {
         super(name, manager);
@@ -31,6 +31,7 @@ public class TaskServerUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
+        updaterConfig = new UpdaterConfig();
         if (!updaterConfig.server_updater.asBoolean()) {
             skip();
             return;
@@ -111,7 +112,7 @@ public class TaskServerUpdater extends BetterThread {
                                 if (download.compareWithSHA256(build_hash)) {
                                     FileUtils.copyFile(cache_dest, final_dest);
                                     setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                                    config.build_id.setValue("" + latest_build_id);
+                                    config.build_id.setValues("" + latest_build_id);
                                     config.save();
                                     setSuccess(true);
                                 } else {

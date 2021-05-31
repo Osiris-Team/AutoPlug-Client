@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class TaskSelfUpdater extends BetterThread {
-    private final UpdaterConfig updaterConfig = new UpdaterConfig();
+    private UpdaterConfig updaterConfig;
 
     // These URLS are not allowed to change:
     private final String stableUpdateUrl = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Releases/master/stable-builds/update.json";
@@ -36,6 +36,7 @@ public class TaskSelfUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
+        updaterConfig = new UpdaterConfig();
 
         if (!updaterConfig.self_updater.asBoolean()) {
             skip();

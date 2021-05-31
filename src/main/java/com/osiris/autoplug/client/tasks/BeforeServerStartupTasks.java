@@ -32,11 +32,12 @@ import java.util.List;
  * Stuff that is executed before starting the minecraft server.
  */
 public class BeforeServerStartupTasks {
-    private final TasksConfig tasksConfig = new TasksConfig();
+    private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
 
         try {
+            tasksConfig = new TasksConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess
             while (!MainConnection.isDone)

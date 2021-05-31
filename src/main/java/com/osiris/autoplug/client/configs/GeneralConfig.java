@@ -109,7 +109,7 @@ public class GeneralConfig extends DreamYaml {
         }
 
         if (cool < 5) {
-            cool_down.setValue("5");
+            cool_down.setValues("5");
         }
     }
 

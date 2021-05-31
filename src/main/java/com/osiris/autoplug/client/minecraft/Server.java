@@ -13,6 +13,9 @@ import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
 
@@ -121,7 +124,7 @@ public final class Server {
         return process != null && process.isAlive();
     }
 
-    private static void createProcess(String path) throws IOException, InterruptedException {
+    private static void createProcess(String path) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         GeneralConfig config = new GeneralConfig();
         List<String> commands = new ArrayList<>();
 

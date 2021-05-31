@@ -71,7 +71,7 @@ public class TaskPluginsBackup extends BetterThread {
         }
         // Update the cool-down with current time
         SystemConfig systemConfig = new SystemConfig();
-        systemConfig.timestamp_last_plugins_backup_task.setValue(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
+        systemConfig.timestamp_last_plugins_backup_task.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
         systemConfig.save(); // Save the current timestamp to file
 
 

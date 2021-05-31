@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskPluginsUpdater extends BetterThread {
-    private final UpdaterConfig updaterConfig = new UpdaterConfig();
-    private final PluginsConfig pluginsConfig = new PluginsConfig();
+    private UpdaterConfig updaterConfig;
+    private PluginsConfig pluginsConfig;
     private final PluginsUpdaterConnection con;
     private final String userProfile = updaterConfig.plugin_updater_profile.asString();
     private final String notifyProfile = "NOTIFY";
@@ -48,6 +48,8 @@ public class TaskPluginsUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
+        pluginsConfig = new PluginsConfig();
+        updaterConfig = new UpdaterConfig();
 
         DetailedPlugin currentPl = null; // Used for exception details
         try { // Create this try/catch only for being able to close the connection
@@ -245,16 +247,16 @@ public class TaskPluginsUpdater extends BetterThread {
             getSummary().add("Plugin " + pl.getName() + " has an update available (" + pl.getVersion() + " -> " + latest + ")");
             try {
                 // Update the in-memory config
-                DYModule mLatest = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "latest-version");
-                mLatest.setValue(latest);
+                DYModule mLatest = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "latest-version");
+                mLatest.setValues(latest);
 
-                DYModule mSpigotId = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "spigot-id");
+                DYModule mSpigotId = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "spigot-id");
                 if (!resultSpigotId.equals("null")) // Because we can get a "null" string from the server
-                    mSpigotId.setValue(resultSpigotId);
+                    mSpigotId.setValues(resultSpigotId);
 
-                DYModule mBukkitId = pluginsConfig.getAddedModuleByKeys(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "bukkit-id");
+                DYModule mBukkitId = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "bukkit-id");
                 if (!resultBukkitId.equals("null")) // Because we can get a "null" string from the server
-                    mBukkitId.setValue(resultBukkitId);
+                    mBukkitId.setValues(resultBukkitId);
 
                 // The config gets saved at the end of the runAtStart method.
             } catch (Exception e) {
