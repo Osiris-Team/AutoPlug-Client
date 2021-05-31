@@ -11,9 +11,7 @@ package com.osiris.autoplug.client.configs;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -35,35 +33,33 @@ public class RestarterConfig extends DreamYaml {
     public DYModule c_restarter_cron;
     public DYModule c_restarter_commands;
 
-    public RestarterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public RestarterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-restarter-config.yml");
+        load();
+        String name = getFileNameWithoutExt();
+        put(name).setComments(
+                "#######################################################################################################################\n" +
+                        "    ___       __       ___  __\n" +
+                        "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
+                        "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
+                        " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
+                        "                                /___/ Restarter-Config\n" +
+                        "Thank you for using AutoPlug!\n" +
+                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                        "\n" +
+                        "#######################################################################################################################");
 
-        try {
-            load();
-            String name = getFileNameWithoutExt();
-            put(name).setComments(
-                    "#######################################################################################################################\n" +
-                            "    ___       __       ___  __\n" +
-                            "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
-                            "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
-                            " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                            "                                /___/ Restarter-Config\n" +
-                            "Thank you for using AutoPlug!\n" +
-                            "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                            "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
-                            "\n" +
-                            "#######################################################################################################################");
+        restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("false").setComments(
+                "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
+                        "Make sure to have the other scheduler disabled.");
 
-            restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("false").setComments(
-                    "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
-                            "Make sure to have the other scheduler disabled.");
+        restarter_times_raw = put(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComments(
+                "Restarts your server daily at the times below.\n" +
+                        "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
 
-            restarter_times_raw = put(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComments(
-                    "Restarts your server daily at the times below.\n" +
-                            "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
-
-            restarter_commands = put(name, "daily-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                    .setComments("Executes these server as console, 10 seconds before restarting the server.");
+        restarter_commands = put(name, "daily-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
+                .setComments("Executes these server as console, 10 seconds before restarting the server.");
             /*
             TODO WORK IN PROGRESS
             restarter_commands_countdown = add(name, "daily-restarter", "commands", "countdown").setDefValues("10")
@@ -78,17 +74,17 @@ public class RestarterConfig extends DreamYaml {
                             "You can execute multiple/single commands at any given second of the countdown.");
              */
 
-            c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
-                    "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
-                            "Make sure to have the other scheduler disabled.\n" +
-                            "This scheduler uses a quartz-cron-expression (https://wikipedia.org/wiki/Cron) to execute the restart.");
+        c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
+                "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
+                        "Make sure to have the other scheduler disabled.\n" +
+                        "This scheduler uses a quartz-cron-expression (https://wikipedia.org/wiki/Cron) to execute the restart.");
 
-            c_restarter_cron = put(name, "custom-restarter", "cron").setDefValues("0 30 9 * * ? *").setComments(
-                    "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
-                            "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
+        c_restarter_cron = put(name, "custom-restarter", "cron").setDefValues("0 30 9 * * ? *").setComments(
+                "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
+                        "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
-            c_restarter_commands = put(name, "custom-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                    .setComments("Executes these server as console, 10 seconds before restarting the server.");
+        c_restarter_commands = put(name, "custom-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
+                .setComments("Executes these server as console, 10 seconds before restarting the server.");
             /*
             TODO WORK IN PROGRESS
             c_restarter_commands_countdown = add(name, "custom-restarter", "commands", "countdown").setDefValues("10");
@@ -101,13 +97,9 @@ public class RestarterConfig extends DreamYaml {
             );
              */
 
-            validateOptions();
+        validateOptions();
 
-            save();
-
-        } catch (Exception e) {
-            AL.error(e);
-        }
+        save();
 
     }
 

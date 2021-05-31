@@ -17,6 +17,7 @@ import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -49,7 +50,14 @@ public class TaskPluginsUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
-        pluginsConfig = new PluginsConfig();
+        try {
+            pluginsConfig = new PluginsConfig();
+        } catch (DuplicateKeyException e) {
+            getWarnings().add(new BetterWarning(this, e, "Duplicate plugin (or plugin name from its plugin.yml) found in your plugins directory. " +
+                    "Remove it and restart AutoPlug."));
+            setSuccess(false);
+            return;
+        }
         updaterConfig = new UpdaterConfig();
         userProfile = updaterConfig.plugin_updater_profile.asString();
 

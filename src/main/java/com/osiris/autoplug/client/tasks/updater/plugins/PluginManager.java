@@ -26,8 +26,8 @@ import java.util.zip.ZipInputStream;
 public class PluginManager {
 
     @NotNull
-    public List<Plugin> getPlugins() {
-        List<Plugin> plugins = new ArrayList<>();
+    public List<DetailedPlugin> getPlugins() {
+        List<DetailedPlugin> plugins = new ArrayList<>();
 
         FileManager fm = new FileManager();
 
@@ -84,19 +84,13 @@ public class PluginManager {
                             else
                                 author = authorsRaw.asString(); // Returns only the first author
 
-                            AL.debug(this.getClass(), "Found plugin.yml with details: " + name.asString() + " " + version.asString() + " " + author);
+                            // Also check for ids
+                            int spigotId = 0;
+                            int bukkitId = 0;
+                            if (ymlConfig.get("spigot-id") != null) spigotId = ymlConfig.get("spigot-id").asInt();
+                            if (ymlConfig.get("bukkit-id") != null) bukkitId = ymlConfig.get("bukkit-id").asInt();
 
-                            boolean add = true;
-                            for (Plugin pl :
-                                    plugins) {
-                                if (pl.getName().equals(name)) {
-                                    add = false;
-                                    AL.warn("Plugin " + name.asString() + " wasn't added to the list because: duplicate plugin name");
-                                    break;
-                                }
-                            }
-                            if (add)
-                                plugins.add(new Plugin(jar.getPath(), name.asString(), version.asString(), author));
+                            plugins.add(new DetailedPlugin(jar.getPath(), name.asString(), version.asString(), author, spigotId, bukkitId, null));
                         }
                         // Get next file in zip
                         ze = zis.getNextEntry();

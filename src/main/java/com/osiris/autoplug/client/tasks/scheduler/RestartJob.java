@@ -11,9 +11,7 @@ package com.osiris.autoplug.client.tasks.scheduler;
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -43,7 +41,8 @@ public class RestartJob implements Job {
             Thread.sleep(10000);
             //Restart the server
             Server.restart();
-        } catch (@NotNull InterruptedException | IOException | DuplicateKeyException | DYReaderException | IllegalListException e) {
+        } catch (@NotNull InterruptedException | IOException | DuplicateKeyException | DYReaderException
+                | IllegalListException | DYWriterException | NotLoadedException | IllegalKeyException e) {
             AL.warn("Error while executing restart!", e);
         }
 

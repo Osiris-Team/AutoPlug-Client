@@ -25,7 +25,7 @@ public class ConfigUtils {
         try {
             for (DYModule module :
                     modules) {
-                AL.debug(this.getClass(), "Setting value " + module.getKeys() + ": " + module.getValues() + " Default: " + module.getDefaultValues());
+                AL.debug(this.getClass(), module.getModuleInformationAsString());
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);

@@ -8,12 +8,9 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
@@ -23,34 +20,31 @@ public class WebConfig extends DreamYaml {
     public DYModule online_console_receive;
 
 
-    public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-web-config.yml");
-        try {
-            load();
-            String name = getFileNameWithoutExt();
-            put(name).setComments(
-                    "#######################################################################################################################\n" +
-                            "    ___       __       ___  __\n" +
-                            "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
-                            "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
-                            " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                            "                                /___/ Web-Config\n" +
-                            "Thank you for using AutoPlug!\n" +
-                            "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                            "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
-                            "\n" +
-                            "#######################################################################################################################");
 
-            online_console_send = put(name, "online-console", "send").setDefValues("false")
-                    .setComments("Sends the recent log messages (and future messages) to the Online-Console.",
-                            "To have as little impact on your server as possible, this only happens when you are logged in.");
-            online_console_receive = put(name, "online-console", "receive").setDefValues("false")
-                    .setComments("Receives messages from the Online-Console and executes them.");
+        load();
+        String name = getFileNameWithoutExt();
+        put(name).setComments(
+                "#######################################################################################################################\n" +
+                        "    ___       __       ___  __\n" +
+                        "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
+                        "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
+                        " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
+                        "                                /___/ Web-Config\n" +
+                        "Thank you for using AutoPlug!\n" +
+                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                        "\n" +
+                        "#######################################################################################################################");
 
-            save();
+        online_console_send = put(name, "online-console", "send").setDefValues("false")
+                .setComments("Sends the recent log messages (and future messages) to the Online-Console.",
+                        "To have as little impact on your server as possible, this only happens when you are logged in.");
+        online_console_receive = put(name, "online-console", "receive").setDefValues("false")
+                .setComments("Receives messages from the Online-Console and executes them.");
 
-        } catch (Exception e) {
-            AL.error(e);
-        }
+        save();
+
     }
 }

@@ -114,28 +114,28 @@ public class Main {
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
-            allModules.addAll(generalConfig.getAll());
+            allModules.addAll(generalConfig.getAllInEdit());
 
             LoggerConfig loggerConfig = new LoggerConfig();
-            allModules.addAll(loggerConfig.getAll());
+            allModules.addAll(loggerConfig.getAllInEdit());
 
             WebConfig webConfig = new WebConfig();
-            allModules.addAll(webConfig.getAll());
+            allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
-            //allModules.addAll(pluginsConfig.getAll()); // Do not do this because its A LOT of unneeded log spam
+            //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
             BackupConfig backupConfig = new BackupConfig();
-            allModules.addAll(backupConfig.getAll());
+            allModules.addAll(backupConfig.getAllInEdit());
 
             RestarterConfig restarterConfig = new RestarterConfig();
-            allModules.addAll(restarterConfig.getAll());
+            allModules.addAll(restarterConfig.getAllInEdit());
 
             UpdaterConfig updaterConfig = new UpdaterConfig();
-            allModules.addAll(updaterConfig.getAll());
+            allModules.addAll(updaterConfig.getAllInEdit());
 
             TasksConfig tasksConfig = new TasksConfig();
-            allModules.addAll(tasksConfig.getAll());
+            allModules.addAll(tasksConfig.getAllInEdit());
 
             new ConfigUtils().printAllModulesToDebug(allModules);
             AL.info("Configurations loaded.");
