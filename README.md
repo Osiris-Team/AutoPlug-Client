@@ -16,17 +16,27 @@ Then there is some more stuff:
  - note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
-If you have never contributed before, we recommend you to read [this](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) article. 
-If you are planing to do big changes, create an issue first, where you explain what you want to do.
-Thank you in advance for every contribution!
+
+If you have never contributed before, we recommend you to read
+the [Beginners Article](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/). If you are
+planing to do big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
+contribution!
+
+This project was built with [Maven](https://maven.apache.org/) (profiles: clean package) in IntelliJ IDEA. If you don't
+know how to import a GitHub project checkout this guides:
+
+- For IntelliJ IDEA checkout the [Contribute Guide](https://www.jetbrains.com/help/idea/contribute-to-projects.html) and
+  the [Cloning Guide](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ## AutoPlug-Client | Libraries
-- [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug projects in one jar.
+
+- [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug
+  projects in one jar.
 - [Dream-Yaml](https://github.com/Osiris-Team/Dream-Yaml) is used for handling YAML files.
 - [Better-Thread](https://github.com/Osiris-Team/Better-Thread) enables display of 'live-tasks'.
 - For console coloring and task display [Jansi](https://github.com/fusesource/jansi) is used.
 - [HtmlUnit](https://htmlunit.sourceforge.io/) simulates a browser and enables downloading plugin updates.
-- [Zip4j](https://github.com/srikanth-lingala/zip4j) to unpack and handle jar/zips. 
+- [Zip4j](https://github.com/srikanth-lingala/zip4j) to unpack and handle jar/zips.
 - Server restarts are scheduled with [Quartz](http://www.quartz-scheduler.org/).
 
 ## Tags

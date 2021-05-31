@@ -37,7 +37,7 @@ public class BeforeServerStartupTasks {
 
     public BeforeServerStartupTasks() {
         BetterThreadManager man = null;
-        BetterThreadDisplayer dis; // We have our own way of displaying the warnings, that's why its set to false
+        BetterThreadDisplayer dis = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
             tasksConfig = new TasksConfig();
 
@@ -109,12 +109,23 @@ public class BeforeServerStartupTasks {
                 if (man != null)
                     for (BetterThread t :
                             man.getAll()) {
-                        if (t != null && !t.isInterrupted())
-                            t.interrupt();
+                        try {
+                            if (t != null && !t.isInterrupted())
+                                t.interrupt();
+                        } catch (Exception exception) {
+                            AL.warn(exception);
+                        }
                     }
             } catch (Exception exception) {
                 AL.warn(exception);
             }
+            try {
+                if (dis != null && !dis.isInterrupted())
+                    dis.interrupt();
+            } catch (Exception exception) {
+                AL.warn(exception);
+            }
+
             AL.warn("Severe error while executing before server startup tasks!", e);
         }
 
@@ -127,12 +138,10 @@ public class BeforeServerStartupTasks {
                     t.getSummary()) {
                 AL.info(s);
             }
-
         }
     }
 
     private void printWarnings(@NotNull List<BetterWarning> allWarnings) {
-
         for (BetterWarning w :
                 allWarnings) {
             AL.warn(w.getException(), w.getExtraInfo());

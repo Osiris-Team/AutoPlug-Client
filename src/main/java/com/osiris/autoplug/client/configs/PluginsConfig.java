@@ -75,6 +75,7 @@ public class PluginsConfig extends DreamYaml {
                 DYModule spigotId = put(name, plName, "spigot-id").setDefValues("0");
                 //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                 DYModule bukkitId = put(name, plName, "bukkit-id").setDefValues("0");
+
                 DYModule customLink = put(name, plName, "c-link");
 
                 if ((pl.getVersion() == null || pl.getVersion().isEmpty()) ||
@@ -83,10 +84,13 @@ public class PluginsConfig extends DreamYaml {
                     AL.warn("Plugin " + pl.getName() + " is missing critical information and was excluded.");
                 }
 
-                if (pl.getSpigotId() != 0)
+                if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
                     spigotId.setValues("" + pl.getSpigotId());
-                if (pl.getBukkitId() != 0)
+                if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
                     bukkitId.setValues("" + pl.getBukkitId());
+
+                spigotId.setReturnDefaultWhenValueIsNullEnabled(true);
+                bukkitId.setReturnDefaultWhenValueIsNullEnabled(true);
 
                 if (!exclude.asBoolean())
                     detailedPlugins.add(
