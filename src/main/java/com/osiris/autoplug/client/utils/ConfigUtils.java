@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.utils.UtilsDYModule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,9 +24,10 @@ public class ConfigUtils {
 
     public void printAllModulesToDebug(@NotNull List<DYModule> modules) {
         try {
+            UtilsDYModule utils = new UtilsDYModule();
             for (DYModule module :
                     modules) {
-                AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + module.getValues().toString() + " DEF: " + module.getDefValues().toString());
+                AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + utils.valuesListToStringList(module.getValues()).toString() + " DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);

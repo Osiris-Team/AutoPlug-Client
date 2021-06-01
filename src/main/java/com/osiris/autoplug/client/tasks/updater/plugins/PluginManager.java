@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -84,11 +85,24 @@ public class PluginManager {
                             else
                                 author = authorsRaw.asString(); // Returns only the first author
 
-                            // Also check for ids
+                            // Why this is done? Because each plugin.yml file stores its authors list differently (Array or List, or numbers idk, or some other stuff...)
+                            // and all we want is just a simple list. This causes errors.
+                            // We get the list as a String, remove all "[]" brackets and " "(spaces) so we get a list of names only separated by commas
+                            // That is then sliced into a list.
+                            // Before: [name1, name2]
+                            // After: name1,name2
+                            if (author != null) author = Arrays.asList(
+                                    author.replaceAll("[\\[\\]]", "")
+                                            .split(","))
+                                    .get(0);
+
+                            // Also check for ids in the plugin.yml
                             int spigotId = 0;
                             int bukkitId = 0;
-                            if (ymlConfig.get("spigot-id") != null) spigotId = ymlConfig.get("spigot-id").asInt();
-                            if (ymlConfig.get("bukkit-id") != null) bukkitId = ymlConfig.get("bukkit-id").asInt();
+                            DYModule mSpigotId = ymlConfig.get("spigot-id");
+                            DYModule mBukkitId = ymlConfig.get("bukkit-id");
+                            if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
+                            if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
                             plugins.add(new DetailedPlugin(jar.getPath(), name.asString(), version.asString(), author, spigotId, bukkitId, null));
                         }
