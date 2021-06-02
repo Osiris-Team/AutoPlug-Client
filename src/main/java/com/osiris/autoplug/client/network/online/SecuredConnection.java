@@ -47,16 +47,14 @@ public class SecuredConnection {
      * @throws Exception if authentication fails. Details are in the message.
      */
     public SecuredConnection(byte con_type) throws Exception {
-        int counter = 1;
-        while (counter < 11) {
+        for (int i = 1; i < 4; i++) {
             try {
-                counter++;
                 AL.debug(this.getClass(), "Connecting to AutoPlug-Web...");
                 connect(GD.OFFICIAL_WEBSITE_IP, 35555);
                 break;
             } catch (Exception ex) {
                 //ex.printStackTrace();
-                AL.warn("Error connecting to the AutoPlug-Web(" + counter + "/10). Retrying in 5 seconds...", ex);
+                AL.warn("Error connecting to AutoPlug-Web(" + i + "/3). Retrying in 5 seconds.", ex);
                 try {
                     Thread.sleep(5000);
                 } catch (Exception e) {
@@ -66,7 +64,18 @@ public class SecuredConnection {
         }
 
         if (socket == null || socket.isClosed() || !socket.isConnected())
-            throw new Exception("Failed to connect to the online server after retrying 10 times. Please try again later.");
+            throw new Exception("Failed to connect to AutoPlug-Web! Please try again later.");
+
+        // DDOS protection
+        int punishment = new DataInputStream(input).readInt();
+        if (punishment > 0) {
+            AL.warn("Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
+            Thread.sleep(punishment + 250); // + 250ms, just to be safe
+            connect(GD.OFFICIAL_WEBSITE_IP, 35555);
+        }
+
+        if (socket == null || socket.isClosed() || !socket.isConnected())
+            throw new Exception("Failed to connect to AutoPlug-Web! Please try again later.");
 
         DataInputStream dis = new DataInputStream(input);
         DataOutputStream dos = new DataOutputStream(output);

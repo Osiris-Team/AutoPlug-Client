@@ -44,8 +44,8 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
     }
 
     public static synchronized void send(@NotNull String message) throws Exception {
-        if (!message.contains("\n")) {
-            bw.write(message + "\n");
+        if (!message.contains(System.lineSeparator())) {
+            bw.write(message + System.lineSeparator());
         } else {
             bw.write(message);
         }
