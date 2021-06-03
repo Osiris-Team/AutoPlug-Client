@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.Socket;
 import java.util.Date;
 
 
@@ -38,6 +37,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
             AL.warn("Failed to send message to online console!", e);
         }
     };
+    private static Thread thread;
 
     public OnlineConsoleSendConnection() {
         super((byte) 2);  // Each connection has its own auth_id.
@@ -56,29 +56,30 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        try {
-            if (new WebConfig().online_console_send.asBoolean()) {
-                super.open();
-                if (bw == null) {
-                    Socket socket = getSocket();
-                    socket.setSoTimeout(0);
-                    bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                    while (Server.NB_PIPED_IN == null)
-                        Thread.sleep(1000); // Wait until we got a server outputstream
+        if (thread == null)
+            thread = new Thread(() -> {
+                try {
+                    if (new WebConfig().online_console_send.asBoolean()) {
+                        super.open();
+                        if (bw == null) {
+                            getSocket().setSoTimeout(0);
+                            bw = new BufferedWriter(new OutputStreamWriter(getOut()));
+                            while (Server.NB_PIPED_IN == null)
+                                Thread.sleep(1000); // Wait until we got a server outputstream
 
-                    Server.NB_PIPED_IN.actionsOnWriteLineEvent.add(action);
+                            Server.NB_PIPED_IN.actionsOnWriteLineEvent.add(action);
+                        }
+                        AL.debug(this.getClass(), "Online-Console-SEND connected.");
+                        send("Online-Console-SEND connected at " + new Date() + ".");
+                    } else {
+                        AL.debug(this.getClass(), "Online-Console-SEND functionality is disabled.");
+                    }
+                } catch (Exception e) {
+                    AL.warn(e, "There was an error connecting to the Online-Console.");
                 }
-                AL.debug(this.getClass(), "Online-Console-SEND connected.");
-                send("Online-Console-SEND connected at " + new Date() + ".");
-                return true;
-            } else {
-                AL.debug(this.getClass(), "Online-Console-SEND functionality is disabled.");
-                return false;
-            }
-        } catch (Exception e) {
-            AL.warn(e, "There was an error connecting to the Online-Console.");
-        }
-
+            });
+        else
+            return false;
         return true;
     }
 
@@ -86,9 +87,17 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
     public void close() throws IOException {
 
         try {
-            Server.NB_PIPED_IN.actionsOnWriteLineEvent.remove(action);
+            if (Server.NB_PIPED_IN != null)
+                Server.NB_PIPED_IN.actionsOnWriteLineEvent.remove(action);
         } catch (Exception ignored) {
         }
+
+        try {
+            if (thread != null && !thread.isInterrupted()) thread.interrupt();
+        } catch (Exception e) {
+            AL.warn("Failed to stop thread.", e);
+        }
+        thread = null;
 
         try {
             if (bw != null)
@@ -96,13 +105,12 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
         } catch (Exception e) {
             AL.warn("Failed to close writer.", e);
         }
+        bw = null;
 
         try {
             super.close();
         } catch (Exception e) {
             AL.warn("Failed to close connection.", e);
         }
-
-        bw = null;
     }
 }

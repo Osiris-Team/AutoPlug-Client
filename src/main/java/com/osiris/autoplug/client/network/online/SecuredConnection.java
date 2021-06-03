@@ -32,9 +32,13 @@ import java.net.Socket;
  * Must be extended by each connection.
  */
 public class SecuredConnection {
+    private final byte conType;
     private Socket socket;
     private InputStream input;
     private OutputStream output;
+    private DataInputStream dataIn;
+    private DataOutputStream dataOut;
+
 
     /**
      * Creates a new secured connection to the AutoPlug server.
@@ -47,60 +51,46 @@ public class SecuredConnection {
      * @throws Exception if authentication fails. Details are in the message.
      */
     public SecuredConnection(byte con_type) throws Exception {
-        for (int i = 1; i < 4; i++) {
-            try {
-                AL.debug(this.getClass(), "Connecting to AutoPlug-Web...");
-                connect(GD.OFFICIAL_WEBSITE_IP, 35555);
-                break;
-            } catch (Exception ex) {
-                //ex.printStackTrace();
-                AL.warn("Error connecting to AutoPlug-Web(" + i + "/3). Retrying in 5 seconds.", ex);
-                try {
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    AL.error(e);
-                }
-            }
-        }
-
-        if (socket == null || socket.isClosed() || !socket.isConnected())
-            throw new Exception("Failed to connect to AutoPlug-Web! Please try again later.");
-
-        // DDOS protection
-        int punishment = new DataInputStream(input).readInt();
-        if (punishment > 0) {
-            AL.warn("Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
-            Thread.sleep(punishment + 250); // + 250ms, just to be safe
+        this.conType = con_type;
+        while (true) {
+            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connecting to AutoPlug-Web...");
             connect(GD.OFFICIAL_WEBSITE_IP, 35555);
-        }
 
-        if (socket == null || socket.isClosed() || !socket.isConnected())
-            throw new Exception("Failed to connect to AutoPlug-Web! Please try again later.");
+            // DDOS protection
+            int punishment = dataIn.readInt();
+            if (punishment == 0) {
+                AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connected to AutoPlug-Web successfully!");
+                break;
+            }
+
+            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
+            Thread.sleep(punishment + 250); // + 250ms, just to be safe
+        }
 
         DataInputStream dis = new DataInputStream(input);
         DataOutputStream dos = new DataOutputStream(output);
 
-        AL.debug(this.getClass(), "Authenticating server-key from con-type: " + con_type);
+        AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticating server with Server-Key...");
         dos.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
         dos.writeByte(con_type); // Send connection type
 
         byte response = dis.readByte(); // Get response
         switch (response) {
             case 0:
-                AL.debug(this.getClass(), "Authentication succeeded!");
+                AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticated server successfully!");
                 break;
             case 1:
-                throw new Exception("Authentication failed (code:" + response + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
             case 2:
-                throw new Exception("Authentication failed (code:" + response + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
             case 3:
-                throw new Exception("Authentication failed (code:" + response + "): Make sure that the primary connection is established before all the secondary connections!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Make sure that the primary connection is established before all the secondary connections!");
             case 4:
-                throw new Exception("Authentication failed (code:" + response + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
             case 5:
-                throw new Exception("Authentication failed (code:" + response + "): No user account found for the provided server key!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): No user account found for the provided server key!");
             default:
-                throw new Exception("Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
         }
     }
 
@@ -129,6 +119,8 @@ public class SecuredConnection {
         socket.setSoTimeout(30000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
+        dataIn = new DataInputStream(input);
+        dataOut = new DataOutputStream(output);
     }
 
     private void registerHandshakeCallback(@NotNull Socket socket) {
@@ -136,14 +128,10 @@ public class SecuredConnection {
                 new HandshakeCompletedListener() {
                     public void handshakeCompleted(
                             @NotNull HandshakeCompletedEvent event) {
-                        AL.debug(this.getClass(),
-                                "Handshake finished!");
-                        AL.debug(this.getClass(),
-                                "CipherSuite:" + event.getCipherSuite());
-                        AL.debug(this.getClass(),
-                                "SessionId " + event.getSession());
-                        AL.debug(this.getClass(),
-                                "PeerHost " + event.getSession().getPeerHost());
+                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Handshake finished!");
+                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] CipherSuite:" + event.getCipherSuite());
+                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] SessionId " + event.getSession());
+                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] PeerHost " + event.getSession().getPeerHost());
                     }
                 }
         );
@@ -159,5 +147,13 @@ public class SecuredConnection {
 
     public OutputStream getOutput() {
         return output;
+    }
+
+    public DataInputStream getDataIn() {
+        return dataIn;
+    }
+
+    public DataOutputStream getDataOut() {
+        return dataOut;
     }
 }
