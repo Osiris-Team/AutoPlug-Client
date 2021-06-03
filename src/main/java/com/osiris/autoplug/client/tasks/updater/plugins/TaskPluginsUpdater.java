@@ -277,7 +277,7 @@ public class TaskPluginsUpdater extends BetterThread {
             if (userProfile.equals(notifyProfile)) {
                 // Do nothing more
             } else {
-                if (type.equals(".jar")) {
+                if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                     if (userProfile.equals(manualProfile)) {
                         File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + pl.getName() + "[" + latest + "].jar");
                         new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest)

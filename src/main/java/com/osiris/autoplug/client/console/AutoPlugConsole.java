@@ -19,8 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public final class AutoPlugConsole {
 
     /**
-     * Returns true if the provided String is a command
-     * and was executed successfully.
+     * Returns true if the provided String is a AutoPlug command.
      *
      * @param command An AutoPlug command like .help for example.
      */
@@ -35,7 +34,6 @@ public final class AutoPlugConsole {
 
         if (first.equals(".")) {
             try {
-
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info("All available AutoPlug-Console commands:");
@@ -73,16 +71,14 @@ public final class AutoPlugConsole {
                     return true;
                 } else {
                     AL.info("Command not found! Enter .help or .h for all available server!");
-                    return false;
+                    return true;
                 }
-
             } catch (Exception e) {
                 AL.warn("Error at execution of '" + command + "' command!", e);
-                return false;
+                return true;
             }
-        } else {
+        } else
             return false;
-        }
     }
 
 

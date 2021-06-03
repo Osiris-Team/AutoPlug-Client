@@ -13,9 +13,12 @@ import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BetterThreadDisplayer;
+import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import org.fusesource.jansi.AnsiConsole;
@@ -34,14 +37,42 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // FOR TESTING
-        /*
-        BetterThreadManager manager = new BetterThreadManager();
-        BetterThreadDisplayer displayer = new BetterThreadDisplayer(manager);
-        displayer.start();
-        BetterThread task = new BetterThread(manager);
-        AL.error
-         */
+        if (args != null) {
+            List<String> argsList = Arrays.asList(args);
+            if (argsList.contains("-test")) { // For testing stuff
+                new AL().start();
+                try {
+                    BetterThreadManager man = new BetterThreadManager();
+                    BetterThreadDisplayer dis = new BetterThreadDisplayer(man);
+                    dis.start();
+
+                    TaskPluginDownload download = new TaskPluginDownload("Downloader", man,
+                            "Autorank",
+                            "LATEST", "https://api.spiget.org/v2/resources/3239/download", "MANUAL",
+                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
+                    download.start();
+
+                    TaskPluginDownload download1 = new TaskPluginDownload("Downloader", man,
+                            "UltimateChat",
+                            "LATEST", "https://api.spiget.org/v2/resources/23767/download", "MANUAL",
+                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
+                    download1.start();
+
+                    TaskPluginDownload download2 = new TaskPluginDownload("Downloader", man,
+                            "ViaRewind",
+                            "LATEST", "https://api.spiget.org/v2/resources/52109/download", "MANUAL",
+                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
+                    download2.start();
+
+
+                    while (!download.isFinished() || !download1.isFinished() || !download2.isFinished())
+                        Thread.sleep(500);
+                } catch (Exception e) {
+                    AL.error(e);
+                }
+                return; // Stop the program
+            }
+        }
 
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.

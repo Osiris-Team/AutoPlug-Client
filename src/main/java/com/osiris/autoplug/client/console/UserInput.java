@@ -13,8 +13,10 @@ import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 
 import static com.osiris.autoplug.core.logger.AL.info;
 import static com.osiris.betterthread.Constants.TERMINAL;
@@ -33,36 +35,39 @@ public class UserInput {
                             .build();
 
                     while (true) {
+                        String user_input = null;
+                        try {
+                            user_input = lineReader.readLine();
 
-                        // Get user input
-                        String user_input = lineReader.readLine(); // scanner.nextLine(); // Old
+                            // Send to online console
+                            if (MainConnection.CON_CONSOLE_SEND.isConnected())
+                                try {
+                                    OnlineConsoleSendConnection.send(user_input);
+                                } catch (Exception e) {
+                                    AL.warn(e);
+                                }
 
+                            //Check if user input is autoplug command or not
+                            if (AutoPlugConsole.executeCommand(user_input)) {
 
-                        // Send to online console
-                        if (MainConnection.CON_CONSOLE_SEND.isConnected())
-                            try {
-                                OnlineConsoleSendConnection.send(user_input);
-                            } catch (Exception e) {
-                                AL.warn(e);
+                                //Do nothing else if it is a client command, just save it to log file
+                                try {
+                                    LogFileWriter.writeToLog(user_input);
+                                } catch (Exception e) {
+                                    AL.warn(e, "Failed to write command to log file.");
+                                }
+
+                            } else if (Server.isRunning()) {
+                                Server.submitCommand(user_input);
+                            } else {
+                                info("Enter .help for all available server!");
                             }
 
-
-                        //Check if user input is autoplug command or not
-                        if (AutoPlugConsole.executeCommand(user_input)) {
-
-                            //Do nothing else if it is a client command, just save it to log file
-                            try {
-                                LogFileWriter.writeToLog(user_input);
-                            } catch (Exception e) {
-                                AL.warn(e, "Failed to write command to log file.");
-                            }
-
-                        } else if (Server.isRunning()) {
-                            Server.submitCommand(user_input);
-                        } else {
-                            info("Enter .help for all available server!");
+                        } catch (UserInterruptException e) {
+                            // Ignore
+                        } catch (EndOfFileException e) {
+                            return;
                         }
-
                     }
                 } catch (Exception e) {
                     AL.warn(e);

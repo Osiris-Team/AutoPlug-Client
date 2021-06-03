@@ -114,7 +114,13 @@ public class TaskPluginDownload extends BetterThread {
 
         ResponseBody body = response.body();
         if (body == null)
-            throw new Exception("Download failed because of empty response body!");
+            throw new Exception("Download failed because of null response body!");
+        else if (body.contentType() == null)
+            throw new Exception("Download failed because of null content type!");
+        else if (!body.contentType().type().equals("application"))
+            throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
+        else if (!body.contentType().subtype().equals("java-archive") && !body.contentType().subtype().equals("jar"))
+            throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
 
         long completeFileSize = body.contentLength();
         setMax(completeFileSize);

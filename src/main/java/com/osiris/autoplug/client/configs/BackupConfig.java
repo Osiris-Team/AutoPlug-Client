@@ -71,24 +71,24 @@ public class BackupConfig extends DreamYaml {
                         "#######################################################################################################################");
 
         backup_server_files = put(name, "server-files-backup", "enable").setDefValues("false").setComments(
-                "Backups all files in root (except folders) to /autoplug-backups/server/...zip.");
+                "Backups all files in your servers root (except folders) to /autoplug-backups/server/...zip.");
         backup_server_files_max_days = put(name, "server-files-backup", "max-days").setDefValues("7").setComments(
                 "Set max-days to 0 if you want to keep your backups forever.");
         backup_server_files_cool_down = put(name, "server-files-backup", "cool-down").setDefValues("60").setComments(
                 "The cool-down for this task in minutes.",
                 "If you restart your server multiple times in a short amount of time,",
                 "you probably won't want to create backups each time you restart your server.",
-                "The cool-down prevents exactly that from happening, saves you storage space and time.",
+                "The cool-down prevents exactly that from happening and saves you storage space and time.",
                 "Set to 0 to disable."
         );
         backup_server_files_upload = put(name, "server-files-backup", "upload", "enable").setDefValues("false").setComments(
-                "Upload the newly generated backup to FTPS/SFTP server.");
+                "Upload the newly generated backup zip to the FTPS/SFTP server.");
         backup_server_files_upload_delete_on_complete = put(name, "server-files-backup", "upload", "delete-on-complete").setDefValues("false").setComments(
-                "Deletes the newly generated backup zip, directly after the upload was completed.");
+                "Deletes the newly generated backup zip, directly after uploading finishes.");
         backup_server_files_upload_host = put(name, "server-files-backup", "upload", "host").setComments(
-                "Set hostname of FTPS/SFTP server.");
+                "Hostname of the FTPS/SFTP server.");
         backup_server_files_upload_port = put(name, "server-files-backup", "upload", "port").setComments(
-                "Set port of FTPS/SFTP server.");
+                "Port of the FTPS/SFTP server.");
         backup_server_files_upload_user = put(name, "server-files-backup", "upload", "username");
         backup_server_files_upload_password = put(name, "server-files-backup", "upload", "password");
         backup_server_files_upload_path = put(name, "server-files-backup", "upload", "path").setComments(

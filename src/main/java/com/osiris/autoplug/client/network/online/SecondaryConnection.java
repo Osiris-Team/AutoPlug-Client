@@ -8,9 +8,7 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -25,6 +23,8 @@ public class SecondaryConnection {
     private Socket socket;
     private InputStream in;
     private OutputStream out;
+    private DataInputStream dataIn;
+    private DataOutputStream dataOut;
 
     public SecondaryConnection(byte auth_id) {
         this.auth_id = auth_id;
@@ -35,6 +35,8 @@ public class SecondaryConnection {
         socket = auth.getSocket();
         in = auth.getInput();
         out = auth.getOutput();
+        dataIn = auth.getDataIn();
+        dataOut = auth.getDataOut();
         return true;
     }
 
@@ -62,5 +64,13 @@ public class SecondaryConnection {
 
     public OutputStream getOut() {
         return out;
+    }
+
+    public DataInputStream getDataIn() {
+        return dataIn;
+    }
+
+    public DataOutputStream getDataOut() {
+        return dataOut;
     }
 }

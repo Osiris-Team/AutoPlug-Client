@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.Socket;
 
 /**
  * The user can send commands through the online console.<br>
@@ -36,9 +35,8 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
         if (thread == null)
             thread = new Thread(() -> {
                 try {
-                    Socket socket = getSocket();
-                    socket.setSoTimeout(0);
-                    DataInputStream dis = new DataInputStream(socket.getInputStream());
+                    getSocket().setSoTimeout(0);
+                    DataInputStream dis = getDataIn();
                     while (true) {
                         String command = dis.readUTF();
                         Server.submitCommand(command);

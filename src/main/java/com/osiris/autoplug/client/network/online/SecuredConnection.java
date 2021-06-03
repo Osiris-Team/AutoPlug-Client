@@ -17,8 +17,6 @@ import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.DataInputStream;
@@ -124,15 +122,11 @@ public class SecuredConnection {
     }
 
     private void registerHandshakeCallback(@NotNull Socket socket) {
-        ((SSLSocket) socket).addHandshakeCompletedListener(
-                new HandshakeCompletedListener() {
-                    public void handshakeCompleted(
-                            @NotNull HandshakeCompletedEvent event) {
-                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Handshake finished!");
-                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] CipherSuite:" + event.getCipherSuite());
-                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] SessionId " + event.getSession());
-                        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] PeerHost " + event.getSession().getPeerHost());
-                    }
+        ((SSLSocket) socket).addHandshakeCompletedListener(event -> {
+                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] Handshake finished!");
+                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] CipherSuite:" + event.getCipherSuite());
+                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] SessionId " + event.getSession());
+                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] PeerHost " + event.getSession().getPeerHost());
                 }
         );
     }

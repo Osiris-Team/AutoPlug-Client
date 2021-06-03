@@ -26,7 +26,6 @@ public class GeneralConfig extends DreamYaml {
     public DYModule server_flags_list;
     public DYModule server_arguments_enabled;
     public DYModule server_arguments_list;
-    public DYModule cool_down;
 
     public GeneralConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-general-config.yml");
@@ -47,8 +46,8 @@ public class GeneralConfig extends DreamYaml {
 
 
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
-                "Enter your server-key here. You get the key by registering on https://autoplug.online.\n" +
-                        "The key is essential to perform most of AutoPlugs main operations and it enables remote access from your account.\n" +
+                "Enter your Server-Key here. You get the key by registering yourself and your server on https://autoplug.online.\n" +
+                        "The Server-Key is essential to perform most of AutoPlugs main operations and it enables remote access from your account.\n" +
                         "No matter what, keep this key private to ensure your servers security!");
 
         server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
@@ -58,23 +57,27 @@ public class GeneralConfig extends DreamYaml {
                 "This is the java version your server will be running on.\n" +
                         "If you plan to use a specific version of java or you don't have the java path as a System-PATH variable, enter its path here.\n" +
                         "Otherwise leave it as it is.\n" +
-                        "Example for windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe");
+                        "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe");
 
         server_jar = put(name, "server", "jar").setDefValues("auto-find").setComments(
-                "The auto-find feature will scan through your root directory and find the first jar with another name than AutoPlugLauncher.jar.\n" +
+                "The auto-find feature will scan through your servers root directory and find the first jar with another name than AutoPlug-Client.jar.\n" +
                         "The auto-find feature will fail if...\n" +
-                        "... you have more than 2 jars in your root directory.\n" +
+                        "... you have more than 2 jars in your servers root directory (AutoPlug-Client.jar included).\n" +
                         "... your server jar is located in another directory.\n" +
-                        "You can fix this by entering its file path (linux and windows formats are supported)\n" +
-                        "or by entering its file name below, without its .jar file extension (only if AutoPlug is also in the root directory).");
+                        "You can fix this by entering its file path (Linux and Windows formats are supported)\n" +
+                        "or by entering its file name below, without its .jar file extension (only if AutoPlug-Client is also in the servers root directory).");
 
         server_flags_enabled = put(name, "server", "flags", "enable").setDefValues("true").setComments(
-                "If you were using java startup flags, add them to the list below.\n" +
-                        "Java startup flags are passed before the -jar part. Example: 'java <flags> -jar ...'\n" +
-                        "For flags like - -XX:+UseG1GC (with 2 bars) remove one bar, so it looks like this in the list: - XX:+UseG1GC\n" +
-                        "More on this topic:\n" +
-                        "https://forums.spongepowered.org/t/optimized-startup-flags-for-consistent-garbage-collection/13239\n" +
-                        "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
+                "If you were using java startup flags, add them to the list below.",
+                "Java startup flags are passed before the -jar part. Example: 'java <flags> -jar ...'",
+                "The hyphen(-) in the list below is part of the flag. This is how a flag should look like in the list:",
+                "Correct:",
+                " - XX:+UseG1GC",
+                "Wrong:",
+                " - \"- XX:+UseG1GC\"",
+                "More on this topic:",
+                "https://forums.spongepowered.org/t/optimized-startup-flags-for-consistent-garbage-collection/13239",
+                "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
         server_flags_list = put(name, "server", "flags", "list").setDefValues("Xms2G", "Xmx2G");
 
         server_arguments_enabled = put(name, "server", "arguments", "enable").setDefValues("true").setComments(
@@ -88,9 +91,6 @@ public class GeneralConfig extends DreamYaml {
                         "https://www.spigotmc.org/wiki/start-up-parameters");
         server_arguments_list = put(name, "server", "arguments", "list").setDefValues("--nogui");
 
-
-        cool_down = put(name, "cool-down").setDefValues("5").setComments("Determines the 'before startup tasks' cool-down in minutes. Minimum is 5.");
-
         validateOptions();
         save();
 
@@ -98,15 +98,6 @@ public class GeneralConfig extends DreamYaml {
     }
 
     private void validateOptions() {
-        int cool = 0;
-        try {
-            cool = cool_down.asInt();
-        } catch (Exception ignored) {
-        }
-
-        if (cool < 5) {
-            cool_down.setValues("5");
-        }
     }
 
 

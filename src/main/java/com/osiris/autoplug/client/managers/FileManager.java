@@ -204,7 +204,6 @@ public class FileManager {
                             && !fileName.equals("AutoPlug-Client.jar")
                             && !fileName.equals("AutoPlug-Plugin.jar")) {
 
-                        AL.debug(this.getClass(), "Found server jar at: " + path);
                         queryFile = new File(path.toString());
                         return FileVisitResult.TERMINATE;
                     }
@@ -261,7 +260,6 @@ public class FileManager {
                             && !fileName.equals("AutoPlug-Client.jar")
                             && !fileName.equals("AutoPlug-Plugin.jar")) {
 
-                        AL.debug(this.getClass(), "Found file at: " + path);
                         //Adds files to list to return multiple files
                         queryFiles.add(new File(path.toString()));
                         return FileVisitResult.CONTINUE;
@@ -362,7 +360,6 @@ public class FileManager {
 
                     if (pathMatcher.matches(path.getFileName())) {
 
-                        AL.debug(this.getClass(), "Found plugin jar at: " + path);
                         queryFile = new File(path.toString());
                         return FileVisitResult.TERMINATE;
                     }
@@ -413,7 +410,6 @@ public class FileManager {
 
                     if (pathMatcher.matches(path.getFileName())) {
 
-                        AL.debug(this.getClass(), "Found plugin jar at: " + path);
                         queryFile = new File(path.toString());
                         queryFiles.add(queryFile);
                     }
