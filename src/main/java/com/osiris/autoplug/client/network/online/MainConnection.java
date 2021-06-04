@@ -105,12 +105,14 @@ public class MainConnection extends Thread {
                     // Close child connections
                     try {
                         CON_CONSOLE_RECEIVE.close();
-                    } catch (IOException ignored) {
+                    } catch (IOException e1) {
+                        AL.warn(e1);
                     }
 
                     try {
                         CON_CONSOLE_SEND.close();
-                    } catch (IOException ignored) {
+                    } catch (IOException e1) {
+                        AL.warn(e1);
                     }
 
                     Thread.sleep(30000);

@@ -56,7 +56,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (thread == null)
+        if (thread == null) {
             thread = new Thread(() -> {
                 try {
                     if (new WebConfig().online_console_send.asBoolean()) {
@@ -78,7 +78,8 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
                     AL.warn(e, "There was an error connecting to the Online-Console.");
                 }
             });
-        else
+            thread.start();
+        } else
             return false;
         return true;
     }

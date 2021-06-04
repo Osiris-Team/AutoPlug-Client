@@ -58,13 +58,12 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
         } catch (Exception e) {
             AL.warn("Failed to stop thread.", e);
         }
+        thread = null;
 
         try {
             super.close();
         } catch (Exception e) {
             AL.warn("Failed to close connection.", e);
         }
-
-        thread = null;
     }
 }
