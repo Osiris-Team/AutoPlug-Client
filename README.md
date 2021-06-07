@@ -22,8 +22,8 @@ If you are planing to do big changes, create an issue first, where you explain w
 contribution!
 
 Details:
-  - Written in [`Java`](https://java.com/), with [`JDK 8`](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [`IntelliJ IDEA`](https://www.jetbrains.com/idea/)
-  - Built with [`Maven`](https://maven.apache.org/), profiles: `clean package`
+  - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+  - Built with [Maven](https://maven.apache.org/), profiles: clean package
 
 If you don't know how to import a GitHub project checkout this guides:
 
