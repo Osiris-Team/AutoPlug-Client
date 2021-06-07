@@ -1,31 +1,31 @@
 ![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
 ## Links
 - Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
-- For beta versions visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
+- For beta versions, visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
 - Support, chat, updates and news over at [Discord](https://discord.com/invite/GGNmtCC)
 
 ## AutoPlug-Client | What can it do?
 Well quite a bunch of things actually...
-The most outstanding one beeing (probably), an automated way of updating your servers plugins.
+The most outstanding one being (probably), an automated way of updating your server plugins.
 Then there is some more stuff:
- - automated self updating
- - automated server software updating
- - automated, scheduled server restarting
- - automated, modularized backup creation
- - note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
+ - Automated self updating
+ - Automated server software updating
+ - Automated, scheduled server restarting
+ - Automated, modularized backup creation
+ - Note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
-If you never contributed before, we recommend this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). 
-If you are planing to do big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
+If you have never contributed before, we recommend this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). 
+If you are planning to make big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
 contribution!
 
 Details:
   - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
   - Built with [Maven](https://maven.apache.org/), profiles: clean package
 
-If you don't know how to import a GitHub project checkout this guides:
+If you don't know how to import a GitHub project, check out this guide:
 
 - For IntelliJ IDEA checkout the [Cloning Guide](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
@@ -113,7 +113,7 @@ minecraft remote server manager
 minecraft server manager software
 minecraft server manager spigot
 minecraft server manager sidezockinglp
-minecrafte server
+minecraft server
 minecraft server bergwerklabs
 minecraft server manager tool
 minecraft server management tools
