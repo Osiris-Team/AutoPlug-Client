@@ -17,7 +17,7 @@ Then there is some more stuff:
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
-If you never contributed before, we recommendthe [Beginners Article](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/). 
+If you never contributed before, we recommend this [Beginners Article](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/). 
 If you are planing to do big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
 contribution!
 
