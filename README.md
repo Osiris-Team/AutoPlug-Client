@@ -17,7 +17,7 @@ Then there is some more stuff:
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
-If you never contributed before, we recommend this [Beginners Article](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/). 
+If you never contributed before, we recommend this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). 
 If you are planing to do big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
 contribution!
 
@@ -27,8 +27,7 @@ Details:
 
 If you don't know how to import a GitHub project checkout this guides:
 
-- For IntelliJ IDEA checkout the [Contribute Guide](https://www.jetbrains.com/help/idea/contribute-to-projects.html) and
-  the [Cloning Guide](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
+- For IntelliJ IDEA checkout the [Cloning Guide](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ## AutoPlug-Client | Libraries
 
