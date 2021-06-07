@@ -40,7 +40,7 @@ public class UserInput {
                             user_input = lineReader.readLine();
 
                             // Send to online console
-                            if (MainConnection.CON_CONSOLE_SEND.isConnected())
+                            if (MainConnection.CON_CONSOLE_SEND != null && MainConnection.CON_CONSOLE_SEND.isConnected())
                                 try {
                                     OnlineConsoleSendConnection.send(user_input);
                                 } catch (Exception e) {
