@@ -39,7 +39,7 @@ public class Main {
 
         if (args != null) {
             List<String> argsList = Arrays.asList(args);
-            if (argsList.contains("-test")) { // For testing stuff
+            if (argsList.contains("-test")) { // TESTING STUFF BELOW:
                 new AL().start();
                 try {
                     BetterThreadManager man = new BetterThreadManager();

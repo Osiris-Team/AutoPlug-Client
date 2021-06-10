@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +39,7 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
                     DataInputStream dis = getDataIn();
                     while (true) {
                         String command = dis.readUTF();
-                        Server.submitCommand(command);
+                        AutoPlugConsole.executeCommand(command);
                         AL.info("Executed Web-Command: " + command);
                     }
                 } catch (Exception e) {

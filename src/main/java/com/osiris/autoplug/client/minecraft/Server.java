@@ -125,7 +125,8 @@ public final class Server {
         return process != null && process.isAlive();
     }
 
-    private static void createProcess(String path) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    private static void createProcess(String path) throws IOException, DuplicateKeyException,
+            DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         GeneralConfig config = new GeneralConfig();
         List<String> commands = new ArrayList<>();
 

@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>1.30.3</version>
+    <version>1.30.4</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -42,6 +42,7 @@
         The main class or this jars entry point. Is optional.
         -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
     <repositories>
@@ -67,7 +68,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>8.4</version>
+            <version>9.0</version>
         </dependency>
 
         <dependency>
@@ -150,11 +151,19 @@
         SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
         SLF4J: Defaulting to no-operation (NOP) logger implementation
         SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.-->
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <!-- https://stackoverflow.com/questions/7421612/slf4j-failed-to-load-class-org-slf4j-impl-staticloggerbinder -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-nop</artifactId>
-            <version>2.0.0-alpha1</version>
+            <version>${slf4j.version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

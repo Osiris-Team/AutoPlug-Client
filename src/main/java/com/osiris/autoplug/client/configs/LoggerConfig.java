@@ -54,6 +54,14 @@ public class LoggerConfig extends DreamYaml {
             AL.debug(this.getClass(), "Enabled HtmlUnit logger!");
             Logger.getLogger("com.gargoylesoftware").setLevel(Level.ALL);
         }
+        //Enable debug mode for libs
+        Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.OFF);
+        Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.OFF);
+        if (debug.asBoolean()) {
+            AL.debug(this.getClass(), "Enabled Quartz logger!");
+            Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.ALL);
+            Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.ALL);
+        }
     }
 
 }

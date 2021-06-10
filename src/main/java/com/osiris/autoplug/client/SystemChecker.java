@@ -47,7 +47,18 @@ public class SystemChecker {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 if (Server.isRunning()) Server.stop();
+            } catch (Exception e) {
+                AL.warn("Error during shutdown, related to stopping the server!", e);
+            }
+
+            try {
+                new JobScheduler(); // To avoid class not found exception...
                 JobScheduler.safeShutdown();
+            } catch (Exception e) {
+                AL.warn("Error during shutdown, related to the scheduler!", e);
+            }
+
+            try {
                 if (AL.isStarted) {
                     AL.info("See you soon!");
                     new AL().stop();
@@ -55,7 +66,7 @@ public class SystemChecker {
                     System.out.println("See you soon!");
                 }
             } catch (Exception e) {
-                AL.warn(e);
+                AL.warn("Error during shutdown, related to the AutoPlug-Logger!", e);
             }
         }, "Shutdown-Thread"));
     }

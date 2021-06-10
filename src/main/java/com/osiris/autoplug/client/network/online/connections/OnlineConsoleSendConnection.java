@@ -12,7 +12,10 @@ import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
+import com.osiris.autoplug.core.events.MessageEvent;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.autoplug.core.logger.Message;
+import com.osiris.autoplug.core.logger.MessageFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +36,13 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
     private static final NonBlockingPipedInputStream.WriteLineEvent<String> action = line -> {
         try {
             send(line);
+        } catch (Exception e) {
+            AL.warn("Failed to send message to online console!", e);
+        }
+    };
+    private static final MessageEvent<Message> actionOnAutoPlugMessageEvent = message -> {
+        try {
+            send(MessageFormatter.formatForAnsiConsole(message));
         } catch (Exception e) {
             AL.warn("Failed to send message to online console!", e);
         }
@@ -68,6 +78,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
                                 Thread.sleep(1000); // Wait until we got a server outputstream
 
                             Server.NB_PIPED_IN.actionsOnWriteLineEvent.add(action);
+                            AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
                         }
                         AL.debug(this.getClass(), "Online-Console-SEND connected.");
                         send("Online-Console-SEND connected at " + new Date() + ".");
@@ -90,6 +101,11 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
         try {
             if (Server.NB_PIPED_IN != null)
                 Server.NB_PIPED_IN.actionsOnWriteLineEvent.remove(action);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            AL.actionsOnMessageEvent.remove(actionOnAutoPlugMessageEvent);
         } catch (Exception ignored) {
         }
 

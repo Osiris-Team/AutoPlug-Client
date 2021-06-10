@@ -58,21 +58,17 @@ public class RestarterConfig extends DreamYaml {
                 "Restarts your server daily at the times below.\n" +
                         "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
 
-        restarter_commands = put(name, "daily-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                .setComments("Executes these server as console, 10 seconds before restarting the server.");
-            /*
-            TODO WORK IN PROGRESS
-            restarter_commands_countdown = add(name, "daily-restarter", "commands", "countdown").setDefValues("10")
-                    .setComments("The amount of seconds to wait before restarting the server.");
-            restarter_commands = add(name, "daily-restarter", "commands","list").setDefValuess(
-                    new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
-                    new DYModule("3").addValue("say [Server] Server is restarting 3..."),
-                    new DYModule("2").addValue("say [Server] Server is restarting 2..."),
-                    new DYModule("1").addValue("say [Server] Server is restarting 1..."),
-                    new DYModule("0").addValue("say [Server] Server is restarting..."))
-                    .setCommentss("Executes these commands as console, before restarting the server.",
-                            "You can execute multiple/single commands at any given second of the countdown.");
-             */
+        restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
+                "You can execute multiple/single commands at any given second of the countdown.",
+                "The countdown starts at the highest given number.");
+        if (restarter_commands.getChildModules().isEmpty()) {
+            put(name, "daily-restarter", "commands", "list", "10").setDefValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete.");
+            put(name, "daily-restarter", "commands", "list", "3").setDefValues("say [Server] Server is restarting in 3.");
+            put(name, "daily-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
+            put(name, "daily-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
+            put(name, "daily-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
+
+        }
 
         c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
                 "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
@@ -83,19 +79,15 @@ public class RestarterConfig extends DreamYaml {
                 "This example will restart your server daily at 9:30 (0 30 9 * * ? *).\n" +
                         "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
-        c_restarter_commands = put(name, "custom-restarter", "commands").setDefValues("say [Server] Server is restarting...", "say [Server] Please allow up to 2min for this process to complete.")
-                .setComments("Executes these server as console, 10 seconds before restarting the server.");
-            /*
-            TODO WORK IN PROGRESS
-            c_restarter_commands_countdown = add(name, "custom-restarter", "commands", "countdown").setDefValues("10");
-            c_restarter_commands = add(name, "custom-restarter", "commands", "list").setDefValuess(
-                    new DYModule("10").addValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete."),
-                    new DYModule("3").addValue("say [Server] Server is restarting 3..."),
-                    new DYModule("2").addValue("say [Server] Server is restarting 2..."),
-                    new DYModule("1").addValue("say [Server] Server is restarting 1..."),
-                    new DYModule("0").addValue("say [Server] Server is restarting...")
-            );
-             */
+        c_restarter_commands = put(name, "custom-restarter", "commands", "list");
+        if (c_restarter_commands.getChildModules().isEmpty()) {
+            put(name, "custom-restarter", "commands", "list", "10").setDefValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete.");
+            put(name, "custom-restarter", "commands", "list", "3").setDefValues("say [Server] Server is restarting in 3.");
+            put(name, "custom-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
+            put(name, "custom-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
+            put(name, "custom-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
+
+        }
 
         validateOptions();
         save();
@@ -137,6 +129,27 @@ public class RestarterConfig extends DreamYaml {
 
             }
 
+        }
+
+
+        for (DYModule m :
+                restarter_commands.getChildModules()) {
+            try {
+                Integer.parseInt(m.getLastKey());
+            } catch (Exception e) {
+                this.remove(m);
+                AL.warn("Removed module: " + m.getKeys() + " because of invalid countdown time!", e);
+            }
+        }
+
+        for (DYModule m :
+                c_restarter_commands.getChildModules()) {
+            try {
+                Integer.parseInt(m.getLastKey());
+            } catch (Exception e) {
+                this.remove(m);
+                AL.warn("Removed module: " + m.getKeys() + " because of invalid countdown time!", e);
+            }
         }
 
     }
