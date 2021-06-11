@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
@@ -42,7 +43,15 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
     };
     private static final MessageEvent<Message> actionOnAutoPlugMessageEvent = message -> {
         try {
-            send(MessageFormatter.formatForAnsiConsole(message));
+            boolean isDebug = new LoggerConfig().debug.asBoolean();
+            switch (message.getType()) {
+                case DEBUG:
+                    if (isDebug)
+                        send(MessageFormatter.formatForAnsiConsole(message));
+                default:
+                    send(MessageFormatter.formatForAnsiConsole(message));
+            }
+
         } catch (Exception e) {
             AL.warn("Failed to send message to online console!", e);
         }
@@ -60,8 +69,6 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
             bw.write(message);
         }
         bw.flush();
-
-        AL.debug(OnlineConsoleSendConnection.class, "SENT LINE: " + message);
     }
 
     @Override
