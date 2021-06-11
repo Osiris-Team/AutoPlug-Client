@@ -48,6 +48,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
                 case DEBUG:
                     if (isDebug)
                         send(MessageFormatter.formatForAnsiConsole(message));
+                    break;
                 default:
                     send(MessageFormatter.formatForAnsiConsole(message));
             }
