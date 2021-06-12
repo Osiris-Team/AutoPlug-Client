@@ -28,7 +28,6 @@ import java.util.List;
  */
 public class MainConnection extends Thread {
 
-    // TODO WORK IN PROGRESS
     // Secondary connections:
     public static OnlineConsoleReceiveConnection CON_CONSOLE_RECEIVE;
     public static OnlineConsoleSendConnection CON_CONSOLE_SEND;

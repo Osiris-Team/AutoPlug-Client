@@ -29,6 +29,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -101,29 +102,53 @@ public class TaskPluginsBackup extends BetterThread {
 
             FileManager man = new FileManager();
             List<File> pluginsFiles = man.getFilesFrom(GD.PLUGINS_DIR);
-            List<File> pluginsFolders = man.getFoldersFrom(GD.PLUGINS_DIR);
+            pluginsFiles.addAll(man.getFoldersFrom(GD.PLUGINS_DIR));
             ZipFile zip = new ZipFile(plugins_backup_dest);
 
-            setMax(pluginsFiles.size() + pluginsFolders.size());
-
-            // Add each folder to the zip
-            for (File file : pluginsFolders) {
-                setStatus("Backing up plugins... " + file.getName());
-                try {
-                    zip.addFolder(file);
-                } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this, e, "Failed to add folder " + file.getName() + " to zip."));
+            if (config.backup_plugins_exclude.asBoolean()) {
+                List<File> copyPluginsFiles = new ArrayList<>(pluginsFiles);
+                List<File> excludedFiles = config.getPluginsExcluded();
+                for (File file :
+                        copyPluginsFiles) {
+                    for (File excludeFile :
+                            excludedFiles) {
+                        if (excludeFile.toPath().equals(file.toPath())) {
+                            pluginsFiles.remove(file);
+                            AL.debug(this.getClass(), "Excluded '" + file.getName() + "' from backup. Full path: " + file.getAbsolutePath());
+                        }
+                    }
                 }
-                step();
             }
+
+            if (config.backup_plugins_include.asBoolean()) {
+                List<File> copyPluginsFiles = new ArrayList<>(pluginsFiles);
+                List<File> includedFiles = config.getPluginsIncluded();
+                List<File> copyIncludedFiles = new ArrayList<>(includedFiles);
+                for (File file :
+                        copyPluginsFiles) {
+                    for (File includeFile :
+                            copyIncludedFiles) {
+                        if (includeFile.toPath().equals(file.toPath())) {
+                            includedFiles.remove(includeFile);
+                            AL.debug(this.getClass(), "File '" + file.getName() + "' couldn't be included, because it is already in the list. Full path: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+                pluginsFiles.addAll(includedFiles);
+            }
+
+            setMax(pluginsFiles.size());
 
             //Add each file to the zip
             for (File file : pluginsFiles) {
                 setStatus("Backing up plugins... " + file.getName());
                 try {
-                    zip.addFile(file);
+                    if (file.isDirectory())
+                        zip.addFolder(file);
+                    else
+                        zip.addFile(file);
                 } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this, e, "Failed to add file " + file.getName() + " to zip."));
+                    getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }
                 step();
             }

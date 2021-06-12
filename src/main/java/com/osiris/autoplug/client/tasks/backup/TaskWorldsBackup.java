@@ -29,6 +29,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -100,13 +101,48 @@ public class TaskWorldsBackup extends BetterThread {
             List<File> worlds = new FileManager().serverWorldsFolders();
             ZipFile zip = new ZipFile(worlds_backup_dest);
 
+            if (config.backup_worlds_exclude.asBoolean()) {
+                List<File> copyWorlds = new ArrayList<>(worlds);
+                List<File> excludedFiles = config.getWorldsExcluded();
+                for (File file :
+                        copyWorlds) {
+                    for (File excludeFile :
+                            excludedFiles) {
+                        if (excludeFile.toPath().equals(file.toPath())) {
+                            worlds.remove(file);
+                            AL.debug(this.getClass(), "Excluded '" + file.getName() + "' from backup. Full path: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+
+            if (config.backup_worlds_include.asBoolean()) {
+                List<File> copyWorlds = new ArrayList<>(worlds);
+                List<File> includedFiles = config.getWorldsIncluded();
+                List<File> copyIncludedFiles = new ArrayList<>(includedFiles);
+                for (File file :
+                        copyWorlds) {
+                    for (File includeFile :
+                            copyIncludedFiles) {
+                        if (includeFile.toPath().equals(file.toPath())) {
+                            includedFiles.remove(includeFile);
+                            AL.debug(this.getClass(), "File '" + file.getName() + "' couldn't be included, because it is already in the list. Full path: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+                worlds.addAll(includedFiles);
+            }
+
             setMax(worlds.size());
 
             //Add each file to the zip
             for (File file : worlds) {
                 setStatus("Backing up worlds... " + file.getName());
                 try {
-                    zip.addFolder(file);
+                    if (file.isDirectory())
+                        zip.addFolder(file);
+                    else
+                        zip.addFile(file);
                 } catch (Exception e) {
                     getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }

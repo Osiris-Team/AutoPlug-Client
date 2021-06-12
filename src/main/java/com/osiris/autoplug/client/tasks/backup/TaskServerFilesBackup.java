@@ -29,6 +29,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -100,13 +101,48 @@ public class TaskServerFilesBackup extends BetterThread {
             List<File> serverFiles = new FileManager().serverFiles();
             ZipFile zip = new ZipFile(server_backup_dest);
 
+            if (config.backup_server_files_exclude.asBoolean()) {
+                List<File> copyServerFiles = new ArrayList<>(serverFiles);
+                List<File> excludedFiles = config.getServerFilesExcluded();
+                for (File file :
+                        copyServerFiles) {
+                    for (File excludeFile :
+                            excludedFiles) {
+                        if (excludeFile.toPath().equals(file.toPath())) {
+                            serverFiles.remove(file);
+                            AL.debug(this.getClass(), "Excluded '" + file.getName() + "' from backup. Full path: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+
+            if (config.backup_server_files_include.asBoolean()) {
+                List<File> copyServerFiles = new ArrayList<>(serverFiles);
+                List<File> includedFiles = config.getServerFilesIncluded();
+                List<File> copyIncludedFiles = new ArrayList<>(includedFiles);
+                for (File file :
+                        copyServerFiles) {
+                    for (File includeFile :
+                            copyIncludedFiles) {
+                        if (includeFile.toPath().equals(file.toPath())) {
+                            includedFiles.remove(includeFile);
+                            AL.debug(this.getClass(), "File '" + file.getName() + "' couldn't be included, because it is already in the list. Full path: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+                serverFiles.addAll(includedFiles);
+            }
+
             setMax(serverFiles.size());
 
             //Add each file to the zip
             for (File file : serverFiles) {
                 setStatus("Backing up server-files... " + file.getName());
                 try {
-                    zip.addFile(file);
+                    if (file.isDirectory())
+                        zip.addFolder(file);
+                    else
+                        zip.addFile(file);
                 } catch (Exception e) {
                     getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                 }

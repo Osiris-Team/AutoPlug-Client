@@ -8,17 +8,26 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BackupConfig extends DreamYaml {
 
     public DYModule backup_server_files;
     public DYModule backup_server_files_max_days;
     public DYModule backup_server_files_cool_down;
+    public DYModule backup_server_files_exclude;
+    public DYModule backup_server_files_exclude_list;
+    public DYModule backup_server_files_include;
+    public DYModule backup_server_files_include_list;
     public DYModule backup_server_files_upload;
     public DYModule backup_server_files_upload_delete_on_complete;
     public DYModule backup_server_files_upload_host;
@@ -31,6 +40,10 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_worlds;
     public DYModule backup_worlds_max_days;
     public DYModule backup_worlds_cool_down;
+    public DYModule backup_worlds_exclude;
+    public DYModule backup_worlds_exclude_list;
+    public DYModule backup_worlds_include;
+    public DYModule backup_worlds_include_list;
     public DYModule backup_worlds_upload;
     public DYModule backup_worlds_upload_delete_on_complete;
     public DYModule backup_worlds_upload_host;
@@ -43,6 +56,10 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_plugins;
     public DYModule backup_plugins_max_days;
     public DYModule backup_plugins_cool_down;
+    public DYModule backup_plugins_exclude;
+    public DYModule backup_plugins_exclude_list;
+    public DYModule backup_plugins_include;
+    public DYModule backup_plugins_include_list;
     public DYModule backup_plugins_upload;
     public DYModule backup_plugins_upload_delete_on_complete;
     public DYModule backup_plugins_upload_host;
@@ -81,6 +98,25 @@ public class BackupConfig extends DreamYaml {
                 "The cool-down prevents exactly that from happening and saves you storage space and time.",
                 "Set to 0 to disable."
         );
+        backup_server_files_exclude = put(name, "server-files-backup", "exclude", "enable").setDefValues("false").setComments(
+                "Add specific files or folders you want to exclude from the backup, to the list below.",
+                "Windows/Linux formats are supported. './' stands for the servers root directory."
+        );
+        backup_server_files_exclude_list = put(name, "server-files-backup", "exclude", "list").setDefValues(
+                "./example/directory",
+                "./specific-file.txt",
+                "C:\\Users\\Example Windows Directory"
+        );
+        backup_server_files_include = put(name, "server-files-backup", "include", "enable").setDefValues("false").setComments(
+                "Add specific files or folders you want to include in the backup, to the list below.",
+                "Windows/Linux formats are supported. './' stands for the servers root directory.",
+                "Note that, if you enter a file/folder in the include list AND in the exclude list, that file/folder will get included."
+        );
+        backup_server_files_include_list = put(name, "server-files-backup", "include", "list").setDefValues(
+                "./example/directory",
+                "./specific-file.txt",
+                "C:\\Users\\Example Windows Directory"
+        );
         backup_server_files_upload = put(name, "server-files-backup", "upload", "enable").setDefValues("false").setComments(
                 "Upload the newly generated backup zip to the FTPS/SFTP server.");
         backup_server_files_upload_delete_on_complete = put(name, "server-files-backup", "upload", "delete-on-complete").setDefValues("false").setComments(
@@ -100,6 +136,18 @@ public class BackupConfig extends DreamYaml {
                 "Backups all folders starting with \"world\" to /autoplug-backups/worlds/...zip");
         backup_worlds_max_days = put(name, "worlds-backup", "max-days").setDefValues("7");
         backup_worlds_cool_down = put(name, "worlds-backup", "cool-down").setDefValues("60");
+        backup_worlds_exclude = put(name, "worlds-backup", "exclude", "enable").setDefValues("false");
+        backup_worlds_exclude_list = put(name, "worlds-backup", "exclude", "list").setDefValues(
+                "./example/directory",
+                "./specific-file.txt",
+                "C:\\Users\\Example Windows Directory"
+        );
+        backup_worlds_include = put(name, "worlds-backup", "include", "enable").setDefValues("false");
+        backup_worlds_include_list = put(name, "worlds-backup", "include", "list").setDefValues(
+                "./example/directory",
+                "./specific-file.txt",
+                "C:\\Users\\Example Windows Directory"
+        );
         backup_worlds_upload = put(name, "worlds-backup", "upload", "enable").setDefValues("false");
         backup_worlds_upload_delete_on_complete = put(name, "worlds-backup", "upload", "delete-on-complete").setDefValues("false");
         backup_worlds_upload_host = put(name, "worlds-backup", "upload", "host");
@@ -113,6 +161,18 @@ public class BackupConfig extends DreamYaml {
                 "Backups your plugins folder to /autoplug-backups/plugins/...zip");
         backup_plugins_max_days = put(name, "plugins-backup", "max-days").setDefValues("7");
         backup_plugins_cool_down = put(name, "plugins-backup", "cool-down").setDefValues("60");
+        backup_plugins_exclude = put(name, "plugins-backup", "exclude", "enable").setDefValues("true");
+        backup_plugins_exclude_list = put(name, "plugins-backup", "exclude", "list").setDefValues(
+                "./plugins/dynmap",
+                "./plugins/WorldBorder"
+        );
+        backup_plugins_include = put(name, "plugins-backup", "include", "enable").setDefValues("false");
+        backup_plugins_include_list = put(name, "plugins-backup", "include", "list").setDefValues(
+                "./example/directory",
+                "./specific-file.txt",
+                "C:\\Users\\Example Windows Directory"
+        );
+
         backup_plugins_upload = put(name, "plugins-backup", "upload", "enable").setDefValues("false");
         backup_plugins_upload_delete_on_complete = put(name, "plugins-backup", "upload", "delete-on-complete").setDefValues("false");
         backup_plugins_upload_host = put(name, "plugins-backup", "upload", "host");
@@ -124,4 +184,93 @@ public class BackupConfig extends DreamYaml {
 
         save();
     }
+
+    private File pathToFile(String path) {
+        File file = null;
+        if (path.contains("./"))
+            path = path.replace("./", GD.WORKING_DIR.getAbsolutePath() + File.separator);
+        if (!path.contains("/") && !path.contains("\\"))
+            path = GD.WORKING_DIR.getAbsolutePath() + File.separator + path;
+
+        return new File(path);
+    }
+
+    public List<File> getServerFilesExcluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_server_files_exclude_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
+    public List<File> getServerFilesIncluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_server_files_include_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
+    public List<File> getPluginsExcluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_plugins_exclude_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
+    public List<File> getPluginsIncluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_plugins_include_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
+    public List<File> getWorldsExcluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_worlds_exclude_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
+    public List<File> getWorldsIncluded() {
+        List<File> files = new ArrayList<>();
+        for (String path :
+                backup_worlds_include_list.asStringList()) {
+            try {
+                files.add(pathToFile(path));
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }
+        return files;
+    }
+
 }
