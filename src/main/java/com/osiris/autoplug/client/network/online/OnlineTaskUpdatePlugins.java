@@ -8,30 +8,10 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.managers.DownloadManager;
-import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Thread.sleep;
-
 @Deprecated
 public class OnlineTaskUpdatePlugins {
 
+    /*
     private int updateCounter = 0;
 
     public OnlineTaskUpdatePlugins(@NotNull Socket online_socket, @NotNull DataInputStream online_dis, @NotNull DataOutputStream online_dos,
@@ -285,5 +265,7 @@ public class OnlineTaskUpdatePlugins {
 
     }
 
+
+     */
 
 }

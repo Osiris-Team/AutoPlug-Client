@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.managers;
 
+/*
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -20,8 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+ */
+
 @Deprecated
 public class DownloadManager {
+    /*
 
     private WebClient client;
     private HtmlPage page;
@@ -98,14 +102,14 @@ public class DownloadManager {
             System.out.println("Cookies: " + Arrays.toString(client.getCookieManager().getCookies().toArray()));
             System.out.println(" ");
 
-            /*
-            int secsToWait = 10;
-            System.out.println("Sleeping for "+secsToWait+" seconds!");
-            for (int i = 0; i < secsToWait; i++) {
-                Thread.sleep(1000);
-                System.out.println("Time passed: "+i+"secs...");
-            }
-             */
+
+            //int secsToWait = 10;
+            //System.out.println("Sleeping for "+secsToWait+" seconds!");
+            //for (int i = 0; i < secsToWait; i++) {
+            //    Thread.sleep(1000);
+            //    System.out.println("Time passed: "+i+"secs...");
+            //}
+
 
             synchronized (page) {
                 page.wait(7000);
@@ -222,5 +226,5 @@ public class DownloadManager {
         }
 
     }
-
+    */
 }

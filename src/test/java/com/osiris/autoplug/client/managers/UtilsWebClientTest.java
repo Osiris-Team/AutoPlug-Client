@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.managers;
 
+/*
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -15,7 +16,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+ */
+
+@Deprecated
 class UtilsWebClientTest {
+    /*
 
     @Test
     void test() {
@@ -41,14 +46,14 @@ class UtilsWebClientTest {
             System.out.println("Cookies: " + Arrays.toString(client.getCookieManager().getCookies().toArray()));
             System.out.println(" ");
 
-            /*
+
             int secsToWait = 10;
             System.out.println("Sleeping for "+secsToWait+" seconds!");
             for (int i = 0; i < secsToWait; i++) {
                 Thread.sleep(1000);
                 System.out.println("Time passed: "+i+"secs...");
             }
-             */
+
 
             synchronized (page) {
                 page.wait(10000);
@@ -79,4 +84,5 @@ class UtilsWebClientTest {
 
 
     }
+    */
 }

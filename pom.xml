@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>1.30.7</version>
+    <version>1.30.8</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -85,11 +85,6 @@
         </dependency>
 
         <!-- Requests -->
-        <dependency>
-            <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <version>2.47.1</version> <!--2.47.1-->
-        </dependency>
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

@@ -6,8 +6,10 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
+
 package com.osiris.autoplug.client.managers;
 
+/*
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -18,8 +20,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 
+ */
+
 @Deprecated
-public class DownloaderHtmlunit implements IDownloader {
+public class DownloaderHtmlunit { //implements IDownloader
+    /*
     private WebClient client;
     private HtmlPage page;
     private WebResponse response;
@@ -44,11 +49,11 @@ public class DownloaderHtmlunit implements IDownloader {
         client.getOptions().setThrowExceptionOnScriptError(false);
         client.getOptions().setDoNotTrackEnabled(true);
 
-        /*
 
-        Start the actual download process
 
-         */
+        //Start the actual download process
+
+
         page = client.getPage(download_url);
 
         client.waitForBackgroundJavaScriptStartingBefore(7000); //10000
@@ -125,5 +130,6 @@ public class DownloaderHtmlunit implements IDownloader {
         }
 
     }
-
+*/
 }
+

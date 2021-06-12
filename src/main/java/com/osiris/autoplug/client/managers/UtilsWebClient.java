@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.managers;
 
+/*
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -16,8 +17,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Random;
 import java.util.logging.Level;
 
-public class UtilsWebClient {
+ */
 
+@Deprecated
+public class UtilsWebClient {
+    /*
     @NotNull
     public static String buildUniqueUserAgent() {
         StringBuilder b = new StringBuilder();
@@ -30,9 +34,12 @@ public class UtilsWebClient {
         return b.toString();
     }
 
+     */
+
     /**
      * Provided by: https://github.com/HtmlUnit/htmlunit/issues/249
      */
+    /*
     @NotNull
     public static WebClient getNewCustomClient(int pageTimeout, int jsTimeout, String UserAgent) {
         java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
@@ -67,4 +74,6 @@ public class UtilsWebClient {
         return client;
     }
 
+
+     */
 }
