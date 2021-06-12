@@ -8,10 +8,10 @@
 
 package com.osiris.autoplug.client.tasks.backup;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.GD;

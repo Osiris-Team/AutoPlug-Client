@@ -8,10 +8,10 @@
 
 package com.osiris.autoplug.client.network.online;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.DownloadManager;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,5 @@
 package com.osiris.autoplug.client;
 
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.tasks.scheduler.JobScheduler;
 import com.osiris.autoplug.core.logger.AL;
 

@@ -20,6 +20,8 @@ import java.io.IOException;
 public class GeneralConfig extends DreamYaml {
     public DYModule server_key;
     public DYModule server_auto_start;
+    public DYModule server_autoplug_stop;
+    public DYModule server_stop_command;
     public DYModule server_java_version;
     public DYModule server_jar;
     public DYModule server_flags_enabled;
@@ -52,6 +54,12 @@ public class GeneralConfig extends DreamYaml {
 
         server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
                 "Starts your server with the start of AutoPlug.");
+
+        server_autoplug_stop = put(name, "server", "autoplug-stop").setDefValues("false").setComments(
+                "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
+
+        server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
+                "AutoPlug uses this command to stop your server.");
 
         server_java_version = put(name, "server", "java-version").setDefValues("java").setComments(
                 "This is the java version your server will be running on.\n" +

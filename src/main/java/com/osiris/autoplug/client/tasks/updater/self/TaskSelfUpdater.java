@@ -2,8 +2,8 @@ package com.osiris.autoplug.client.tasks.updater.self;
 
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;

@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.events.MessageEvent;

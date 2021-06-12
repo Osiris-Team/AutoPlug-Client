@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.minecraft;
+package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
@@ -80,12 +80,12 @@ public final class Server {
     /**
      * Blocks until the server was stopped.
      */
-    public static void stop() throws IOException, InterruptedException {
+    public static void stop() throws IOException, InterruptedException, DYWriterException, NotLoadedException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
 
         AL.info("Stopping server...");
 
         if (isRunning()) {
-            submitCommand("stop");
+            submitCommand(new GeneralConfig().server_stop_command.asString());
             while (Server.isRunning())
                 Thread.sleep(1000);
             NB_PIPED_IN = null;
@@ -219,8 +219,13 @@ public final class Server {
                         Thread.sleep(2000);
                         currentIsRunningCheck = Server.isRunning();
                         if (!currentIsRunningCheck && lastIsRunningCheck) {
-                            AL.info("Minecraft server was stopped.");
-                            AL.info("To stop AutoPlug too, enter '.stop both'.");
+                            AL.info("Server was stopped.");
+                            if (new GeneralConfig().server_autoplug_stop.asBoolean()) {
+                                AL.info("Stopping AutoPlug too, since 'autoplug-stop' is enabled.");
+                                System.exit(0);
+                            } else {
+                                AL.info("To stop AutoPlug too, enter '.stop both'.");
+                            }
                             //TERMINAL.resume();
                             try {
                                 if (NB_PIPED_IN != null) NB_PIPED_IN.close();
@@ -232,7 +237,7 @@ public final class Server {
                         lastIsRunningCheck = currentIsRunningCheck;
                     }
                 } catch (Exception e) {
-                    AL.warn("Thread for checking if MC-Server is alive was stopped due to an error.", e);
+                    AL.warn("Thread for checking if Server is alive was stopped due to an error.", e);
                 }
             });
             threadServerAliveChecker.start();

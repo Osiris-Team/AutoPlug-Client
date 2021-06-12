@@ -9,8 +9,8 @@
 package com.osiris.autoplug.client.tasks.updater.server;
 
 import com.google.gson.JsonArray;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.logger.AL;

@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.PluginsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BetterThread;

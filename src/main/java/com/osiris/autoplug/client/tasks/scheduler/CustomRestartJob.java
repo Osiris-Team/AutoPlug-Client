@@ -8,8 +8,8 @@
 
 package com.osiris.autoplug.client.tasks.scheduler;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.RestarterConfig;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.exceptions.*;

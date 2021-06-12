@@ -11,7 +11,6 @@ package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
-import com.osiris.autoplug.client.minecraft.Server;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.utils.ConfigUtils;

@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.console;
 
-import com.osiris.autoplug.client.minecraft.Server;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
