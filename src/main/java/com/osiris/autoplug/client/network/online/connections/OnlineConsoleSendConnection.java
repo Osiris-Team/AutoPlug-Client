@@ -61,14 +61,17 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
-    public static synchronized void send(@NotNull String message) throws Exception {
-        if (bw != null) {
-            if (!message.contains(System.lineSeparator())) {
-                bw.write(message + System.lineSeparator());
-            } else {
-                bw.write(message);
+    public static synchronized void send(@NotNull String message) {
+        try {
+            if (bw != null) {
+                if (!message.contains(System.lineSeparator())) {
+                    bw.write(message + System.lineSeparator());
+                } else {
+                    bw.write(message);
+                }
+                bw.flush();
             }
-            bw.flush();
+        } catch (Exception e) { // Do not use AL.warn because that would cause an infinite loop
         }
     }
 
