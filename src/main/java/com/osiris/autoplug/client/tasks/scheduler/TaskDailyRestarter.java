@@ -19,6 +19,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.Collections;
+
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -71,7 +73,7 @@ public class TaskDailyRestarter extends BetterThread {
                 h = String.valueOf(config.restarter_times_hours.get(i));
 
                 //Create job
-                createJob(jobName, triggerName, min, h);
+                createOrReplaceJob(jobName, triggerName, min, h);
                 setStatus("Created job: " + jobName + " at " + h + ":" + min);
                 step();
             }
@@ -84,7 +86,7 @@ public class TaskDailyRestarter extends BetterThread {
     }
 
     //Creates jobs and links them to the scheduler
-    private void createJob(String jobName, String triggerName, String min, String h) {
+    private void createOrReplaceJob(String jobName, String triggerName, String min, String h) {
 
         try {
             AL.debug(this.getClass(), "Creating job with name: " + jobName + " trigger:" + triggerName + " min:" + min + " hour:" + h);
@@ -100,7 +102,7 @@ public class TaskDailyRestarter extends BetterThread {
                     .build();
 
             //Add details to the scheduler
-            scheduler.scheduleJob(job, trigger);
+            scheduler.scheduleJob(job, Collections.singleton(trigger), true);
 
         } catch (SchedulerException e) {
             setSuccess(false);

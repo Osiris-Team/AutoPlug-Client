@@ -11,7 +11,10 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.PluginsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
+import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.network.online.connections.PluginsUpdateResultConnection;
+import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchMaster;
+import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
@@ -28,22 +31,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskPluginsUpdater extends BetterThread {
-    private final PluginsUpdaterConnection con;
+    //private final PluginsUpdateResultConnection con;
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
     private final String automaticProfile = "AUTOMATIC";
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private PluginsConfig pluginsConfig;
+    private String pluginsConfigName;
     private Socket online_socket;
     private DataInputStream online_dis;
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
     private int updatesDownloaded = 0;
 
-    public TaskPluginsUpdater(String name, BetterThreadManager manager, PluginsUpdaterConnection con) {
+    public TaskPluginsUpdater(String name, BetterThreadManager manager) {
         super(name, manager);
-        this.con = con;
     }
 
 
@@ -58,195 +61,139 @@ public class TaskPluginsUpdater extends BetterThread {
             setSuccess(false);
             return;
         }
+        pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
         updaterConfig = new UpdaterConfig();
         userProfile = updaterConfig.plugin_updater_profile.asString();
 
-        DetailedPlugin currentPl = null; // Used for exception details
-        try { // Create this try/catch only for being able to close the connection
-            this.setAutoFinish(false); // So that the last finish message is shown.
+        this.setAutoFinish(false); // So that the last finish message is shown.
 
-            if (!updaterConfig.plugin_updater.asBoolean()) {
-                skip();
-                return;
-            }
-            if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
-            if (!con.isConnected()) con.open(); // Throws exception if auth failed
+        if (!updaterConfig.plugin_updater.asBoolean()) {
+            skip();
+            return;
+        }
+        if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
 
-            online_socket = con.getSocket();
-            online_dis = new DataInputStream(con.getIn());
-            online_dos = new DataOutputStream(con.getOut());
-
-            long msLeft = online_dis.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
-            if (msLeft != 0) {
-                skip("Skipped. Cool-down still active (" + (msLeft / 60000) + " minutes remaining).");
-                return;
-            }
-
-            // First we get the latest plugin details from the yml config.
-            // The minimum required information is:
-            // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
-            setStatus("Fetching latest plugin data...");
-            List<DetailedPlugin> plugins = pluginsConfig.getDetailedPlugins();
-            int size = plugins.size();
-            setMax(size);
-
-            online_dos.writeInt(size);
-
-            if (size == 0) throw new Exception("Plugins size is 0! Nothing to check...");
-
-            // The yml config lets users define the spigot id,
-            // bukkit id and custom link for the plugin.
-            // If none of that information is given the AutoPlug algorithm will try and find the right version.
-            List<DetailedPlugin> spigotIdPlugins = new ArrayList<>();
-            List<DetailedPlugin> bukkitIdPlugins = new ArrayList<>();
-            List<DetailedPlugin> customLinkPlugins = new ArrayList<>();
-            List<DetailedPlugin> unknownPlugins = new ArrayList<>();
-
-            // Add each plugin to their respective list
-            for (DetailedPlugin pl :
-                    plugins) {
-                if (pl.getSpigotId() != 0) spigotIdPlugins.add(pl);
-                else if (pl.getBukkitId() != 0) bukkitIdPlugins.add(pl);
-                else if (pl.getCustomLink() != null && !pl.getCustomLink().isEmpty()) customLinkPlugins.add(pl);
-                else unknownPlugins.add(pl);
-            }
-
-            int sizeSpigotPlugins = spigotIdPlugins.size();
-            int sizeBukkitPlugins = bukkitIdPlugins.size();
-            int sizeCustomLinkPlugins = customLinkPlugins.size();
-            int sizeUnknownPlugins = unknownPlugins.size();
-
-            online_dos.writeInt(sizeSpigotPlugins);
-            online_dos.writeInt(sizeBukkitPlugins);
-            online_dos.writeInt(sizeCustomLinkPlugins);
-            online_dos.writeInt(sizeUnknownPlugins);
-
-            byte code;
-            String type; // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
-            String latest; // The latest version as String
-            String url; // The download url for the latest version
-            String resultSpigotId;
-            String resultBukkitId;
-
-
-            for (DetailedPlugin pl :
-                    spigotIdPlugins) {
-                currentPl = pl;
-                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
-                online_dos.writeUTF(pl.getName());
-                online_dos.writeUTF(pl.getVersion());
-                online_dos.writeUTF(pl.getAuthor());
-                online_dos.writeInt(pl.getSpigotId());
-
-                code = online_dis.readByte();
-                if (code == 0 || code == 1) {
-                    type = online_dis.readUTF();
-                    latest = online_dis.readUTF();
-                    url = online_dis.readUTF();
-                    resultSpigotId = online_dis.readUTF();
-                    resultBukkitId = online_dis.readUTF();
-
-                    doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                } else if (code == 2)
-                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the plugins config file."));
-                else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
-                else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
-
-            }
-
-            for (DetailedPlugin pl :
-                    bukkitIdPlugins) {
-                currentPl = pl;
-                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
-                online_dos.writeUTF(pl.getName());
-                online_dos.writeUTF(pl.getVersion());
-                online_dos.writeUTF(pl.getAuthor());
-                online_dos.writeInt(pl.getBukkitId());
-
-                code = online_dis.readByte();
-                if (code == 0 || code == 1) {
-                    type = online_dis.readUTF();
-                    latest = online_dis.readUTF();
-                    url = online_dis.readUTF();
-                    resultSpigotId = online_dis.readUTF();
-                    resultBukkitId = online_dis.readUTF();
-
-                    doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                } else if (code == 2)
-                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
-                else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
-                else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
-            }
-
-            for (DetailedPlugin pl :
-                    customLinkPlugins) {
-                currentPl = pl;
-                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
-                online_dos.writeUTF(pl.getName());
-                online_dos.writeUTF(pl.getVersion());
-                online_dos.writeUTF(pl.getAuthor());
-                online_dos.writeInt(pl.getSpigotId());
-                online_dos.writeInt(pl.getBukkitId());
-
-                code = online_dis.readByte();
-                if (code == 0 || code == 1) {
-                    type = online_dis.readUTF();
-                    latest = online_dis.readUTF();
-                    url = online_dis.readUTF();
-                    resultSpigotId = online_dis.readUTF();
-                    resultBukkitId = online_dis.readUTF();
-
-                    doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                } else if (code == 2)
-                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
-                else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
-                else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
-            }
-
-            for (DetailedPlugin pl :
-                    unknownPlugins) {
-                currentPl = pl;
-                setStatus("Checking " + pl.getName() + "(" + step() + "/" + size + ") for updates...");
-                online_dos.writeUTF(pl.getName());
-                online_dos.writeUTF(pl.getVersion());
-                online_dos.writeUTF(pl.getAuthor());
-
-                code = online_dis.readByte();
-                if (code == 0 || code == 1) {
-                    type = online_dis.readUTF();
-                    latest = online_dis.readUTF();
-                    url = online_dis.readUTF();
-                    resultSpigotId = online_dis.readUTF();
-                    resultBukkitId = online_dis.readUTF();
-
-                    doDownloadLogic(pl, code, type, latest, url, resultSpigotId, resultBukkitId);
-                } else if (code == 2)
-                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm!"), "Specify an id in the autoplug-plugins-config.yml."));
-                else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
-                else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
-
-            }
-
-            // Save the config
-            pluginsConfig.save();
-            finish("Checked " + size + " plugins and found " + updatesAvailable + " updates!");
-        } catch (Exception e) {
-            // Create this try/catch only for being able to close the connection
-            // and rethrow this exception so the Thread finishes
-            con.close();
-            if (currentPl != null)
-                getWarnings().add(new BetterWarning(this, new Exception("Critical error which aborted the plugins updater, while checking plugin: " + currentPl.getName() + "(" + currentPl.getVersion() + ") from " + currentPl.getInstallationPath())));
-            throw e;
+        // TODO DO COOL-DOWN CHECK STUFF LOCALLY
+        /*
+        long msLeft = online_dis.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
+        if (msLeft != 0) {
+            skip("Skipped. Cool-down still active (" + (msLeft / 60000) + " minutes remaining).");
+            return;
         }
 
+         */
+
+        // First we get the latest plugin details from the yml config.
+        // The minimum required information is:
+        // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
+        setStatus("Fetching latest plugin data...");
+        List<DetailedPlugin> plugins = pluginsConfig.getIncludedPlugins();
+        int size = plugins.size();
+        if (size == 0) throw new Exception("Plugins size is 0! Nothing to check...");
+        setMax(size);
+
+        // TODO USE THIS FOR RESULT REPORT
+        int sizeSpigotPlugins = 0;
+        int sizeBukkitPlugins = 0;
+        int sizeCustomLinkPlugins = 0;
+        int sizeUnknownPlugins = 0;
+
+        SearchMaster master = new SearchMaster();
+        List<Thread> activeThreads = new ArrayList<>();
+        for (DetailedPlugin pl :
+                plugins) {
+            try {
+                setStatus("Initialising update check for  " + pl.getName() + "...");
+                if (pl.getSpigotId() != 0) {
+                    sizeSpigotPlugins++; // SPIGOT PLUGIN
+                    activeThreads.add(master.searchBySpigotId(pl));
+                } else if (pl.getBukkitId() != 0) {
+                    sizeBukkitPlugins++; // BUKKIT PLUGIN
+                    activeThreads.add(master.searchByBukkitId(pl));
+                } else if (pl.getCustomLink() != null && !pl.getCustomLink().isEmpty()) {
+                    sizeCustomLinkPlugins++; // CUSTOM LINK PLUGIN
+                    if (pl.getSpigotId() != 0) activeThreads.add(master.searchBySpigotId(pl));
+                    else if (pl.getBukkitId() != 0) activeThreads.add(master.searchByBukkitId(pl));
+                    else activeThreads.add(master.unknownSearch(pl));
+                } else {
+                    sizeUnknownPlugins++; // UNKNOWN PLUGIN
+                    activeThreads.add(master.unknownSearch(pl));
+                }
+            } catch (Exception e) {
+                this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));
+            }
+        }
+
+        List<SearchResult> results = new ArrayList<>();
+        byte code;
+        String type; // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
+        String latest; // The latest version as String
+        String downloadUrl; // The download url for the latest version
+        String resultSpigotId = null;
+        String resultBukkitId = null;
+        while (!activeThreads.isEmpty()) {
+            Thread.sleep(250);
+            Thread finishedThread = null;
+            for (Thread t :
+                    activeThreads) {
+                if (!t.isAlive()) {
+                    finishedThread = t;
+                    break;
+                }
+            }
+
+            if (finishedThread != null) {
+                activeThreads.remove(finishedThread);
+                SearchResult result = master.getSearchResultForThread(finishedThread);
+                results.add(result);
+                code = result.getResultCode();
+                DetailedPlugin pl = result.getPlugin();
+                this.setStatus("Checked '" + pl.getName() + "' plugin (" + results.size() + "/" + size + ")");
+                if (code == 0 || code == 1) {
+                    code = result.getResultCode();
+                    type = result.getDownloadType();
+                    latest = result.getLatestVersion();
+                    downloadUrl = result.getDownloadUrl();
+                    resultSpigotId = result.getSpigotId();
+                    resultBukkitId = result.getBukkitId();
+
+                    doDownloadLogic(pl, code, type, latest, downloadUrl, resultSpigotId, resultBukkitId);
+                } else if (code == 2)
+                    if (result.getException() != null)
+                        getWarnings().add(new BetterWarning(this, result.getException(), "There was an api-error for " + pl.getName() + "!"));
+                    else
+                        getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                else if (code == 3)
+                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the plugins config file.")));
+                else
+                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+
+                try {
+                    DYModule mSpigotId = pluginsConfig.get(pluginsConfigName, pl.getName(), "spigot-id");
+                    if (resultSpigotId != null) // Because we can get a "null" string from the server
+                        mSpigotId.setValues(resultSpigotId);
+
+                    DYModule mBukkitId = pluginsConfig.get(pluginsConfigName, pl.getName(), "bukkit-id");
+                    if (resultBukkitId != null) // Because we can get a "null" string from the server
+                        mBukkitId.setValues(resultBukkitId);
+
+                    // The config gets saved at the end of the runAtStart method.
+                } catch (Exception e) {
+                    getWarnings().add(new BetterWarning(this, e));
+                }
+            }
+        }
+
+        pluginsConfig.save();
+
+        if (new WebConfig().send_plugins_updater_results.asBoolean()) {
+            setStatus("Sending update check results to AutoPlug-Web...");
+            new PluginsUpdateResultConnection(results, pluginsConfig.getExcludedPlugins()).open();
+        }
+
+        finish("Finished checking all plugins (" + results.size() + "/" + size + ")");
+
+        // TODO FINISH RESULT SENDING AND RECEIVING AT AUTOPLUG-WEB
     }
 
     private void doDownloadLogic(@NotNull DetailedPlugin pl, byte code, @NotNull String type, String latest, String url, @NotNull String resultSpigotId, @NotNull String resultBukkitId) {
@@ -255,24 +202,14 @@ public class TaskPluginsUpdater extends BetterThread {
         } else {
             updatesAvailable++;
             getSummary().add("Plugin " + pl.getName() + " has an update available (" + pl.getVersion() + " -> " + latest + ")");
+
             try {
                 // Update the in-memory config
-                DYModule mLatest = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "latest-version");
+                DYModule mLatest = pluginsConfig.get(pluginsConfigName, pl.getName(), "latest-version");
                 mLatest.setValues(latest);
-
-                DYModule mSpigotId = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "spigot-id");
-                if (!resultSpigotId.equals("null")) // Because we can get a "null" string from the server
-                    mSpigotId.setValues(resultSpigotId);
-
-                DYModule mBukkitId = pluginsConfig.get(pluginsConfig.getFileNameWithoutExt(), pl.getName(), "bukkit-id");
-                if (!resultBukkitId.equals("null")) // Because we can get a "null" string from the server
-                    mBukkitId.setValues(resultBukkitId);
-
-                // The config gets saved at the end of the runAtStart method.
             } catch (Exception e) {
                 getWarnings().add(new BetterWarning(this, e));
             }
-
 
             if (userProfile.equals(notifyProfile)) {
                 // Do nothing more

@@ -19,6 +19,10 @@ public class WebConfig extends DreamYaml {
     public DYModule online_console_send;
     public DYModule online_console_receive;
 
+    public DYModule send_plugins_updater_results;
+    public DYModule send_server_updater_results;
+    public DYModule send_self_updater_results;
+
 
     public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-web-config.yml");
@@ -43,6 +47,12 @@ public class WebConfig extends DreamYaml {
                         "To have as little impact on your server as possible, this only happens when you are logged in.");
         online_console_receive = put(name, "online-console", "receive").setDefValues("false")
                 .setComments("Receives messages from the Online-Console and executes them.");
+
+        send_plugins_updater_results = put(name, "updater-results", "send-plugins-updaters-results").setDefValues("true")
+                .setComments("Sends the plugins-updaters results to AutoPlug-Web.",
+                        "By disabling this, you won't be able to see a summary of the updaters result online anymore.");
+        send_server_updater_results = put(name, "updater-results", "send-server-updaters-results").setDefValues("true");
+        send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
 
         save();
     }

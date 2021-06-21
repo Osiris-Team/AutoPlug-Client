@@ -18,6 +18,8 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.Collections;
+
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -54,8 +56,8 @@ public class TaskCustomRestarter extends BetterThread {
             Thread.sleep(1000);
 
             String cron = config.c_restarter_cron.asString();
-            createJob("customRestartJob", "customRestartTrigger", cron);
-            setStatus("Created job: customRestartJob with cron " + cron);
+            createOrReplaceJob("customRestartJob", "customRestartTrigger", cron);
+            setStatus("Created/Replaced job: customRestartJob with cron " + cron);
 
             scheduler.start(); // Create all jobs before starting the scheduler
             finish(true);
@@ -66,7 +68,7 @@ public class TaskCustomRestarter extends BetterThread {
     }
 
     //Creates jobs and links them to the scheduler
-    private void createJob(String jobName, String triggerName, @NotNull String cron) throws Exception {
+    private void createOrReplaceJob(String jobName, String triggerName, @NotNull String cron) throws Exception {
 
         AL.debug(this.getClass(), "Creating job with name: " + jobName + " trigger:" + triggerName + " cron:" + cron);
 
@@ -81,7 +83,7 @@ public class TaskCustomRestarter extends BetterThread {
                 .build();
 
         //Add details to the scheduler
-        scheduler.scheduleJob(job, trigger);
+        scheduler.scheduleJob(job, Collections.singleton(trigger), true);
     }
 
 }

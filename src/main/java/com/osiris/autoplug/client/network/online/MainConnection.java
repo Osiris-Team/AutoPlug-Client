@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiveConnection;
 import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
-import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
+import com.osiris.autoplug.client.network.online.connections.PluginsUpdateResultConnection;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public class MainConnection extends Thread {
     // Secondary connections:
     public static OnlineConsoleReceiveConnection CON_CONSOLE_RECEIVE;
     public static OnlineConsoleSendConnection CON_CONSOLE_SEND;
-    public static PluginsUpdaterConnection CON_PLUGINS_UPDATER;
+    public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
     @NotNull
     public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class MainConnection extends Thread {
                  */
             CON_CONSOLE_RECEIVE = new OnlineConsoleReceiveConnection();
             CON_CONSOLE_SEND = new OnlineConsoleSendConnection();
-            CON_PLUGINS_UPDATER = new PluginsUpdaterConnection();
+            CON_PLUGINS_UPDATER = new PluginsUpdateResultConnection();
 
             // Add to connections
             LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE_RECEIVE);

@@ -108,43 +108,49 @@ public class TaskPluginDownload extends BetterThread {
                 .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
                 .build();
         Response response = new OkHttpClient().newCall(request).execute();
+        ResponseBody body = null;
+        try {
+            if (response.code() != 200)
+                throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
 
-        if (response.code() != 200)
-            throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
+            body = response.body();
+            if (body == null)
+                throw new Exception("Download failed because of null response body!");
+            else if (body.contentType() == null)
+                throw new Exception("Download failed because of null content type!");
+            else if (!body.contentType().type().equals("application"))
+                throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
+            else if (!body.contentType().subtype().equals("java-archive") && !body.contentType().subtype().equals("jar"))
+                throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
 
-        ResponseBody body = response.body();
-        if (body == null)
-            throw new Exception("Download failed because of null response body!");
-        else if (body.contentType() == null)
-            throw new Exception("Download failed because of null content type!");
-        else if (!body.contentType().type().equals("application"))
-            throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
-        else if (!body.contentType().subtype().equals("java-archive") && !body.contentType().subtype().equals("jar"))
-            throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
+            long completeFileSize = body.contentLength();
+            setMax(completeFileSize);
 
-        long completeFileSize = body.contentLength();
-        setMax(completeFileSize);
+            BufferedInputStream in = new BufferedInputStream(body.byteStream());
+            FileOutputStream fos = new FileOutputStream(downloadDest);
+            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
+            byte[] data = new byte[1024];
+            long downloadedFileSize = 0;
+            int x = 0;
+            while ((x = in.read(data, 0, 1024)) >= 0) {
+                downloadedFileSize += x;
 
-        BufferedInputStream in = new BufferedInputStream(body.byteStream());
-        FileOutputStream fos = new FileOutputStream(downloadDest);
-        BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-        byte[] data = new byte[1024];
-        long downloadedFileSize = 0;
-        int x = 0;
-        while ((x = in.read(data, 0, 1024)) >= 0) {
-            downloadedFileSize += x;
+                setStatus("Downloading " + fileName + "... (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
+                setNow(downloadedFileSize);
 
-            setStatus("Downloading " + fileName + "... (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
-            setNow(downloadedFileSize);
+                bout.write(data, 0, x);
+            }
 
-            bout.write(data, 0, x);
+            setStatus("Downloaded " + fileName + " (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
+            bout.close();
+            in.close();
+            body.close();
+            response.close();
+        } catch (Exception e) {
+            if (body != null) body.close();
+            response.close();
+            throw e;
         }
-        bout.close();
-        in.close();
-        body.close();
-        response.close();
-
-        setStatus("Downloaded " + fileName + " (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
     }
 
 }

@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.tasks;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.TasksConfig;
 import com.osiris.autoplug.client.network.online.MainConnection;
-import com.osiris.autoplug.client.network.online.connections.PluginsUpdaterConnection;
 import com.osiris.autoplug.client.tasks.backup.TaskPluginsBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskServerFilesBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
@@ -70,7 +69,7 @@ public class BeforeServerStartupTasks {
             TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", man);
 
             TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", man);
-            TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man, new PluginsUpdaterConnection());
+            TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man);
 
 
             // Start processes

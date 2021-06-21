@@ -23,13 +23,17 @@ import java.util.List;
 
 public class PluginsConfig extends DreamYaml {
     @NotNull
-    private final List<DetailedPlugin> detailedPlugins;
+    private final List<DetailedPlugin> includedPlugins = new ArrayList<>();
+    @NotNull
+    private final List<DetailedPlugin> allPlugins = new ArrayList<>();
+    @NotNull
+    private final List<DetailedPlugin> excludedPlugins = new ArrayList<>();
+
 
     public DYModule keep_removed;
 
     public PluginsConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
-        this.detailedPlugins = new ArrayList<>();
         load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
@@ -63,10 +67,10 @@ public class PluginsConfig extends DreamYaml {
                 .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
         PluginManager man = new PluginManager();
-        List<DetailedPlugin> pls = man.getPlugins();
-        if (!pls.isEmpty())
+        this.allPlugins.addAll(man.getPlugins());
+        if (!allPlugins.isEmpty())
             for (DetailedPlugin pl :
-                    pls) {
+                    allPlugins) {
 
                 final String plName = pl.getName();
 
@@ -90,15 +94,15 @@ public class PluginsConfig extends DreamYaml {
                 if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
                     bukkitId.setValues("" + pl.getBukkitId());
 
+                pl.setSpigotId(spigotId.asInt());
+                pl.setBukkitId(bukkitId.asInt());
+                pl.setCustomLink(customLink.asString());
+
 
                 if (!exclude.asBoolean())
-                    detailedPlugins.add(
-                            new DetailedPlugin(
-                                    pl.getInstallationPath(),
-                                    pl.getName(), pl.getVersion(),
-                                    pl.getAuthor(), spigotId.asInt(),
-                                    bukkitId.asInt(), customLink.asString()
-                            ));
+                    includedPlugins.add(pl);
+                else
+                    excludedPlugins.add(pl);
             }
 
         if (keep_removed.asBoolean())
@@ -107,8 +111,25 @@ public class PluginsConfig extends DreamYaml {
             save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
     }
 
+    /**
+     * Returns a list containing only plugins, that contain all the information needed to perform a search. <br>
+     * That means, that a plugin must have its name, its authors name and its version in its plugin.yml file.
+     */
     @NotNull
-    public List<DetailedPlugin> getDetailedPlugins() {
-        return detailedPlugins;
+    public List<DetailedPlugin> getIncludedPlugins() {
+        return includedPlugins;
+    }
+
+    @NotNull
+    public List<DetailedPlugin> getExcludedPlugins() {
+        return excludedPlugins;
+    }
+
+    /**
+     * Returns a list containing all plugins found in the /plugins directory. <br>
+     */
+    @NotNull
+    public List<DetailedPlugin> getAllPlugins() {
+        return allPlugins;
     }
 }

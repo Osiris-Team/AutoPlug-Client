@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
@@ -30,7 +31,7 @@ import java.util.List;
 
 public final class Server {
     @Nullable
-    public static NonBlockingPipedInputStream NB_PIPED_IN;
+    public static NonBlockingPipedInputStream NB_SERVER_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
     private static Thread threadReadOutputStream;
@@ -88,7 +89,7 @@ public final class Server {
             submitCommand(new GeneralConfig().server_stop_command.asString());
             while (Server.isRunning())
                 Thread.sleep(1000);
-            NB_PIPED_IN = null;
+            NB_SERVER_IN = null;
         } else {
             AL.warn("Server not running!");
         }
@@ -189,11 +190,13 @@ public final class Server {
                         if (isRunning() && in != null) {
                             // Get Servers OutputStream, and forward it to a NonBlockingInputStream.
                             // From there multiple listeners can be attached.
-                            NB_PIPED_IN = new NonBlockingPipedInputStream();
-                            OutputStream pipedOut = new PipedOutputStream(NB_PIPED_IN);
-                            NB_PIPED_IN.actionsOnWriteLineEvent.add(line -> {
+                            NB_SERVER_IN = new NonBlockingPipedInputStream();
+                            OutputStream pipedOut = new PipedOutputStream(NB_SERVER_IN);
+                            NB_SERVER_IN.actionsOnWriteLineEvent.add(line -> {
                                 System.out.println(line);
                             });
+                            if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(OnlineConsoleSendConnection.actionOnServerLineWriteEvent))
+                                NB_SERVER_IN.actionsOnWriteLineEvent.add(OnlineConsoleSendConnection.actionOnServerLineWriteEvent);
                             int b = -1;
                             while ((b = in.read()) != -1) {
                                 pipedOut.write(b);
@@ -228,11 +231,11 @@ public final class Server {
                             }
                             //TERMINAL.resume();
                             try {
-                                if (NB_PIPED_IN != null) NB_PIPED_IN.close();
+                                if (NB_SERVER_IN != null) NB_SERVER_IN.close();
                             } catch (Exception e) {
                                 AL.warn(e);
                             }
-                            NB_PIPED_IN = null;
+                            NB_SERVER_IN = null;
                         }
                         lastIsRunningCheck = currentIsRunningCheck;
                     }

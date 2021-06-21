@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +45,7 @@ public final class AutoPlugConsole {
                     AL.info(".stop both | Stops, saves your server and closes AutoPlug safely (.stb)");
                     AL.info(".kill      | Kills the server without saving (.k)");
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
+                    AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rtasks)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -68,6 +70,9 @@ public final class AutoPlugConsole {
                     AL.info("Killing AutoPlug-Client and MC-Server! Ahhhh!");
                     AL.info("Achievement unlocked: Double kill!");
                     System.exit(0);
+                    return true;
+                } else if (command.equals(".run tasks") || command.equals(".rtasks")) {
+                    new BeforeServerStartupTasks();
                     return true;
                 } else {
                     AL.info("Command not found! Enter .help or .h for all available server!");

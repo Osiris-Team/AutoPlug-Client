@@ -3,7 +3,7 @@ package com.osiris.autoplug.client;
 import com.osiris.autoplug.client.tasks.scheduler.JobScheduler;
 import com.osiris.autoplug.core.logger.AL;
 
-import java.io.File;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -17,6 +17,18 @@ public class SystemChecker {
             if (!test.exists()) {
                 test.createNewFile();
             }
+
+            // Test writing to file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(test))) {
+                writer.write("Writing some random stuff, to test write permissions!");
+                writer.flush();
+            }
+
+            // Test reading the file
+            try (BufferedReader reader = new BufferedReader(new FileReader(test))) {
+                reader.readLine();
+            }
+
             test.delete();
         } catch (Exception e) {
             System.err.println("Make sure that this jar has read/write permissions!");
