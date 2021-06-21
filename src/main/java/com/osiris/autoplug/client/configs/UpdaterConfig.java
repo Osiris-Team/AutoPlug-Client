@@ -29,6 +29,7 @@ public class UpdaterConfig extends DreamYaml {
 
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
+    public DYModule plugin_updater_async;
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-updater-config.yml");
@@ -88,6 +89,11 @@ public class UpdaterConfig extends DreamYaml {
                 "Note that there is a cool-down (that cannot be changed) of a few hours,",
                 "because the check can be very demanding for the AutoPlug-Webserver.");
         plugin_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
+        plugin_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
+                "Asynchronously checks for updates.",
+                "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
+                "The only downside of this is that your log file gets a bit messy.",
+                "Note that currently this feature can't be disabled.");
 
         validateOptions();
         save();

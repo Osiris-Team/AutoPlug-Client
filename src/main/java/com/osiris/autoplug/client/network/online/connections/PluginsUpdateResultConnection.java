@@ -79,5 +79,28 @@ public class PluginsUpdateResultConnection extends SecondaryConnection {
             else
                 dos.writeUTF(result.getBukkitId());
         }
+
+        dos.writeInt(excludedPlugins.size());
+        for (DetailedPlugin excludedPl :
+                excludedPlugins) {
+            String plName = excludedPl.getName();
+            if (plName == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(plName);
+
+            String plAuthor = excludedPl.getAuthor();
+            if (plAuthor == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(plAuthor);
+
+            String plVersion = excludedPl.getVersion();
+            if (plAuthor == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(plVersion);
+        }
+
     }
 }
