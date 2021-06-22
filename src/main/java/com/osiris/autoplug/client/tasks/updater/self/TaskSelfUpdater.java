@@ -142,6 +142,8 @@ public class TaskSelfUpdater extends BetterThread {
                             setStatus("AutoPlug update downloaded. Checking hash...");
                             if (download.compareWithSHA256(sha256)) {
                                 setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
+                                // Create the actual update copy file, by simply copying the newly downloaded file.
+                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 // Start that updated old jar and close this one
                                 Main.startJar(cache_dest.getAbsolutePath());
                                 System.exit(0);

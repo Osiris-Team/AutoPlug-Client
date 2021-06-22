@@ -35,8 +35,8 @@ public class BeforeServerStartupTasks {
     private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
-        BetterThreadManager man = null;
-        BetterThreadDisplayer dis = null; // We have our own way of displaying the warnings, that's why its set to false
+        BetterThreadManager manager = null;
+        BetterThreadDisplayer displayer = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
             tasksConfig = new TasksConfig();
 
@@ -44,13 +44,13 @@ public class BeforeServerStartupTasks {
             while (!MainConnection.isDone)
                 Thread.sleep(1000);
 
-            man = new BetterThreadManager();
-            dis = new BetterThreadDisplayer(
-                    man, "[AutoPlug]", "[TASK]", null, false,
+            manager = new BetterThreadManager();
+            displayer = new BetterThreadDisplayer(
+                    manager, "[AutoPlug]", "[TASK]", null, false,
                     false, tasksConfig.refresh_interval.asInt()); // We have our own way of displaying the warnings, that's why its set to false
 
             if (tasksConfig.live_tasks.asBoolean())
-                dis.start();
+                displayer.start();
             else {
                 AL.info("Waiting for before startup tasks to finish...");
                 if (new BackupConfig().backup_worlds.asBoolean())
@@ -59,17 +59,17 @@ public class BeforeServerStartupTasks {
 
 
             // Create processes
-            TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", man);
+            TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
 
-            TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", man);
-            TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", man);
-            TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", man);
+            TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", manager);
+            TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", manager);
+            TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", manager);
 
-            TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", man);
-            TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", man);
+            TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", manager);
+            TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", manager);
 
-            TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", man);
-            TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man);
+            TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", manager);
+            TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", manager);
 
 
             // Start processes
@@ -93,21 +93,21 @@ public class BeforeServerStartupTasks {
             taskPluginsUpdater.start();
 
             // Wait until the rest is finished
-            while (!man.isFinished())
+            while (!manager.isFinished())
                 Thread.sleep(1000);
 
             if (!tasksConfig.live_tasks.asBoolean())
-                printFinalStatus(man.getAll());
+                printFinalStatus(manager.getAll());
 
-            printSummary(man.getAll());
-            printWarnings(man.getAllWarnings());
+            printSummary(manager.getAll());
+            printWarnings(manager.getAllWarnings());
 
         } catch (Exception e) {
             AL.warn("A severe error occurred while executing the before server startup tasks! Interrupting tasks...");
             try {
-                if (man != null)
+                if (manager != null)
                     for (BetterThread t :
-                            man.getAll()) {
+                            manager.getAll()) {
                         try {
                             if (t != null && !t.isInterrupted())
                                 t.interrupt();
@@ -119,8 +119,8 @@ public class BeforeServerStartupTasks {
                 AL.warn(exception);
             }
             try {
-                if (dis != null && !dis.isInterrupted())
-                    dis.interrupt();
+                if (displayer != null && !displayer.isInterrupted())
+                    displayer.interrupt();
             } catch (Exception exception) {
                 AL.warn(exception);
             }
