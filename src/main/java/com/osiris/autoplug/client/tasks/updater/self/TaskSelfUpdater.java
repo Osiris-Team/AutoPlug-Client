@@ -1,7 +1,7 @@
 package com.osiris.autoplug.client.tasks.updater.self;
 
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.SelfInstaller;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerDownload;
@@ -145,7 +145,7 @@ public class TaskSelfUpdater extends BetterThread {
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
                                 Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 // Start that updated old jar and close this one
-                                Main.startJar(cache_dest.getAbsolutePath());
+                                new SelfInstaller().startJarFromPath(cache_dest, cache_dest.getParentFile());
                                 System.exit(0);
                                 setSuccess(true);
                             } else {
