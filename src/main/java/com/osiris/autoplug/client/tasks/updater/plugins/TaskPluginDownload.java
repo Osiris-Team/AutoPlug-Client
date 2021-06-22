@@ -120,7 +120,9 @@ public class TaskPluginDownload extends BetterThread {
                 throw new Exception("Download failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
                 throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
-            else if (!body.contentType().subtype().equals("java-archive") && !body.contentType().subtype().equals("jar"))
+            else if (!body.contentType().subtype().equals("java-archive")
+                    && !body.contentType().subtype().equals("jar")
+                    && !body.contentType().subtype().equals("octet-stream"))
                 throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
