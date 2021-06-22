@@ -44,7 +44,7 @@ public class SpigotSearchById {
         }
 
         // If not external download over the spiget api
-        if (type != null && !type.equals("external")) {
+        if (type != null) {
             downloadUrl = "https://api.spiget.org/v2/resources/" + spigotId + "/download";
         }
 
