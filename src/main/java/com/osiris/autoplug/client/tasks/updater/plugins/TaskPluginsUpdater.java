@@ -29,6 +29,9 @@ import java.io.File;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class TaskPluginsUpdater extends BetterThread {
     //private final PluginsUpdateResultConnection con;
@@ -98,26 +101,32 @@ public class TaskPluginsUpdater extends BetterThread {
         int sizeCustomLinkPlugins = 0;
         int sizeUnknownPlugins = 0;
 
-        SearchMaster master = new SearchMaster();
-        List<Thread> activeThreads = new ArrayList<>();
+        ExecutorService executorService;
+        if (updaterConfig.plugin_updater_async.asBoolean())
+            executorService = Executors.newFixedThreadPool(size);
+        else
+            executorService = Executors.newSingleThreadExecutor();
+        List<Future<SearchResult>> activeFutures = new ArrayList<>();
         for (DetailedPlugin pl :
                 plugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getSpigotId() != 0) {
                     sizeSpigotPlugins++; // SPIGOT PLUGIN
-                    activeThreads.add(master.searchBySpigotId(pl));
+                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
                 } else if (pl.getBukkitId() != 0) {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
-                    activeThreads.add(master.searchByBukkitId(pl));
+                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
                 } else if (pl.getCustomLink() != null && !pl.getCustomLink().isEmpty()) {
                     sizeCustomLinkPlugins++; // CUSTOM LINK PLUGIN
-                    if (pl.getSpigotId() != 0) activeThreads.add(master.searchBySpigotId(pl));
-                    else if (pl.getBukkitId() != 0) activeThreads.add(master.searchByBukkitId(pl));
-                    else activeThreads.add(master.unknownSearch(pl));
+                    if (pl.getSpigotId() != 0)
+                        activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
+                    else if (pl.getBukkitId() != 0)
+                        activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
+                    else activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
-                    activeThreads.add(master.unknownSearch(pl));
+                    activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));
@@ -125,38 +134,30 @@ public class TaskPluginsUpdater extends BetterThread {
         }
 
         List<SearchResult> results = new ArrayList<>();
-        byte code;
-        String type; // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
-        String latest; // The latest version as String
-        String downloadUrl; // The download url for the latest version
-        String resultSpigotId = null;
-        String resultBukkitId = null;
-        while (!activeThreads.isEmpty()) {
+        while (!activeFutures.isEmpty()) {
             Thread.sleep(250);
-            Thread finishedThread = null;
-            for (Thread t :
-                    activeThreads) {
-                if (!t.isAlive()) {
-                    finishedThread = t;
+            Future<SearchResult> finishedFuture = null;
+            for (Future<SearchResult> future :
+                    activeFutures) {
+                if (future.isDone()) {
+                    finishedFuture = future;
                     break;
                 }
             }
 
-            if (finishedThread != null) {
-                activeThreads.remove(finishedThread);
-                SearchResult result = master.getSearchResultForThread(finishedThread);
+            if (finishedFuture != null) {
+                activeFutures.remove(finishedFuture);
+                SearchResult result = finishedFuture.get();
                 results.add(result);
-                code = result.getResultCode();
                 DetailedPlugin pl = result.getPlugin();
+                byte code = result.getResultCode();
+                String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
+                String latest = result.getLatestVersion(); // The latest version as String
+                String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
+                String resultSpigotId = result.getSpigotId();
+                String resultBukkitId = result.getBukkitId();
                 this.setStatus("Checked '" + pl.getName() + "' plugin (" + results.size() + "/" + size + ")");
                 if (code == 0 || code == 1) {
-                    code = result.getResultCode();
-                    type = result.getDownloadType();
-                    latest = result.getLatestVersion();
-                    downloadUrl = result.getDownloadUrl();
-                    resultSpigotId = result.getSpigotId();
-                    resultBukkitId = result.getBukkitId();
-
                     doDownloadLogic(pl, code, type, latest, downloadUrl, resultSpigotId, resultBukkitId);
                 } else if (code == 2)
                     if (result.getException() != null)
@@ -170,11 +171,13 @@ public class TaskPluginsUpdater extends BetterThread {
 
                 try {
                     DYModule mSpigotId = pluginsConfig.get(pluginsConfigName, pl.getName(), "spigot-id");
-                    if (resultSpigotId != null) // Because we can get a "null" string from the server
+                    if (resultSpigotId != null
+                            && (mSpigotId.asString() == null || mSpigotId.asInt() == 0)) // Because we can get a "null" string from the server
                         mSpigotId.setValues(resultSpigotId);
 
                     DYModule mBukkitId = pluginsConfig.get(pluginsConfigName, pl.getName(), "bukkit-id");
-                    if (resultBukkitId != null) // Because we can get a "null" string from the server
+                    if (resultBukkitId != null
+                            && (mSpigotId.asString() == null || mSpigotId.asInt() == 0)) // Because we can get a "null" string from the server
                         mBukkitId.setValues(resultBukkitId);
 
                     // The config gets saved at the end of the runAtStart method.

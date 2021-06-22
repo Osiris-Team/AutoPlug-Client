@@ -92,8 +92,7 @@ public class UpdaterConfig extends DreamYaml {
         plugin_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
-                "The only downside of this is that your log file gets a bit messy.",
-                "Note that currently this feature can't be disabled.");
+                "The only downside of this is that your log file gets a bit messy.");
 
         validateOptions();
         save();

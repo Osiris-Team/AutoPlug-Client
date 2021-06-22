@@ -15,58 +15,13 @@ import com.osiris.autoplug.client.tasks.updater.plugins.search.spigot.SpigotSear
 import com.osiris.autoplug.client.tasks.updater.plugins.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.plugins.search.spigot.SpigotSearchByName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SearchMaster {
-
-    private final Map<Thread, SearchResult> threadsAndResults = new HashMap<>();
-
-    public SearchResult getSearchResultForThread(Thread thread) {
-        return threadsAndResults.get(thread);
-    }
-
-    /**
-     * Searches for unknown plugins asynchronously. <br>
-     * Get the result via {@link #getSearchResultForThread(Thread)}.
-     *
-     * @return the new Thread that was started to execute this operation.
-     */
-    public Thread unknownSearch(DetailedPlugin plugin) {
-        Thread thread = new Thread(() -> threadsAndResults.put(Thread.currentThread(), unknownSearchSync(plugin)));
-        thread.start();
-        return thread;
-    }
-
-    /**
-     * Searches for plugin with provided spigot-id asynchronously. <br>
-     * Get the result via {@link #getSearchResultForThread(Thread)}.
-     *
-     * @return the new Thread that was started to execute this operation.
-     */
-    public Thread searchBySpigotId(DetailedPlugin plugin) {
-        Thread thread = new Thread(() -> threadsAndResults.put(Thread.currentThread(), searchBySpigotIdSync(plugin)));
-        thread.start();
-        return thread;
-    }
-
-    /**
-     * Searches for plugin with provided bukkit-id asynchronously. <br>
-     * Get the result via {@link #getSearchResultForThread(Thread)}.
-     *
-     * @return the new Thread that was started to execute this operation.
-     */
-    public Thread searchByBukkitId(DetailedPlugin plugin) {
-        Thread thread = new Thread(() -> threadsAndResults.put(Thread.currentThread(), searchByBukkitIdSync(plugin)));
-        thread.start();
-        return thread;
-    }
 
     /**
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins name and author will be executed.
      */
-    public SearchResult unknownSearchSync(DetailedPlugin plugin) {
+    public synchronized SearchResult unknownSearch(DetailedPlugin plugin) {
 
         // Before passing over remove everything except numbers and dots
         plugin.setVersion(plugin.getVersion().replaceAll("[^0-9.]", ""));
@@ -86,11 +41,11 @@ public class SearchMaster {
         return result_spigot;
     }
 
-    public SearchResult searchBySpigotIdSync(DetailedPlugin plugin) {
+    public synchronized SearchResult searchBySpigotId(DetailedPlugin plugin) {
         return new SpigotSearchById().search(plugin);
     }
 
-    public SearchResult searchByBukkitIdSync(DetailedPlugin plugin) {
+    public synchronized SearchResult searchByBukkitId(DetailedPlugin plugin) {
         return new BukkitSearchById().search(plugin);
     }
 
