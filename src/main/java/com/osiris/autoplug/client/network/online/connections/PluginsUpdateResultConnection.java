@@ -66,9 +66,22 @@ public class PluginsUpdateResultConnection extends SecondaryConnection {
             dos.writeUTF(result.getPlugin().getAuthor());
             dos.writeUTF(result.getPlugin().getVersion());
             dos.writeByte(result.getResultCode());
-            dos.writeUTF(result.getDownloadType());
-            dos.writeUTF(result.getLatestVersion());
-            dos.writeUTF(result.getDownloadUrl());
+
+            if (result.getDownloadType() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getDownloadType());
+
+            if (result.getLatestVersion() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getLatestVersion());
+
+            if (result.getDownloadUrl() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getDownloadUrl());
+
             if (result.getSpigotId() == null)
                 dos.writeUTF("0");
             else
