@@ -95,10 +95,13 @@ public class Main {
 
             // Start the logger
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
-            logC.load();
-            new AL().start("AutoPlug",
-                    logC.put("autoplug-logger-config", "debug").setDefValues("false").asBoolean(), // must be a new DreamYaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir") + "/autoplug-logs")
+            DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
+            DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
+            DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");
+            new AL().start(autoplug_label.asString(),
+                    debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    new File(System.getProperty("user.dir") + "/autoplug-logs"),
+                    force_ansi.asBoolean()
             );
 
 

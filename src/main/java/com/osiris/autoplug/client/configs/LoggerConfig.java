@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 public class LoggerConfig extends DreamYaml {
 
     public DYModule debug;
+    public DYModule autoplug_label;
+    public DYModule force_ansi;
 
     public LoggerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
@@ -42,6 +44,11 @@ public class LoggerConfig extends DreamYaml {
                 "Writes the debug output to console.\n" +
                         "The log file contains the debug output by default and this option wont affect that.\n" +
                         "This is the only setting that needs a restart to work.");
+
+        autoplug_label = put(name, "autoplug-label").setDefValues("AP");
+        force_ansi = put(name, "force-ANSI").setDefValues("false").setComments(
+                "Forces the terminal to use ANSI. Note that this may fail."
+        );
 
         extraDebugOptions();
         save();

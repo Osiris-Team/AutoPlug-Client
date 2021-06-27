@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.tasks;
 
 import com.osiris.autoplug.client.configs.BackupConfig;
+import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.TasksConfig;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.backup.TaskPluginsBackup;
@@ -20,24 +21,29 @@ import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.autoplug.core.logger.LogFileWriter;
+import com.osiris.autoplug.core.logger.Message;
+import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PrintWriter;
 import java.util.List;
 
 /**
  * Stuff that is executed before starting the minecraft server.
  */
 public class BeforeServerStartupTasks {
+    private LoggerConfig loggerConfig;
     private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
         BetterThreadManager manager = null;
         BetterThreadDisplayer displayer = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
+            loggerConfig = new LoggerConfig();
             tasksConfig = new TasksConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess
@@ -46,17 +52,21 @@ public class BeforeServerStartupTasks {
 
             manager = new BetterThreadManager();
             displayer = new BetterThreadDisplayer(
-                    manager, "[AutoPlug]", "[TASK]", null, false,
-                    false, tasksConfig.refresh_interval.asInt()); // We have our own way of displaying the warnings, that's why its set to false
+                    manager,
+                    "[" + loggerConfig.autoplug_label.asString() + "]",
+                    "[TASK]",
+                    null,
+                    tasksConfig.show_warnings.asBoolean(),
+                    tasksConfig.show_detailed_warnings.asBoolean(),
+                    tasksConfig.refresh_interval.asInt());
 
             if (tasksConfig.live_tasks.asBoolean())
                 displayer.start();
             else {
                 AL.info("Waiting for before startup tasks to finish...");
                 if (new BackupConfig().backup_worlds.asBoolean())
-                    AL.info("Remember that the bigger your world, the longer it will take to back it up!");
+                    AL.info("Remember that the bigger your worlds, the longer it will take to back them up!");
             }
-
 
             // Create processes
             TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
@@ -93,14 +103,37 @@ public class BeforeServerStartupTasks {
             taskPluginsUpdater.start();
 
             // Wait until the rest is finished
-            while (!manager.isFinished())
-                Thread.sleep(1000);
+            if (tasksConfig.live_tasks.asBoolean()) {
+                // In this case we have to wait until the displayer thread finishes, because
+                // of some stuff related to the System.out and to avoid duplicate printing of the summary
+                while (displayer.isAlive())
+                    Thread.sleep(1000);
+            } else {
+                while (!manager.isFinished())
+                    Thread.sleep(1000);
+            }
+
+            writeFinalStatus(manager.getAll());
 
             if (!tasksConfig.live_tasks.asBoolean())
-                printFinalStatus(manager.getAll());
+                displayer.printAll();
 
-            printSummary(manager.getAll());
-            printWarnings(manager.getAllWarnings());
+
+            PrintWriter printWriter = new PrintWriter(LogFileWriter.BUFFERED_WRITER);
+
+            // We want the log file to have all the information.
+            boolean showWarnings = displayer.isShowWarnings();
+            boolean showDetailedWarnings = displayer.isShowDetailedWarnings();
+            displayer.setShowWarnings(true);
+            displayer.setShowDetailedWarnings(true);
+
+            displayer.printAndWriteResults(null, printWriter);
+
+            displayer.setShowWarnings(showWarnings);
+            displayer.setShowDetailedWarnings(showDetailedWarnings);
+
+            // We don't need to do the below, because its already automatically done when the tasks finish
+            //displayer.printAndWriteResults(printStream, null);
 
         } catch (Exception e) {
             AL.warn("A severe error occurred while executing the before server startup tasks! Interrupting tasks...");
@@ -109,8 +142,8 @@ public class BeforeServerStartupTasks {
                     for (BetterThread t :
                             manager.getAll()) {
                         try {
-                            if (t != null && !t.isInterrupted())
-                                t.interrupt();
+                            if (t != null && !t.isInterrupted() && !t.isFinished())
+                                t.setSuccess(false);
                         } catch (Exception exception) {
                             AL.warn(exception);
                         }
@@ -130,20 +163,22 @@ public class BeforeServerStartupTasks {
 
     }
 
-    private void printSummary(@NotNull List<BetterThread> all) {
+    private void writeFinalStatus(List<BetterThread> all) {
         for (BetterThread t :
                 all) {
-            for (String s :
-                    t.getSummary()) {
-                AL.info(s);
-            }
-        }
-    }
+            StringBuilder builder = new StringBuilder();
+            if (t.isSuccess())
+                builder.append("[OK]");
+            else if (t.isSkipped())
+                builder.append("[SKIPPED]");
+            else
+                builder.append("[" + t.getWarnings().size() + "x WARN]");
 
-    private void printWarnings(@NotNull List<BetterWarning> allWarnings) {
-        for (BetterWarning w :
-                allWarnings) {
-            AL.warn(w.getException(), w.getExtraInfo());
+            builder.append("[" + t.getName() + "] ");
+            builder.append(t.getStatus());
+
+            LogFileWriter.writeToLog(MessageFormatter.formatForFile(
+                    new Message(Message.Type.INFO, builder.toString())));
         }
     }
 

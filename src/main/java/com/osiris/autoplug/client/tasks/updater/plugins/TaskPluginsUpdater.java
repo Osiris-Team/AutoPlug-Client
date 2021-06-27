@@ -204,7 +204,6 @@ public class TaskPluginsUpdater extends BetterThread {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {
             updatesAvailable++;
-            getSummary().add("Plugin " + pl.getName() + " has an update available (" + pl.getVersion() + " -> " + latest + ")");
 
             try {
                 // Update the in-memory config
@@ -215,7 +214,7 @@ public class TaskPluginsUpdater extends BetterThread {
             }
 
             if (userProfile.equals(notifyProfile)) {
-                // Do nothing more
+                addInfo("NOTIFY: Plugin '" + pl.getName() + "' has an update available (" + pl.getVersion() + " -> " + latest + ")");
             } else {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                     if (userProfile.equals(manualProfile)) {

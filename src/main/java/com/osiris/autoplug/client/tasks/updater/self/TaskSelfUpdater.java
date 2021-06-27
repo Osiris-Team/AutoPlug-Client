@@ -90,9 +90,9 @@ public class TaskSelfUpdater extends BetterThread {
         if (new UtilsVersion().compare(currentVersion, version)) {
             String profile = updaterConfig.self_updater_profile.asString();
             if (profile.equals("NOTIFY")) {
-                setStatus("NOTIFY: Update found (" + currentVersion + " -> " + version + ")!");
+                setStatus("Update found (" + currentVersion + " -> " + version + ")!");
             } else if (profile.equals("MANUAL")) {
-                setStatus("MANUAL: Update found (" + currentVersion + " -> " + version + "), started download!");
+                setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
 
                 // Download the file
                 File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
@@ -124,7 +124,7 @@ public class TaskSelfUpdater extends BetterThread {
                     }
                 }
             } else {
-                setStatus("AUTOMATIC: Update found (" + currentVersion + " -> " + version + "), started download!");
+                setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
                 if (installationFile.exists()) installationFile.delete();
                 installationFile.createNewFile();
 
