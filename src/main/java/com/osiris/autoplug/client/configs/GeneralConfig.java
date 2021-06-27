@@ -83,6 +83,8 @@ public class GeneralConfig extends DreamYaml {
                 " - XX:+UseG1GC",
                 "Wrong:",
                 " - \"- XX:+UseG1GC\"",
+                "If you want to change the timezone add this flag: -Duser.timezone=\"America/New_York\"",
+                "A full list of all timezones: https://garygregory.wordpress.com/2013/06/18/what-are-the-java-timezone-ids/",
                 "More on this topic:",
                 "https://forums.spongepowered.org/t/optimized-startup-flags-for-consistent-garbage-collection/13239",
                 "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
