@@ -48,10 +48,10 @@ public class PluginsConfig extends DreamYaml {
                         "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
                         "\n" +
                         "#######################################################################################################################\n" +
-                        "This file contains detailed information about your installed plugins. It is fetched from each plugins 'plugin.yml' file (located inside its jar).\n" +
+                        "This file contains detailed information about your installed plugins. It is fetched from each plugins 'plugin.yml' file (located inside their jars).\n" +
                         "The data gets refreshed before performing an update-check. To exclude a plugin from the check set exclude=true.\n" +
                         "If a name/author/version is missing, the plugin gets excluded automatically.\n" +
-                        "You can add extra information by defining an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest plugin jar).\n" +
+                        "If there are plugins that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest plugin jar).\n" +
                         "The spigot-id of a plugin, can be found directly in the url.\n" +
                         "Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
                         "The spigot-id from the URL above, is therefore 78414.\n" +

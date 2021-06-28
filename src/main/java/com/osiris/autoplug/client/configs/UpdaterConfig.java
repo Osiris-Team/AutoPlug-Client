@@ -86,8 +86,8 @@ public class UpdaterConfig extends DreamYaml {
 
         plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
                 "Updates your plugins in to /plugins directory.",
-                "Note that there is a cool-down (that cannot be changed) of a few hours,",
-                "because the check can be very demanding for the AutoPlug-Webserver.");
+                "The results are sent to AutoPlug-Web. You can configure this in the web-config.",
+                "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
         plugin_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
         plugin_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
