@@ -68,8 +68,6 @@ public class TaskPluginsUpdater extends BetterThread {
         updaterConfig = new UpdaterConfig();
         userProfile = updaterConfig.plugin_updater_profile.asString();
 
-        this.setAutoFinish(false); // So that the last finish message is shown.
-
         if (!updaterConfig.plugin_updater.asBoolean()) {
             skip();
             return;
@@ -204,6 +202,7 @@ public class TaskPluginsUpdater extends BetterThread {
             }
 
             if (finishedDownloadTask != null) {
+                downloadTasksList.remove(finishedDownloadTask);
                 SearchResult matchingResult = null;
                 for (SearchResult result :
                         results) {

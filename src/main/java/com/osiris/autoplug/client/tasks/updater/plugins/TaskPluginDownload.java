@@ -72,8 +72,6 @@ public class TaskPluginDownload extends BetterThread {
     public void runAtStart() throws Exception {
         super.runAtStart();
 
-        this.setAutoFinish(false); // Disable so we can display the finish message
-
         if (profile.equals("NOTIFY")) {
             setStatus("Your profile doesn't allow downloads! Profile: " + profile);
             finish(false);
@@ -91,9 +89,6 @@ public class TaskPluginDownload extends BetterThread {
             isInstallSuccessful = true;
             setStatus("Installed update for " + plName + " successfully!");
         }
-
-
-        finish(true);
     }
 
     public void download() throws Exception {

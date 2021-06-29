@@ -163,8 +163,7 @@ public class TaskSelfUpdater extends BetterThread {
             }
 
         } else {
-            setStatus("AutoPlug is on the latest version!");
-            setSuccess(true);
+            finish("AutoPlug is on the latest version!");
         }
 
 
