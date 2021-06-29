@@ -25,11 +25,14 @@ public class SearchResult {
     private Exception exception;
 
     /**
-     * @param resultCode    from 0-3. <br>
+     * @param resultCode    All codes: <br>
      *                      0 = already on latest version. <br>
      *                      1 = update available. <br>
      *                      2 = api error. <br>
      *                      3 = plugin not found (author not found). <br>
+     *                      4 = plugin was excluded. <br>
+     *                      5 = plugin update was downloaded. <br>
+     *                      6 = plugin update was installed. <br>
      * @param latestVersion
      * @param downloadUrl
      * @param downloadType

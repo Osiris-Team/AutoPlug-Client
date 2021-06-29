@@ -46,7 +46,8 @@ public class TaskPluginsUpdater extends BetterThread {
     private DataInputStream online_dis;
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
-    private int updatesDownloaded = 0;
+    private final int updatesDownloaded = 0;
+    private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
 
     public TaskPluginsUpdater(String name, BetterThreadManager manager) {
         super(name, manager);
@@ -55,7 +56,6 @@ public class TaskPluginsUpdater extends BetterThread {
 
     @Override
     public void runAtStart() throws Exception {
-        super.runAtStart();
         try {
             pluginsConfig = new PluginsConfig();
         } catch (DuplicateKeyException e) {
@@ -133,6 +133,7 @@ public class TaskPluginsUpdater extends BetterThread {
             }
         }
 
+
         List<SearchResult> results = new ArrayList<>();
         while (!activeFutures.isEmpty()) {
             Thread.sleep(250);
@@ -189,14 +190,50 @@ public class TaskPluginsUpdater extends BetterThread {
 
         pluginsConfig.save();
 
+
+        // Wait until all download tasks have finished.
+        while (!downloadTasksList.isEmpty()) {
+            Thread.sleep(1000);
+            TaskPluginDownload finishedDownloadTask = null;
+            for (TaskPluginDownload task :
+                    downloadTasksList) {
+                if (!task.isAlive()) {
+                    finishedDownloadTask = task;
+                    break;
+                }
+            }
+
+            if (finishedDownloadTask != null) {
+                SearchResult matchingResult = null;
+                for (SearchResult result :
+                        results) {
+                    if (result.getPlugin().getName().equals(finishedDownloadTask.getPlName())) {
+                        matchingResult = result;
+                        break;
+                    }
+                }
+                if (matchingResult == null)
+                    throw new Exception("This should not happen! Please report to the devs!");
+
+                if (finishedDownloadTask.isDownloadSuccessful())
+                    matchingResult.setResultCode((byte) 5);
+
+                if (finishedDownloadTask.isInstallSuccessful())
+                    matchingResult.setResultCode((byte) 6);
+            }
+        }
+
         if (new WebConfig().send_plugins_updater_results.asBoolean()) {
             setStatus("Sending update check results to AutoPlug-Web...");
-            new PluginsUpdateResultConnection(results, pluginsConfig.getExcludedPlugins()).open();
+            try {
+                new PluginsUpdateResultConnection(results, pluginsConfig.getExcludedPlugins())
+                        .open();
+            } catch (Exception e) {
+                addWarning(new BetterWarning(this, e));
+            }
         }
 
         finish("Finished checking all plugins (" + results.size() + "/" + size + ")");
-
-        // TODO FINISH RESULT SENDING AND RECEIVING AT AUTOPLUG-WEB
     }
 
     private void doDownloadLogic(@NotNull DetailedPlugin pl, byte code, @NotNull String type, String latest, String url, @NotNull String resultSpigotId, @NotNull String resultBukkitId) {
@@ -219,15 +256,15 @@ public class TaskPluginsUpdater extends BetterThread {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                     if (userProfile.equals(manualProfile)) {
                         File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + pl.getName() + "[" + latest + "].jar");
-                        new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest)
-                                .start();
-                        updatesDownloaded++;
+                        TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
+                        downloadTasksList.add(task);
+                        task.start();
                     } else {
                         File oldPl = new File(pl.getInstallationPath());
                         File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                        new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl)
-                                .start();
-                        updatesDownloaded++;
+                        TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
+                        downloadTasksList.add(task);
+                        task.start();
                     }
                 } else
                     getWarnings().add(new BetterWarning(this, new Exception("Failed to download plugin update(" + latest + ") for " + pl.getName() + " because of unsupported type: " + type)));

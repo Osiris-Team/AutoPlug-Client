@@ -35,6 +35,8 @@ public class TaskPluginDownload extends BetterThread {
     private final File finalDest;
     private final File deleteDest;
     private File downloadDest;
+    private boolean isDownloadSuccessful;
+    private boolean isInstallSuccessful;
 
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
@@ -78,12 +80,15 @@ public class TaskPluginDownload extends BetterThread {
             return;
         } else if (profile.equals("MANUAL")) {
             download();
+            isDownloadSuccessful = true;
         } else {
             download();
+            isDownloadSuccessful = true;
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
             if (deleteDest != null && deleteDest.exists()) deleteDest.delete();
             FileUtils.copyFile(downloadDest, finalDest);
+            isInstallSuccessful = true;
             setStatus("Installed update for " + plName + " successfully!");
         }
 
@@ -155,4 +160,39 @@ public class TaskPluginDownload extends BetterThread {
         }
     }
 
+    public String getPlName() {
+        return plName;
+    }
+
+    public String getPlLatestVersion() {
+        return plLatestVersion;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public File getFinalDest() {
+        return finalDest;
+    }
+
+    public File getDeleteDest() {
+        return deleteDest;
+    }
+
+    public File getDownloadDest() {
+        return downloadDest;
+    }
+
+    public boolean isDownloadSuccessful() {
+        return isDownloadSuccessful;
+    }
+
+    public boolean isInstallSuccessful() {
+        return isInstallSuccessful;
+    }
 }

@@ -13,8 +13,10 @@ import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * The user can send commands through the online console.<br>
@@ -36,11 +38,13 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
             thread = new Thread(() -> {
                 try {
                     getSocket().setSoTimeout(0);
-                    DataInputStream dis = getDataIn();
-                    while (true) {
-                        String command = dis.readUTF();
-                        AutoPlugConsole.executeCommand(command);
-                        AL.info("Executed Web-Command: " + command);
+                    InputStream in = getSocket().getInputStream();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            AutoPlugConsole.executeCommand(line);
+                            AL.info("Executed Web-Command: " + line);
+                        }
                     }
                 } catch (Exception e) {
                     AL.warn(this.getClass(), e);

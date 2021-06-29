@@ -87,6 +87,13 @@ public class SecuredConnection {
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
             case 5:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): No user account found for the provided server key!");
+            case 6:
+                String ip = dis.readUTF();
+                String hostname = dis.readUTF();
+                int port = dis.readInt();
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
+                        " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
+                        " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
             default:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
         }
