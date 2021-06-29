@@ -48,8 +48,8 @@ public class GeneralConfig extends DreamYaml {
 
 
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
-                "Enter your Server-Key here. You get the key by registering yourself and your server on https://autoplug.online.\n" +
-                        "The Server-Key is essential to perform most of AutoPlugs main operations and it enables remote access from your account.\n" +
+                "Enter your Server-Key here. You get it by registering yourself and your server on https://autoplug.online.\n" +
+                        "The Server-Key enables remote access from your account.\n" +
                         "No matter what, keep this key private to ensure your servers security!");
 
         server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
@@ -62,8 +62,8 @@ public class GeneralConfig extends DreamYaml {
                 "AutoPlug uses this command to stop your server.");
 
         server_java_version = put(name, "server", "java-version").setDefValues("java").setComments(
-                "This is the java version your server will be running on.\n" +
-                        "If you plan to use a specific version of java or you don't have the java path as a System-PATH variable, enter its path here.\n" +
+                "This is the Java version your server will be running on.\n" +
+                        "If you plan to use a specific version of Java or you don't have the Java path as a System-PATH variable, enter its path here.\n" +
                         "Otherwise leave it as it is.\n" +
                         "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe");
 
@@ -72,6 +72,7 @@ public class GeneralConfig extends DreamYaml {
                         "The auto-find feature will fail if...\n" +
                         "... you have more than 2 jars in your servers root directory (AutoPlug-Client.jar included).\n" +
                         "... your server jar is located in another directory.\n" +
+                        "... you renamed the AutoPlug-Client.jar." +
                         "You can fix this by entering its file path (Linux and Windows formats are supported)\n" +
                         "or by entering its file name below, without its .jar file extension (only if AutoPlug-Client is also in the servers root directory).");
 
