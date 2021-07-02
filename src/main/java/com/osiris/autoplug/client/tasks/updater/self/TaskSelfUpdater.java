@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.SelfInstaller;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.tasks.updater.server.TaskServerDownload;
+import com.osiris.autoplug.client.tasks.updater.server.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;
@@ -98,7 +98,7 @@ public class TaskSelfUpdater extends BetterThread {
                 File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
-                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl, cache_dest);
+                TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
                 download.start();
 
                 while (true) {
@@ -132,7 +132,7 @@ public class TaskSelfUpdater extends BetterThread {
                 File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
-                TaskServerDownload download = new TaskServerDownload("Downloader", getManager(), downloadUrl, cache_dest);
+                TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
                 download.start();
 
                 while (true) {

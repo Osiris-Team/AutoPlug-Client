@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.util.Random;
 
-public class TaskServerDownload extends BetterThread {
+public class TaskDownload extends BetterThread {
     private String url;
     private File dest;
 
@@ -39,13 +39,13 @@ public class TaskServerDownload extends BetterThread {
      * @param url     the download-url.
      * @param dest    the downloads final destination.
      */
-    public TaskServerDownload(String name, BetterThreadManager manager, String url, File dest) {
+    public TaskDownload(String name, BetterThreadManager manager, String url, File dest) {
         this(name, manager);
         this.url = url;
         this.dest = dest;
     }
 
-    private TaskServerDownload(String name, BetterThreadManager manager) {
+    private TaskDownload(String name, BetterThreadManager manager) {
         super(name, manager);
     }
 
@@ -64,19 +64,19 @@ public class TaskServerDownload extends BetterThread {
         ResponseBody body = null;
         try {
             if (response.code() != 200)
-                throw new Exception("Server download failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
+                throw new Exception("Download of '" + dest.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
 
             body = response.body();
             if (body == null)
-                throw new Exception("Download failed because of null response body!");
+                throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
             else if (body.contentType() == null)
-                throw new Exception("Download failed because of null content type!");
+                throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
-                throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
+                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
             else if (!body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
                     && !body.contentType().subtype().equals("octet-stream"))
-                throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
+                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);

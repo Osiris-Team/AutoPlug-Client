@@ -73,7 +73,7 @@ public class TaskServerUpdater extends BetterThread {
             File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
             download.start();
 
             while (true) {
@@ -110,7 +110,7 @@ public class TaskServerUpdater extends BetterThread {
             File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskServerDownload download = new TaskServerDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
             download.start();
 
             while (true) {

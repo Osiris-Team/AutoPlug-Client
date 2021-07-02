@@ -2,6 +2,7 @@ package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +47,7 @@ public class SelfInstaller {
             public FileVisitResult visitFile(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
                 if (path.toFile().getName().equals(fileToFindName)) {
                     oldJar = path.toFile();
-                    System.out.println("Found: " + path);
+                    AL.info("Found: " + path);
                     return FileVisitResult.TERMINATE;
                 }
                 return FileVisitResult.CONTINUE;
@@ -76,9 +77,9 @@ public class SelfInstaller {
         // Copy and overwrite the old jar with the update file
         // Note: Deletion of the current jar and the copy jar are done
         // at startup.
-        System.out.println("Installing update...");
+        AL.info("Installing update...");
         Files.copy(copyJar.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        System.out.println("Success!");
+        AL.info("Success!");
 
         // Start that updated old jar and close this one
         startJarFromPath(oldJar, oldJar.getParentFile());
@@ -99,7 +100,7 @@ public class SelfInstaller {
         commands.add("-jar");
         commands.add(jarToStart.getAbsolutePath());
 
-        System.out.println("Restarting AutoPlug with: " + commands);
+        AL.info("Starting jar with: " + commands);
         new ProcessBuilder(commands)
                 .directory(workingDir)
                 .inheritIO()

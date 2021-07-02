@@ -91,7 +91,7 @@ public class GeneralConfig extends DreamYaml {
                 "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
         server_flags_list = put(name, "server", "flags", "list").setDefValues("Xms2G", "Xmx2G");
 
-        server_arguments_enabled = put(name, "server", "arguments", "enable").setDefValues("true").setComments(
+        server_arguments_enabled = put(name, "server", "arguments", "enable").setDefValues("false").setComments(
                 "If you were using arguments, add them to the list below.\n" +
                         "Arguments are passed after the '-jar <file-name>.jar' part. Example: '... -jar server.jar <arguments>'\n" +
                         "They can be specific to the server software you are using.\n" +

@@ -38,6 +38,8 @@ public class TaskPluginsUpdater extends BetterThread {
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
     private final String automaticProfile = "AUTOMATIC";
+    private final int updatesDownloaded = 0;
+    private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private PluginsConfig pluginsConfig;
@@ -46,8 +48,6 @@ public class TaskPluginsUpdater extends BetterThread {
     private DataInputStream online_dis;
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
-    private final int updatesDownloaded = 0;
-    private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
 
     public TaskPluginsUpdater(String name, BetterThreadManager manager) {
         super(name, manager);

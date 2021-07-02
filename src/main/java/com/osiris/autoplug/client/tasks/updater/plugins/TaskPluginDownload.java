@@ -34,7 +34,7 @@ public class TaskPluginDownload extends BetterThread {
     private final String profile;
     private final File finalDest;
     private final File deleteDest;
-    private File downloadDest;
+    private File dest;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
 
@@ -85,7 +85,7 @@ public class TaskPluginDownload extends BetterThread {
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
             if (deleteDest != null && deleteDest.exists()) deleteDest.delete();
-            FileUtils.copyFile(downloadDest, finalDest);
+            FileUtils.copyFile(dest, finalDest);
             isInstallSuccessful = true;
             setStatus("Installed update for " + plName + " successfully!");
         }
@@ -96,11 +96,11 @@ public class TaskPluginDownload extends BetterThread {
         File dir = new File(GD.WORKING_DIR + "/autoplug-downloads");
         if (!dir.exists()) dir.mkdirs();
 
-        downloadDest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + plName + "-[" + plLatestVersion + "].jar");
-        if (downloadDest.exists()) downloadDest.delete();
-        downloadDest.createNewFile();
+        dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + plName + "-[" + plLatestVersion + "].jar");
+        if (dest.exists()) dest.delete();
+        dest.createNewFile();
 
-        final String fileName = downloadDest.getName();
+        final String fileName = dest.getName();
         setStatus("Downloading " + fileName + "... (0kb/0kb)");
         AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
@@ -115,21 +115,21 @@ public class TaskPluginDownload extends BetterThread {
 
             body = response.body();
             if (body == null)
-                throw new Exception("Download failed because of null response body!");
+                throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
             else if (body.contentType() == null)
-                throw new Exception("Download failed because of null content type!");
+                throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
-                throw new Exception("Download failed because of invalid content type: " + body.contentType().type());
+                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
             else if (!body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
                     && !body.contentType().subtype().equals("octet-stream"))
-                throw new Exception("Download failed because of invalid sub-content type: " + body.contentType().subtype());
+                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
 
             BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(downloadDest);
+            FileOutputStream fos = new FileOutputStream(dest);
             BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
             byte[] data = new byte[1024];
             long downloadedFileSize = 0;
@@ -180,7 +180,7 @@ public class TaskPluginDownload extends BetterThread {
     }
 
     public File getDownloadDest() {
-        return downloadDest;
+        return dest;
     }
 
     public boolean isDownloadSuccessful() {
