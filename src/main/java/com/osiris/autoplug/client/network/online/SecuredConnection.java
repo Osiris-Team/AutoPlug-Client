@@ -94,6 +94,9 @@ public class SecuredConnection {
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
                         " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
+            case 7:
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
+                        " An unknown error occurred at AutoPlug-Web.");
             default:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
         }
