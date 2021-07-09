@@ -28,9 +28,11 @@ public final class AutoPlugConsole {
 
         String first = ".";
         try {
+            Objects.requireNonNull(command);
             first = Character.toString(command.charAt(0));
         } catch (Exception e) {
-            AL.info("Command not found! Enter .help for all available server!");
+            AL.warn("Failed to read command '"+command+"'! Enter .help for all available commands!", e);
+            return false;
         }
 
         if (first.equals(".")) {
@@ -67,7 +69,7 @@ public final class AutoPlugConsole {
                     return true;
                 } else if (command.equals(".kill both") || command.equals(".kb")) {
                     Server.kill();
-                    AL.info("Killing AutoPlug-Client and MC-Server! Ahhhh!");
+                    AL.info("Killing AutoPlug-Client and Server! Ahhhh!");
                     AL.info("Achievement unlocked: Double kill!");
                     System.exit(0);
                     return true;
@@ -75,7 +77,7 @@ public final class AutoPlugConsole {
                     new BeforeServerStartupTasks();
                     return true;
                 } else {
-                    AL.info("Command not found! Enter .help or .h for all available server!");
+                    AL.info("Command '"+command+"' not found! Enter .help or .h for all available commands!");
                     return true;
                 }
             } catch (Exception e) {
