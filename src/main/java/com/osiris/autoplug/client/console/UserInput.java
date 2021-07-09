@@ -18,7 +18,6 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 
-import static com.osiris.autoplug.core.logger.AL.info;
 import static com.osiris.betterthread.Constants.TERMINAL;
 
 public class UserInput {
@@ -57,11 +56,8 @@ public class UserInput {
                                     AL.warn(e, "Failed to write command to log file.");
                                 }
 
-                            } else if (Server.isRunning()) {
+                            } else
                                 Server.submitCommand(user_input);
-                            } else {
-                                info("Enter .help for all available server!");
-                            }
 
                         } catch (UserInterruptException e) {
                             // Ignore

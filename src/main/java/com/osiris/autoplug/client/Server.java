@@ -325,6 +325,8 @@ public final class Server {
             else
                 os.write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));//TERMINAL.writer().write(command + System.lineSeparator());
             os.flush();
+        } else {
+            AL.warn("Failed to submit command '" + command + "' because server is not running!");
         }
     }
 
