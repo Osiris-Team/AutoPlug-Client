@@ -17,6 +17,7 @@ import com.osiris.autoplug.client.tasks.backup.TaskServerFilesBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
+import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
@@ -78,6 +79,7 @@ public class BeforeServerStartupTasks {
             TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", manager);
             TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", manager);
 
+            TaskJavaUpdater taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", manager);
             TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", manager);
             TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", manager);
 
@@ -99,6 +101,7 @@ public class BeforeServerStartupTasks {
             taskDailyRestarter.start();
             taskCustomRestarter.start();
 
+            taskJavaUpdater.start();
             taskServerUpdater.start();
             taskPluginsUpdater.start();
 

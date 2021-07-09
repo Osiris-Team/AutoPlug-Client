@@ -13,6 +13,8 @@ import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Listens for input started with .
  * List the server with .help

@@ -6,7 +6,7 @@
  * AutoPlug License.  Please consult the file "LICENSE" for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.server;
+package com.osiris.autoplug.client.tasks.updater.java;
 
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
@@ -26,9 +26,11 @@ import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.util.Random;
 
-public class TaskDownload extends BetterThread {
-    private String url;
+public class TaskJavaDownload extends BetterThread {
+    private final String url;
+    private final AdoptV3API.OperatingSystemType osType;
     private File dest;
+    private boolean isTar;
 
     /**
      * Downloads a file from an url to the cache first and then
@@ -37,23 +39,21 @@ public class TaskDownload extends BetterThread {
      * @param name    This processes name.
      * @param manager the parent process manager.
      * @param url     the download-url.
-     * @param dest    the downloads final destination.
+     * @param dest    the downloads final destination. Note that the file name must end with '.file', because
+     *                the actual file type gets set when there is download information available.
      */
-    public TaskDownload(String name, BetterThreadManager manager, String url, File dest) {
-        this(name, manager);
+    public TaskJavaDownload(String name, BetterThreadManager manager, String url, File dest, AdoptV3API.OperatingSystemType osType) {
+        super(name, manager);
         this.url = url;
         this.dest = dest;
-    }
-
-    private TaskDownload(String name, BetterThreadManager manager) {
-        super(name, manager);
+        this.osType = osType;
     }
 
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
 
-        final String fileName = dest.getName();
+        String fileName = dest.getName();
         setStatus("Downloading " + fileName + "... (0mb/0mb)");
         AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
@@ -64,19 +64,49 @@ public class TaskDownload extends BetterThread {
         ResponseBody body = null;
         try {
             if (response.code() != 200)
-                throw new Exception("Download of '" + dest.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
+                throw new Exception("Download of '" + fileName + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
 
             body = response.body();
             if (body == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
+                throw new Exception("Download of '" + fileName + "' failed because of null response body!");
             else if (body.contentType() == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
+                throw new Exception("Download of '" + fileName + "' failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
+                throw new Exception("Download of '" + fileName + "' failed because of invalid content type: " + body.contentType().type());
             else if (!body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
-                    && !body.contentType().subtype().equals("octet-stream"))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                    && !body.contentType().subtype().equals("octet-stream")
+                    && !body.contentType().subtype().equals("x-gtar") // ADDITIONS FOR JAVA DOWNLOADS
+                    && !body.contentType().subtype().equals("zip"))
+                throw new Exception("Download of '" + fileName + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+
+            // Set the file name
+            isTar = false;
+            if (body.contentType().subtype().equals("x-gtar")) {
+                isTar = true;
+                fileName.replace(".file", ".tar.gz");
+            } else if (body.contentType().subtype().equals("zip"))
+                fileName.replace(".file", ".zip");
+            else {
+                // In this case we check the response header for file information
+                String location = request.headers().get("location"); // An URL containing the actual file download URL and thus also the files name
+                if (location == null)
+                    throw new Exception("Failed to determine download file type!");
+
+                if (location.contains(".tar.gz"))
+                    fileName.replace(".file", ".tar.gz");
+                else if (location.contains(".zip"))
+                    fileName.replace(".file", ".zip");
+                else
+                    throw new Exception("Failed to determine download file type! Download-Url: " + location);
+            }
+
+            File newDest = new File(dest.getParentFile().getAbsolutePath() + "/" + fileName);
+            if (newDest.exists()) newDest.delete();
+            newDest.createNewFile();
+            if (dest.exists()) dest.delete();
+            dest = newDest;
+
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
@@ -106,6 +136,13 @@ public class TaskDownload extends BetterThread {
             response.close();
             throw e;
         }
+    }
+
+    /**
+     * Retrieve this once the task finished to get a correct result.
+     */
+    public boolean isTar() {
+        return isTar;
     }
 
     /**

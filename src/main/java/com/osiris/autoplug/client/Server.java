@@ -9,6 +9,8 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
@@ -20,10 +22,7 @@ import net.lingala.zip4j.model.FileHeader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,16 +125,52 @@ public final class Server {
         return process != null && process.isAlive();
     }
 
-    private static void createProcess(String path) throws IOException, DuplicateKeyException,
-            DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    private static void createProcess(String path) throws Exception {
         GeneralConfig config = new GeneralConfig();
         List<String> commands = new ArrayList<>();
 
         // 1. Which java version should be used
-        if (!config.server_java_version.asString().equals("java")) {
-            commands.add(config.server_java_version.asString());
-        } else {
-            commands.add("java");
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        if (updaterConfig.java_updater.asBoolean()
+                && (updaterConfig.java_updater_profile.equals("AUTOMATIC") || updaterConfig.java_updater_profile.equals("MANUAL"))) {
+            FileManager fileManager = new FileManager();
+            File jreFolder = new File(GD.WORKING_DIR + "/autoplug-system/jre");
+            List<File> folders = fileManager.getFoldersFrom(jreFolder);
+            if (folders.isEmpty())
+                throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");
+            File javaBinFolder = null;
+            for (File folder :
+                    fileManager.getFoldersFrom(folders.get(0))) {// This are the files inside a java installation
+                if (folder.getName().equals("bin")) {
+                    javaBinFolder = folder;
+                    break;
+                }
+            }
+            if (javaBinFolder == null)
+                throw new Exception("No Java 'bin' folder found inside of Java installation at path: '" + jreFolder.getAbsolutePath() + "'");
+            File javaFile = null;
+            for (File file :
+                    fileManager.getFilesFrom(javaBinFolder)) {
+                if (getFileNameWithoutExt(file.getName()).equals("java")) {
+                    javaFile = file;
+                    break;
+                }
+            }
+            if (javaFile == null)
+                throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
+
+            // To ensure that russian and other chars in the file path/name are read correctly
+            // and don't prevent the jar from starting we do the following:
+            commands.add(new String(javaFile.getAbsolutePath().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+
+        } else { // Means that the java updater is disabled or set to NOTIFY
+            if (!config.server_java_path.asString().equals("java")) {
+                // To ensure that russian and other chars in the file path/name are read correctly
+                // and don't prevent the jar from starting we do the following:
+                commands.add(new String(config.server_java_path.asString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } else {
+                commands.add("java");
+            }
         }
 
         // 2. Add all before-flags
@@ -148,7 +183,9 @@ public final class Server {
 
         // 3. Add the -jar command and server jar path
         commands.add("-jar");
-        commands.add(path);
+        // To ensure that russian and other chars in the file path/name are read correctly
+        // and don't prevent the jar from starting we do the following:
+        commands.add(new String(path.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
 
         // 4. Add all arguments
         if (config.server_arguments_enabled.asBoolean()) {
@@ -185,24 +222,39 @@ public final class Server {
         if (threadReadOutputStream == null) {
             threadReadOutputStream = new Thread(() -> {
                 try {
+                    boolean isRunningOld = false; // So the stuff in the while loop below only happens once and not every time
+                    InputStream serverIn = null;
                     while (true) {
-                        InputStream in = process.getInputStream();
-                        if (isRunning() && in != null) {
-                            // Get Servers OutputStream, and forward it to a NonBlockingInputStream.
-                            // From there multiple listeners can be attached.
-                            NB_SERVER_IN = new NonBlockingPipedInputStream();
-                            OutputStream pipedOut = new PipedOutputStream(NB_SERVER_IN);
-                            NB_SERVER_IN.actionsOnWriteLineEvent.add(line -> {
-                                System.out.println(line);
-                            });
-                            if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(OnlineConsoleSendConnection.actionOnServerLineWriteEvent))
-                                NB_SERVER_IN.actionsOnWriteLineEvent.add(OnlineConsoleSendConnection.actionOnServerLineWriteEvent);
-                            int b = -1;
-                            while ((b = in.read()) != -1) {
-                                pipedOut.write(b);
+                        if (isRunningOld != isRunning()) {
+                            isRunningOld = isRunning();
+                            serverIn = process.getInputStream();
+                            if (isRunning() && serverIn != null) {
+                                // Get Servers OutputStream, and forward it to a NonBlockingInputStream.
+                                // From there multiple listeners can be attached.
+                                NB_SERVER_IN = new NonBlockingPipedInputStream();
+                                OutputStream pipedOut = new PipedOutputStream(NB_SERVER_IN);
+                                NB_SERVER_IN.actionsOnWriteLineEvent.add(line -> {
+                                    System.out.println(line);
+                                });
+                                if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(OnlineConsoleSendConnection.actionOnServerLineWriteEvent))
+                                    NB_SERVER_IN.actionsOnWriteLineEvent.add(OnlineConsoleSendConnection.actionOnServerLineWriteEvent);
+                                int b = -1;
+                                while ((b = serverIn.read()) != -1) {
+                                    pipedOut.write(b);
+                                }
+
+                            } else { // The server is not running, so we check the exit code and restart depending on that
+                                if (process.exitValue() != 0) {
+                                    AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
+                                    if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
+                                        AL.info("Restart on crash is enabled, thus the server is restarting...");
+                                        Server.start();
+                                    }
+                                }
+
                             }
                         }
-                        Thread.sleep(250);
+                        Thread.sleep(1000);
                     }
                 } catch (Exception e) {
                     AL.warn(e);
@@ -247,6 +299,11 @@ public final class Server {
         }
     }
 
+    public static String getFileNameWithoutExt(String fileNameWithExt) throws NotLoadedException {
+        return fileNameWithExt.replaceFirst("[.][^.]+$", ""); // Removes the file extension
+    }
+
+
     private static boolean hasColorSupport(@NotNull String path) throws IOException {
         ZipFile zipFile = new ZipFile(path);
         FileHeader fileHeader = zipFile.getFileHeader("fileNameInZipToRemove");
@@ -269,14 +326,6 @@ public final class Server {
                 os.write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));//TERMINAL.writer().write(command + System.lineSeparator());
             os.flush();
         }
-    }
-
-    public InputStream getInput() {
-        return process.getInputStream();
-    }
-
-    public OutputStream getOutput() {
-        return process.getOutputStream();
     }
 
 }

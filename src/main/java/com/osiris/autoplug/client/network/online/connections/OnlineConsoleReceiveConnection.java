@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Socket;
 
 /**
  * The user can send commands through the online console.<br>
@@ -37,11 +38,12 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
         if (thread == null)
             thread = new Thread(() -> {
                 try {
-                    getSocket().setSoTimeout(0);
+                    Socket socket = getSocket();
+                    socket.setSoTimeout(0);
                     InputStream in = getSocket().getInputStream();
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                         String line;
-                        while ((line = reader.readLine()) != null) {
+                        while (!socket.isClosed() && (line = reader.readLine()) != null) {
                             AutoPlugConsole.executeCommand(line);
                             AL.info("Executed Web-Command: " + line);
                         }

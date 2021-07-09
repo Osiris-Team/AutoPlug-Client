@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.SelfInstaller;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.tasks.updater.server.TaskDownload;
+import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;

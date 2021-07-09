@@ -21,6 +21,13 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule self_updater_profile;
     public DYModule self_updater_build;
 
+    public DYModule java_updater;
+    public DYModule java_updater_profile;
+    //public DYModule java_updater_vendor; // Currently not supported, because only adopt-api is implemented at the moment
+    public DYModule java_updater_version;
+    public DYModule java_updater_build_id;
+    public DYModule java_updater_large_heap;
+
     public DYModule server_updater;
     public DYModule server_updater_profile;
     public DYModule server_software;
@@ -59,6 +66,21 @@ public class UpdaterConfig extends DreamYaml {
         self_updater_build = put(name, "self-updater", "build").setDefValues("stable").setComments(
                 "Choose between 'stable' and 'beta' builds.",
                 "Stable builds are recommended.");
+
+        java_updater = put(name, "java-updater", "enable").setDefValues("false");
+        java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
+                "If you selected the MANUAL or AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
+                "Instead the new Java installation inside of /autoplug-system/jre is used to run your server."
+        );
+        java_updater_version = put(name, "java-updater", "version").setDefValues("15").setComments(
+                "The major Java version. List of version available: https://api.adoptopenjdk.net/v3/info/available_releases",
+                "Note: If you change this, also remove the \"build-id\" value to guarantee correct update-detection."
+        );
+        java_updater_build_id = put(name, "java-updater", "build-id").setComments(
+                "If you change your jdk distributor or version, remember to change remove this value, to ensure proper update-detection.",
+                "Otherwise don't touch this. It gets replaced after every successful update automatically.");
+        java_updater_large_heap = put(name, "java-updater", "large-heap").setDefValues("false").setComments(
+                "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
 
         server_updater = put(name, "server-updater", "enable").setDefValues("false").setComments("Executed before mc server startup.");
 

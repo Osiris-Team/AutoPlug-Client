@@ -22,12 +22,13 @@ public class GeneralConfig extends DreamYaml {
     public DYModule server_auto_start;
     public DYModule server_autoplug_stop;
     public DYModule server_stop_command;
-    public DYModule server_java_version;
+    public DYModule server_java_path;
     public DYModule server_jar;
     public DYModule server_flags_enabled;
     public DYModule server_flags_list;
     public DYModule server_arguments_enabled;
     public DYModule server_arguments_list;
+    public DYModule server_restart_on_crash;
 
     public GeneralConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-general-config.yml");
@@ -61,11 +62,12 @@ public class GeneralConfig extends DreamYaml {
         server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
                 "AutoPlug uses this command to stop your server.");
 
-        server_java_version = put(name, "server", "java-version").setDefValues("java").setComments(
-                "This is the Java version your server will be running on.\n" +
-                        "If you plan to use a specific version of Java or you don't have the Java path as a System-PATH variable, enter its path here.\n" +
-                        "Otherwise leave it as it is.\n" +
-                        "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe");
+        server_java_path = put(name, "server", "java-path").setDefValues("java").setComments(
+                "This is the Java version your server will be running on.",
+                "If you plan to use a specific version of Java or you don't have the Java path as a System-PATH variable, enter its path here.",
+                "Otherwise leave it as it is.",
+                "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe",
+                "Note that this value gets ignored if you have the 'java-updater' enabled.");
 
         server_jar = put(name, "server", "jar").setDefValues("auto-find").setComments(
                 "The auto-find feature will scan through your servers root directory and find the first jar with another name than AutoPlug-Client.jar.\n" +
@@ -101,6 +103,8 @@ public class GeneralConfig extends DreamYaml {
                         "https://bukkit.gamepedia.com/CraftBukkit_Command_Line_Arguments\n" +
                         "https://www.spigotmc.org/wiki/start-up-parameters");
         server_arguments_list = put(name, "server", "arguments", "list").setDefValues("--nogui");
+
+        server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
         validateOptions();
         save();
