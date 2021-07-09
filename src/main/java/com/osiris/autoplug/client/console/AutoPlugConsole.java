@@ -33,7 +33,7 @@ public final class AutoPlugConsole {
             Objects.requireNonNull(command);
             first = Character.toString(command.charAt(0));
         } catch (Exception e) {
-            AL.warn("Failed to read command '"+command+"'! Enter .help for all available commands!", e);
+            AL.warn("Failed to read command '" + command + "'! Enter .help for all available commands!", e);
             return false;
         }
 
@@ -79,7 +79,7 @@ public final class AutoPlugConsole {
                     new BeforeServerStartupTasks();
                     return true;
                 } else {
-                    AL.info("Command '"+command+"' not found! Enter .help or .h for all available commands!");
+                    AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
                 }
             } catch (Exception e) {
