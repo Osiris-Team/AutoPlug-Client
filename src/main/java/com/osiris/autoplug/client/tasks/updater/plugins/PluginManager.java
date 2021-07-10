@@ -75,10 +75,14 @@ public class PluginManager {
                             final DreamYaml ymlConfig = new DreamYaml(ymlFile);
                             ymlConfig.load();
 
-                            DYModule name = ymlConfig.put("name");
+                            String name = ymlConfig.put("name").asString();
+                            //if (name==null || name.isEmpty()){ // In this case use the jars name as name
+                            //    name = jar.getName();
+                            //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
                             DYModule version = ymlConfig.put("version");
                             DYModule authorRaw = ymlConfig.put("author");
                             DYModule authorsRaw = ymlConfig.put("authors");
+
                             String author = null;
                             if (!authorRaw.getValues().isEmpty())
                                 author = authorRaw.asString();
@@ -104,7 +108,7 @@ public class PluginManager {
                             if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
                             if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
-                            plugins.add(new DetailedPlugin(jar.getPath(), name.asString(), version.asString(), author, spigotId, bukkitId, null));
+                            plugins.add(new DetailedPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
                         }
                         // Get next file in zip
                         ze = zis.getNextEntry();

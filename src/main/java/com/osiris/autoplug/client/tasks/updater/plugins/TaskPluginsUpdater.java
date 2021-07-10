@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.configs.PluginsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.connections.PluginsUpdateResultConnection;
@@ -20,6 +19,7 @@ import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,9 +40,15 @@ public class TaskPluginsUpdater extends BetterThread {
     private final String automaticProfile = "AUTOMATIC";
     private final int updatesDownloaded = 0;
     private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
+    @NotNull
+    private final List<DetailedPlugin> includedPlugins = new ArrayList<>();
+    @NotNull
+    private final List<DetailedPlugin> allPlugins = new ArrayList<>();
+    @NotNull
+    private final List<DetailedPlugin> excludedPlugins = new ArrayList<>();
+    DreamYaml pluginsConfig;
     private UpdaterConfig updaterConfig;
     private String userProfile;
-    private PluginsConfig pluginsConfig;
     private String pluginsConfigName;
     private Socket online_socket;
     private DataInputStream online_dis;
@@ -56,13 +62,95 @@ public class TaskPluginsUpdater extends BetterThread {
 
     @Override
     public void runAtStart() throws Exception {
-        try {
-            pluginsConfig = new PluginsConfig();
-        } catch (DuplicateKeyException e) {
-            getWarnings().add(new BetterWarning(this, e, "Duplicate plugin (or plugin name from its plugin.yml) found in your plugins directory. " +
-                    "Remove it and restart AutoPlug."));
-            setSuccess(false);
-            return;
+        pluginsConfig = new DreamYaml(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
+        pluginsConfig.load(); // No lock needed, since there are no other threads that access this file
+        String name = pluginsConfig.getFileNameWithoutExt();
+        pluginsConfig.put(name).setComments(
+                "#######################################################################################################################\n" +
+                        "    ___       __       ___  __\n" +
+                        "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
+                        "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
+                        " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
+                        "                                /___/ Plugins-Config\n" +
+                        "Thank you for using AutoPlug!\n" +
+                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                        "\n" +
+                        "#######################################################################################################################\n" +
+                        "This file contains detailed information about your installed plugins. It is fetched from each plugins 'plugin.yml' file (located inside their jars).\n" +
+                        "The data gets refreshed before performing an update-check. To exclude a plugin from the check set exclude=true.\n" +
+                        "If a name/author/version is missing, the plugin gets excluded automatically.\n" +
+                        "If there are plugins that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest plugin jar).\n" +
+                        "spigot-id: Can be found directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                        "bukkit-id: Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n" +
+                        "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
+                        "custom-download-url: must be a static url to the plugins latest jar file" +
+                        "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
+                        "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
+                        "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
+                        "If multiple authors are provided, only the first author will be used by the search-algorithm.\n" +
+                        "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
+                        "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2\n");
+
+        DYModule keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
+                .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
+
+        PluginManager man = new PluginManager();
+        this.allPlugins.addAll(man.getPlugins());
+        if (!allPlugins.isEmpty())
+            for (DetailedPlugin pl :
+                    allPlugins) {
+                try {
+                    final String plName = pl.getName();
+                    if (pl.getName() == null || pl.getName().isEmpty())
+                        throw new Exception("The plugins name couldn't be determined for '" + pl.getInstallationPath() + "'!");
+
+                    DYModule exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
+                    DYModule version = pluginsConfig.put(name, plName, "version").setDefValues(pl.getVersion());
+                    DYModule latestVersion = pluginsConfig.put(name, plName, "latest-version");
+                    DYModule author = pluginsConfig.put(name, plName, "author").setDefValues(pl.getAuthor());
+                    DYModule spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
+                    //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
+                    DYModule bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
+                    DYModule custom_author = pluginsConfig.put(name, plName, "custom-author");
+                    DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
+                    DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
+
+                    if ((pl.getVersion() == null || pl.getVersion().isEmpty())
+                            || (pl.getAuthor() == null || pl.getAuthor().isEmpty())
+                            && (spigotId.asString() != null && !spigotId.asString().isEmpty())
+                            && (bukkitId.asString() != null && !bukkitId.asString().isEmpty())) {
+                        exclude.setValues("true");
+                        this.addWarning("Plugin " + pl.getName() + " is missing critical information and was excluded.");
+                    }
+
+                    // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
+                    if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
+                        spigotId.setValues("" + pl.getSpigotId());
+                    if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
+                        bukkitId.setValues("" + pl.getBukkitId());
+
+                    pl.setSpigotId(spigotId.asInt());
+                    pl.setBukkitId(bukkitId.asInt());
+                    pl.setCustomLink(customDownloadURL.asString());
+
+
+                    if (!exclude.asBoolean())
+                        includedPlugins.add(pl);
+                    else
+                        excludedPlugins.add(pl);
+                } catch (DuplicateKeyException e) {
+                    addWarning(new BetterWarning(this, e, "Duplicate plugin '" + pl.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
+                            "Its recommended to remove it."));
+                } catch (Exception e) {
+                    addWarning(new BetterWarning(this, e));
+                }
+            }
+
+        if (keep_removed.asBoolean())
+            pluginsConfig.save();
+        else {
+            pluginsConfig.save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
         }
         pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
         updaterConfig = new UpdaterConfig();
@@ -88,8 +176,7 @@ public class TaskPluginsUpdater extends BetterThread {
         // The minimum required information is:
         // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
         setStatus("Fetching latest plugin data...");
-        List<DetailedPlugin> plugins = pluginsConfig.getIncludedPlugins();
-        int size = plugins.size();
+        int size = includedPlugins.size();
         if (size == 0) throw new Exception("Plugins size is 0! Nothing to check...");
         setMax(size);
 
@@ -106,7 +193,7 @@ public class TaskPluginsUpdater extends BetterThread {
             executorService = Executors.newSingleThreadExecutor();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
         for (DetailedPlugin pl :
-                plugins) {
+                includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getSpigotId() != 0) {
@@ -225,7 +312,7 @@ public class TaskPluginsUpdater extends BetterThread {
         if (new WebConfig().send_plugins_updater_results.asBoolean()) {
             setStatus("Sending update check results to AutoPlug-Web...");
             try {
-                new PluginsUpdateResultConnection(results, pluginsConfig.getExcludedPlugins())
+                new PluginsUpdateResultConnection(results, excludedPlugins)
                         .open();
             } catch (Exception e) {
                 addWarning(new BetterWarning(this, e));
@@ -270,6 +357,28 @@ public class TaskPluginsUpdater extends BetterThread {
             }
         }
 
+    }
+
+    /**
+     * Returns a list containing only plugins, that contain all the information needed to perform a search. <br>
+     * That means, that a plugin must have its name, its authors name and its version in its plugin.yml file.
+     */
+    @NotNull
+    public List<DetailedPlugin> getIncludedPlugins() {
+        return includedPlugins;
+    }
+
+    @NotNull
+    public List<DetailedPlugin> getExcludedPlugins() {
+        return excludedPlugins;
+    }
+
+    /**
+     * Returns a list containing all plugins found in the /plugins directory. <br>
+     */
+    @NotNull
+    public List<DetailedPlugin> getAllPlugins() {
+        return allPlugins;
     }
 
 }
