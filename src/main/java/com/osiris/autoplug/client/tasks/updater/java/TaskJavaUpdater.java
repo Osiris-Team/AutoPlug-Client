@@ -23,6 +23,7 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.CompressionType;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * Searches for updates and installs them is AUTOMATIC profile is selected.
@@ -54,16 +55,27 @@ public class TaskJavaUpdater extends BetterThread {
         // First set the details we need
         // Start by setting the operating systems architecture type
         AdoptV3API.OperatingSystemArchitectureType osArchitectureType = null;
-        String actualOsArchitecture = System.getProperty("os.arch");
+        String actualOsArchitecture = System.getProperty("os.arch").toLowerCase();
         for (AdoptV3API.OperatingSystemArchitectureType type :
                 AdoptV3API.OperatingSystemArchitectureType.values()) {
             if (actualOsArchitecture.equals(type.name()))
                 osArchitectureType = type;
         }
         if (osArchitectureType == null) {
-            osArchitectureType = AdoptV3API.OperatingSystemArchitectureType.X32;
-            AL.debug(this.getClass(), "The current operating systems architecture '" + actualOsArchitecture + "' was not found in the supported architectures list." +
-                    " Defaulting to '" + AdoptV3API.OperatingSystemArchitectureType.X32.name() + "'.");
+            // Do another check.
+            // On windows it can be harder to detect the right architecture that's why we do the stuff below:
+            // Source: https://stackoverflow.com/questions/4748673/how-can-i-check-the-bitness-of-my-os-using-java-j2se-not-os-arch/5940770#5940770
+            String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+            String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
+            boolean is64 = arch != null && arch.endsWith("64")
+                    || wow64Arch != null && wow64Arch.endsWith("64"); // Otherwise its 32bit
+            if (is64)
+                osArchitectureType = AdoptV3API.OperatingSystemArchitectureType.X64;
+            else
+                osArchitectureType = AdoptV3API.OperatingSystemArchitectureType.X32;
+            AL.debug(this.getClass(), "The current operating systems architecture '" + actualOsArchitecture +
+                    "' was not found in the architectures list '" + Arrays.toString(AdoptV3API.OperatingSystemArchitectureType.values()) + "'." +
+                    " Defaulting to '" + osArchitectureType + "'.");
         }
         AL.debug(this.getClass(), "Determined '" + osArchitectureType.name() + "' as operating systems architecture.");
 
@@ -124,7 +136,7 @@ public class TaskJavaUpdater extends BetterThread {
             throw new Exception("Couldn't find a matching major version to '" + javaVersion + "'.");
 
         int latestBuildId = jsonLatestRelease.get("build").getAsInt();
-        if (latestBuildId < currentBuildId) {
+        if (latestBuildId <= currentBuildId) {
             setStatus("Your Java installation is on the latest version!");
             return;
         }
@@ -162,7 +174,7 @@ public class TaskJavaUpdater extends BetterThread {
         );
 
         AL.debug(this.getClass(), "Update found " + currentBuildId + " -> " + latestBuildId);
-        String profile = updaterConfig.server_updater_profile.asString();
+        String profile = updaterConfig.java_updater_profile.asString();
         if (profile.equals("NOTIFY")) {
             setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + ")!");
         } else if (profile.equals("MANUAL")) {
@@ -171,7 +183,7 @@ public class TaskJavaUpdater extends BetterThread {
             // Download the file
             // Typically the file is a .tar.gz file for linux or .zip file for windows
             // We enter a .file extension, cause that gets replaced with either .tar.gz or .zip by the download task
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/Java-" + imageType + "-" + versionString + ".file");
+            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/Java-Runtime-Environment-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
 
@@ -198,7 +210,7 @@ public class TaskJavaUpdater extends BetterThread {
         } else {
             setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
 
-            File final_dest = new File(GD.WORKING_DIR + "/autoplug-system/jre");
+            File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug-system/jre");
             File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/Java-" + imageType + "-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
@@ -209,8 +221,8 @@ public class TaskJavaUpdater extends BetterThread {
                     if (download.isSuccess()) {
                         setStatus("Java update downloaded. Checking hash...");
                         if (download.compareWithSHA256(checksum)) {
-                            if (final_dest.exists()) final_dest.delete();
-                            final_dest.mkdirs();
+                            if (final_dir_dest.exists()) final_dir_dest.delete();
+                            final_dir_dest.mkdirs();
 
                             Archiver archiver;
                             if (download.isTar())
@@ -218,7 +230,7 @@ public class TaskJavaUpdater extends BetterThread {
                             else // A zip
                                 archiver = ArchiverFactory.createArchiver(ArchiveFormat.ZIP);
 
-                            archiver.extract(cache_dest, final_dest);
+                            archiver.extract(cache_dest, final_dir_dest);
                             setStatus("Java update was installed successfully (" + currentBuildId + " -> " + latestBuildId + ")!");
                             updaterConfig.java_updater_build_id.setValues("" + latestBuildId);
                             updaterConfig.save();

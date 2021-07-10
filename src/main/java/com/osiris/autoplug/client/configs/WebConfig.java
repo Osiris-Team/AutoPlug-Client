@@ -26,8 +26,7 @@ public class WebConfig extends DreamYaml {
 
     public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-web-config.yml");
-
-        load();
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -54,6 +53,6 @@ public class WebConfig extends DreamYaml {
         send_server_updater_results = put(name, "updater-results", "send-server-updaters-results").setDefValues("true");
         send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
 
-        save();
+        saveAndUnlock();
     }
 }

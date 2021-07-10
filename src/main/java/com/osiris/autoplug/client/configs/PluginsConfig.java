@@ -34,7 +34,7 @@ public class PluginsConfig extends DreamYaml {
 
     public PluginsConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
-        load();
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -52,16 +52,16 @@ public class PluginsConfig extends DreamYaml {
                         "The data gets refreshed before performing an update-check. To exclude a plugin from the check set exclude=true.\n" +
                         "If a name/author/version is missing, the plugin gets excluded automatically.\n" +
                         "If there are plugins that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest plugin jar).\n" +
-                        "The spigot-id of a plugin, can be found directly in the url.\n" +
-                        "Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                        "The spigot-id from the URL above, is therefore 78414.\n" +
-                        "For the bukkit-id (or project-id) you need to visit the plugins bukkit site and read it from the box at the right.\n" +
+                        "spigot-id: Can be found directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
+                        "bukkit-id: Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n" +
+                        "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
+                        "custom-download-url: must be a static url to the plugins latest jar file" +
                         "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                         "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
                         "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
                         "If multiple authors are provided, only the first author will be used by the search-algorithm.\n" +
                         "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
-                        "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2");
+                        "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2\n");
 
         keep_removed = put(name, "general", "keep-removed").setDefValues("true")
                 .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
@@ -77,18 +77,23 @@ public class PluginsConfig extends DreamYaml {
                 DYModule exclude = put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
                 DYModule version = put(name, plName, "version").setDefValues(pl.getVersion());
                 DYModule latestVersion = put(name, plName, "latest-version");
-                DYModule authors = put(name, plName, "author").setDefValues(pl.getAuthor());
+                DYModule author = put(name, plName, "author").setDefValues(pl.getAuthor());
                 DYModule spigotId = put(name, plName, "spigot-id").setDefValues("0");
                 //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                 DYModule bukkitId = put(name, plName, "bukkit-id").setDefValues("0");
-                DYModule customLink = put(name, plName, "c-link");
+                DYModule custom_author = put(name, plName, "custom-author");
+                DYModule customCheckURL = put(name, plName, "custom-check-url");
+                DYModule customDownloadURL = put(name, plName, "custom-download-url");
 
-                if ((pl.getVersion() == null || pl.getVersion().isEmpty()) ||
-                        (pl.getAuthor() == null || pl.getAuthor().isEmpty())) {
+                if ((pl.getVersion() == null || pl.getVersion().isEmpty())
+                        || (pl.getAuthor() == null || pl.getAuthor().isEmpty())
+                        && (spigotId.asString() != null && !spigotId.asString().isEmpty())
+                        && (bukkitId.asString() != null && !bukkitId.asString().isEmpty())) {
                     exclude.setValues("true");
                     AL.warn("Plugin " + pl.getName() + " is missing critical information and was excluded.");
                 }
 
+                // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
                     spigotId.setValues("" + pl.getSpigotId());
                 if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
@@ -96,7 +101,7 @@ public class PluginsConfig extends DreamYaml {
 
                 pl.setSpigotId(spigotId.asInt());
                 pl.setBukkitId(bukkitId.asInt());
-                pl.setCustomLink(customLink.asString());
+                pl.setCustomLink(customDownloadURL.asString());
 
 
                 if (!exclude.asBoolean())
@@ -106,9 +111,12 @@ public class PluginsConfig extends DreamYaml {
             }
 
         if (keep_removed.asBoolean())
-            save();
-        else
+            saveAndUnlock();
+        else {
             save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
+            unlockFile();
+        }
+
     }
 
     /**

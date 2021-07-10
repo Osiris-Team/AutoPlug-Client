@@ -88,12 +88,11 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
                 AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
             }
             AL.debug(this.getClass(), "Online-Console-SEND connected.");
-
+            return true;
         } else {
             AL.debug(this.getClass(), "Online-Console-SEND functionality is disabled.");
             return false;
         }
-        return true;
     }
 
     @Override

@@ -46,7 +46,7 @@ public class MainConnection extends Thread {
             //Socket socket = auth.getSocket();
             DataInputStream dis = new DataInputStream(auth.getInput());
             //DataOutputStream dos = new DataOutputStream(auth.getOut());
-            boolean user_online;
+            boolean isUserAuthenticated;
 
                 /*
                 Create child connection objects, after main connection was established successfully.
@@ -64,36 +64,32 @@ public class MainConnection extends Thread {
 
 
             isDone = true;
-            boolean msgOnline = false; // Was the online message already send to log?
-            boolean msgOffline = false;
+            boolean oldAuth = false; // Local variable that holds the auth boolean before the current one
             while (true) {
                 // It can happen that we don't get a response because the web server is offline
                 // In that case see the catch statement
                 try {
                     while (true) {
-                        user_online = dis.readBoolean();
-                        if (user_online) {
-                            if (!msgOnline) {
-                                AL.debug(this.getClass(), "User is online!");
-                                msgOnline = true;
-                                msgOffline = false;
+                        isUserAuthenticated = dis.readBoolean();
+                        if (isUserAuthenticated) {
+                            if (!oldAuth) {
+                                oldAuth = true;
+                                AL.debug(this.getClass(), "User is online.");
+                                // User is online, so open secondary connections if they weren't already
+                                if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
+                                if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();
+                                //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
 
-                            // User is online, so open secondary connections if they weren't already
-                            if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
-                            if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();
-                            //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         } else {
-                            if (!msgOffline) {
-                                AL.debug(this.getClass(), "User logged out!");
-                                msgOffline = true;
-                                msgOnline = false;
+                            if (oldAuth) {
+                                oldAuth = false;
+                                AL.debug(this.getClass(), "User is offline.");
+                                // Close secondary connections when user is offline/logged out
+                                if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                                if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                                //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                             }
-
-                            // Close secondary connections when user is offline/logged out
-                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
-                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
-                            //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                         }
                         Thread.sleep(1000);
                     }

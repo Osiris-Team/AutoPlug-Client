@@ -24,7 +24,7 @@ public class TasksConfig extends DreamYaml {
 
     public TasksConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-tasks-config.yml");
-        load();
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -56,6 +56,6 @@ public class TasksConfig extends DreamYaml {
                 "The same information is available in the log file.",
                 "Note that the 'show-warnings' option above must be enabled too.");
 
-        save();
+        saveAndUnlock();
     }
 }

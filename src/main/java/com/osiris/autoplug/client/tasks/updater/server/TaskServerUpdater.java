@@ -51,7 +51,7 @@ public class TaskServerUpdater extends BetterThread {
         String name = config.server_software.asString();
         String mc_version = config.server_version.asString();
 
-        int build_id = config.build_id.asInt();
+        int build_id = config.server_build_id.asInt();
         int latest_build_id = getLatestBuildId(name, mc_version);
 
         // Check if the latest build-id is bigger than our current one.
@@ -122,7 +122,7 @@ public class TaskServerUpdater extends BetterThread {
                         if (download.compareWithSHA256(build_hash)) {
                             FileUtils.copyFile(cache_dest, final_dest);
                             setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                            config.build_id.setValues("" + latest_build_id);
+                            config.server_build_id.setValues("" + latest_build_id);
                             config.save();
                             setSuccess(true);
                         } else {

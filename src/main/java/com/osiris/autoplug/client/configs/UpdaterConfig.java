@@ -32,7 +32,7 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule server_updater_profile;
     public DYModule server_software;
     public DYModule server_version;
-    public DYModule build_id;
+    public DYModule server_build_id;
 
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
@@ -40,6 +40,7 @@ public class UpdaterConfig extends DreamYaml {
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-updater-config.yml");
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments("#######################################################################################################################\n" +
                 "    ___       __       ___  __\n" +
@@ -73,16 +74,16 @@ public class UpdaterConfig extends DreamYaml {
                 "Instead the new Java installation inside of /autoplug-system/jre is used to run your server."
         );
         java_updater_version = put(name, "java-updater", "version").setDefValues("15").setComments(
-                "The major Java version. List of version available: https://api.adoptopenjdk.net/v3/info/available_releases",
+                "The major Java version. List of versions available: https://api.adoptopenjdk.net/v3/info/available_releases",
                 "Note: If you change this, also remove the \"build-id\" value to guarantee correct update-detection."
         );
         java_updater_build_id = put(name, "java-updater", "build-id").setComments(
-                "If you change your jdk distributor or version, remember to change remove this value, to ensure proper update-detection.",
+                "If you change the Java version, remember to remove this value, to ensure proper update-detection.",
                 "Otherwise don't touch this. It gets replaced after every successful update automatically.");
         java_updater_large_heap = put(name, "java-updater", "large-heap").setDefValues("false").setComments(
                 "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
 
-        server_updater = put(name, "server-updater", "enable").setDefValues("false").setComments("Executed before mc server startup.");
+        server_updater = put(name, "server-updater", "enable").setDefValues("false");
 
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
@@ -100,7 +101,7 @@ public class UpdaterConfig extends DreamYaml {
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                         "Note: Remember that worlds may not be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-        build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
+        server_build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                         "Otherwise don't touch this. It will get incremented after every successful update automatically.");
@@ -117,30 +118,34 @@ public class UpdaterConfig extends DreamYaml {
                 "The only downside of this is that your log file gets a bit messy.");
 
         validateOptions();
-        save();
+        saveAndUnlock();
     }
 
     private void validateOptions() {
         String selfP = self_updater_profile.asString();
+        String jP = java_updater_profile.asString();
         String sP = server_updater_profile.asString();
         String uP = plugin_updater_profile.asString();
 
-        if (selfP.equals("NOTIFY") || selfP.equals("MANUAL") || selfP.equals("AUTOMATIC")) {
-        } else {
+        if (!selfP.equals("NOTIFY") && !selfP.equals("MANUAL") && !selfP.equals("AUTOMATIC")) {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + self_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             self_updater_profile.setValues(correction);
         }
 
-        if (sP.equals("NOTIFY") || sP.equals("MANUAL") || sP.equals("AUTOMATIC")) {
-        } else {
+        if (!jP.equals("NOTIFY") && !jP.equals("MANUAL") && !jP.equals("AUTOMATIC")) {
+            String correction = "NOTIFY";
+            AL.warn("Config error -> " + java_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            java_updater_profile.setValues(correction);
+        }
+
+        if (!sP.equals("NOTIFY") && !sP.equals("MANUAL") && !sP.equals("AUTOMATIC")) {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + server_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             server_updater_profile.setValues(correction);
         }
 
-        if (uP.equals("NOTIFY") || uP.equals("MANUAL") || uP.equals("AUTOMATIC")) {
-        } else {
+        if (!uP.equals("NOTIFY") && !uP.equals("MANUAL") && !uP.equals("AUTOMATIC")) {
             String correction = "NOTIFY";
             AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugin_updater_profile.setValues(correction);

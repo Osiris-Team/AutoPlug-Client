@@ -25,7 +25,7 @@ public class LoggerConfig extends DreamYaml {
 
     public LoggerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
-        load();
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -51,7 +51,7 @@ public class LoggerConfig extends DreamYaml {
         );
 
         extraDebugOptions();
-        save();
+        saveAndUnlock();
     }
 
     private void extraDebugOptions() {

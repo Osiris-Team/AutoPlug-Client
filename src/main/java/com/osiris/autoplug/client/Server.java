@@ -19,6 +19,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
+import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,15 +133,16 @@ public final class Server {
         // 1. Which java version should be used
         UpdaterConfig updaterConfig = new UpdaterConfig();
         if (updaterConfig.java_updater.asBoolean()
-                && (updaterConfig.java_updater_profile.equals("AUTOMATIC") || updaterConfig.java_updater_profile.equals("MANUAL"))) {
+                && (updaterConfig.java_updater_profile.asString().equals("AUTOMATIC") || updaterConfig.java_updater_profile.asString().equals("MANUAL"))) {
             FileManager fileManager = new FileManager();
             File jreFolder = new File(GD.WORKING_DIR + "/autoplug-system/jre");
             List<File> folders = fileManager.getFoldersFrom(jreFolder);
             if (folders.isEmpty())
                 throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");
+            File javaInstallationFolder = folders.get(0);
             File javaBinFolder = null;
             for (File folder :
-                    fileManager.getFoldersFrom(folders.get(0))) {// This are the files inside a java installation
+                    fileManager.getFoldersFrom(javaInstallationFolder)) {// This are the files inside a java installation
                 if (folder.getName().equals("bin")) {
                     javaBinFolder = folder;
                     break;
@@ -149,13 +151,24 @@ public final class Server {
             if (javaBinFolder == null)
                 throw new Exception("No Java 'bin' folder found inside of Java installation at path: '" + jreFolder.getAbsolutePath() + "'");
             File javaFile = null;
-            for (File file :
-                    fileManager.getFilesFrom(javaBinFolder)) {
-                if (getFileNameWithoutExt(file.getName()).equals("java")) {
-                    javaFile = file;
-                    break;
+            if (SystemUtils.IS_OS_WINDOWS) {
+                for (File file :
+                        fileManager.getFilesFrom(javaBinFolder)) {
+                    if (file.getName().equals("java.exe")) {
+                        javaFile = file;
+                        break;
+                    }
+                }
+            } else {
+                for (File file :
+                        fileManager.getFilesFrom(javaBinFolder)) {
+                    if (file.getName().equals("java")) {
+                        javaFile = file;
+                        break;
+                    }
                 }
             }
+
             if (javaFile == null)
                 throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
 

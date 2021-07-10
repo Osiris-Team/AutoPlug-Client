@@ -72,7 +72,7 @@ public class BackupConfig extends DreamYaml {
 
     public BackupConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug-backup-config.yml");
-        load();
+        lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -182,7 +182,7 @@ public class BackupConfig extends DreamYaml {
         backup_plugins_upload_path = put(name, "plugins-backup", "upload", "path");
         backup_plugins_upload_rsa = put(name, "plugins-backup", "upload", "rsa-key");
 
-        save();
+        saveAndUnlock();
     }
 
     private File pathToFile(String path) {

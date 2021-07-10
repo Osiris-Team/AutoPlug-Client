@@ -134,7 +134,10 @@ public class FileManager {
             @NotNull
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                return FileVisitResult.SKIP_SUBTREE;
+                if (dir.equals(dirPath)) // Makes sure the parent directory is not added to the results list and that its child dirs are read
+                    return FileVisitResult.CONTINUE;
+                else
+                    return FileVisitResult.SKIP_SUBTREE;
             }
 
             @NotNull
@@ -175,6 +178,9 @@ public class FileManager {
             @NotNull
             @Override
             public FileVisitResult preVisitDirectory(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
+                if (path.equals(dirPath)) // Makes sure the parent directory is not added to the results list and that its child dirs are read
+                    return FileVisitResult.CONTINUE;
+
                 list.add(new File(path.toString()));
                 return FileVisitResult.SKIP_SUBTREE;
             }

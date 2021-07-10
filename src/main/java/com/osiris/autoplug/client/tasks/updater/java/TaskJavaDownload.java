@@ -25,11 +25,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TaskJavaDownload extends BetterThread {
     private final String url;
     private final AdoptV3API.OperatingSystemType osType;
-    private File dest;
+    private final File dest;
     private boolean isTar;
 
     /**
@@ -81,32 +83,37 @@ public class TaskJavaDownload extends BetterThread {
                 throw new Exception("Download of '" + fileName + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             // Set the file name
-            isTar = false;
             if (body.contentType().subtype().equals("x-gtar")) {
                 isTar = true;
-                fileName.replace(".file", ".tar.gz");
-            } else if (body.contentType().subtype().equals("zip"))
-                fileName.replace(".file", ".zip");
-            else {
+                fileName = fileName.replace(".file", ".tar.gz");
+            } else {
                 // In this case we check the response header for file information
-                String location = request.headers().get("location"); // An URL containing the actual file download URL and thus also the files name
-                if (location == null)
+                // Example: (content-disposition, attachment; filename=OpenJDK15U-jre_x86-32_windows_hotspot_15.0.2_7.zip)
+                String contentDispo = response.headers().get("content-disposition");
+                if (contentDispo == null)
                     throw new Exception("Failed to determine download file type!");
 
-                if (location.contains(".tar.gz"))
-                    fileName.replace(".file", ".tar.gz");
-                else if (location.contains(".zip"))
-                    fileName.replace(".file", ".zip");
-                else
-                    throw new Exception("Failed to determine download file type! Download-Url: " + location);
+                if (contentDispo.contains(".tar.gz")) {
+                    isTar = true;
+                    fileName = fileName.replace(".file", ".tar.gz");
+                } else {
+                    Pattern p = Pattern.compile("[.][^.]+$"); // Returns the file extension with dot. example.txt -> .txt
+                    Matcher m = p.matcher(contentDispo);
+                    if (m.find()) {
+                        String fileExtension = m.group();
+                        fileName = fileName.replace(".file", fileExtension);
+                    } else
+                        throw new Exception("Failed to determine download file type! Download-Url: " + contentDispo);
+                }
             }
 
             File newDest = new File(dest.getParentFile().getAbsolutePath() + "/" + fileName);
-            if (newDest.exists()) newDest.delete();
-            newDest.createNewFile();
+            // We need to at least create the cache dest to then rename it
             if (dest.exists()) dest.delete();
-            dest = newDest;
-
+            dest.createNewFile();
+            if (newDest.exists()) newDest.delete(); // The new dest cannot exist
+            if (!dest.renameTo(newDest))
+                throw new Exception("Failed to rename '" + dest.getName() + "' to '" + newDest.getName() + "'!");
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);

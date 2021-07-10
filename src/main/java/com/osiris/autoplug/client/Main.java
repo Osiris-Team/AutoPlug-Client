@@ -95,6 +95,7 @@ public class Main {
 
             // Start the logger
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
+            logC.load();
             DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
             DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
             DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");

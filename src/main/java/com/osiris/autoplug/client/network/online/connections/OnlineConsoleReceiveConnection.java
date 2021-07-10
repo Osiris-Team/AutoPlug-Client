@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
@@ -34,27 +35,34 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        super.open();
-        if (thread == null)
-            thread = new Thread(() -> {
-                try {
-                    Socket socket = getSocket();
-                    socket.setSoTimeout(0);
-                    InputStream in = getSocket().getInputStream();
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                        String line;
-                        while (!socket.isClosed() && (line = reader.readLine()) != null) {
-                            AutoPlugConsole.executeCommand(line);
-                            AL.info("Executed Web-Command: " + line);
+        if (new WebConfig().online_console_receive.asBoolean()) {
+            super.open();
+            if (thread == null) {
+                thread = new Thread(() -> {
+                    try {
+                        Socket socket = getSocket();
+                        socket.setSoTimeout(0);
+                        InputStream in = getSocket().getInputStream();
+                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                            String line;
+                            while (!socket.isClosed() && (line = reader.readLine()) != null) {
+                                AL.info("Received Web-Command: " + line);
+                                AutoPlugConsole.executeCommand(line);
+                            }
                         }
+                    } catch (Exception e) {
+                        AL.warn(this.getClass(), e);
                     }
-                } catch (Exception e) {
-                    AL.warn(this.getClass(), e);
-                }
 
-            });
-        thread.start();
-        return true;
+                });
+                thread.start();
+            }
+            AL.debug(this.getClass(), "Online-Console-RECEIVE connected.");
+            return true;
+        } else {
+            AL.debug(this.getClass(), "Online-Console-RECEIVE functionality is disabled.");
+            return false;
+        }
     }
 
     @Override
