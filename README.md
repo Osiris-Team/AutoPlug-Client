@@ -11,6 +11,7 @@ Well quite a bunch of things actually...
 The most outstanding one being (probably), an automated way of updating your server plugins.
 Then there is some more stuff:
  - Automated self updating
+ - Automated JRE (Java Runtime Enviornment) updating
  - Automated server software updating
  - Automated, scheduled server restarting
  - Automated, modularized backup creation
