@@ -14,12 +14,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Search & find files!
@@ -208,12 +211,36 @@ public class FileManager {
                             && !fileName.equals("AutoPlug.jar")
                             && !fileName.equals("AutoPlug-Launcher.jar")
                             && !fileName.equals("AutoPlug-Client.jar")
-                            && !fileName.equals("AutoPlug-Plugin.jar")) {
+                            && !fileName.equals("AutoPlug-Plugin.jar")
+                            && !jarContainsAutoPlugProperties(path.toFile())) {
 
                         queryFile = new File(path.toString());
                         return FileVisitResult.TERMINATE;
                     }
                     return FileVisitResult.CONTINUE;
+                }
+
+                private boolean jarContainsAutoPlugProperties(File jar) {
+                    try {
+                        FileInputStream fis = new FileInputStream(jar);
+                        ZipInputStream zis = new ZipInputStream(fis);
+                        ZipEntry ze = zis.getNextEntry();
+
+                        while (ze != null) {
+                            if (ze.getName().equals("autoplug.properties")) {
+                                return true;
+                            }
+                            // Get next file in zip
+                            ze = zis.getNextEntry();
+                        } // Loop end
+                        // Close last ZipEntry
+                        zis.closeEntry();
+                        zis.close();
+                        fis.close();
+                    } catch (Exception e) {
+                        AL.warn("Failed to get information for: " + jar.getName(), e);
+                    }
+                    return false;
                 }
 
                 @NotNull

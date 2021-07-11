@@ -45,6 +45,7 @@ public final class Server {
                 // Runs all processes before starting the server
                 new BeforeServerStartupTasks();
 
+                GD.SERVER_PATH = new FileManager().serverJar();
                 if (GD.SERVER_PATH == null || !GD.SERVER_PATH.exists())
                     throw new Exception("Failed to find your server jar! " +
                             "Please check your config, you may need to specify the jars name/path! " +

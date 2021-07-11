@@ -170,8 +170,7 @@ public class AdoptV3API {
         AMD64("x64"),
         X86_64("x64"),
         // x32 with alternative names:
-        I386("x32"),
-        ;
+        I386("x32");
 
         private final String name;
 
