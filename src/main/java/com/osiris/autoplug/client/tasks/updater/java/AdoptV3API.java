@@ -165,7 +165,13 @@ public class AdoptV3API {
         AARCH64("aarch64"),
         ARM("arm"),
         SPARCV9("sparcv9"),
-        RISCV64("riscv64");
+        RISCV64("riscv64"),
+        // x64 with alternative names:
+        AMD64("x64"),
+        X86_64("x64"),
+        // x32 with alternative names:
+        I386("x32"),
+        ;
 
         private final String name;
 

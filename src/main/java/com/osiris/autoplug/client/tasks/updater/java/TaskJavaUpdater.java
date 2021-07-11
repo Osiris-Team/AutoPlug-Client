@@ -58,7 +58,7 @@ public class TaskJavaUpdater extends BetterThread {
         String actualOsArchitecture = System.getProperty("os.arch").toLowerCase();
         for (AdoptV3API.OperatingSystemArchitectureType type :
                 AdoptV3API.OperatingSystemArchitectureType.values()) {
-            if (actualOsArchitecture.equals(type.name()))
+            if (actualOsArchitecture.equals(type.toString().toLowerCase())) // Not comparing the actual names because the enum has more stuff matching one name
                 osArchitectureType = type;
         }
         if (osArchitectureType == null) {
