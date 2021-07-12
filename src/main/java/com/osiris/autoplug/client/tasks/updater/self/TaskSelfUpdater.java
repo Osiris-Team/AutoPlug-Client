@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.SelfInstaller;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
@@ -11,7 +12,6 @@ import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -54,26 +54,26 @@ public class TaskSelfUpdater extends BetterThread {
         // This url contains a JsonArray with JsonObjects, each representing a java application.
         // In this case we are only interested in the AutoPlug-Client.jar with id 0.
         List<JsonObject> apps = new JsonTools().getJsonArrayAsList(url);
-        JsonObject latestJar = null;
+        JsonObject jsonLatestJar = null;
         for (JsonObject o :
                 apps) {
             if (o.get("id").getAsInt() == 0) {
-                latestJar = o;
+                jsonLatestJar = o;
                 break;
             }
         }
 
-        if (latestJar == null)
+        if (jsonLatestJar == null)
             throw new Exception("Failed to find a JsonObject with id=0! Url: " + url);
 
         // Get latest jars details
-        int id = latestJar.get("id").getAsInt();
-        File installationFile = convertIntoActualFile(latestJar.get("installation-path").getAsString());
-        String version = latestJar.get("version").getAsString();
-        String downloadUrl = latestJar.get("download-url").getAsString();
-        String sha256 = latestJar.get("sha-256").getAsString();
-        long size = latestJar.get("file-size").getAsLong();
-        String launchClass = latestJar.get("main-class").getAsString();
+        int id = jsonLatestJar.get("id").getAsInt();
+        File installationFile = FileManager.convertRelativeToAbsolutePath(jsonLatestJar.get("installation-path").getAsString());
+        String version = jsonLatestJar.get("version").getAsString();
+        String downloadUrl = jsonLatestJar.get("download-url").getAsString();
+        String sha256 = jsonLatestJar.get("sha-256").getAsString();
+        long size = jsonLatestJar.get("file-size").getAsLong();
+        String launchClass = jsonLatestJar.get("main-class").getAsString();
 
         // Get current jars details
         Properties currentJar = new UtilsJar().getThisJarsAutoPlugProperties();
@@ -108,7 +108,8 @@ public class TaskSelfUpdater extends BetterThread {
                             setStatus("AutoPlug update downloaded. Checking checksum...");
                             if (download.compareWithSHA256(sha256)) {
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING);
                                 setStatus("AutoPlug update downloaded successfully.");
                                 setSuccess(true);
                             } else {
@@ -125,8 +126,6 @@ public class TaskSelfUpdater extends BetterThread {
                 }
             } else {
                 setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
-                if (installationFile.exists()) installationFile.delete();
-                installationFile.createNewFile();
 
                 // Download the file
                 File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
@@ -143,8 +142,11 @@ public class TaskSelfUpdater extends BetterThread {
                             if (download.compareWithSHA256(sha256)) {
                                 setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                // Start that updated old jar and close this one
+                                Files.copy(cache_dest.toPath(),
+                                        new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING);
+                                // Start that newly downloaded AutoPlug-Client.jar in the downloads dir.
+                                // That jar detects, that its started inside of the downloads dir and installs the AutoPlug-Client-Copy.jar and starts it
                                 new SelfInstaller().startJarFromPath(cache_dest, cache_dest.getParentFile());
                                 System.exit(0);
                                 setSuccess(true);
@@ -167,18 +169,6 @@ public class TaskSelfUpdater extends BetterThread {
         }
 
 
-    }
-
-    /**
-     * Example input: ./AutoPlug-Client.jar <br>
-     * Output: (complete-path)/AutoPlug-Client.jar
-     *
-     * @param shortPath like example input above.
-     * @return
-     */
-    @NotNull
-    private File convertIntoActualFile(@NotNull String shortPath) {
-        return new File(shortPath.replace("./", GD.WORKING_DIR + "/"));
     }
 
 }

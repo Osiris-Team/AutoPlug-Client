@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -39,6 +40,7 @@ public class SystemConfig extends DreamYaml {
         timestamp_last_worlds_backup_task = put(name, "timestamp-last-worlds-backup-task");
         timestamp_last_plugins_backup_task = put(name, "timestamp-last-plugins-backup-task");
 
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 }

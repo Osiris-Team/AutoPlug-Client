@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -63,6 +64,7 @@ public class CleanerConfig extends DreamYaml {
         downloads_cleaner_max = put(name, "downloads-cleaner", "max-days").setDefValues("7");
         downloads_cleaner_custom_dir = put(name, "downloads-cleaner", "custom-dir");
 
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
 
     }

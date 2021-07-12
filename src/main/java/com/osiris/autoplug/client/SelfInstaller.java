@@ -1,6 +1,7 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,6 @@ public class SelfInstaller {
             throw new Exception("Self-Update failed! Cause: Self-Updater is disabled in the configuration file!");
 
 
-        // Search for the AutoPlug-Client.jar in the parent folder
         class MyVisitor<T> extends SimpleFileVisitor<Path> {
             private final String fileToFindName;
             @Nullable
@@ -59,18 +59,16 @@ public class SelfInstaller {
             }
         }
 
-        MyVisitor<Path> visitor = new MyVisitor<Path>("AutoPlug-Client.jar");
-        Files.walkFileTree(parentDir.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor);
-        File oldJar = visitor.getResult();
+        File oldJar = new FileManager().autoplugJar(parentDir);
         if (oldJar == null)
-            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar in " + parentDir.getAbsolutePath());
+            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar or a jar with autoplug.properties inside, in " + parentDir.getAbsolutePath());
 
         // Since we can't copy this jar because its currently running
         // we rely on a already made copy of it.
         // That copy should've been done after downloading the update (this jar).
-        MyVisitor<Path> visitor2 = new MyVisitor<Path>("AutoPlug-Client-Copy.jar");
-        Files.walkFileTree(GD.WORKING_DIR.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, visitor2);
-        File copyJar = visitor2.getResult();
+        MyVisitor<Path> myVisitor = new MyVisitor<Path>("AutoPlug-Client-Copy.jar");
+        Files.walkFileTree(GD.WORKING_DIR.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, myVisitor);
+        File copyJar = myVisitor.getResult();
         if (copyJar == null)
             throw new Exception("Self-Update failed! Cause: Couldn't find the update file 'AutoPlug-Client-Copy.jar' in " + GD.WORKING_DIR.getAbsolutePath());
 
@@ -101,10 +99,13 @@ public class SelfInstaller {
         commands.add(jarToStart.getAbsolutePath());
 
         AL.info("Starting jar with: " + commands);
-        new ProcessBuilder(commands)
+        Process process = new ProcessBuilder(commands)
                 .directory(workingDir)
                 .inheritIO()
                 .start();
+        // Wait until the process is alive
+        while (!process.isAlive())
+            Thread.sleep(100);
     }
 
     private void appendJavaExecutable(@NotNull List<String> cmd) {

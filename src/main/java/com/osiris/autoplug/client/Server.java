@@ -45,13 +45,13 @@ public final class Server {
                 // Runs all processes before starting the server
                 new BeforeServerStartupTasks();
 
-                GD.SERVER_PATH = new FileManager().serverJar();
-                if (GD.SERVER_PATH == null || !GD.SERVER_PATH.exists())
+                GD.SERVER_JAR = new FileManager().serverJar();
+                if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
                     throw new Exception("Failed to find your server jar! " +
                             "Please check your config, you may need to specify the jars name/path! " +
                             "Searched dir: '" + GD.WORKING_DIR + "'");
 
-                AL.info("Starting server jar: " + GD.SERVER_PATH.getName());
+                AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
                 AL.info("Note: AutoPlug has some own console server. For details enter .help or .h");
                 Thread.sleep(1000);
                 AL.info("Starting server in 3");
@@ -60,7 +60,7 @@ public final class Server {
                 Thread.sleep(1000);
                 AL.info("Starting server in 1");
                 Thread.sleep(1000);
-                createProcess(GD.SERVER_PATH.toPath().toString());
+                createProcess(GD.SERVER_JAR.toPath().toString());
             }
 
         } catch (Exception e) {

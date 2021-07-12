@@ -13,8 +13,8 @@ import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
-import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
@@ -32,11 +32,63 @@ public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
 
     public static void main(String[] args) {
+        // Check various things to ensure an fully functioning application.
+        // If one of these checks fails this application is stopped.
+        try {
+            System.out.println();
+            System.out.println("Initialising " + GD.VERSION);
+            String jarPath = Main.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+            GD.AUTOPLUG_JAR = new File(jarPath);
 
+            SystemChecker system = new SystemChecker();
+            system.checkReadWritePermissions();
+            system.checkInternetAccess();
+            system.checkMissingFiles();
+            system.addShutDownHook();
+
+            // Set default SysOut to TeeOutput, for the OnlineConsole
+            AnsiConsole.systemInstall(); // This must happen before the stuff below.
+            // Else the pipedOut won't display ansi. Idk why though...
+            //PIPED_IN = new NonBlockingPipedInputStream();
+            //OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
+            //MyTeeOutputStream teeOut = new MyTeeOutputStream(TERMINAL.output(), pipedOut);
+            //PrintStream newOut = new PrintStream(teeOut);
+            //System.setOut(newOut); // This causes
+            // the standard System.out stream to be mirrored to pipedOut, which then can get
+            // read by PIPED_IN. This ensures, that the original System.out is not touched.
+            //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
+
+            // Start the logger
+            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
+            logC.load();
+            DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
+            DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
+            DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");
+            new AL().start(autoplug_label.asString(),
+                    debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    new File(System.getProperty("user.dir") + "/autoplug-logs"),
+                    force_ansi.asBoolean()
+            );
+            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
+            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
+            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
+            AL.debug(Main.class, "Running jar: " + jarPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("There was a critical error that prevented AutoPlug from starting!");
+            return;
+        }
+
+        // IF THIS JAR WAS EXECUTED IN TESTING MODE:
         if (args != null) {
             List<String> argsList = Arrays.asList(args);
-            if (argsList.contains("-test")) { // TESTING STUFF BELOW:
-                new AL().start();
+            if (argsList.contains("-test")) {
+                AL.warn("Running in TEST-MODE!");
                 try {
                     BetterThreadManager man = new BetterThreadManager();
                     BetterThreadDisplayer dis = new BetterThreadDisplayer(man);
@@ -70,47 +122,6 @@ public class Main {
             }
         }
 
-        // Check various things to ensure an fully functioning application.
-        // If one of these checks fails this application is stopped.
-        try {
-            System.out.println();
-            System.out.println("Initialising " + GD.VERSION);
-            SystemChecker system = new SystemChecker();
-            system.checkReadWritePermissions();
-            system.checkInternetAccess();
-            system.checkMissingFiles();
-            system.addShutDownHook();
-
-            // Set default SysOut to TeeOutput, for the OnlineConsole
-            AnsiConsole.systemInstall(); // This must happen before the stuff below.
-            // Else the pipedOut won't display ansi. Idk why though...
-            //PIPED_IN = new NonBlockingPipedInputStream();
-            //OutputStream pipedOut = new PipedOutputStream(PIPED_IN);
-            //MyTeeOutputStream teeOut = new MyTeeOutputStream(TERMINAL.output(), pipedOut);
-            //PrintStream newOut = new PrintStream(teeOut);
-            //System.setOut(newOut); // This causes
-            // the standard System.out stream to be mirrored to pipedOut, which then can get
-            // read by PIPED_IN. This ensures, that the original System.out is not touched.
-            //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
-
-            // Start the logger
-            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
-            logC.load();
-            DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
-            DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
-            DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");
-            new AL().start(autoplug_label.asString(),
-                    debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir") + "/autoplug-logs"),
-                    force_ansi.asBoolean()
-            );
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("There was a critical error that prevented AutoPlug from starting!");
-            return;
-        }
 
         // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
         try {
@@ -124,10 +135,6 @@ public class Main {
         }
 
         try {
-            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-            AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -168,7 +175,7 @@ public class Main {
             TasksConfig tasksConfig = new TasksConfig();
             allModules.addAll(tasksConfig.getAllInEdit());
 
-            new ConfigUtils().printAllModulesToDebug(allModules);
+            new UtilsConfig().printAllModulesToDebug(allModules);
             AL.info("Configurations loaded.");
 
             AL.debug(Main.class, " ");
@@ -178,7 +185,7 @@ public class Main {
             AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
             AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
             AL.debug(Main.class, "WORKING DIR: " + GD.WORKING_DIR);
-            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_PATH);
+            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
 
             AL.info("| ------------------------------------------- |");
 

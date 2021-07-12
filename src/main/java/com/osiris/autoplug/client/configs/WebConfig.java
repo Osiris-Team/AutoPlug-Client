@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -53,6 +54,7 @@ public class WebConfig extends DreamYaml {
         send_server_updater_results = put(name, "updater-results", "send-server-updaters-results").setDefValues("true");
         send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
 
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 }

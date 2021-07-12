@@ -12,14 +12,13 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.utils.ConfigUtils;
 import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
-import de.kastenklicker.upload.Upload;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
@@ -61,7 +60,7 @@ public class TaskServerFilesBackup extends BetterThread {
         BackupConfig config = new BackupConfig();
         // Do cool-down check stuff
         String format = "dd/MM/yyyy HH:mm:ss";
-        CoolDownReport coolDownReport = new ConfigUtils().checkIfOutOfCoolDown(
+        CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
                 config.backup_server_files_cool_down.asInt(),
                 new SimpleDateFormat(format),
                 new SystemConfig().timestamp_last_server_files_backup_task.asString()); // Get the report first before saving any new values

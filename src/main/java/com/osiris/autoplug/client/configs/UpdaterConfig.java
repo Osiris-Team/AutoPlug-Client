@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
@@ -62,7 +63,8 @@ public class UpdaterConfig extends DreamYaml {
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
                 "AutoPlug is able to update itself automatically.",
                 "Its strongly recommended to have this feature enabled,",
-                "to benefit from new features, bug fixes and security enhancements.");
+                "to benefit from new features, bug fixes and security enhancements.",
+                "Linux users, using screen read this: https://github.com/Osiris-Team/AutoPlug-Client/issues/75");
         self_updater_profile = put(name, "self-updater", "profile").setDefValues("AUTOMATIC");
         self_updater_build = put(name, "self-updater", "build").setDefValues("stable").setComments(
                 "Choose between 'stable' and 'beta' builds.",
@@ -118,6 +120,7 @@ public class UpdaterConfig extends DreamYaml {
                 "The only downside of this is that your log file gets a bit messy.");
 
         validateOptions();
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 

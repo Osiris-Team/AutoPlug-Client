@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -69,14 +70,15 @@ public class GeneralConfig extends DreamYaml {
                 "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe",
                 "Note that this value gets ignored if you have the 'java-updater' enabled.");
 
-        server_jar = put(name, "server", "jar").setDefValues("auto-find").setComments(
+        server_jar = put(name, "server", "jar-path").setDefValues("auto-find").setComments(
                 "The auto-find feature will scan through your servers root directory and find the first jar with another name than AutoPlug-Client.jar.\n" +
-                        "The auto-find feature will fail if...\n" +
-                        "... you have more than 2 jars in your servers root directory (AutoPlug-Client.jar included).\n" +
+                        "The auto-find feature could fail or pick the wrong jar if...\n" +
+                        "... you have 2 or more jars in your servers root directory (AutoPlug-Client.jar NOT included).\n" +
                         "... your server jar is located in another directory.\n" +
-                        "... you renamed the AutoPlug-Client.jar." +
-                        "You can fix this by entering its file path (Linux and Windows formats are supported)\n" +
-                        "or by entering its file name below, without its .jar file extension (only if AutoPlug-Client is also in the servers root directory).");
+                        "You can fix this by entering its absolute or relative file path (Linux and Windows formats are supported) below.\n" +
+                        "'./' represents AutoPlugs current working directory (usually the server root). \n" +
+                        "Relative file paths examples: './paper.jar' or './my-server.jar' (AutoPlug translates them to absolute file paths automatically)\n" +
+                        "Absolute file paths examples: Linux: '/user/servers/mc-survival/paper.jar' or Windows: 'D:\\John\\MC-SERVERS\\survival\\my-server.jar' \n");
 
         server_flags_enabled = put(name, "server", "flags", "enable").setDefValues("true").setComments(
                 "If you were using java startup flags, add them to the list below.",
@@ -107,6 +109,7 @@ public class GeneralConfig extends DreamYaml {
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
         validateOptions();
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
 
         setGlobalServerPath();
@@ -121,9 +124,15 @@ public class GeneralConfig extends DreamYaml {
         FileManager fileManager = new FileManager();
         String jar = server_jar.asString();
         if (!jar.equals("auto-find")) {
-            if (jar.contains("/") || jar.contains("\\")) GD.SERVER_PATH = new File(jar);
-            else GD.SERVER_PATH = fileManager.serverJar(jar);
-        } else GD.SERVER_PATH = fileManager.serverJar();
+            if (jar.contains("/") || jar.contains("\\")) {
+                if (jar.startsWith("./"))
+                    GD.SERVER_JAR = FileManager.convertRelativeToAbsolutePath(jar);
+                else
+                    GD.SERVER_JAR = new File(jar);
+            } else
+                GD.SERVER_JAR = fileManager.serverJar(jar);
+        } else
+            GD.SERVER_JAR = fileManager.serverJar();
     }
 
 }

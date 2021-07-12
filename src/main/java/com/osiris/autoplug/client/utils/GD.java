@@ -25,7 +25,8 @@ public class GD {
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
     @Nullable
-    public static File SERVER_PATH = null; // Gets set in UpdaterConfig
+    public static File SERVER_JAR = null; // Gets set in UpdaterConfig
+    public static File AUTOPLUG_JAR = null; // Gets set in Main
 
     static {
         WORKING_DIR = new File(System.getProperty("user.dir"));

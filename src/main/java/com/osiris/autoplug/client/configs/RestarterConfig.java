@@ -8,10 +8,12 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.dyml.utils.UtilsDYModule;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -67,7 +69,12 @@ public class RestarterConfig extends DreamYaml {
             put(name, "daily-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
             put(name, "daily-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
             put(name, "daily-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
-
+        }
+        UtilsDYModule utilsDYModule = new UtilsDYModule();
+        for (DYModule m :
+                restarter_commands.getChildModules()) {
+            if (utilsDYModule.getExisting(m, getAllInEdit()) == null)
+                getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
         c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
@@ -86,10 +93,15 @@ public class RestarterConfig extends DreamYaml {
             put(name, "custom-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
             put(name, "custom-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
             put(name, "custom-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
-
+        }
+        for (DYModule m :
+                c_restarter_commands.getChildModules()) {
+            if (utilsDYModule.getExisting(m, getAllInEdit()) == null)
+                getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
         validateOptions();
+        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 

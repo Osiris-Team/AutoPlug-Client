@@ -1,4 +1,4 @@
-package de.kastenklicker.upload;
+package com.osiris.autoplug.client.tasks.backup;
 
 import com.jcraft.jsch.*;
 import org.apache.commons.net.PrintCommandListener;
@@ -11,6 +11,9 @@ import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.util.Base64;
 
+/**
+ * @author kastenklicker
+ */
 public class Upload {
     private final String host, user, password, path;
     private final int port;

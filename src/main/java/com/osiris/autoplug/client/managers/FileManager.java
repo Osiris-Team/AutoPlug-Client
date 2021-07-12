@@ -33,6 +33,18 @@ public class FileManager {
     @Nullable
     private File queryFile = null;
 
+    /**
+     * Example current working dir: /user/directory <br>
+     * Example relative path: ./AutoPlug-Client.jar <br>
+     * Example result: /user/directory/AutoPlug-Client.jar <br>
+     *
+     * @param shortPath a string that contains './' which represents the current working dir
+     * @return a {@link File} with the absolute path like in the example result above.
+     */
+    public static File convertRelativeToAbsolutePath(@NotNull String shortPath) {
+        return new File(shortPath.replace("./", GD.WORKING_DIR + "/"));
+    }
+
     public void deleteOldPlugin(String pl_name) {
         String searchPattern = "*" + pl_name + "**.jar";
         //Find the file
@@ -91,7 +103,15 @@ public class FileManager {
     public File serverJar(String server_jar_name) {
         String searchPattern = "*" + server_jar_name + "**.jar";
         //Find the file
-        findJarFileInWorkingDir(searchPattern);
+        findServerJarFileInWorkingDir(searchPattern);
+        //Return the result file
+        return queryFile;
+    }
+
+    public File autoplugJar(File dirToSearch) {
+        String searchPattern = "*.jar";
+        //Find the file
+        findAutoPlugJarFileInDir(searchPattern, dirToSearch);
         //Return the result file
         return queryFile;
     }
@@ -105,7 +125,7 @@ public class FileManager {
     public File serverJar() {
         String searchPattern = "*.jar";
         //Find the file
-        findJarFileInWorkingDir(searchPattern);
+        findServerJarFileInWorkingDir(searchPattern);
         //Return the result file
         return queryFile;
     }
@@ -193,7 +213,7 @@ public class FileManager {
     }
 
     //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds one jar
-    private void findJarFileInWorkingDir(String searchPattern) {
+    private void findServerJarFileInWorkingDir(String searchPattern) {
 
         try {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
@@ -266,8 +286,77 @@ public class FileManager {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
-            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
+            AL.warn(e);
+        }
+
+    }
+
+    private void findAutoPlugJarFileInDir(String searchPattern, File dirToSearch) {
+
+        try {
+            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
+
+            Files.walkFileTree(dirToSearch.toPath(), new SimpleFileVisitor<Path>() {
+
+                @NotNull
+                @Override
+                public FileVisitResult visitFile(@NotNull Path path,
+                                                 BasicFileAttributes attrs) throws IOException {
+                    if (pathMatcher.matches(path.getFileName())
+                            && jarContainsAutoPlugProperties(path.toFile())) {
+                        queryFile = new File(path.toString());
+                        return FileVisitResult.TERMINATE;
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                private boolean jarContainsAutoPlugProperties(File jar) {
+                    try {
+                        FileInputStream fis = new FileInputStream(jar);
+                        ZipInputStream zis = new ZipInputStream(fis);
+                        ZipEntry ze = zis.getNextEntry();
+
+                        while (ze != null) {
+                            if (ze.getName().equals("autoplug.properties")) {
+                                return true;
+                            }
+                            // Get next file in zip
+                            ze = zis.getNextEntry();
+                        } // Loop end
+                        // Close last ZipEntry
+                        zis.closeEntry();
+                        zis.close();
+                        fis.close();
+                    } catch (Exception e) {
+                        AL.warn("Failed to get information for: " + jar.getName(), e);
+                    }
+                    return false;
+                }
+
+                @NotNull
+                @Override
+                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
+
+                    if (!dir.toString().equals(dirToSearch.toString()) && attrs.isDirectory()) {
+                        return FileVisitResult.SKIP_SUBTREE;
+                    } else {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+
+                }
+
+                @NotNull
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc)
+                        throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+
+        } catch (IOException e) {
+            AL.warn(e);
         }
 
     }
@@ -285,14 +374,7 @@ public class FileManager {
                 public FileVisitResult visitFile(@NotNull Path path,
                                                  BasicFileAttributes attrs) throws IOException {
 
-                    //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
-                    final String fileName = path.getFileName().toString();
-                    if (pathMatcher.matches(path.getFileName())
-                            && !fileName.equals("AutoPlug.jar")
-                            && !fileName.equals("AutoPlug-Launcher.jar")
-                            && !fileName.equals("AutoPlug-Client.jar")
-                            && !fileName.equals("AutoPlug-Plugin.jar")) {
-
+                    if (pathMatcher.matches(path.getFileName())) {
                         //Adds files to list to return multiple files
                         queryFiles.add(new File(path.toString()));
                         return FileVisitResult.CONTINUE;
@@ -309,8 +391,6 @@ public class FileManager {
                     } else {
                         return FileVisitResult.CONTINUE;
                     }
-
-
                 }
 
                 @NotNull
@@ -472,11 +552,8 @@ public class FileManager {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
-            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
+            AL.warn(e);
         }
 
     }
-
-
 }

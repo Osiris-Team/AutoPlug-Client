@@ -15,12 +15,36 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Frequently used code of config stuff.
  */
-public class ConfigUtils {
+public class UtilsConfig {
+
+    /**
+     * Adds a deprecation note (comment) for config sections that have been renamed or removed. <br>
+     * Also warns the user about these in the console. <br>
+     * Note that this only works for config sections that have values. <br>
+     */
+    public void setCommentsOfNotUsedOldDYModules(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+        List<DYModule> oldModules = new ArrayList<>();
+        UtilsDYModule utils = new UtilsDYModule();
+        for (DYModule m :
+                loadedModules) {
+            if (utils.getExisting(m, inEditModules) == null && m.asString() != null) {
+                oldModules.add(m);
+                AL.warn("Deprecated config section found: " + m.getKeys().toString());
+            }
+        }
+        // Set the comments
+        for (DYModule oldM :
+                oldModules) {
+            oldM.setComments("[!!!] DEPRECATION WARNING [!!!]",
+                    "THIS CONFIG SECTION WAS RENAMED OR REMOVED AND THUS ITS VALUE WILL BE IGNORED!");
+        }
+    }
 
     public void printAllModulesToDebug(@NotNull List<DYModule> modules) {
         try {

@@ -99,7 +99,7 @@ public class TaskServerUpdater extends BetterThread {
             }
         } else {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
-            File final_dest = GD.SERVER_PATH;
+            File final_dest = GD.SERVER_JAR;
             if (final_dest == null) final_dest = new File(GD.WORKING_DIR + "/" + name + "-latest.jar");
             if (final_dest.exists()) final_dest.delete();
             final_dest.createNewFile();
