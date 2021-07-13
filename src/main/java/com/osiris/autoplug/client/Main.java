@@ -13,6 +13,7 @@ import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.network.online.MainConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
@@ -20,6 +21,7 @@ import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
@@ -94,6 +96,8 @@ public class Main {
                     BetterThreadDisplayer dis = new BetterThreadDisplayer(man);
                     dis.start();
 
+                    UtilsTimeStopper timeStopper = new UtilsTimeStopper();
+                    timeStopper.start();
                     TaskPluginDownload download = new TaskPluginDownload("Downloader", man,
                             "Autorank",
                             "LATEST", "https://api.spiget.org/v2/resources/3239/download", "MANUAL",
@@ -112,9 +116,19 @@ public class Main {
                             new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
                     download2.start();
 
+                    TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man);
+                    taskPluginsUpdater.start();
 
                     while (!download.isFinished() || !download1.isFinished() || !download2.isFinished())
-                        Thread.sleep(500);
+                        Thread.sleep(100);
+                    timeStopper.stop();
+                    AL.info("Time took to finish download tasks: " + timeStopper.getFormattedSeconds() + " seconds!");
+
+                    timeStopper.start();
+                    while (!taskPluginsUpdater.isFinished())
+                        Thread.sleep(100);
+                    timeStopper.stop();
+                    AL.info("Time took to finish update checking tasks: " + timeStopper.getFormattedSeconds() + " seconds!");
                 } catch (Exception e) {
                     AL.error(e);
                 }
@@ -152,27 +166,34 @@ public class Main {
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(generalConfig.getAllInEdit(), generalConfig.getAllLoaded());
             allModules.addAll(generalConfig.getAllInEdit());
 
             LoggerConfig loggerConfig = new LoggerConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
             allModules.addAll(loggerConfig.getAllInEdit());
 
             WebConfig webConfig = new WebConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());
             allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
             BackupConfig backupConfig = new BackupConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(backupConfig.getAllInEdit(), backupConfig.getAllLoaded());
             allModules.addAll(backupConfig.getAllInEdit());
 
             RestarterConfig restarterConfig = new RestarterConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(restarterConfig.getAllInEdit(), restarterConfig.getAllLoaded());
             allModules.addAll(restarterConfig.getAllInEdit());
 
             UpdaterConfig updaterConfig = new UpdaterConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(updaterConfig.getAllInEdit(), updaterConfig.getAllLoaded());
             allModules.addAll(updaterConfig.getAllInEdit());
 
             TasksConfig tasksConfig = new TasksConfig();
+            new UtilsConfig().setCommentsOfNotUsedOldDYModules(tasksConfig.getAllInEdit(), tasksConfig.getAllLoaded());
             allModules.addAll(tasksConfig.getAllInEdit());
 
             new UtilsConfig().printAllModulesToDebug(allModules);

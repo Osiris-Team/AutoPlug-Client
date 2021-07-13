@@ -208,7 +208,8 @@ public class TaskPluginsUpdater extends BetterThread {
                         activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
                     else if (pl.getBukkitId() != 0)
                         activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
-                    else activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
+                    else
+                        activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
                     activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));

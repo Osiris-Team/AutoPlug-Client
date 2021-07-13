@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
@@ -183,7 +182,6 @@ public class BackupConfig extends DreamYaml {
         backup_plugins_upload_path = put(name, "plugins-backup", "upload", "path");
         backup_plugins_upload_rsa = put(name, "plugins-backup", "upload", "rsa-key");
 
-        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 

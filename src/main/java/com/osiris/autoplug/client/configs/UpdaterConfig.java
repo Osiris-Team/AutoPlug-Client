@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
@@ -73,7 +72,9 @@ public class UpdaterConfig extends DreamYaml {
         java_updater = put(name, "java-updater", "enable").setDefValues("false");
         java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "If you selected the MANUAL or AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
-                "Instead the new Java installation inside of /autoplug-system/jre is used to run your server."
+                "This means that for MANUAL you will have to create the /autoplug-system/jre folder and extract the newly downloaded java zip/tar into that folder.",
+                "If you selected AUTOMATIC you don't have to do that.",
+                "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug-system/jre, which then will be used to run your server."
         );
         java_updater_version = put(name, "java-updater", "version").setDefValues("15").setComments(
                 "The major Java version. List of versions available: https://api.adoptopenjdk.net/v3/info/available_releases",
@@ -120,7 +121,6 @@ public class UpdaterConfig extends DreamYaml {
                 "The only downside of this is that your log file gets a bit messy.");
 
         validateOptions();
-        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 

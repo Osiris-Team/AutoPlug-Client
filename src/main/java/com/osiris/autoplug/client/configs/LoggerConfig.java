@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
@@ -52,7 +51,6 @@ public class LoggerConfig extends DreamYaml {
         );
 
         extraDebugOptions();
-        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 

@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -57,7 +56,6 @@ public class TasksConfig extends DreamYaml {
                 "The same information is available in the log file.",
                 "Note that the 'show-warnings' option above must be enabled too.");
 
-        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
     }
 }

@@ -21,7 +21,7 @@ public class SearchMaster {
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins name and author will be executed.
      */
-    public synchronized SearchResult unknownSearch(DetailedPlugin plugin) {
+    public SearchResult unknownSearch(DetailedPlugin plugin) {
 
         // Before passing over remove everything except numbers and dots
         plugin.setVersion(plugin.getVersion().replaceAll("[^0-9.]", ""));
@@ -41,11 +41,11 @@ public class SearchMaster {
         return result_spigot;
     }
 
-    public synchronized SearchResult searchBySpigotId(DetailedPlugin plugin) {
+    public SearchResult searchBySpigotId(DetailedPlugin plugin) {
         return new SpigotSearchById().search(plugin);
     }
 
-    public synchronized SearchResult searchByBukkitId(DetailedPlugin plugin) {
+    public SearchResult searchByBukkitId(DetailedPlugin plugin) {
         return new BukkitSearchById().search(plugin);
     }
 

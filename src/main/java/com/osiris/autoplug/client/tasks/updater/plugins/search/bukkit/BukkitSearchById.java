@@ -26,6 +26,7 @@ public class BukkitSearchById {
         int bukkitId = plugin.getBukkitId();
 
         String url = "https://api.curseforge.com/servermods/files?projectIds=" + bukkitId;
+        AL.debug(this.getClass(), "[" + plugin.getName() + "] Fetching latest release... (" + url + ")");
 
         Exception exception = null;
         JsonArray versions = null;
@@ -33,6 +34,7 @@ public class BukkitSearchById {
         String latest = null;
         String downloadUrl = null;
         String downloadType = "unknown";
+        byte code = 0;
         try {
             versions = new JsonTools().getJsonArray(url);
             json = versions.get(versions.size() - 1).getAsJsonObject();
@@ -46,12 +48,12 @@ public class BukkitSearchById {
                 throw new Exception("[" + plugin.getName() + "] Couldn't find a downloadType in fileName: " + json.get("fileName").getAsString());
         } catch (Exception e) {
             exception = e;
+            code = 2;
         }
 
-        byte code = 0;
-        if (downloadUrl == null || latest == null) code = 2;
-        if (new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
+        if (latest != null && new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
 
+        AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + downloadType + " ");
         SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, "" + bukkitId);
         result.setException(exception);
         return result;

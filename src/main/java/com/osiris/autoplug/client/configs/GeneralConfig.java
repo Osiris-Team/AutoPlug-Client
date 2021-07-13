@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
@@ -109,7 +108,6 @@ public class GeneralConfig extends DreamYaml {
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
         validateOptions();
-        new UtilsConfig().setCommentsOfNotUsedOldDYModules(getAllInEdit(), getAllLoaded());
         saveAndUnlock();
 
         setGlobalServerPath();
