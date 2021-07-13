@@ -26,6 +26,7 @@ contribution!
 Details:
   - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
   - Built with [Maven](https://maven.apache.org/), profiles: clean package
+  - `AutoPlug-Client.jar` gets exported to the `AP-TEST-SERVER` folder, for further testing
 
 If you don't know how to import a GitHub project, check out this guide:
 
