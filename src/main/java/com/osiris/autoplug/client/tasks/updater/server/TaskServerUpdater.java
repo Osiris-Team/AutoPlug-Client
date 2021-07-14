@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.StringComparator;
@@ -125,9 +126,10 @@ public class TaskServerUpdater extends BetterThread {
                 }
             } else {
                 setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+                GD.SERVER_JAR = new FileManager().serverJar();
                 File final_dest = GD.SERVER_JAR;
                 if (final_dest == null)
-                    final_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+                    final_dest = new File(GD.WORKING_DIR + "/" + onlineArtifactFileName);
                 if (final_dest.exists()) final_dest.delete();
                 final_dest.createNewFile();
 
@@ -142,6 +144,7 @@ public class TaskServerUpdater extends BetterThread {
                     Thread.sleep(500);
                     if (download.isFinished()) {
                         if (download.isSuccess()) {
+                            FileUtils.copyFile(cache_dest, final_dest);
                             setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
                             config.server_build_id.setValues("" + latest_build_id);
                             config.save();
