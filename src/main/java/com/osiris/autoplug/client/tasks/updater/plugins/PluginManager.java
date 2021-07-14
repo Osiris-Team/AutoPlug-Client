@@ -36,7 +36,7 @@ public class PluginManager {
         List<File> plJarFiles = fm.getAllPlugins();
 
         // Location where each plugin.yml file will be extracted to
-        File ymlFile = new File(System.getProperty("user.dir") + "/autoplug-system/plugin.yml");
+        File ymlFile = new File(System.getProperty("user.dir") + "/autoplug/system/plugin.yml");
         byte[] buffer = new byte[1024];
         FileInputStream fis;
 
@@ -133,7 +133,7 @@ public class PluginManager {
         ZipFile zip = new ZipFile(jar);
 
         // The plugin yml file we will extract from the jar
-        String path = System.getProperty("user.dir") + "/autoplug-system";
+        String path = System.getProperty("user.dir") + "/autoplug/system";
         File pluginYml = new File(path);
         if (pluginYml.exists()) {
             pluginYml.delete();

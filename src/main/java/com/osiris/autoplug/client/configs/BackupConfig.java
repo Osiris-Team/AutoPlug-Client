@@ -88,7 +88,7 @@ public class BackupConfig extends DreamYaml {
                         "#######################################################################################################################");
 
         backup_server_files = put(name, "server-files-backup", "enable").setDefValues("false").setComments(
-                "Backups all files in your servers root (except folders) to /autoplug-backups/server/...zip.");
+                "Backups all files in your servers root (except folders) to /autoplug/backups/server/...zip.");
         backup_server_files_max_days = put(name, "server-files-backup", "max-days").setDefValues("7").setComments(
                 "Set max-days to 0 if you want to keep your backups forever.");
         backup_server_files_cool_down = put(name, "server-files-backup", "cool-down").setDefValues("60").setComments(
@@ -133,7 +133,7 @@ public class BackupConfig extends DreamYaml {
                 "Leave this field blank when using FTPS.");
 
         backup_worlds = put(name, "worlds-backup", "enable").setDefValues("false").setComments(
-                "Backups all folders starting with \"world\" to /autoplug-backups/worlds/...zip");
+                "Backups all folders starting with \"world\" to /autoplug/backups/worlds/...zip");
         backup_worlds_max_days = put(name, "worlds-backup", "max-days").setDefValues("7");
         backup_worlds_cool_down = put(name, "worlds-backup", "cool-down").setDefValues("60");
         backup_worlds_exclude = put(name, "worlds-backup", "exclude", "enable").setDefValues("false");
@@ -158,7 +158,7 @@ public class BackupConfig extends DreamYaml {
         backup_worlds_upload_rsa = put(name, "worlds-backup", "upload", "rsa-key");
 
         backup_plugins = put(name, "plugins-backup", "enable").setDefValues("true").setComments(
-                "Backups your plugins folder to /autoplug-backups/plugins/...zip");
+                "Backups your plugins folder to /autoplug/backups/plugins/...zip");
         backup_plugins_max_days = put(name, "plugins-backup", "max-days").setDefValues("7");
         backup_plugins_cool_down = put(name, "plugins-backup", "cool-down").setDefValues("60");
         backup_plugins_exclude = put(name, "plugins-backup", "exclude", "enable").setDefValues("true");

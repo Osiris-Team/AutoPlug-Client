@@ -9,10 +9,13 @@
 package com.osiris.autoplug.client.tasks.updater.server;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
@@ -48,6 +51,112 @@ public class TaskServerUpdater extends BetterThread {
 
         setStatus("Searching for updates...");
 
+        String profile = config.server_updater_profile.asString();
+        File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
+        if (config.server_jenkins.asBoolean()) {
+            String project_url = config.server_jenkins_project_url.asString();
+            String artifact_name = config.server_jenkins_artifact_name.asString();
+            double minimumSimilarity = Double.parseDouble("0." + config.server_jenkins_artifact_name_similarity.asInt());
+            int build_id = 0;
+            if (config.server_jenkins_build_id.asString() != null)
+                build_id = config.server_jenkins_build_id.asInt();
+
+            JsonTools json_tools = new JsonTools();
+            JsonObject json_purpur = json_tools.getJsonObject(project_url + "/api/json");
+            JsonObject json_last_successful_build = json_purpur.get("lastSuccessfulBuild").getAsJsonObject();
+            int latest_build_id = json_last_successful_build.get("number").getAsInt();
+            if (latest_build_id <= build_id) {
+                setStatus("Your server is on the latest version!");
+                setSuccess(true);
+                return;
+            }
+            String buildUrl = json_last_successful_build.get("url").getAsString() + "/api/json";
+            JsonArray arrayArtifacts = json_tools.getJsonObject(buildUrl).getAsJsonArray("artifacts");
+            String onlineArtifactFileName = null;
+            String download_url = null;
+            for (JsonElement e :
+                    arrayArtifacts) {
+                if (e.getAsJsonObject().get("fileName").getAsString().equals(artifact_name)) {
+                    onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
+                    download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
+                    break;
+                }
+            }
+
+            if (download_url == null && config.server_jenkins_artifact_name_similarity.asString() != null)
+                for (JsonElement e :
+                        arrayArtifacts) {
+                    if (StringComparator.similarity(e.getAsJsonObject().get("fileName").getAsString(), artifact_name) > minimumSimilarity) {
+                        onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
+                        download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
+                        break;
+                    }
+                }
+
+            if (download_url == null) {
+                finish("Failed to find an equal or similar artifact-name '" + artifact_name + "' inside of '" + arrayArtifacts + "'!", false);
+                return;
+            }
+
+            if (profile.equals("NOTIFY")) {
+                setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
+            } else if (profile.equals("MANUAL")) {
+                setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+
+                // Download the file
+                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+                if (cache_dest.exists()) cache_dest.delete();
+                cache_dest.createNewFile();
+                TaskDownload download = new TaskDownload("ServerDownloader", getManager(), download_url, cache_dest);
+                download.start();
+
+                while (true) {
+                    Thread.sleep(500); // Wait until download is finished
+                    if (download.isFinished()) {
+                        if (download.isSuccess()) {
+                            setStatus("Server update downloaded successfully.");
+                            setSuccess(true);
+                        } else {
+                            setStatus("Server update failed!");
+                            setSuccess(false);
+                        }
+                        break;
+                    }
+                }
+            } else {
+                setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+                File final_dest = GD.SERVER_JAR;
+                if (final_dest == null)
+                    final_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+                if (final_dest.exists()) final_dest.delete();
+                final_dest.createNewFile();
+
+                // Download the file
+                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+                if (cache_dest.exists()) cache_dest.delete();
+                cache_dest.createNewFile();
+                TaskDownload download = new TaskDownload("ServerDownloader", getManager(), download_url, cache_dest);
+                download.start();
+
+                while (true) {
+                    Thread.sleep(500);
+                    if (download.isFinished()) {
+                        if (download.isSuccess()) {
+                            setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
+                            config.server_build_id.setValues("" + latest_build_id);
+                            config.save();
+                            setSuccess(true);
+                        } else {
+                            setStatus("Server update failed!");
+                            setSuccess(false);
+                        }
+                        break;
+                    }
+                }
+            }
+            return;
+        }
+
         String name = config.server_software.asString();
         String mc_version = config.server_version.asString();
 
@@ -61,8 +170,7 @@ public class TaskServerUpdater extends BetterThread {
             return;
         }
 
-        File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
-        String profile = config.server_updater_profile.asString();
+
         if (profile.equals("NOTIFY")) {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
         } else if (profile.equals("MANUAL")) {

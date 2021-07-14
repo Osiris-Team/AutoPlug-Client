@@ -136,7 +136,7 @@ public final class Server {
         if (updaterConfig.java_updater.asBoolean()
                 && (updaterConfig.java_updater_profile.asString().equals("AUTOMATIC") || updaterConfig.java_updater_profile.asString().equals("MANUAL"))) {
             FileManager fileManager = new FileManager();
-            File jreFolder = new File(GD.WORKING_DIR + "/autoplug-system/jre");
+            File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
             List<File> folders = fileManager.getFoldersFrom(jreFolder);
             if (folders.isEmpty())
                 throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");

@@ -33,6 +33,11 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule server_software;
     public DYModule server_version;
     public DYModule server_build_id;
+    public DYModule server_jenkins;
+    public DYModule server_jenkins_project_url;
+    public DYModule server_jenkins_artifact_name;
+    public DYModule server_jenkins_artifact_name_similarity;
+    public DYModule server_jenkins_build_id;
 
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
@@ -56,7 +61,7 @@ public class UpdaterConfig extends DreamYaml {
                 "All the updaters below search for updates before your server gets started.\n" +
                 "Available profiles for all updaters are: NOTIFY, MANUAL and AUTOMATIC.\n" +
                 "NOTIFY: Only notifies when updates are available.\n" +
-                "MANUAL: Only downloads the updates to /autoplug-downloads.\n" +
+                "MANUAL: Only downloads the updates to /autoplug/downloads.\n" +
                 "AUTOMATIC: Downloads and installs updates automatically.");
 
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
@@ -72,9 +77,9 @@ public class UpdaterConfig extends DreamYaml {
         java_updater = put(name, "java-updater", "enable").setDefValues("false");
         java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "If you selected the MANUAL or AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
-                "This means that for MANUAL you will have to create the /autoplug-system/jre folder and extract the newly downloaded java zip/tar into that folder.",
+                "This means that for MANUAL you will have to create the /autoplug/system/jre folder and extract the newly downloaded java zip/tar into that folder.",
                 "If you selected AUTOMATIC you don't have to do that.",
-                "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug-system/jre, which then will be used to run your server."
+                "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug/system/jre, which then will be used to run your server."
         );
         java_updater_version = put(name, "java-updater", "version").setDefValues("15").setComments(
                 "The major Java version. List of versions available: https://api.adoptopenjdk.net/v3/info/available_releases",
@@ -107,7 +112,24 @@ public class UpdaterConfig extends DreamYaml {
         server_build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
-                        "Otherwise don't touch this. It will get incremented after every successful update automatically.");
+                        "Otherwise don't touch this. It will gets updated after every successful update automatically.");
+
+        server_jenkins = put(name, "server-updater", "alternatives", "jenkins", "enable").setDefValues("false").setComments(
+                "If this is enabled the value from 'server-software' is ignored."
+        );
+        server_jenkins_project_url = put(name, "server-updater", "alternatives", "jenkins", "project-url").setComments(
+                "For the server-software Purpur, for example, the project-url would be: https://ci.pl3x.net/job/Purpur");
+        server_jenkins_artifact_name = put(name, "server-updater", "alternatives", "jenkins", "artifact-name").setComments(
+                "Purpur for example has multiple artifacts available for download (see https://ci.pl3x.net/job/Purpur/1267).",
+                "That's why you need to specify the name of the artifact you wish to download.",
+                "Its ok to not enter the exact name. See below for more info.");
+        server_jenkins_artifact_name_similarity = put(name, "server-updater", "alternatives", "jenkins", "artifact-name-similarity").setDefValues("70")
+                .setComments("If there was no equal artifact-name found online, the artifact name with a similarity over this percentage gets chosen.",
+                        "This is useful when the artifact name online contains version details like its build-id or its version.",
+                        "Its recommended to set this above 50%. Note that it cannot be set to 100.",
+                        "Remove the value to disable.");
+        server_jenkins_build_id = put(name, "server-updater", "alternatives", "jenkins", "build-id").setComments(
+                "Remember to remove or set this to 0, if you changed the project-url or artifact-name. Otherwise don't touch it.");
 
 
         plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
@@ -131,27 +153,33 @@ public class UpdaterConfig extends DreamYaml {
         String uP = plugin_updater_profile.asString();
 
         if (!selfP.equals("NOTIFY") && !selfP.equals("MANUAL") && !selfP.equals("AUTOMATIC")) {
-            String correction = "NOTIFY";
+            String correction = self_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + self_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             self_updater_profile.setValues(correction);
         }
 
         if (!jP.equals("NOTIFY") && !jP.equals("MANUAL") && !jP.equals("AUTOMATIC")) {
-            String correction = "NOTIFY";
+            String correction = java_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + java_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             java_updater_profile.setValues(correction);
         }
 
         if (!sP.equals("NOTIFY") && !sP.equals("MANUAL") && !sP.equals("AUTOMATIC")) {
-            String correction = "NOTIFY";
+            String correction = server_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + server_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             server_updater_profile.setValues(correction);
         }
 
         if (!uP.equals("NOTIFY") && !uP.equals("MANUAL") && !uP.equals("AUTOMATIC")) {
-            String correction = "NOTIFY";
+            String correction = plugin_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugin_updater_profile.setValues(correction);
+        }
+
+        if (server_jenkins_artifact_name_similarity.asInt() == 100
+                || server_jenkins_artifact_name_similarity.asInt() == 0) {
+            AL.warn("Config error -> " + server_jenkins_artifact_name_similarity.getKeys() + " must be between 0-100. Applied default!");
+            server_jenkins_artifact_name_similarity.setValues(server_jenkins_artifact_name_similarity.getDefValue());
         }
 
     }

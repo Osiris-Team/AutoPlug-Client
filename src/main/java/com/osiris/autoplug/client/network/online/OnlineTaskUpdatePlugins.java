@@ -120,7 +120,7 @@ public class OnlineTaskUpdatePlugins {
                                     AL.info(" - Info: Downloading from Spigot: " + response);
                                     //Download new version and write to download cache
                                     DownloadManager downloadMan = new DownloadManager();
-                                    File download_path = new File(GD.WORKING_DIR + "/autoplug-downloads" + "/" + pl_names[i] + "[" + latest_version + "]-AUTOPLUGGED-LATEST.jar");
+                                    File download_path = new File(GD.WORKING_DIR + "/autoplug/downloads" + "/" + pl_names[i] + "[" + latest_version + "]-AUTOPLUGGED-LATEST.jar");
                                     File future_path = new File(GD.PLUGINS_DIR + "/" + pl_names[i] + "[" + latest_version + "]-AUTOPLUGGED-LATEST.jar");
 
                                     if (downloadMan.downloadJar(response, download_path)) {

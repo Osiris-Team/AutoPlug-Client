@@ -183,7 +183,7 @@ public class TaskJavaUpdater extends BetterThread {
             // Download the file
             // Typically the file is a .tar.gz file for linux or .zip file for windows
             // We enter a .file extension, cause that gets replaced with either .tar.gz or .zip by the download task
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/Java-Runtime-Environment-" + versionString + ".file");
+            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/Java-Runtime-Environment-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
 
@@ -210,8 +210,8 @@ public class TaskJavaUpdater extends BetterThread {
         } else {
             setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
 
-            File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug-system/jre");
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/Java-" + imageType + "-" + versionString + ".file");
+            File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug/system/jre");
+            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/Java-" + imageType + "-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
 

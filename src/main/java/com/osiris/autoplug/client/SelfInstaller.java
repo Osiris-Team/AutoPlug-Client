@@ -18,13 +18,13 @@ public class SelfInstaller {
 
     /**
      * If this method is called, it means that the current jars location (working dir)
-     * is in the autoplug-downloads directory and we need to install it.
+     * is in the /autoplug/downloads directory and we need to install it.
      * For that we take the parent directory (which should be the server root)
      * search for the AutoPlug-Client.jar in it and overwrite it with our current jars copy.
      * Note that the AutoPlug-Client-Copy.jar must already exist. Normally it gets created
-     * right after successfully downloading the update to the autoplug-downloads directory.
+     * right after successfully downloading the update to the /autoplug/downloads directory.
      *
-     * @param parentDir the parent directory of the current autoplug-downloads directory.
+     * @param parentDir the parent directory of the current /autoplug/downloads directory.
      */
     public void installUpdateAndStartIt(@NotNull File parentDir) throws Exception {
 

@@ -139,7 +139,7 @@ public class Main {
         // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
         try {
             File curDir = new File(System.getProperty("user.dir"));
-            if (curDir.getName().equals("autoplug-downloads")) {
+            if (curDir.getName().equals("downloads")) {
                 new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile());
                 return;
             }

@@ -21,7 +21,7 @@ public class SystemConfig extends DreamYaml {
     public DYModule timestamp_last_plugins_backup_task;
 
     public SystemConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        super(System.getProperty("user.dir") + "/autoplug/autoplug-system/config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/system/config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(

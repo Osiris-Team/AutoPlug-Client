@@ -59,7 +59,7 @@ public class CleanerConfig extends DreamYaml {
         mc_logs_cleaner_custom_dir = put(name, "mc-logs-cleaner", "custom-dir");
 
         downloads_cleaner = put(name, "downloads-cleaner", "enable").setDefValues("false")
-                .setComments("Deletes files from /autoplug-downloads/...");
+                .setComments("Deletes files from /autoplug/downloads/...");
         downloads_cleaner_max = put(name, "downloads-cleaner", "max-days").setDefValues("7");
         downloads_cleaner_custom_dir = put(name, "downloads-cleaner", "custom-dir");
 
