@@ -144,7 +144,8 @@ public class Main {
                 return;
             }
         } catch (Exception e) {
-            AL.warn(e, "Update installation failed!");
+            AL.error("Update installation failed!", e);
+            return;
         }
 
         try {
