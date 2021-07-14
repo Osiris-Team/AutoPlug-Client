@@ -23,7 +23,7 @@ public class TasksConfig extends DreamYaml {
     public DYModule show_detailed_warnings;
 
     public TasksConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug-tasks-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/tasks-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(

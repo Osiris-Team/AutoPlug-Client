@@ -25,7 +25,7 @@ public class WebConfig extends DreamYaml {
 
 
     public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        super(System.getProperty("user.dir") + "/autoplug-web-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(

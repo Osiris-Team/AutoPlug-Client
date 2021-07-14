@@ -110,6 +110,7 @@ public class TaskJavaDownload extends BetterThread {
             File newDest = new File(dest.getParentFile().getAbsolutePath() + "/" + fileName);
             // We need to at least create the cache dest to then rename it
             if (dest.exists()) dest.delete();
+            dest.getParentFile().mkdirs();
             dest.createNewFile();
             if (newDest.exists()) newDest.delete(); // The new dest cannot exist
             if (!dest.renameTo(newDest))

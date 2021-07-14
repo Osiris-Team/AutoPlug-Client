@@ -87,6 +87,8 @@ public class TaskSelfUpdater extends BetterThread {
 
         // Now we are good to go! Start the download!
         // Check if the latest version is bigger than our current one.
+        File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
+        downloadsDir.mkdirs();
         if (new UtilsVersion().compare(currentVersion, version)) {
             String profile = updaterConfig.self_updater_profile.asString();
             if (profile.equals("NOTIFY")) {
@@ -95,7 +97,7 @@ public class TaskSelfUpdater extends BetterThread {
                 setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
 
                 // Download the file
-                File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
+                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
                 TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
@@ -108,7 +110,7 @@ public class TaskSelfUpdater extends BetterThread {
                             setStatus("AutoPlug update downloaded. Checking checksum...");
                             if (download.compareWithSHA256(sha256)) {
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(), new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(),
+                                Files.copy(cache_dest.toPath(), new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
                                         StandardCopyOption.REPLACE_EXISTING);
                                 setStatus("AutoPlug update downloaded successfully.");
                                 setSuccess(true);
@@ -128,7 +130,7 @@ public class TaskSelfUpdater extends BetterThread {
                 setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
 
                 // Download the file
-                File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + installationFile.getName());
+                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
                 if (cache_dest.exists()) cache_dest.delete();
                 cache_dest.createNewFile();
                 TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
@@ -143,7 +145,7 @@ public class TaskSelfUpdater extends BetterThread {
                                 setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
                                 // Create the actual update copy file, by simply copying the newly downloaded file.
                                 Files.copy(cache_dest.toPath(),
-                                        new File(GD.WORKING_DIR + "/autoplug-downloads/AutoPlug-Client-Copy.jar").toPath(),
+                                        new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
                                         StandardCopyOption.REPLACE_EXISTING);
                                 // Start that newly downloaded AutoPlug-Client.jar in the downloads dir.
                                 // That jar detects, that its started inside of the downloads dir and installs the AutoPlug-Client-Copy.jar and starts it

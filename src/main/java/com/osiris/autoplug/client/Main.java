@@ -50,7 +50,6 @@ public class Main {
             SystemChecker system = new SystemChecker();
             system.checkReadWritePermissions();
             system.checkInternetAccess();
-            system.checkMissingFiles();
             system.addShutDownHook();
 
             // Set default SysOut to TeeOutput, for the OnlineConsole
@@ -66,14 +65,14 @@ public class Main {
             //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
 
             // Start the logger
-            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug-logger-config.yml");
+            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
             logC.load();
             DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
             DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
             DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");
             new AL().start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir") + "/autoplug-logs"),
+                    new File(System.getProperty("user.dir") + "/autoplug/logs"),
                     force_ansi.asBoolean()
             );
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");

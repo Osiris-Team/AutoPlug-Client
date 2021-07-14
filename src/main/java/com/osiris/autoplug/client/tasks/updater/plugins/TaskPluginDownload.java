@@ -93,10 +93,10 @@ public class TaskPluginDownload extends BetterThread {
 
     public void download() throws Exception {
         GD.WORKING_DIR = new File(System.getProperty("user.dir"));
-        File dir = new File(GD.WORKING_DIR + "/autoplug-downloads");
+        File dir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         if (!dir.exists()) dir.mkdirs();
 
-        dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + plName + "-[" + plLatestVersion + "].jar");
+        dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].jar");
         if (dest.exists()) dest.delete();
         dest.createNewFile();
 

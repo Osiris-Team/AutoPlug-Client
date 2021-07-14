@@ -96,7 +96,7 @@ public class SecuredConnection {
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
             case 7:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
-                        " An unknown error occurred at AutoPlug-Web.");
+                        " A severe error occurred at AutoPlug-Web. Please notify the developers!");
             default:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
         }

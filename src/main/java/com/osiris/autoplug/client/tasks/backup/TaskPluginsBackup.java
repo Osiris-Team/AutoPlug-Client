@@ -35,9 +35,7 @@ import java.util.List;
 
 public class TaskPluginsBackup extends BetterThread {
 
-    private final File autoplug_backups_server = new File(GD.WORKING_DIR + "/autoplug-backups/server");
-    private final File autoplug_backups_plugins = new File(GD.WORKING_DIR + "/autoplug-backups/plugins");
-    private final File autoplug_backups_worlds = new File(GD.WORKING_DIR + "/autoplug-backups/worlds");
+    private final File autoplug_backups_plugins = new File(GD.WORKING_DIR + "/autoplug/backups/plugins");
 
     private final LocalDateTime date = LocalDateTime.now();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH.mm");
@@ -51,6 +49,7 @@ public class TaskPluginsBackup extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
+        autoplug_backups_plugins.mkdirs();
         createPluginsBackup();
     }
 

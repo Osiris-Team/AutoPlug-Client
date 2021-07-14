@@ -62,7 +62,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
     @Override
     public void runAtStart() throws Exception {
-        pluginsConfig = new DreamYaml(System.getProperty("user.dir") + "/autoplug-plugins-config.yml");
+        pluginsConfig = new DreamYaml(System.getProperty("user.dir") + "/autoplug/plugins-config.yml");
         pluginsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = pluginsConfig.getFileNameWithoutExt();
         pluginsConfig.put(name).setComments(

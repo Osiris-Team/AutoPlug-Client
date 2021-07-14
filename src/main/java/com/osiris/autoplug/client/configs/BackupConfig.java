@@ -71,7 +71,7 @@ public class BackupConfig extends DreamYaml {
 
 
     public BackupConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        super(System.getProperty("user.dir") + "/autoplug-backup-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(

@@ -30,7 +30,7 @@ public class CleanerConfig extends DreamYaml {
 
 
     public CleanerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        super(System.getProperty("user.dir") + "/autoplug-cleaner-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/cleaner-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
         put(name).setComments(

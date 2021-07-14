@@ -61,6 +61,7 @@ public class TaskServerUpdater extends BetterThread {
             return;
         }
 
+        File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         String profile = config.server_updater_profile.asString();
         if (profile.equals("NOTIFY")) {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
@@ -71,7 +72,7 @@ public class TaskServerUpdater extends BetterThread {
             String build_hash = getLatestBuildHash(name, mc_version, latest_build_id);
             String build_name = getLatestBuildFileName(name, mc_version, latest_build_id);
             String url = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id + "/downloads/" + build_name;
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + name + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
             TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
@@ -100,7 +101,7 @@ public class TaskServerUpdater extends BetterThread {
         } else {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
             File final_dest = GD.SERVER_JAR;
-            if (final_dest == null) final_dest = new File(GD.WORKING_DIR + "/" + name + "-latest.jar");
+            if (final_dest == null) final_dest = new File(downloadsDir.getAbsolutePath() + "/" + name + "-latest.jar");
             if (final_dest.exists()) final_dest.delete();
             final_dest.createNewFile();
 
@@ -108,7 +109,7 @@ public class TaskServerUpdater extends BetterThread {
             String build_hash = getLatestBuildHash(name, mc_version, latest_build_id);
             String build_name = getLatestBuildFileName(name, mc_version, latest_build_id);
             String url = "https://papermc.io/api/v2/projects/" + name + "/versions/" + mc_version + "/builds/" + latest_build_id + "/downloads/" + build_name;
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug-downloads/" + name + "-latest.jar");
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + name + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
             TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
