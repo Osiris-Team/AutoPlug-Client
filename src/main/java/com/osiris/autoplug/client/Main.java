@@ -140,7 +140,8 @@ public class Main {
         try {
             File curDir = new File(System.getProperty("user.dir"));
             if (curDir.getName().equals("downloads")) {
-                new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile());
+                // We are inside /autoplug/downloads
+                new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile().getParentFile());
                 return;
             }
         } catch (Exception e) {
