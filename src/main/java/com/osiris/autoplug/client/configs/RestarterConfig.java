@@ -51,6 +51,7 @@ public class RestarterConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
+        put(name, "daily-restarter").setCountTopSpaces(1);
         restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("false").setComments(
                 "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
                         "Make sure to have the other scheduler disabled.");
@@ -76,6 +77,7 @@ public class RestarterConfig extends DreamYaml {
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
+        put(name, "custom-restarter").setCountTopSpaces(1);
         c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
                 "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
                         "Make sure to have the other scheduler disabled.\n" +

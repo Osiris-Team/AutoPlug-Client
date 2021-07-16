@@ -28,7 +28,7 @@ public final class AutoPlugConsole {
      */
     public static boolean executeCommand(@NotNull String command) {
 
-        String first = ".";
+        String first = "";
         try {
             Objects.requireNonNull(command);
             first = Character.toString(command.charAt(0));

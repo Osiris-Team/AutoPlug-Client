@@ -221,7 +221,15 @@ public class TaskJavaUpdater extends BetterThread {
                     if (download.isSuccess()) {
                         setStatus("Java update downloaded. Checking hash...");
                         if (download.compareWithSHA256(checksum)) {
-                            if (final_dir_dest.exists()) final_dir_dest.delete();
+                            setStatus("Java update downloaded. Removing old installation...");
+                            if (final_dir_dest.exists()) {
+                                File[] files = final_dir_dest.listFiles();
+                                if (files != null)
+                                    for (File file :
+                                            files) {
+                                        file.delete();
+                                    }
+                            }
                             final_dir_dest.mkdirs();
 
                             Archiver archiver;

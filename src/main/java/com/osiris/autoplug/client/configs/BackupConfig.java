@@ -87,6 +87,7 @@ public class BackupConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
+        put(name, "server-files-backup").setCountTopSpaces(1);
         backup_server_files = put(name, "server-files-backup", "enable").setDefValues("false").setComments(
                 "Backups all files in your servers root (except folders) to /autoplug/backups/server/...zip.");
         backup_server_files_max_days = put(name, "server-files-backup", "max-days").setDefValues("7").setComments(
@@ -132,6 +133,7 @@ public class BackupConfig extends DreamYaml {
         backup_server_files_upload_rsa = put(name, "server-files-backup", "upload", "rsa-key").setComments(
                 "Leave this field blank when using FTPS.");
 
+        put(name, "worlds-backup").setCountTopSpaces(1);
         backup_worlds = put(name, "worlds-backup", "enable").setDefValues("false").setComments(
                 "Backups all folders starting with \"world\" to /autoplug/backups/worlds/...zip");
         backup_worlds_max_days = put(name, "worlds-backup", "max-days").setDefValues("7");
@@ -157,6 +159,7 @@ public class BackupConfig extends DreamYaml {
         backup_worlds_upload_path = put(name, "worlds-backup", "upload", "path");
         backup_worlds_upload_rsa = put(name, "worlds-backup", "upload", "rsa-key");
 
+        put(name, "plugins-backup").setCountTopSpaces(1);
         backup_plugins = put(name, "plugins-backup", "enable").setDefValues("true").setComments(
                 "Backups your plugins folder to /autoplug/backups/plugins/...zip");
         backup_plugins_max_days = put(name, "plugins-backup", "max-days").setDefValues("7");

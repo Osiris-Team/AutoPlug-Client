@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
@@ -47,7 +48,8 @@ public class OnlineConsoleReceiveConnection extends SecondaryConnection {
                             String line;
                             while (!socket.isClosed() && (line = reader.readLine()) != null) {
                                 AL.info("Received Web-Command: " + line);
-                                AutoPlugConsole.executeCommand(line);
+                                if (!AutoPlugConsole.executeCommand(line))
+                                    Server.submitCommand(line);
                             }
                         }
                     } catch (Exception e) {

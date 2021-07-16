@@ -64,6 +64,7 @@ public class UpdaterConfig extends DreamYaml {
                 "MANUAL: Only downloads the updates to /autoplug/downloads.\n" +
                 "AUTOMATIC: Downloads and installs updates automatically.");
 
+        put(name, "self-updater").setCountTopSpaces(1);
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
                 "AutoPlug is able to update itself automatically.",
                 "Its strongly recommended to have this feature enabled,",
@@ -74,6 +75,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Choose between 'stable' and 'beta' builds.",
                 "Stable builds are recommended.");
 
+        put(name, "java-updater").setCountTopSpaces(1);
         java_updater = put(name, "java-updater", "enable").setDefValues("false");
         java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "If you selected the MANUAL or AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
@@ -91,6 +93,7 @@ public class UpdaterConfig extends DreamYaml {
         java_updater_large_heap = put(name, "java-updater", "large-heap").setDefValues("false").setComments(
                 "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
 
+        put(name, "server-updater").setCountTopSpaces(1);
         server_updater = put(name, "server-updater", "enable").setDefValues("false");
 
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
@@ -132,6 +135,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Remember to remove or set this to 0, if you changed the project-url or artifact-name. Otherwise don't touch it.");
 
 
+        put(name, "plugins-updater").setCountTopSpaces(1);
         plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
                 "Updates your plugins in to /plugins directory.",
                 "The results are sent to AutoPlug-Web. You can configure this in the web-config.",
