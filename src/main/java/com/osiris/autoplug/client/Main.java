@@ -25,10 +25,11 @@ import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.*;
+
+import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
@@ -39,6 +40,36 @@ public class Main {
         try {
             System.out.println();
             System.out.println("Initialising " + GD.VERSION);
+            // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
+            try {
+                File curDir = new File(System.getProperty("user.dir"));
+                if (curDir.getName().equals("downloads")) {
+                    // We are inside /autoplug/downloads
+                    new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile().getParentFile());
+                    return;
+                }
+            } catch (Exception e) {
+                // This is a critical error and stops the application.
+                File selfUpdaterLogFile = null;
+                if (WORKING_DIR.getName().equals("downloads"))
+                    selfUpdaterLogFile = new File(WORKING_DIR.getParentFile().getParentFile() + "/A0-CRITICAL-SELF-UPDATER-ERROR.log");
+                else
+                    selfUpdaterLogFile = new File(WORKING_DIR + "/A0-CRITICAL-SELF-UPDATER-ERROR.log");
+                Date date = new Date();
+                try (PrintWriter bw = new PrintWriter(new FileWriter(selfUpdaterLogFile, true))) {
+                    bw.println();
+                    bw.println(e.getMessage());
+                    for (StackTraceElement el :
+                            e.getStackTrace()) {
+                        bw.println(date + " | " + el.toString());
+                    }
+                }
+                e.printStackTrace();
+                System.err.println("AutoPlug had to exit due to a critical Self-Updater error.");
+                System.err.println("The error log has been saved to: " + selfUpdaterLogFile.getAbsolutePath());
+                return;
+            }
+
             String jarPath = Main.class
                     .getProtectionDomain()
                     .getCodeSource()
@@ -135,20 +166,6 @@ public class Main {
             }
         }
 
-
-        // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.
-        try {
-            File curDir = new File(System.getProperty("user.dir"));
-            if (curDir.getName().equals("downloads")) {
-                // We are inside /autoplug/downloads
-                new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile().getParentFile());
-                return;
-            }
-        } catch (Exception e) {
-            AL.error("Update installation failed!", e);
-            return;
-        }
-
         try {
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
@@ -206,7 +223,7 @@ public class Main {
             AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
             AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
             AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
-            AL.debug(Main.class, "WORKING DIR: " + GD.WORKING_DIR);
+            AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
             AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
 
             AL.info("| ------------------------------------------- |");

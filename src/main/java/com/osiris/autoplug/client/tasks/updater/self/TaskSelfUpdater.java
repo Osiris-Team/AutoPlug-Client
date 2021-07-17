@@ -89,85 +89,81 @@ public class TaskSelfUpdater extends BetterThread {
         // Check if the latest version is bigger than our current one.
         File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         downloadsDir.mkdirs();
-        if (new UtilsVersion().compare(currentVersion, version)) {
-            String profile = updaterConfig.self_updater_profile.asString();
-            if (profile.equals("NOTIFY")) {
-                setStatus("Update found (" + currentVersion + " -> " + version + ")!");
-            } else if (profile.equals("MANUAL")) {
-                setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
+        if (!new UtilsVersion().compare(currentVersion, version))
+            finish("AutoPlug is on the latest version!");
 
-                // Download the file
-                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
-                if (cache_dest.exists()) cache_dest.delete();
-                cache_dest.createNewFile();
-                TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
-                download.start();
 
-                while (true) {
-                    Thread.sleep(500); // Wait until download is finished
-                    if (download.isFinished()) {
-                        if (download.isSuccess()) {
-                            setStatus("AutoPlug update downloaded. Checking checksum...");
-                            if (download.compareWithSHA256(sha256)) {
-                                // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(), new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
-                                        StandardCopyOption.REPLACE_EXISTING);
-                                setStatus("AutoPlug update downloaded successfully.");
-                                setSuccess(true);
-                            } else {
-                                setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
-                                setSuccess(false);
-                            }
+        String profile = updaterConfig.self_updater_profile.asString();
+        if (profile.equals("NOTIFY")) {
+            setStatus("Update found (" + currentVersion + " -> " + version + ")!");
+        } else if (profile.equals("MANUAL")) {
+            setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
 
+            // Download the file
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
+            if (cache_dest.exists()) cache_dest.delete();
+            cache_dest.createNewFile();
+            TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
+            download.start();
+
+            while (true) {
+                Thread.sleep(500); // Wait until download is finished
+                if (download.isFinished()) {
+                    if (download.isSuccess()) {
+                        setStatus("AutoPlug update downloaded. Checking checksum...");
+                        if (download.compareWithSHA256(sha256)) {
+                            // Create the actual update copy file, by simply copying the newly downloaded file.
+                            Files.copy(cache_dest.toPath(), new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
+                                    StandardCopyOption.REPLACE_EXISTING);
+                            setStatus("AutoPlug update downloaded successfully.");
+                            setSuccess(true);
                         } else {
-                            setStatus("AutoPlug update failed!");
+                            setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
                             setSuccess(false);
                         }
-                        break;
+
+                    } else {
+                        setStatus("AutoPlug update failed!");
+                        setSuccess(false);
                     }
-                }
-            } else {
-                setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
-
-                // Download the file
-                File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
-                if (cache_dest.exists()) cache_dest.delete();
-                cache_dest.createNewFile();
-                TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
-                download.start();
-
-                while (true) {
-                    Thread.sleep(500);
-                    if (download.isFinished()) {
-                        if (download.isSuccess()) {
-                            setStatus("AutoPlug update downloaded. Checking hash...");
-                            if (download.compareWithSHA256(sha256)) {
-                                setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
-                                // Create the actual update copy file, by simply copying the newly downloaded file.
-                                Files.copy(cache_dest.toPath(),
-                                        new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
-                                        StandardCopyOption.REPLACE_EXISTING);
-                                // Start that newly downloaded AutoPlug-Client.jar in the downloads dir.
-                                // That jar detects, that its started inside of the downloads dir and installs the AutoPlug-Client-Copy.jar and starts it
-                                new SelfInstaller().startJarFromPath(cache_dest, cache_dest.getParentFile());
-                                System.exit(0);
-                                setSuccess(true);
-                            } else {
-                                setStatus("Downloaded AutoPlug update is broken. Nothing changed!");
-                                setSuccess(false);
-                            }
-
-                        } else {
-                            setStatus("AutoPlug update failed!");
-                            setSuccess(false);
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
-
         } else {
-            finish("AutoPlug is on the latest version!");
+            setStatus("Update found (" + currentVersion + " -> " + version + "), started download!");
+
+            // Download the file
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
+            if (cache_dest.exists()) cache_dest.delete();
+            cache_dest.createNewFile();
+            TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
+            download.start();
+
+            while (true) {
+                Thread.sleep(500);
+                if (download.isFinished()) {
+                    if (!download.isSuccess()) {
+                        finish("AutoPlug update failed!", false);
+                        return;
+                    }
+                    setStatus("AutoPlug update downloaded. Checking hash...");
+                    if (!download.compareWithSHA256(sha256)) {
+                        finish("Downloaded AutoPlug update is broken. Nothing changed!", false);
+                        return;
+                    }
+                    setStatus("Installing AutoPlug update (" + currentVersion + " -> " + version + ")...");
+                    // Create the actual update copy file, by simply copying the newly downloaded file.
+                    Files.copy(cache_dest.toPath(),
+                            new File(downloadsDir.getAbsolutePath() + "/AutoPlug-Client-Copy.jar").toPath(),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    // Start that newly downloaded AutoPlug-Client.jar in the downloads dir.
+                    // That jar detects, that its started inside of the downloads dir and installs the AutoPlug-Client-Copy.jar and starts it
+                    new SelfInstaller().startJarFromPath(cache_dest, cache_dest.getParentFile());
+                    System.exit(0);
+                    finish(true);
+                    break;
+                }
+            }
         }
 
 

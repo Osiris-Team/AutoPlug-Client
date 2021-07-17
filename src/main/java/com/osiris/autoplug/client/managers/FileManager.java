@@ -311,9 +311,12 @@ public class FileManager {
                 }
 
                 private boolean jarContainsAutoPlugProperties(File jar) {
+                    FileInputStream fis = null;
+                    ZipInputStream zis = null;
+
                     try {
-                        FileInputStream fis = new FileInputStream(jar);
-                        ZipInputStream zis = new ZipInputStream(fis);
+                        fis = new FileInputStream(jar);
+                        zis = new ZipInputStream(fis);
                         ZipEntry ze = zis.getNextEntry();
 
                         while (ze != null) {
@@ -321,6 +324,7 @@ public class FileManager {
                                 return true;
                             }
                             // Get next file in zip
+                            zis.closeEntry();
                             ze = zis.getNextEntry();
                         } // Loop end
                         // Close last ZipEntry
@@ -329,6 +333,17 @@ public class FileManager {
                         fis.close();
                     } catch (Exception e) {
                         AL.warn("Failed to get information for: " + jar.getName(), e);
+                    } finally {
+                        try {
+                            if (fis != null) fis.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            if (zis != null) zis.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     return false;
                 }

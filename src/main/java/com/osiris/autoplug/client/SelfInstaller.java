@@ -1,9 +1,7 @@
 package com.osiris.autoplug.client;
 
-import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,11 +26,6 @@ public class SelfInstaller {
      */
     public void installUpdateAndStartIt(@NotNull File parentDir) throws Exception {
 
-        UpdaterConfig updaterConfig = new UpdaterConfig();
-        if (!updaterConfig.self_updater.asBoolean())
-            throw new Exception("Self-Update failed! Cause: Self-Updater is disabled in the configuration file!");
-
-
         class MyVisitor<T> extends SimpleFileVisitor<Path> {
             private final String fileToFindName;
             @Nullable
@@ -47,7 +40,6 @@ public class SelfInstaller {
             public FileVisitResult visitFile(@NotNull Path path, BasicFileAttributes attrs) throws IOException {
                 if (path.toFile().getName().equals(fileToFindName)) {
                     oldJar = path.toFile();
-                    AL.info("Found: " + path);
                     return FileVisitResult.TERMINATE;
                 }
                 return FileVisitResult.CONTINUE;
@@ -75,13 +67,44 @@ public class SelfInstaller {
         // Copy and overwrite the old jar with the update file
         // Note: Deletion of the current jar and the copy jar are done
         // at startup.
-        AL.info("Installing update...");
-        Files.copy(copyJar.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        AL.info("Success!");
-
+        System.out.println("Installing update for jar file: '" + oldJar.getAbsolutePath() + "'...");
+        for (int i = 1; i < 11; i++) {
+            try {
+                if (!isFileInUse(oldJar)) {
+                    System.out.println("Old jar is not in use. Installing update...");
+                    Files.copy(copyJar.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    break;
+                }
+            } catch (Exception e) {
+                if (i == 10) {
+                    throw e;
+                }
+            }
+            Thread.sleep(1000);
+        }
+        System.out.println("Successfully installed update!");
         // Start that updated old jar and close this one
         startJarFromPath(oldJar, oldJar.getParentFile());
         System.exit(0);
+    }
+
+    public boolean isFileInUse(File file) {
+        try {
+            if (file == null || !file.exists())
+                return false;
+
+            File copy = new File(System.getProperty("user.dir") + "/Copy-" + new Random().nextInt(10000) + "-" + file.getName());
+            Files.copy(file.toPath(),
+                    copy.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+
+            file.delete();
+            Files.copy(copy.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            copy.delete();
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     /**
@@ -98,12 +121,13 @@ public class SelfInstaller {
         commands.add("-jar");
         commands.add(jarToStart.getAbsolutePath());
 
-        AL.info("Starting jar with: " + commands);
+        System.out.println("Starting jar with: " + commands);
         Process process = new ProcessBuilder(commands)
                 .directory(workingDir)
                 .inheritIO()
                 .start();
         // Wait until the process is alive
+        // dunno if this really helps preventing the closing of a screen session for linux users
         while (!process.isAlive())
             Thread.sleep(100);
     }
