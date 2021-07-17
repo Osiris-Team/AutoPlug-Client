@@ -240,29 +240,6 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
-                private boolean jarContainsAutoPlugProperties(File jar) {
-                    try {
-                        FileInputStream fis = new FileInputStream(jar);
-                        ZipInputStream zis = new ZipInputStream(fis);
-                        ZipEntry ze = zis.getNextEntry();
-
-                        while (ze != null) {
-                            if (ze.getName().equals("autoplug.properties")) {
-                                return true;
-                            }
-                            // Get next file in zip
-                            ze = zis.getNextEntry();
-                        } // Loop end
-                        // Close last ZipEntry
-                        zis.closeEntry();
-                        zis.close();
-                        fis.close();
-                    } catch (Exception e) {
-                        AL.warn("Failed to get information for: " + jar.getName(), e);
-                    }
-                    return false;
-                }
-
                 @NotNull
                 @Override
                 public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
@@ -310,44 +287,6 @@ public class FileManager {
                     return FileVisitResult.CONTINUE;
                 }
 
-                private boolean jarContainsAutoPlugProperties(File jar) {
-                    FileInputStream fis = null;
-                    ZipInputStream zis = null;
-
-                    try {
-                        fis = new FileInputStream(jar);
-                        zis = new ZipInputStream(fis);
-                        ZipEntry ze = zis.getNextEntry();
-
-                        while (ze != null) {
-                            if (ze.getName().equals("autoplug.properties")) {
-                                return true;
-                            }
-                            // Get next file in zip
-                            zis.closeEntry();
-                            ze = zis.getNextEntry();
-                        } // Loop end
-                        // Close last ZipEntry
-                        zis.closeEntry();
-                        zis.close();
-                        fis.close();
-                    } catch (Exception e) {
-                        AL.warn("Failed to get information for: " + jar.getName(), e);
-                    } finally {
-                        try {
-                            if (fis != null) fis.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            if (zis != null) zis.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return false;
-                }
-
                 @NotNull
                 @Override
                 public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
@@ -357,8 +296,6 @@ public class FileManager {
                     } else {
                         return FileVisitResult.CONTINUE;
                     }
-
-
                 }
 
                 @NotNull
@@ -374,6 +311,44 @@ public class FileManager {
             AL.warn(e);
         }
 
+    }
+
+    private boolean jarContainsAutoPlugProperties(File jar) {
+        FileInputStream fis = null;
+        ZipInputStream zis = null;
+
+        try {
+            fis = new FileInputStream(jar);
+            zis = new ZipInputStream(fis);
+            ZipEntry ze = zis.getNextEntry();
+
+            while (ze != null) {
+                if (ze.getName().equals("autoplug.properties")) {
+                    return true;
+                }
+                // Get next file in zip
+                zis.closeEntry();
+                ze = zis.getNextEntry();
+            } // Loop end
+            // Close last ZipEntry
+            zis.closeEntry();
+            zis.close();
+            fis.close();
+        } catch (Exception e) {
+            AL.warn("Failed to get information for: " + jar.getName(), e);
+        } finally {
+            try {
+                if (fis != null) fis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                if (zis != null) zis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
     //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds ALL files
