@@ -316,11 +316,11 @@ public class FileManager {
     private boolean jarContainsAutoPlugProperties(File jar) {
         FileInputStream fis = null;
         ZipInputStream zis = null;
-
+        ZipEntry ze = null;
         try {
             fis = new FileInputStream(jar);
             zis = new ZipInputStream(fis);
-            ZipEntry ze = zis.getNextEntry();
+            ze = zis.getNextEntry();
 
             while (ze != null) {
                 if (ze.getName().equals("autoplug.properties")) {
@@ -343,7 +343,14 @@ public class FileManager {
                 e.printStackTrace();
             }
             try {
-                if (zis != null) zis.close();
+                if (zis != null && ze != null)
+                    zis.closeEntry();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                if (zis != null)
+                    zis.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

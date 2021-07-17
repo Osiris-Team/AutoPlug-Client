@@ -38,7 +38,6 @@ public class PluginManager {
         // Location where each plugin.yml file will be extracted to
         File ymlFile = new File(System.getProperty("user.dir") + "/autoplug/system/plugin.yml");
         byte[] buffer = new byte[1024];
-        FileInputStream fis;
 
         /*
         1. Extract information from each jars "plugin.yml" file
@@ -48,7 +47,9 @@ public class PluginManager {
         if (!plJarFiles.isEmpty())
             for (File jar :
                     plJarFiles) {
-
+                FileInputStream fis = null;
+                ZipInputStream zis = null;
+                ZipEntry ze = null;
                 try {
                     // Clean up old
                     if (ymlFile.exists()) {
@@ -57,9 +58,8 @@ public class PluginManager {
                     }
 
                     fis = new FileInputStream(jar);
-                    ZipInputStream zis = new ZipInputStream(fis);
-                    ZipEntry ze = zis.getNextEntry();
-
+                    zis = new ZipInputStream(fis);
+                    ze = zis.getNextEntry();
                     while (ze != null) {
                         if (ze.getName().equals("plugin.yml")) {
                             // Extract this plugin.yml file
@@ -111,6 +111,7 @@ public class PluginManager {
                             plugins.add(new DetailedPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
                         }
                         // Get next file in zip
+                        zis.closeEntry();
                         ze = zis.getNextEntry();
                     } // Loop end
                     // Close last ZipEntry
@@ -120,6 +121,24 @@ public class PluginManager {
 
                 } catch (Exception e) {
                     AL.warn("Failed to get plugin information for: " + jar.getName(), e);
+                } finally {
+                    try {
+                        if (fis != null) fis.close();
+                    } catch (Exception e) {
+                        AL.warn(e);
+                    }
+                    try {
+                        if (zis != null && ze != null)
+                            zis.closeEntry();
+                    } catch (Exception e) {
+                        AL.warn(e);
+                    }
+                    try {
+                        if (zis != null)
+                            zis.close();
+                    } catch (Exception e) {
+                        AL.warn(e);
+                    }
                 }
             }
 

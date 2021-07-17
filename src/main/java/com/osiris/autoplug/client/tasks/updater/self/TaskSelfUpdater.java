@@ -89,9 +89,10 @@ public class TaskSelfUpdater extends BetterThread {
         // Check if the latest version is bigger than our current one.
         File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         downloadsDir.mkdirs();
-        if (!new UtilsVersion().compare(currentVersion, version))
+        if (!(new UtilsVersion().compare(currentVersion, version))) {
             finish("AutoPlug is on the latest version!");
-
+            return;
+        }
 
         String profile = updaterConfig.self_updater_profile.asString();
         if (profile.equals("NOTIFY")) {
@@ -163,6 +164,7 @@ public class TaskSelfUpdater extends BetterThread {
                     finish(true);
                     break;
                 }
+
             }
         }
 
