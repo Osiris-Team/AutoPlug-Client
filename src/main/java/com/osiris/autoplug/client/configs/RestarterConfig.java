@@ -58,7 +58,12 @@ public class RestarterConfig extends DreamYaml {
 
         restarter_times_raw = put(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComments(
                 "Restarts your server daily at the times below.\n" +
-                        "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).");
+                        "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).",
+                "Multiple times can be added like this:",
+                "times:",
+                "  - 04:00",
+                "  - 12:00",
+                "  - and so on...");
 
         restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
                 "You can execute multiple/single commands at any given second of the countdown.",
