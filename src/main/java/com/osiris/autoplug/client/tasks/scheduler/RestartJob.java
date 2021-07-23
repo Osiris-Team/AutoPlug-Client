@@ -44,7 +44,7 @@ public class RestartJob implements Job {
             Integer[] keysAsIntsArray = keysAsIntsList.toArray(new Integer[0]);
             Arrays.sort(keysAsIntsArray, Collections.reverseOrder());
 
-            AL.info("Executing scheduled restart in " + keysAsIntsList.get(0) + "sec(s)...");
+            AL.info("Executing scheduled restart in " + keysAsIntsArray[0] + "sec(s)...");
             for (int i = keysAsIntsArray[0]; i >= 0; i--) { // The first int, has the highest value, bc of the sorting
                 for (DYModule m :
                         modules) {
@@ -52,7 +52,10 @@ public class RestartJob implements Job {
                         AL.debug(this.getClass(), "Executing command(s): " + m.getValues().toString());
                         for (String command : m.asStringList()) {
                             try {
-                                Server.submitCommand(command);
+                                if (command == null)
+                                    AL.debug(this.getClass(), "Command for second '" + i + "' is null.");
+                                else
+                                    Server.submitCommand(command);
                             } catch (Exception e) {
                                 AL.warn(e, "Error executing '" + command + "' command!");
                             }
