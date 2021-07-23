@@ -63,6 +63,8 @@ public class TaskDailyRestarter extends BetterThread {
             String min;
             String h;
 
+            StringBuilder stringJobs = new StringBuilder("Restarts at: ");
+
             for (int i = 0; i < size; i++) {
 
                 //Get values
@@ -75,11 +77,12 @@ public class TaskDailyRestarter extends BetterThread {
                 //Create job
                 createOrReplaceJob(jobName, triggerName, min, h);
                 setStatus("Created job: " + jobName + " at " + h + ":" + min);
+                stringJobs.append("[" + h + ":" + min + "]");
                 step();
             }
 
             scheduler.start(); // Create all jobs before starting the scheduler
-            finish(true);
+            finish(stringJobs.toString(), true);
         } else {
             skip();
         }

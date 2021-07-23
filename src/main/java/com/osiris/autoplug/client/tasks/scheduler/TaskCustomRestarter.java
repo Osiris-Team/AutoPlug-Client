@@ -57,7 +57,7 @@ public class TaskCustomRestarter extends BetterThread {
 
             String cron = config.c_restarter_cron.asString();
             createOrReplaceJob("customRestartJob", "customRestartTrigger", cron);
-            setStatus("Created/Replaced job: customRestartJob with cron " + cron);
+            setStatus("Restart at cron: " + cron);
 
             scheduler.start(); // Create all jobs before starting the scheduler
             finish(true);
