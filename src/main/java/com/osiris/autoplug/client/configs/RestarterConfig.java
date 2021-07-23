@@ -69,11 +69,11 @@ public class RestarterConfig extends DreamYaml {
                 "You can execute multiple/single commands at any given second of the countdown.",
                 "The countdown starts at the highest given number.");
         if (restarter_commands.getChildModules().isEmpty()) {
-            put(name, "daily-restarter", "commands", "list", "10").setDefValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete.");
-            put(name, "daily-restarter", "commands", "list", "3").setDefValues("say [Server] Server is restarting in 3.");
-            put(name, "daily-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
-            put(name, "daily-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
-            put(name, "daily-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
+            put(name, "daily-restarter", "commands", "list", "10").setDefValues("say Restarting in 10 seconds.", "say Please allow up to 2min for this process to complete.");
+            put(name, "daily-restarter", "commands", "list", "3").setDefValues("say Restarting in 3.");
+            put(name, "daily-restarter", "commands", "list", "2").setDefValues("say Restarting in 2.");
+            put(name, "daily-restarter", "commands", "list", "1").setDefValues("say Restarting in 1.");
+            put(name, "daily-restarter", "commands", "list", "0").setDefValues("say Restarting...");
         }
         UtilsDYModule utilsDYModule = new UtilsDYModule();
         for (DYModule m :
@@ -94,11 +94,11 @@ public class RestarterConfig extends DreamYaml {
 
         c_restarter_commands = put(name, "custom-restarter", "commands", "list");
         if (c_restarter_commands.getChildModules().isEmpty()) {
-            put(name, "custom-restarter", "commands", "list", "10").setDefValues("say [Server] Server is restarting in 10 seconds.", "say [Server] Please allow up to 2min for this process to complete.");
-            put(name, "custom-restarter", "commands", "list", "3").setDefValues("say [Server] Server is restarting in 3.");
-            put(name, "custom-restarter", "commands", "list", "2").setDefValues("say [Server] Server is restarting in 2.");
-            put(name, "custom-restarter", "commands", "list", "1").setDefValues("say [Server] Server is restarting in 1.");
-            put(name, "custom-restarter", "commands", "list", "0").setDefValues("say [Server] Server is restarting...");
+            put(name, "custom-restarter", "commands", "list", "10").setDefValues("say Restarting in 10 seconds.", "say Please allow up to 2min for this process to complete.");
+            put(name, "custom-restarter", "commands", "list", "3").setDefValues("say Restarting in 3.");
+            put(name, "custom-restarter", "commands", "list", "2").setDefValues("say Restarting in 2.");
+            put(name, "custom-restarter", "commands", "list", "1").setDefValues("say Restarting in 1.");
+            put(name, "custom-restarter", "commands", "list", "0").setDefValues("say Restarting...");
         }
         for (DYModule m :
                 c_restarter_commands.getChildModules()) {

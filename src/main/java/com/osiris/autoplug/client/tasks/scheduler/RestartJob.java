@@ -33,18 +33,19 @@ public class RestartJob implements Job {
             List<DYModule> modules = config.restarter_commands.getChildModules();
 
             // Sort the stuff
-            List<Integer> keysAsInts = new ArrayList<>();
+            List<Integer> keysAsIntsList = new ArrayList<>();
             for (DYModule m :
                     modules) {
-                keysAsInts.add(Integer.parseInt(m.getLastKey()));
+                keysAsIntsList.add(Integer.parseInt(m.getLastKey()));
             }
 
             // Normally sorts from lowest, to highest value.
             // But we want it the other way:
-            Arrays.sort(keysAsInts.toArray(), Collections.reverseOrder());
+            Integer[] keysAsIntsArray = keysAsIntsList.toArray(new Integer[0]);
+            Arrays.sort(keysAsIntsArray, Collections.reverseOrder());
 
-            AL.info("Executing scheduled restart in " + keysAsInts.get(0) + "sec(s)...");
-            for (int i = 0; i < keysAsInts.get(0); i++) { // The first int, has the highest value, bc of the sorting
+            AL.info("Executing scheduled restart in " + keysAsIntsList.get(0) + "sec(s)...");
+            for (int i = keysAsIntsArray[0]; i >= 0; i--) { // The first int, has the highest value, bc of the sorting
                 for (DYModule m :
                         modules) {
                     if (Integer.parseInt(m.getLastKey()) == i) {
