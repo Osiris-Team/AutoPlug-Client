@@ -1,0 +1,3 @@
+<logger name="org.quartz" additivity="false">
+    <level value="FATAL"/>
+</logger>

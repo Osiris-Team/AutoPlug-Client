@@ -24,7 +24,7 @@ import java.util.List;
  * finishing its tasks.
  * It starts a {@link BetterThread} which is attached to the given {@link BetterThreadManager} (or creates a new Manager if null).
  */
-public class PluginsUpdateResultConnection extends SecondaryConnection {
+public class ConPluginsUpdateResult extends SecondaryConnection {
     private final List<SearchResult> searchResults;
     private final List<DetailedPlugin> excludedPlugins;
 
@@ -34,8 +34,8 @@ public class PluginsUpdateResultConnection extends SecondaryConnection {
      * @param searchResults   results from checking the included plugins.
      * @param excludedPlugins plugins that were excluded from the check.
      */
-    public PluginsUpdateResultConnection(List<SearchResult> searchResults,
-                                         List<DetailedPlugin> excludedPlugins) {
+    public ConPluginsUpdateResult(List<SearchResult> searchResults,
+                                  List<DetailedPlugin> excludedPlugins) {
         super((byte) 3);
         this.searchResults = searchResults;
         this.excludedPlugins = excludedPlugins;

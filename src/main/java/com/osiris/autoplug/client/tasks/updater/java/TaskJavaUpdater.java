@@ -183,7 +183,7 @@ public class TaskJavaUpdater extends BetterThread {
             // Download the file
             // Typically the file is a .tar.gz file for linux or .zip file for windows
             // We enter a .file extension, cause that gets replaced with either .tar.gz or .zip by the download task
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/Java-Runtime-Environment-" + versionString + ".file");
+            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
 
@@ -211,7 +211,7 @@ public class TaskJavaUpdater extends BetterThread {
             setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
 
             File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug/system/jre");
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/Java-" + imageType + "-" + versionString + ".file");
+            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
             TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
             download.start();
 
@@ -238,7 +238,7 @@ public class TaskJavaUpdater extends BetterThread {
                             else // A zip
                                 archiver = ArchiverFactory.createArchiver(ArchiveFormat.ZIP);
 
-                            archiver.extract(cache_dest, final_dir_dest);
+                            archiver.extract(download.getNewCacheDest(), final_dir_dest);
                             setStatus("Java update was installed successfully (" + currentBuildId + " -> " + latestBuildId + ")!");
                             updaterConfig.java_updater_build_id.setValues("" + latestBuildId);
                             updaterConfig.save();

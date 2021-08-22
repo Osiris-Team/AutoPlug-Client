@@ -11,7 +11,8 @@ package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
-import com.osiris.autoplug.client.network.online.MainConnection;
+import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.utils.GD;
@@ -226,6 +227,7 @@ public class Main {
             AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
             AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
 
+            AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
 
             String key = generalConfig.server_key.asString();
@@ -239,8 +241,10 @@ public class Main {
                 generalConfig.save();
             }
 
-            MainConnection mainConnection = new MainConnection();
-            mainConnection.start();
+            ConMain conMain = new ConMain();
+            conMain.start();
+
+            new ConPluginCommandReceive();
 
             UserInput.keyboard();
 

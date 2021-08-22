@@ -20,6 +20,8 @@ public class SystemConfig extends DreamYaml {
     public DYModule timestamp_last_worlds_backup_task;
     public DYModule timestamp_last_plugins_backup_task;
 
+    public DYModule timestamp_last_updater_tasks; // Only matters if global cooldown for updaters is enabled
+
     public SystemConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/system/config.yml");
         lockAndLoad();
@@ -35,9 +37,12 @@ public class SystemConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
+        timestamp_last_updater_tasks = put(name, "timestamp-last-updater-tasks");
+
         timestamp_last_server_files_backup_task = put(name, "timestamp-last-server-files-backup-task");
         timestamp_last_worlds_backup_task = put(name, "timestamp-last-worlds-backup-task");
         timestamp_last_plugins_backup_task = put(name, "timestamp-last-plugins-backup-task");
+
 
         saveAndUnlock();
     }

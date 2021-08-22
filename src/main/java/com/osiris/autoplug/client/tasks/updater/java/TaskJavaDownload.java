@@ -23,6 +23,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -32,6 +34,7 @@ public class TaskJavaDownload extends BetterThread {
     private final String url;
     private final AdoptV3API.OperatingSystemType osType;
     private final File dest;
+    private File newDest;
     private boolean isTar;
 
     /**
@@ -107,17 +110,21 @@ public class TaskJavaDownload extends BetterThread {
                 }
             }
 
-            File newDest = new File(dest.getParentFile().getAbsolutePath() + "/" + fileName);
+
             // We need to at least create the cache dest to then rename it
             if (dest.exists()) dest.delete();
             dest.getParentFile().mkdirs();
             dest.createNewFile();
-            if (newDest.exists()) newDest.delete(); // The new dest cannot exist
-            if (!dest.renameTo(newDest))
-                throw new Exception("Failed to rename '" + dest.getName() + "' to '" + newDest.getName() + "'!");
+
+            // The actual file with the correct file extension
+            newDest = new File(dest.getParentFile().getAbsolutePath() + "/" + fileName);
+            if (newDest.exists()) newDest.delete();
+            newDest.getParentFile().mkdirs();
+            newDest.createNewFile();
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
+
 
             BufferedInputStream in = new BufferedInputStream(body.byteStream());
             FileOutputStream fos = new FileOutputStream(dest);
@@ -139,6 +146,8 @@ public class TaskJavaDownload extends BetterThread {
             in.close();
             body.close();
             response.close();
+
+            Files.copy(dest.toPath(), newDest.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             if (body != null) body.close();
             response.close();
@@ -151,6 +160,10 @@ public class TaskJavaDownload extends BetterThread {
      */
     public boolean isTar() {
         return isTar;
+    }
+
+    public File getNewCacheDest() {
+        return newDest;
     }
 
     /**

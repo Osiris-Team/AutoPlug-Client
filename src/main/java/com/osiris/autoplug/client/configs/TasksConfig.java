@@ -39,6 +39,7 @@ public class TasksConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
+        put(name, "live-tasks").setCountTopSpaces(1);
         live_tasks = put(name, "live-tasks", "enable").setDefValues("true").setComments(
                 "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
                         "Enabling this on unsupported platform will result in console spam.");
@@ -46,6 +47,7 @@ public class TasksConfig extends DreamYaml {
                 "Refresh interval in milliseconds.\n" +
                         "How often a task should get refreshed and update its information. Default is: 250ms");
 
+        put(name, "show-warnings").setCountTopSpaces(1);
         show_warnings = put(name, "show-warnings").setDefValues("true").setComments(
                 "If the tasks produced warnings, these get shown.",
                 "Its recommended to keep this option enabled.");

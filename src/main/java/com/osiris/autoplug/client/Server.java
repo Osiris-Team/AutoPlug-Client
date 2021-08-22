@@ -11,7 +11,7 @@ package com.osiris.autoplug.client;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
+import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
@@ -51,15 +51,8 @@ public final class Server {
                             "Please check your config, you may need to specify the jars name/path! " +
                             "Searched dir: '" + GD.WORKING_DIR + "'");
 
+                AL.info("Note: AutoPlug has some own console commands (enter .help or .h).");
                 AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
-                AL.info("Note: AutoPlug has some own console server. For details enter .help or .h");
-                Thread.sleep(1000);
-                AL.info("Starting server in 3");
-                Thread.sleep(1000);
-                AL.info("Starting server in 2");
-                Thread.sleep(1000);
-                AL.info("Starting server in 1");
-                Thread.sleep(1000);
                 createProcess(GD.SERVER_JAR.toPath().toString());
             }
 
@@ -250,8 +243,8 @@ public final class Server {
                                 NB_SERVER_IN.actionsOnWriteLineEvent.add(line -> {
                                     System.out.println(line);
                                 });
-                                if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(OnlineConsoleSendConnection.actionOnServerLineWriteEvent))
-                                    NB_SERVER_IN.actionsOnWriteLineEvent.add(OnlineConsoleSendConnection.actionOnServerLineWriteEvent);
+                                if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(ConOnlineConsoleSend.actionOnServerLineWriteEvent))
+                                    NB_SERVER_IN.actionsOnWriteLineEvent.add(ConOnlineConsoleSend.actionOnServerLineWriteEvent);
                                 int b = -1;
                                 while ((b = serverIn.read()) != -1) {
                                     pipedOut.write(b);

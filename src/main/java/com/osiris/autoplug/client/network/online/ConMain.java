@@ -8,8 +8,8 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiveConnection;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
+import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
+import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,11 +25,11 @@ import java.util.List;
  * The main connection authenticates using the server_key.
  * If it receives a true boolean it means that the user is logged in and opens new connections.
  */
-public class MainConnection extends Thread {
+public class ConMain extends Thread {
 
     // Secondary connections:
-    public static OnlineConsoleReceiveConnection CON_CONSOLE_RECEIVE;
-    public static OnlineConsoleSendConnection CON_CONSOLE_SEND;
+    public static ConOnlineConsoleReceive CON_CONSOLE_RECEIVE;
+    public static ConOnlineConsoleSend CON_CONSOLE_SEND;
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
     @NotNull
     public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
@@ -53,8 +53,8 @@ public class MainConnection extends Thread {
                 Note: To establish a connection to the server, the open() method
                 must have been called before.
                  */
-            CON_CONSOLE_RECEIVE = new OnlineConsoleReceiveConnection();
-            CON_CONSOLE_SEND = new OnlineConsoleSendConnection();
+            CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
+            CON_CONSOLE_SEND = new ConOnlineConsoleSend();
             //CON_PLUGINS_UPDATER = new PluginsUpdateResultConnection();
 
             // Add to connections

@@ -30,7 +30,7 @@ import java.io.OutputStreamWriter;
  * send it to the AutoPlug server when the user is online.
  * Note that
  */
-public class OnlineConsoleSendConnection extends SecondaryConnection {
+public class ConOnlineConsoleSend extends SecondaryConnection {
     @Nullable
     private static BufferedWriter bw;
     public static final NonBlockingPipedInputStream.WriteLineEvent<String> actionOnServerLineWriteEvent = line -> {
@@ -57,7 +57,7 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
         }
     };
 
-    public OnlineConsoleSendConnection() {
+    public ConOnlineConsoleSend() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
@@ -82,10 +82,24 @@ public class OnlineConsoleSendConnection extends SecondaryConnection {
             if (bw == null) {
                 getSocket().setSoTimeout(0);
                 bw = new BufferedWriter(new OutputStreamWriter(getOut()));
-                while (Server.NB_SERVER_IN != null && !Server.NB_SERVER_IN.actionsOnWriteLineEvent.contains(actionOnServerLineWriteEvent))
-                    Server.NB_SERVER_IN.actionsOnWriteLineEvent.add(actionOnServerLineWriteEvent);
 
-                AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
+                if (!AL.actionsOnMessageEvent.contains(actionOnAutoPlugMessageEvent))
+                    AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
+
+                Thread t1 = new Thread(() -> {
+                    try {
+                        AL.debug(this.getClass(), "Waiting for server log input to read from...");
+                        while (Server.NB_SERVER_IN == null)
+                            Thread.sleep(200);
+
+                        if (!Server.NB_SERVER_IN.actionsOnWriteLineEvent.contains(actionOnServerLineWriteEvent))
+                            Server.NB_SERVER_IN.actionsOnWriteLineEvent.add(actionOnServerLineWriteEvent);
+                        AL.debug(this.getClass(), "Server log input now available.");
+                    } catch (Exception e) {
+                        AL.warn(e);
+                    }
+                });
+                t1.start();
             }
             AL.debug(this.getClass(), "Online-Console-SEND connected.");
             return true;

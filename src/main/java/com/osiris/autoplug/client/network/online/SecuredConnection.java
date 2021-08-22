@@ -9,9 +9,9 @@
 package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleReceiveConnection;
-import com.osiris.autoplug.client.network.online.connections.OnlineConsoleSendConnection;
-import com.osiris.autoplug.client.network.online.connections.PluginsUpdateResultConnection;
+import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
+import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
+import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
@@ -42,10 +42,10 @@ public class SecuredConnection {
      * Creates a new secured connection to the AutoPlug server.
      * Needs a connection type.
      *
-     * @param con_type 0 = {@link MainConnection}; <br>
-     *                 1 = {@link OnlineConsoleReceiveConnection}; <br>
-     *                 2 = {@link OnlineConsoleSendConnection}; <br>
-     *                 3 = {@link PluginsUpdateResultConnection}; <br>
+     * @param con_type 0 = {@link ConMain}; <br>
+     *                 1 = {@link ConOnlineConsoleReceive}; <br>
+     *                 2 = {@link ConOnlineConsoleSend}; <br>
+     *                 3 = {@link ConPluginsUpdateResult}; <br>
      * @throws Exception if authentication fails. Details are in the message.
      */
     public SecuredConnection(byte con_type) throws Exception {

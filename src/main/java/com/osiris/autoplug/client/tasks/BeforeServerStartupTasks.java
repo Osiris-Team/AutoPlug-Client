@@ -8,10 +8,8 @@
 
 package com.osiris.autoplug.client.tasks;
 
-import com.osiris.autoplug.client.configs.BackupConfig;
-import com.osiris.autoplug.client.configs.LoggerConfig;
-import com.osiris.autoplug.client.configs.TasksConfig;
-import com.osiris.autoplug.client.network.online.MainConnection;
+import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.backup.TaskPluginsBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskServerFilesBackup;
 import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
@@ -21,6 +19,8 @@ import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.utils.CoolDownReport;
+import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
 import com.osiris.autoplug.core.logger.Message;
@@ -31,6 +31,9 @@ import com.osiris.betterthread.BetterThreadManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -48,8 +51,25 @@ public class BeforeServerStartupTasks {
             tasksConfig = new TasksConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess
-            while (!MainConnection.isDone)
+            while (!ConMain.isDone)
                 Thread.sleep(1000);
+
+            // Do cool-down check stuff
+            boolean isUpdaterCoolDownActive = false;
+            UpdaterConfig config = new UpdaterConfig();
+            SystemConfig systemConfig = new SystemConfig();
+            String format = "dd/MM/yyyy HH:mm:ss";
+            CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
+                    config.global_cool_down.asInt(),
+                    new SimpleDateFormat(format),
+                    systemConfig.timestamp_last_updater_tasks.asString()); // Get the report first before saving any new values
+            if (!coolDownReport.isOutOfCoolDown()) {
+                AL.info("Skipped updater tasks. Global updater cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
+                isUpdaterCoolDownActive = true;
+            }
+            // Update the cool-down with current time
+            systemConfig.timestamp_last_updater_tasks.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
+            systemConfig.save(); // Save the current timestamp to file
 
             manager = new BetterThreadManager();
             displayer = new BetterThreadDisplayer(
@@ -70,7 +90,9 @@ public class BeforeServerStartupTasks {
             }
 
             // Create processes
-            TaskSelfUpdater selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
+            TaskSelfUpdater selfUpdater = null;
+            if (!isUpdaterCoolDownActive)
+                selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
 
             TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", manager);
             TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", manager);
@@ -79,16 +101,24 @@ public class BeforeServerStartupTasks {
             TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", manager);
             TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", manager);
 
-            TaskJavaUpdater taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", manager);
-            TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", manager);
-            TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", manager);
+
+            TaskJavaUpdater taskJavaUpdater = null;
+            TaskServerUpdater taskServerUpdater = null;
+            TaskPluginsUpdater taskPluginsUpdater = null;
+
+            if (!isUpdaterCoolDownActive) {
+                taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", manager);
+                taskServerUpdater = new TaskServerUpdater("ServerUpdater", manager);
+                taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", manager);
+            }
 
 
             // Start processes
-            selfUpdater.start();
-
-            while (!selfUpdater.isFinished()) // Wait until the self updater finishes
-                Thread.sleep(1000);
+            if (!isUpdaterCoolDownActive) {
+                selfUpdater.start();
+                while (!selfUpdater.isFinished()) // Wait until the self updater finishes
+                    Thread.sleep(1000);
+            }
 
             taskWorldsBackup.start();
             taskPluginsBackup.start();
@@ -101,9 +131,11 @@ public class BeforeServerStartupTasks {
             taskDailyRestarter.start();
             taskCustomRestarter.start();
 
-            taskJavaUpdater.start();
-            taskServerUpdater.start();
-            taskPluginsUpdater.start();
+            if (!isUpdaterCoolDownActive) {
+                taskJavaUpdater.start();
+                taskServerUpdater.start();
+                taskPluginsUpdater.start();
+            }
 
             // Wait until the rest is finished
             if (tasksConfig.live_tasks.asBoolean()) {

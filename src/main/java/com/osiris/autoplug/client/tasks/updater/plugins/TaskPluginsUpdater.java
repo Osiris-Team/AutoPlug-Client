@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.connections.PluginsUpdateResultConnection;
+import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchMaster;
 import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
@@ -313,7 +313,7 @@ public class TaskPluginsUpdater extends BetterThread {
         if (new WebConfig().send_plugins_updater_results.asBoolean()) {
             setStatus("Sending update check results to AutoPlug-Web...");
             try {
-                new PluginsUpdateResultConnection(results, excludedPlugins)
+                new ConPluginsUpdateResult(results, excludedPlugins)
                         .open();
             } catch (Exception e) {
                 addWarning(new BetterWarning(this, e));

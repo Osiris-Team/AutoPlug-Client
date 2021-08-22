@@ -26,11 +26,11 @@ import java.net.Socket;
  * For that we got this connection, which listens for the user
  * input at the online console and executes it.
  */
-public class OnlineConsoleReceiveConnection extends SecondaryConnection {
+public class ConOnlineConsoleReceive extends SecondaryConnection {
     @Nullable
     private static Thread thread;
 
-    public OnlineConsoleReceiveConnection() {
+    public ConOnlineConsoleReceive() {
         super((byte) 1);
     }
 

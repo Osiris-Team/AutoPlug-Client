@@ -17,6 +17,8 @@ import java.io.IOException;
 
 public class UpdaterConfig extends DreamYaml {
 
+    public DYModule global_cool_down;
+
     public DYModule self_updater;
     public DYModule self_updater_profile;
     public DYModule self_updater_build;
@@ -63,6 +65,13 @@ public class UpdaterConfig extends DreamYaml {
                 "NOTIFY: Only notifies when updates are available.\n" +
                 "MANUAL: Only downloads the updates to /autoplug/downloads.\n" +
                 "AUTOMATIC: Downloads and installs updates automatically.");
+
+        put(name, "global-cool-down").setCountTopSpaces(1);
+        global_cool_down = put(name, "global-cool-down").setDefValues("60").setComments(
+                "Cool-down time in minutes to the next updater tasks execution.",
+                "Prevents unnecessary spam of updating/update checking tasks and thus shortens the server startup time.",
+                "Useful when testing plugins/configs and having to restart the server often in a short amount of time.",
+                "Set to 0 to disable.");
 
         put(name, "self-updater").setCountTopSpaces(1);
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
