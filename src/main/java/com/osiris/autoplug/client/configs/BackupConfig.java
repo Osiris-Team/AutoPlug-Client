@@ -69,8 +69,11 @@ public class BackupConfig extends DreamYaml {
     public DYModule backup_plugins_upload_path;
     public DYModule backup_plugins_upload_rsa;
 
+    public BackupConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+        this(ConfigPreset.DEFAULT);
+    }
 
-    public BackupConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public BackupConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
@@ -184,6 +187,11 @@ public class BackupConfig extends DreamYaml {
         backup_plugins_upload_password = put(name, "plugins-backup", "upload", "password");
         backup_plugins_upload_path = put(name, "plugins-backup", "upload", "path");
         backup_plugins_upload_rsa = put(name, "plugins-backup", "upload", "rsa-key");
+
+        if (preset.equals(ConfigPreset.FAST)) {
+            backup_server_files.setDefValues("true");
+            backup_worlds.setDefValues("true");
+        }
 
         saveAndUnlock();
     }

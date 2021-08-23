@@ -25,6 +25,22 @@ public class ChromiumTests {
 
         Logger.getLogger("org.panda_lang.pandomium.Pandomium").setLevel(Level.OFF);
         PandomiumSettings settings = PandomiumSettings.getDefaultSettingsBuilder()
+                /*
+                .logger(new DefaultLogger(Channel.ALL) {
+                    @Override
+                    protected void internalLog(Channel channel, String message) {
+                        if(channel.equals(Channel.INFO))
+                            AL.info(message);
+                        else if(channel.equals(Channel.DEBUG))
+                            AL.debug(this.getClass(), message);
+                        else if(channel.equals(Channel.ERROR))
+                            AL.warn(message);
+                        else
+                            AL.info(message);
+                    }
+                })
+
+                 */
                 .nativeDirectory(System.getProperty("user.dir") + "/autoplug-system/natives")
                 //.proxy("localhost", 20) // blank page
                 .build();

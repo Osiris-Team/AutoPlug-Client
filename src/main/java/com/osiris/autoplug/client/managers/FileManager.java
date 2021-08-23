@@ -226,12 +226,7 @@ public class FileManager {
                                                  BasicFileAttributes attrs) throws IOException {
 
                     //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
-                    final String fileName = path.getFileName().toString();
                     if (pathMatcher.matches(path.getFileName())
-                            && !fileName.equals("AutoPlug.jar")
-                            && !fileName.equals("AutoPlug-Launcher.jar")
-                            && !fileName.equals("AutoPlug-Client.jar")
-                            && !fileName.equals("AutoPlug-Plugin.jar")
                             && !jarContainsAutoPlugProperties(path.toFile())) {
 
                         queryFile = new File(path.toString());
@@ -242,22 +237,12 @@ public class FileManager {
 
                 @NotNull
                 @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
+                public FileVisitResult preVisitDirectory(@NotNull Path dirPath, @NotNull BasicFileAttributes attrs) throws IOException {
+                    if (dirPath.equals(GD.WORKING_DIR.toPath()))
                         return FileVisitResult.CONTINUE;
-                    }
+                    else
+                        return FileVisitResult.SKIP_SUBTREE;
 
-
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
                 }
             });
 
@@ -338,11 +323,6 @@ public class FileManager {
             AL.warn("Failed to get information for: " + jar.getName(), e);
         } finally {
             try {
-                if (fis != null) fis.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
                 if (zis != null && ze != null)
                     zis.closeEntry();
             } catch (Exception e) {
@@ -351,6 +331,11 @@ public class FileManager {
             try {
                 if (zis != null)
                     zis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (fis != null) fis.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

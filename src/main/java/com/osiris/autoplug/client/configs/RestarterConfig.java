@@ -34,7 +34,11 @@ public class RestarterConfig extends DreamYaml {
     public DYModule c_restarter_cron;
     public DYModule c_restarter_commands;
 
-    public RestarterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    public RestarterConfig() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+        this(ConfigPreset.DEFAULT);
+    }
+
+    public RestarterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/restarter-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
@@ -64,6 +68,9 @@ public class RestarterConfig extends DreamYaml {
                 "  - 04:00",
                 "  - 12:00",
                 "  - and so on...");
+        if (preset.equals(ConfigPreset.FAST)) {
+            restarter_enabled.setDefValues("true");
+        }
 
         restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
                 "You can execute multiple/single commands at any given second of the countdown.",

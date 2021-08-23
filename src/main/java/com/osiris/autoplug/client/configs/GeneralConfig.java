@@ -20,6 +20,7 @@ import java.io.IOException;
 public class GeneralConfig extends DreamYaml {
     public DYModule server_key;
     public DYModule server_auto_start;
+    public DYModule server_auto_eula;
     public DYModule server_autoplug_stop;
     public DYModule server_stop_command;
     public DYModule server_java_path;
@@ -55,6 +56,8 @@ public class GeneralConfig extends DreamYaml {
 
         server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
                 "Starts your server with the start of AutoPlug.");
+        server_auto_eula = put(name, "server", "auto-eula").setDefValues("true").setComments(
+                "Creates an eula.txt file if not existing and accepts it.");
 
         server_autoplug_stop = put(name, "server", "autoplug-stop").setDefValues("false").setComments(
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");

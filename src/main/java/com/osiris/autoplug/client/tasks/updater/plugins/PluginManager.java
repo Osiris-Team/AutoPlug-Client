@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,21 +124,21 @@ public class PluginManager {
                     AL.warn("Failed to get plugin information for: " + jar.getName(), e);
                 } finally {
                     try {
-                        if (fis != null) fis.close();
-                    } catch (Exception e) {
-                        AL.warn(e);
-                    }
-                    try {
                         if (zis != null && ze != null)
                             zis.closeEntry();
                     } catch (Exception e) {
-                        AL.warn(e);
+                        e.printStackTrace();
                     }
                     try {
                         if (zis != null)
                             zis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        if (fis != null) fis.close();
                     } catch (Exception e) {
-                        AL.warn(e);
+                        e.printStackTrace();
                     }
                 }
             }

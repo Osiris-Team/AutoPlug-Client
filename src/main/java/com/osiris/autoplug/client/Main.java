@@ -179,6 +179,31 @@ public class Main {
             AL.info("Author: " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
             AL.info("| ------------------------------------------- |");
+
+            ConfigPreset preset = ConfigPreset.DEFAULT;
+            if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
+                int a = 0;
+                while (true) {
+                    AL.info("Thank you for installing AutoPlug!");
+                    AL.info("It seems like this is your first run,");
+                    AL.info("please select a configuration preset:");
+                    AL.info("1: The 'fast preset' makes sure that all recommended features");
+                    AL.info("are enabled and thus saves you a lot of time configuring AutoPlug.");
+                    AL.info("2: The 'default preset' is for sceptics and a bunch of");
+                    AL.info("features need to be enabled manually. Have fun configuring!");
+                    AL.info("Insert your desired preset (1 or 2) below and press enter:");
+                    Scanner scanner = new Scanner(System.in);
+                    a = scanner.nextInt();
+                    if (a == 1) {
+                        preset = ConfigPreset.FAST;
+                        break;
+                    } else if (a == 2) {
+                        preset = ConfigPreset.DEFAULT;
+                        break;
+                    }
+                }
+            }
+
             AL.info("Loading configurations...");
 
             List<DYModule> allModules = new ArrayList<>();
@@ -192,22 +217,22 @@ public class Main {
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
             allModules.addAll(loggerConfig.getAllInEdit());
 
-            WebConfig webConfig = new WebConfig();
+            WebConfig webConfig = new WebConfig(preset);
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());
             allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
-            BackupConfig backupConfig = new BackupConfig();
+            BackupConfig backupConfig = new BackupConfig(preset);
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(backupConfig.getAllInEdit(), backupConfig.getAllLoaded());
             allModules.addAll(backupConfig.getAllInEdit());
 
-            RestarterConfig restarterConfig = new RestarterConfig();
+            RestarterConfig restarterConfig = new RestarterConfig(preset);
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(restarterConfig.getAllInEdit(), restarterConfig.getAllLoaded());
             allModules.addAll(restarterConfig.getAllInEdit());
 
-            UpdaterConfig updaterConfig = new UpdaterConfig();
+            UpdaterConfig updaterConfig = new UpdaterConfig(preset);
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(updaterConfig.getAllInEdit(), updaterConfig.getAllLoaded());
             allModules.addAll(updaterConfig.getAllInEdit());
 
@@ -232,10 +257,10 @@ public class Main {
 
             String key = generalConfig.server_key.asString();
             if (key == null || key.isEmpty() || key.equals("INSERT_KEY_HERE")) {
-                AL.info("Thank you for installing AutoPlug!");
-                AL.info("It seems like this is your first run and you haven't set your server key yet.");
-                AL.info("For that, register yourself at " + GD.OFFICIAL_WEBSITE + " and add a new server.");
-                AL.info("Enter the key below:");
+                AL.info("No Server-Key found at " + generalConfig.server_key.getKeys().toString() + ".");
+                AL.info("To get a Server-Key for this server, register yourself at");
+                AL.info(GD.OFFICIAL_WEBSITE + " and add this server.");
+                AL.info("Insert your Server-Key below and press enter:");
                 Scanner scanner = new Scanner(System.in);
                 generalConfig.server_key.setValues(scanner.nextLine());
                 generalConfig.save();

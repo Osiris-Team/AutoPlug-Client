@@ -98,6 +98,8 @@ public class BeforeServerStartupTasks {
             TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", manager);
             TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", manager);
 
+            TaskGeneral taskGeneral = new TaskGeneral("GeneralTasks", manager);
+
             TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", manager);
             TaskCustomRestarter taskCustomRestarter = new TaskCustomRestarter("CustomRestarter", manager);
 
@@ -127,6 +129,8 @@ public class BeforeServerStartupTasks {
             // Wait till backup is done
             while (!taskWorldsBackup.isFinished() || !taskPluginsBackup.isFinished() || !taskServerFilesBackup.isFinished())
                 Thread.sleep(1000);
+
+            taskGeneral.start();
 
             taskDailyRestarter.start();
             taskCustomRestarter.start();

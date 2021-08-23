@@ -45,7 +45,11 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule plugin_updater_profile;
     public DYModule plugin_updater_async;
 
-    public UpdaterConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public UpdaterConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+        this(ConfigPreset.DEFAULT);
+    }
+
+    public UpdaterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/updater-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
@@ -92,7 +96,7 @@ public class UpdaterConfig extends DreamYaml {
                 "If you selected AUTOMATIC you don't have to do that.",
                 "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug/system/jre, which then will be used to run your server."
         );
-        java_updater_version = put(name, "java-updater", "version").setDefValues("15").setComments(
+        java_updater_version = put(name, "java-updater", "version").setDefValues("16").setComments(
                 "The major Java version. List of versions available: https://api.adoptopenjdk.net/v3/info/available_releases",
                 "Note: If you change this, also remove the \"build-id\" value to guarantee correct update-detection."
         );
@@ -101,6 +105,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Otherwise don't touch this. It gets replaced after every successful update automatically.");
         java_updater_large_heap = put(name, "java-updater", "large-heap").setDefValues("false").setComments(
                 "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
+
 
         put(name, "server-updater").setCountTopSpaces(1);
         server_updater = put(name, "server-updater", "enable").setDefValues("false");
@@ -113,7 +118,7 @@ public class UpdaterConfig extends DreamYaml {
                         "- waterfall (https://github.com/PaperMC/Waterfall)\n" +
                         "- travertine (https://github.com/PaperMC/Travertine)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-        server_version = put(name, "server-updater", "version").setDefValues("1.16.4").setComments(
+        server_version = put(name, "server-updater", "version").setDefValues("1.17.1").setComments(
                 "Currently supported minecraft versions:\n" +
                         "- paper versions: https://papermc.io/api/v2/projects/paper\n" +
                         "- waterfall versions: https://papermc.io/api/v2/projects/waterfall\n" +
@@ -154,6 +159,14 @@ public class UpdaterConfig extends DreamYaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
+
+        if (preset.equals(ConfigPreset.FAST)) {
+            java_updater.setDefValues("true");
+            java_updater_profile.setDefValues("AUTOMATIC");
+            server_updater.setDefValues("true");
+            server_updater_profile.setDefValues("AUTOMATIC");
+            plugin_updater_profile.setDefValues("AUTOMATIC");
+        }
 
         validateOptions();
         saveAndUnlock();

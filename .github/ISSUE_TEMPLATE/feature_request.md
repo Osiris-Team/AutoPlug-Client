@@ -1,11 +1,11 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
+name: Feature request about: Suggest an idea for this project title: ''
 labels: ''
 assignees: ''
 
 ---
+
+**Importance:** Enter a value between 0-10, where 10 is the most important thing on the planet.
 
 **Problem:**
 Describe why you are writting this feature request.

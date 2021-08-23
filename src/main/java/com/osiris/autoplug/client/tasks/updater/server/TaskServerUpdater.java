@@ -127,6 +127,7 @@ public class TaskServerUpdater extends BetterThread {
             } else {
                 setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
                 GD.SERVER_JAR = new FileManager().serverJar();
+                System.out.println(GD.SERVER_JAR);
                 File final_dest = GD.SERVER_JAR;
                 if (final_dest == null)
                     final_dest = new File(GD.WORKING_DIR + "/" + onlineArtifactFileName);
@@ -212,7 +213,8 @@ public class TaskServerUpdater extends BetterThread {
         } else {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
             File final_dest = GD.SERVER_JAR;
-            if (final_dest == null) final_dest = new File(downloadsDir.getAbsolutePath() + "/" + name + "-latest.jar");
+            if (final_dest == null)
+                final_dest = new File(GD.WORKING_DIR + "/" + name + "-latest.jar");
             if (final_dest.exists()) final_dest.delete();
             final_dest.createNewFile();
 

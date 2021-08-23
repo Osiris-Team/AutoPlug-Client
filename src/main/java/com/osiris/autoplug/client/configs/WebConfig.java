@@ -23,8 +23,11 @@ public class WebConfig extends DreamYaml {
     public DYModule send_server_updater_results;
     public DYModule send_self_updater_results;
 
+    public WebConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+        this(ConfigPreset.DEFAULT);
+    }
 
-    public WebConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public WebConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
         lockAndLoad();
         String name = getFileNameWithoutExt();
@@ -46,6 +49,10 @@ public class WebConfig extends DreamYaml {
                         "To have as little impact on your server as possible, this only happens when you are logged in.");
         online_console_receive = put(name, "online-console", "receive").setDefValues("false")
                 .setComments("Receives messages from the Online-Console and executes them.");
+        if (preset.equals(ConfigPreset.FAST)) {
+            online_console_send.setDefValues("true");
+            online_console_receive.setDefValues("true");
+        }
 
         send_plugins_updater_results = put(name, "updater-results", "send-plugins-updaters-results").setDefValues("true")
                 .setComments("Sends the plugins-updaters results to AutoPlug-Web.",
