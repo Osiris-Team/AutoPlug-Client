@@ -27,6 +27,9 @@ public class GD {
     @Nullable
     public static File SERVER_JAR = null; // Gets set in UpdaterConfig
     public static File AUTOPLUG_JAR = null; // Gets set in Main
+    // Spigot account related stuff, gets set in Main.class
+    public static String SPIGOT_XF_USER = null;
+    public static String SPIGOT_XF_SESSION = null;
 
     static {
         WORKING_DIR = new File(System.getProperty("user.dir"));
@@ -37,4 +40,5 @@ public class GD {
             e.printStackTrace();
         }
     }
+
 }

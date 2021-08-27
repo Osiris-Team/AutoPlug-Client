@@ -21,6 +21,7 @@ public class SearchResult {
     private final String downloadType;
     private final String spigotId;
     private final String bukkitId;
+    boolean isPremium;
     private byte resultCode;
     private Exception exception;
 
@@ -40,7 +41,7 @@ public class SearchResult {
      * @param bukkitId      only !=null after an algorithm search where no id(spigot/bukkit) was provided.
      */
     public SearchResult(DetailedPlugin plugin, byte resultCode, String latestVersion, String downloadUrl,
-                        String downloadType, String spigotId, String bukkitId) {
+                        String downloadType, String spigotId, String bukkitId, boolean isPremium) {
         this.plugin = plugin;
         this.resultCode = resultCode;
         this.latestVersion = latestVersion;
@@ -48,6 +49,12 @@ public class SearchResult {
         this.downloadType = downloadType;
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
+        this.isPremium = isPremium;
+        plugin.setPremium(isPremium);
+    }
+
+    public boolean isPremium() {
+        return isPremium;
     }
 
     public DetailedPlugin getPlugin() {

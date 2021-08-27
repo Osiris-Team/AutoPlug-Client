@@ -99,9 +99,9 @@ public class Main {
             // Start the logger
             DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
             logC.load();
-            DYModule debug = logC.put("autoplug-logger-config", "debug").setDefValues("false");
-            DYModule autoplug_label = logC.put("autoplug-logger-config", "autoplug-label").setDefValues("AP");
-            DYModule force_ansi = logC.put("autoplug-logger-config", "force-ANSI").setDefValues("false");
+            DYModule debug = logC.put("logger-config", "debug").setDefValues("false");
+            DYModule autoplug_label = logC.put("logger-config", "autoplug-label").setDefValues("AP");
+            DYModule force_ansi = logC.put("logger-config", "force-ANSI").setDefValues("false");
             new AL().start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug/logs"),
@@ -110,7 +110,7 @@ public class Main {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-            AL.debug(Main.class, "Running jar: " + jarPath);
+            AL.debug(Main.class, "Running autoplug from: " + jarPath);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("There was a critical error that prevented AutoPlug from starting!");
@@ -265,6 +265,135 @@ public class Main {
                 generalConfig.server_key.setValues(scanner.nextLine());
                 generalConfig.save();
             }
+
+            /*
+            if (updaterConfig.plugin_updater_spigot_username.asString()!=null){
+                try{
+                    // The JBrowserDriver below needs JavaFX8 classes. Since the openfx maven projects don't provided
+                    // all classes we need, we need to download a custom distro located at the github repo: Osiris-Team/AutoPlug-Releases.
+                    // That's done below:
+
+                    // Check if we already installed JavaFX8
+
+                    File javafx8InstallationDir = new File(WORKING_DIR+"/autoplug/system/javafx8");
+                    if (!javafx8InstallationDir.exists()) javafx8InstallationDir.mkdirs();
+                    if (javafx8InstallationDir.listFiles().length==0){
+                        AL.info("Installing JavaFX dependency for premium plugin updating support...");
+                        // Download and unpack
+                        BetterThreadManager man = new BetterThreadManager();
+                        BetterThreadDisplayer displayer = new BetterThreadDisplayer(man);
+                        TaskDownload downloadTask;
+                        File downloadFile = new File(javafx8InstallationDir+"/javafx8-native.zip");
+                        if(SystemUtils.IS_OS_WINDOWS){
+                            downloadTask = new TaskDownload("Download", man, //TODO CHANGE THE BELOW TO THE CORRECT URL
+                                    "https://github.com/Osiris-Team/AutoPlug-Releases/raw/master/javafx8-win.zip",
+                                    downloadFile, "zip");
+                        }
+                        else if (SystemUtils.IS_OS_SOLARIS){
+                            downloadTask = new TaskDownload("Download", man,
+                                    "https://github.com/Osiris-Team/AutoPlug-Releases/raw/master/javafx8-natives/javafx8-solaris.zip",
+                                    downloadFile, "zip");
+                        }else if (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX){
+                            downloadTask = new TaskDownload("Download", man,
+                                    "https://github.com/Osiris-Team/AutoPlug-Releases/raw/master/javafx8-natives/javafx8-mac.zip",
+                                    downloadFile);
+                        }else { // Its linux or a linux distro
+                            downloadTask = new TaskDownload("Download", man,
+                                    "https://github.com/Osiris-Team/AutoPlug-Releases/raw/master/javafx8-natives/javafx8-linux.zip",
+                                    downloadFile, "zip");
+                        }
+
+                        downloadTask.start();
+                        displayer.start();
+                        while(!downloadTask.isFinished())
+                            Thread.sleep(250);
+
+                        ArchiverFactory.createArchiver(ArchiveFormat.ZIP)
+                                .extract(downloadFile, javafx8InstallationDir);
+
+                        downloadFile.delete();
+                        AL.info("Installed JavaFX dependency successfully.");
+                    }
+
+                    AL.info("Loading JavaFX dependency...");
+                    long classesLoadedCount = 0;
+                    for (File file :
+                            javafx8InstallationDir.listFiles()) {
+
+                        //Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                        //method.setAccessible(true);
+                        //method.invoke(Main.class.getClassLoader(), new URL("jar:file:"+file.getAbsolutePath()+"!/"));
+
+                        try (JarFile jarFile = new JarFile(file)) {
+                            Enumeration<JarEntry> e = jarFile.entries();
+                            while (e.hasMoreElements()) {
+                                JarEntry je = e.nextElement();
+                                if(je.isDirectory() || !je.getName().endsWith(".class")){
+                                    continue;
+                                }
+                                // -6 because of .class
+                                String className = je.getName().substring(0,je.getName().length()-6);
+                                className = className.replace('/', '.');
+                                try{
+                                    //Class.forName(className, false, ClassLoader.getSystemClassLoader()); // Must be the custom MySystemClassLoader.class
+                                    classesLoadedCount++;
+                                } catch (Throwable t){
+                                    AL.warn(t.getMessage());
+                                }
+                            }
+                        }
+
+                    }
+                    AL.info("Successfully loaded the JavaFX dependency. ("+classesLoadedCount+" classes)");
+
+                    AL.info("Logging in with provided credentials for spigotmc.org...");
+                    // You can optionally pass a Settings object here,
+                    // constructed using Settings.Builder
+                    JBrowserDriver driver = new JBrowserDriver(Settings.builder().
+                            timezone(Timezone.AMERICA_NEWYORK).build());
+
+                    // This will block for the page load and any
+                    // associated AJAX requests
+                    driver.get("https://www.spigotmc.org/login");
+                    Thread.sleep(7000); // Cloudflare is only 5 seconds, just to be sure we do 7 though...
+                    driver.get("https://www.spigotmc.org/login");
+
+                    driver.executeScript("" +
+                            "document.getElementById('ctrl_pageLogin_login').value=\"" + updaterConfig.plugin_updater_spigot_username.asString() + "\";" +
+                            "document.getElementById('ctrl_pageLogin_password').value=\"" + updaterConfig.plugin_updater_spigot_password.asString() + "\";" +
+                            "document.forms[0].submit();");
+                    Thread.sleep(1000);
+
+
+                    String xfUserCookie = null;
+                    String xfSessionCookie = null;
+                    for (Cookie cookie:
+                            driver.manage().getCookies()) {
+                        if (cookie.getName().equals("xf_user"))
+                            xfUserCookie = cookie.getValue();
+
+                        if (cookie.getName().equals("xf_session"))
+                            xfSessionCookie = cookie.getValue();
+                    }
+
+                    if (xfUserCookie==null || xfSessionCookie==null)
+                        throw new Exception("Session cookies couldn't be retrieved. Html ("+driver.getCurrentUrl()+"): "+driver.getPageSource());
+
+                    if (driver.getStatusCode() != 200)
+                        throw new Exception("Status code should be 200, but is '"+driver.getStatusCode()+"'. Html ("+driver.getCurrentUrl()+"): "+driver.getPageSource());
+
+                    GD.SPIGOT_XF_USER = xfUserCookie;
+                    GD.SPIGOT_XF_SESSION = xfSessionCookie;
+
+                    // Close the browser. Allows this thread to terminate.
+                    driver.quit();
+                    AL.info("Logged in to spigotmc.org successfully.");
+                } catch (Exception e) {
+                    AL.warn("Failed to login!", e);
+                }
+            }
+            // TODO HERE
+             */
 
             ConMain conMain = new ConMain();
             conMain.start();

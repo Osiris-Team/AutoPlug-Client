@@ -66,9 +66,9 @@ public class SpigotSearchByAuthor {
         AL.debug(this.getClass(), "[" + plugin.getName() + "] No match found for " + plName + "!");
         SearchResult result;
         if (exception != null)
-            result = new SearchResult(plugin, (byte) 2, null, null, null, null, null);
+            result = new SearchResult(plugin, (byte) 2, null, null, null, null, null, false);
         else
-            result = new SearchResult(plugin, (byte) 3, null, null, null, null, null);
+            result = new SearchResult(plugin, (byte) 3, null, null, null, null, null, false);
         result.setException(exception);
         return result;
     }

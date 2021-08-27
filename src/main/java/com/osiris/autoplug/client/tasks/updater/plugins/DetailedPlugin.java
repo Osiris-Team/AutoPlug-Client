@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
 public class DetailedPlugin {
+    boolean isPremium;
     private String configPath;
     private String installationPath;
     private String name;
@@ -26,6 +27,14 @@ public class DetailedPlugin {
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customLink = customLink;
+    }
+
+    public boolean isPremium() {
+        return isPremium;
+    }
+
+    public void setPremium(boolean premium) {
+        isPremium = premium;
     }
 
     public String getInstallationPath() {

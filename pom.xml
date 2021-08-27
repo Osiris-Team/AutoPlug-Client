@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>4.8</version>
+    <version>4.9</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -73,6 +73,11 @@
             <groupId>org.panda-lang</groupId>
             <artifactId>pandomium</artifactId>
             <version>67.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.machinepublishers</groupId>
+            <artifactId>jbrowserdriver</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
         <!-- https://github.com/Osiris-Team/AutoPlug-Core -->
@@ -189,7 +194,6 @@
         <finalName>${project.name}</finalName>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

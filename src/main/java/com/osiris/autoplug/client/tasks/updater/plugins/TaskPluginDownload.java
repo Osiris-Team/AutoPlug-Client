@@ -37,6 +37,7 @@ public class TaskPluginDownload extends BetterThread {
     private File dest;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
+    private final boolean isPremium;
 
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
@@ -59,6 +60,13 @@ public class TaskPluginDownload extends BetterThread {
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
                               String url, String profile, File finalDest, File deleteDest) {
+        this(name, manager, plName, plLatestVersion, url, profile, finalDest, deleteDest, false);
+    }
+
+    public TaskPluginDownload(String name, BetterThreadManager manager,
+                              String plName, String plLatestVersion,
+                              String url, String profile, File finalDest, File deleteDest,
+                              boolean isPremium) {
         super(name, manager);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
@@ -66,6 +74,7 @@ public class TaskPluginDownload extends BetterThread {
         this.profile = profile;
         this.finalDest = finalDest;
         this.deleteDest = deleteDest;
+        this.isPremium = isPremium;
     }
 
     @Override
@@ -104,9 +113,19 @@ public class TaskPluginDownload extends BetterThread {
         setStatus("Downloading " + fileName + "... (0kb/0kb)");
         AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
-        Request request = new Request.Builder().url(url)
-                .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
-                .build();
+        Request request;
+        if (isPremium) {
+            request = new Request.Builder().url(url)
+                    .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
+                    .header("Cookie", "xf_session=" + GD.SPIGOT_XF_SESSION)
+                    .header("Cookie", "xf_user=" + GD.SPIGOT_XF_USER)
+                    .build();
+        } else {
+            request = new Request.Builder().url(url)
+                    .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
+                    .build();
+        }
+
         Response response = new OkHttpClient().newCall(request).execute();
         ResponseBody body = null;
         try {

@@ -95,6 +95,12 @@ public class ConMain extends Thread {
                     }
                 } catch (Exception e) {
                     AL.warn("Lost connection to AutoPlug-Web! Reconnecting in 30 seconds...", e);
+                    try {
+                        if (auth.getSocket() != null && !auth.getSocket().isClosed())
+                            auth.getSocket().close();
+                    } catch (IOException ioException) {
+                        AL.warn(ioException);
+                    }
 
                     // Close child connections
                     try {

@@ -28,6 +28,7 @@ public class SpigotSearchById {
         String type = null;
         String downloadUrl = null;
         byte code = 0;
+        boolean isPremium = false;
         try {
             // Get the latest version
             latest = new JsonTools().getJsonArray(url).get(0).getAsJsonObject().get("name").getAsString();
@@ -36,6 +37,7 @@ public class SpigotSearchById {
             String url1 = "https://api.spiget.org/v2/resources/" + spigotId;
             AL.debug(this.getClass(), "[" + plugin.getName() + "] Fetching resource details... (" + url1 + ")");
             JsonObject json = new JsonTools().getJsonObject(url1).getAsJsonObject("file");
+            isPremium = Boolean.parseBoolean(new JsonTools().getJsonObject(url1).get("premium").getAsString());
             type = json.get("type").getAsString();
             downloadUrl = "https://www.spigotmc.org/" + json.get("url").getAsString();
 
@@ -50,7 +52,7 @@ public class SpigotSearchById {
         }
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + type + " ");
-        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, type, "" + spigotId, null);
+        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, type, "" + spigotId, null, isPremium);
         result.setException(exception);
         return result;
     }

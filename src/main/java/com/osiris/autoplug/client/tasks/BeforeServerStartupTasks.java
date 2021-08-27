@@ -67,9 +67,7 @@ public class BeforeServerStartupTasks {
                 AL.info("Skipped updater tasks. Global updater cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
                 isUpdaterCoolDownActive = true;
             }
-            // Update the cool-down with current time
-            systemConfig.timestamp_last_updater_tasks.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-            systemConfig.save(); // Save the current timestamp to file
+            // The systemconfig gets updated with the new timestamp when all updater tasks have finished
 
             manager = new BetterThreadManager();
             displayer = new BetterThreadDisplayer(
@@ -151,6 +149,10 @@ public class BeforeServerStartupTasks {
                 while (!manager.isFinished())
                     Thread.sleep(1000);
             }
+
+            // Update the updater global cool-down with current time
+            systemConfig.timestamp_last_updater_tasks.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
+            systemConfig.save(); // Save the current timestamp to file
 
             writeFinalStatus(manager.getAll());
 

@@ -24,11 +24,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Random;
 
 public class TaskDownload extends BetterThread {
     private String url;
     private File dest;
+    private String[] allowedSubContentTypes;
 
     /**
      * Downloads a file from an url to the cache first and then
@@ -40,9 +42,14 @@ public class TaskDownload extends BetterThread {
      * @param dest    the downloads final destination.
      */
     public TaskDownload(String name, BetterThreadManager manager, String url, File dest) {
+        this(name, manager, url, dest, (String[]) null);
+    }
+
+    public TaskDownload(String name, BetterThreadManager manager, String url, File dest, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
         this.dest = dest;
+        this.allowedSubContentTypes = allowedSubContentTypes;
     }
 
     private TaskDownload(String name, BetterThreadManager manager) {
@@ -75,8 +82,12 @@ public class TaskDownload extends BetterThread {
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
             else if (!body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
-                    && !body.contentType().subtype().equals("octet-stream"))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                    && !body.contentType().subtype().equals("octet-stream")) {
+                if (allowedSubContentTypes == null)
+                    throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                if (!Arrays.asList(allowedSubContentTypes).contains(body.contentType().subtype()))
+                    throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+            }
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);

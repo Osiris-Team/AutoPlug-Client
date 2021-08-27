@@ -54,7 +54,7 @@ public class BukkitSearchById {
         if (latest != null && new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + downloadType + " ");
-        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, "" + bukkitId);
+        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, "" + bukkitId, false);
         result.setException(exception);
         return result;
     }

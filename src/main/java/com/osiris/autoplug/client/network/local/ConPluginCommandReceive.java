@@ -48,9 +48,9 @@ public class ConPluginCommandReceive {
                         local_server_socket = new ServerSocket(port);
                         AL.debug(this.getClass(), "Success!");
                     } catch (IOException e) {
+                        AL.debug(this.getClass(), "Failed to bind on port " + port + "! " + e.getMessage());
                         local_server_socket = null;
                         port++;
-                        AL.warn("Failed to bind on port " + port + "! " + e.getMessage());
                     }
                 }
 

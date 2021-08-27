@@ -341,17 +341,71 @@ public class TaskPluginsUpdater extends BetterThread {
                 addInfo("NOTIFY: Plugin '" + pl.getName() + "' has an update available (" + pl.getVersion() + " -> " + latest + ")");
             } else {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
-                    if (userProfile.equals(manualProfile)) {
-                        File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
-                        TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
-                        downloadTasksList.add(task);
-                        task.start();
-                    } else {
-                        File oldPl = new File(pl.getInstallationPath());
-                        File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                        TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
-                        downloadTasksList.add(task);
-                        task.start();
+
+                    if (pl.isPremium()) {
+                        getWarnings().add(new BetterWarning(this,
+                                pl.getName() + " (" + latest + ") is a premium plugin and currently not supported."));
+                        /* // TODO
+                        try{
+                            AL.info("Logging in with provided credentials for spigotmc.org...");
+                            // You can optionally pass a Settings object here,
+                            // constructed using Settings.Builder
+                            JBrowserDriver driver = new JBrowserDriver(Settings.builder().
+                                    timezone(Timezone.AMERICA_NEWYORK).build());
+                            driver.manage().addCookie(new Cookie("xf_user", GD.SPIGOT_XF_USER));
+                            driver.manage().addCookie(new Cookie("xf_session", GD.SPIGOT_XF_SESSION));
+
+                            // This will block for the page load and any
+                            // associated AJAX requests
+                            driver.get("https://www.spigotmc.org/resources/"+resultSpigotId);
+                            Thread.sleep(7000); // Cloudflare is only 5 seconds, just to be sure we do 7 though...
+                            driver.get("https://www.spigotmc.org/resources/"+resultSpigotId);
+
+                            String actualDownloadUrl = "https://www.spigotmc.org/"+ driver.findElementByClassName("inner OverlayTrigger")
+                                    .getAttribute("href"); // The download or purchase buttons <a> tag with the download link
+
+                            if (actualDownloadUrl.contains("/purchase"))
+                                throw new Exception("Resource update failed, because you do not own this premium resource.");
+
+                            if (driver.getStatusCode() != 200)
+                                throw new Exception("Status code should be 200, but is '"+driver.getStatusCode()+"'. Html ("+driver.getCurrentUrl()+"): "+driver.getPageSource());
+
+                            // Close the browser. Allows its thread to terminate.
+                            driver.quit();
+
+                            if (userProfile.equals(manualProfile)) {
+                                File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
+                                TaskPluginDownload task = new TaskPluginDownload(
+                                        "PluginDownloader", getManager(), pl.getName(), latest, actualDownloadUrl, userProfile, cache_dest, null, true);
+                                downloadTasksList.add(task);
+                                task.start();
+                            } else {
+                                File oldPl = new File(pl.getInstallationPath());
+                                File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
+                                TaskPluginDownload task = new TaskPluginDownload(
+                                        "PluginDownloader", getManager(), pl.getName(), latest, actualDownloadUrl, userProfile, dest, oldPl, true);
+                                downloadTasksList.add(task);
+                                task.start();
+                            }
+                        } catch (Exception e) {
+                            getWarnings().add(new BetterWarning(this, e,
+                                    "Failed to download premium plugin update(" + latest + ") for " + pl.getName() + "."));
+                        }
+
+                         */
+                    } else { // Not a premium plugin
+                        if (userProfile.equals(manualProfile)) {
+                            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
+                            downloadTasksList.add(task);
+                            task.start();
+                        } else {
+                            File oldPl = new File(pl.getInstallationPath());
+                            File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
+                            downloadTasksList.add(task);
+                            task.start();
+                        }
                     }
                 } else
                     getWarnings().add(new BetterWarning(this, new Exception("Failed to download plugin update(" + latest + ") for " + pl.getName() + " because of unsupported type: " + type)));

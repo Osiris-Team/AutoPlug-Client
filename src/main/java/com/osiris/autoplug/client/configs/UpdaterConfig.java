@@ -44,6 +44,8 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule plugin_updater;
     public DYModule plugin_updater_profile;
     public DYModule plugin_updater_async;
+    public DYModule plugin_updater_spigot_username;
+    public DYModule plugin_updater_spigot_password;
 
     public UpdaterConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
@@ -159,6 +161,13 @@ public class UpdaterConfig extends DreamYaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
+        plugin_updater_spigot_username = put(name, "plugins-updater", "spigot-username").setComments(
+                "WORK IN PROGRESS. NOT FUNCTIONAL YET!",
+                "If you own premium plugins on your account and want to auto-update them too, enter your spigotmc.org username and password below.",
+                "If you change your accounts details below in the future, you will need to restart AutoPlug for the changes to have effect.",
+                "Each time you restart AutoPlug, AutoPlug will try to login with the provided credentials and then use the returned authentication token.",
+                "Note that you might get banned if you restart AutoPlug a lot in a short amount of time.");
+        plugin_updater_spigot_password = put(name, "plugins-updater", "spigot-password");
 
         if (preset.equals(ConfigPreset.FAST)) {
             java_updater.setDefValues("true");
