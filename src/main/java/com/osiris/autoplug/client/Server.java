@@ -27,9 +27,23 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 
 public final class Server {
+
+    public static int PORT = 0;
+
+    static {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
+            PORT = Integer.parseInt(properties.getProperty("server-port"));
+        } catch (IOException e) {
+            AL.warn(e);
+        }
+    }
+
     @Nullable
     public static NonBlockingPipedInputStream NB_SERVER_IN;
     private static Process process;

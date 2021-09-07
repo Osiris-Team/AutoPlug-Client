@@ -23,6 +23,8 @@ public class WebConfig extends DreamYaml {
     public DYModule send_server_updater_results;
     public DYModule send_self_updater_results;
 
+    public DYModule send_server_status;
+
     public WebConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
     }
@@ -59,6 +61,11 @@ public class WebConfig extends DreamYaml {
                         "By disabling this, you won't be able to see a summary of the updaters result online anymore.");
         send_server_updater_results = put(name, "updater-results", "send-server-updaters-results").setDefValues("true");
         send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
+
+
+        send_server_status = put(name, "send-server-status").setDefValues("true").setComments("Sends following information to the web-server:",
+                "Alive status of server; servers MOTD and player count; CPU frequencies and used/total memory sizes.",
+                "Restart AutoPlug for this change to take affect.");
 
         saveAndUnlock();
     }

@@ -84,7 +84,8 @@ public class BeforeServerStartupTasks {
             else {
                 AL.info("Waiting for before startup tasks to finish...");
                 if (new BackupConfig().backup_worlds.asBoolean())
-                    AL.info("Remember that the bigger your worlds, the longer it will take to back them up!");
+                    AL.info("Note that world backups are enabled. The bigger your worlds, the longer it will take to back them up!");
+                new CustomDisplayer(manager).start();
             }
 
             // Create processes

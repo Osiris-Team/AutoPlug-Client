@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>4.9</version>
+    <version>5.0</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -69,22 +69,18 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>org.panda-lang</groupId>
-            <artifactId>pandomium</artifactId>
-            <version>67.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.machinepublishers</groupId>
-            <artifactId>jbrowserdriver</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-
         <!-- https://github.com/Osiris-Team/AutoPlug-Core -->
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
             <version>11.3</version>
+        </dependency>
+
+        <!-- For getting hardware info -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.8.2</version>
         </dependency>
 
         <!-- Needed for working with .zip and .jar files, in the Plugins-Updater -->

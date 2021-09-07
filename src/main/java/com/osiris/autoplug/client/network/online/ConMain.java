@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
+import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,7 @@ public class ConMain extends Thread {
     // Secondary connections:
     public static ConOnlineConsoleReceive CON_CONSOLE_RECEIVE;
     public static ConOnlineConsoleSend CON_CONSOLE_SEND;
+    public static ConServerStatus CON_SERVER_STATUS;
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
     @NotNull
     public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
@@ -80,7 +82,6 @@ public class ConMain extends Thread {
                                 if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();
                                 //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
-
                         } else {
                             if (oldAuth) {
                                 oldAuth = false;
@@ -104,16 +105,26 @@ public class ConMain extends Thread {
 
                     // Close child connections
                     try {
-                        CON_CONSOLE_RECEIVE.close();
+                        if (CON_CONSOLE_RECEIVE != null && CON_CONSOLE_RECEIVE.isConnected())
+                            CON_CONSOLE_RECEIVE.close();
                     } catch (IOException e1) {
                         AL.warn(e1);
                     }
 
                     try {
-                        CON_CONSOLE_SEND.close();
+                        if (CON_CONSOLE_SEND != null && CON_SERVER_STATUS.isConnected())
+                            CON_CONSOLE_SEND.close();
                     } catch (IOException e1) {
                         AL.warn(e1);
                     }
+
+                    try {
+                        if (CON_SERVER_STATUS != null && CON_SERVER_STATUS.isConnected())
+                            CON_SERVER_STATUS.close();
+                    } catch (IOException e1) {
+                        AL.warn(e1);
+                    }
+
 
                     Thread.sleep(30000);
                     try {
