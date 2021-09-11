@@ -60,7 +60,7 @@ public class ConServerStatus extends SecondaryConnection {
                         while (true) {
                             MineStat mineStat = new MineStat("localhost", Server.PORT);
                             dos.writeBoolean(mineStat.isServerUp());
-                            dos.writeUTF("" + mineStat.getMotd());
+                            dos.writeUTF("" + mineStat.getStrippedMotd());
                             dos.writeUTF("" + mineStat.getVersion());
                             dos.writeInt(mineStat.getCurrentPlayers());
                             dos.writeInt(mineStat.getMaximumPlayers());
