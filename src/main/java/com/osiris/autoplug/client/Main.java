@@ -13,7 +13,6 @@ import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.utils.GD;
@@ -406,12 +405,6 @@ public class Main {
 
             if (generalConfig.server_auto_start.asBoolean())
                 Server.start();
-
-            while (!ConMain.isDone)
-                Thread.sleep(250);
-
-            if (webConfig.send_server_status.asBoolean())
-                new ConServerStatus().open();
 
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working

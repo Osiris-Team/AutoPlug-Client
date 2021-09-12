@@ -8,16 +8,14 @@
 
 package com.osiris.autoplug.client.network.online;
 
+import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.core.logger.AL;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This is the main connection to AutoPlugs online server/website.
@@ -33,8 +31,6 @@ public class ConMain extends Thread {
     public static ConOnlineConsoleSend CON_CONSOLE_SEND;
     public static ConServerStatus CON_SERVER_STATUS;
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
-    @NotNull
-    public static List<SecondaryConnection> LIST_SECONDARY_CONNECTIONS = new ArrayList<>();
 
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
 
@@ -50,20 +46,17 @@ public class ConMain extends Thread {
             //DataOutputStream dos = new DataOutputStream(auth.getOut());
             boolean isUserAuthenticated;
 
-                /*
+             /*
                 Create child connection objects, after main connection was established successfully.
                 Note: To establish a connection to the server, the open() method
                 must have been called before.
                  */
             CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
             CON_CONSOLE_SEND = new ConOnlineConsoleSend();
+            CON_SERVER_STATUS = new ConServerStatus();
             //CON_PLUGINS_UPDATER = new PluginsUpdateResultConnection();
 
-            // Add to connections
-            LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE_RECEIVE);
-            LIST_SECONDARY_CONNECTIONS.add(CON_CONSOLE_SEND);
-            //LIST_SECONDARY_CONNECTIONS.add(CON_PLUGINS_UPDATER);
-
+            boolean sendStatus = new WebConfig().send_server_status.asBoolean();
 
             isDone = true;
             boolean oldAuth = false; // Local variable that holds the auth boolean before the current one
@@ -73,6 +66,8 @@ public class ConMain extends Thread {
                 try {
                     while (true) {
                         isUserAuthenticated = dis.readBoolean();
+                        if (sendStatus && !CON_SERVER_STATUS.isConnected()) CON_SERVER_STATUS.open();
+
                         if (isUserAuthenticated) {
                             if (!oldAuth) {
                                 oldAuth = true;
@@ -96,6 +91,12 @@ public class ConMain extends Thread {
                     }
                 } catch (Exception e) {
                     AL.warn("Lost connection to AutoPlug-Web! Reconnecting in 30 seconds...", e);
+
+                    // Reset booleans
+                    oldAuth = false;
+                    isUserAuthenticated = false;
+
+                    // Make sure socket is really closed
                     try {
                         if (auth.getSocket() != null && !auth.getSocket().isClosed())
                             auth.getSocket().close();
