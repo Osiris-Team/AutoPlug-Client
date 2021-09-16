@@ -56,6 +56,16 @@ public final class Server {
             if (isRunning()) {
                 AL.warn("Server already running!");
             } else {
+
+                // Update PORT
+                Properties properties = new Properties();
+                try {
+                    properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
+                    PORT = Integer.parseInt(properties.getProperty("server-port"));
+                } catch (IOException e) {
+                    AL.warn(e);
+                }
+
                 // Runs all processes before starting the server
                 new BeforeServerStartupTasks();
 
@@ -151,7 +161,17 @@ public final class Server {
             File javaBinFolder = null;
             for (File folder :
                     fileManager.getFoldersFrom(javaInstallationFolder)) {// This are the files inside a java installation
-                if (folder.getName().equals("bin")) {
+
+                if (folder.getName().equalsIgnoreCase("Home")) // For macos support
+                    for (File folder2 :
+                            folder.listFiles()) {
+                        if (folder2.getName().equals("bin")) {
+                            javaBinFolder = folder;
+                            break;
+                        }
+                    }
+
+                if (folder.getName().equals("bin")) { // Regular java installations
                     javaBinFolder = folder;
                     break;
                 }
