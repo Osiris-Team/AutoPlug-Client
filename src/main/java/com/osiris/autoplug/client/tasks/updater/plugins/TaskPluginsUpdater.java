@@ -112,17 +112,8 @@ public class TaskPluginsUpdater extends BetterThread {
                     DYModule spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
                     //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                     DYModule bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
-                    DYModule custom_author = pluginsConfig.put(name, plName, "custom-author");
                     DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                     DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
-
-                    if ((pl.getVersion() == null || pl.getVersion().isEmpty())
-                            || (pl.getAuthor() == null || pl.getAuthor().isEmpty())
-                            && (spigotId.asString() != null && !spigotId.asString().isEmpty())
-                            && (bukkitId.asString() != null && !bukkitId.asString().isEmpty())) {
-                        exclude.setValues("true");
-                        this.addWarning("Plugin " + pl.getName() + " is missing critical information and was excluded.");
-                    }
 
                     // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                     if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -130,10 +121,24 @@ public class TaskPluginsUpdater extends BetterThread {
                     if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
                         bukkitId.setValues("" + pl.getBukkitId());
 
+                    // Update the detailed plugins in-memory values
                     pl.setSpigotId(spigotId.asInt());
                     pl.setBukkitId(bukkitId.asInt());
                     pl.setCustomLink(customDownloadURL.asString());
 
+                    // Check for missing author in plugin.yml
+                    if ((pl.getVersion() == null || pl.getVersion().trim().isEmpty())
+                            && spigotId.asString() == null && bukkitId.asString() == null) {
+                        exclude.setValues("true");
+                        this.addWarning("Plugin " + pl.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
+                    }
+
+                    // Check for missing version in plugin.yml
+                    if ((pl.getAuthor() == null || pl.getAuthor().trim().isEmpty())
+                            && spigotId.asString() == null && bukkitId.asString() == null) {
+                        exclude.setValues("true");
+                        this.addWarning("Plugin " + pl.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
+                    }
 
                     if (!exclude.asBoolean())
                         includedPlugins.add(pl);

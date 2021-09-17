@@ -147,7 +147,10 @@ public class TaskServerUpdater extends BetterThread {
                         if (download.isSuccess()) {
                             FileUtils.copyFile(cache_dest, final_dest);
                             setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                            config.server_build_id.setValues("" + latest_build_id);
+                            if (config.server_jenkins_build_id.asString() != null)
+                                config.server_jenkins_build_id.setValues("" + latest_build_id);
+                            else
+                                config.server_build_id.setValues("" + latest_build_id);
                             config.save();
                             setSuccess(true);
                         } else {
