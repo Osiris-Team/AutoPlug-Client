@@ -128,14 +128,16 @@ public class TaskPluginsUpdater extends BetterThread {
 
                     // Check for missing author in plugin.yml
                     if ((pl.getVersion() == null || pl.getVersion().trim().isEmpty())
-                            && spigotId.asString() == null && bukkitId.asString() == null) {
+                            && (spigotId.asString() == null || spigotId.asInt() == 0)
+                            && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
                         exclude.setValues("true");
                         this.addWarning("Plugin " + pl.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
                     }
 
                     // Check for missing version in plugin.yml
                     if ((pl.getAuthor() == null || pl.getAuthor().trim().isEmpty())
-                            && spigotId.asString() == null && bukkitId.asString() == null) {
+                            && (spigotId.asString() == null || spigotId.asInt() == 0)
+                            && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
                         exclude.setValues("true");
                         this.addWarning("Plugin " + pl.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
                     }
