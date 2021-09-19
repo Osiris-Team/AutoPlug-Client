@@ -1,9 +1,9 @@
 /*
- * Copyright Osiris Team
+ * Copyright (c) 2021 Osiris-Team.
  * All rights reserved.
  *
- * This software is copyrighted work licensed under the terms of the
- * AutoPlug License.  Please consult the file "LICENSE" for details.
+ * This software is copyrighted work, licensed under the terms
+ * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
 package com.osiris.autoplug.client.utils;

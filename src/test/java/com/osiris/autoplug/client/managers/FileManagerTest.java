@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2021 Osiris-Team.
+ * All rights reserved.
+ *
+ * This software is copyrighted work, licensed under the terms
+ * of the MIT-License. Consult the "LICENSE" file for details.
+ */
+
 package com.osiris.autoplug.client.managers;
 
 import org.junit.jupiter.api.Test;
@@ -5,7 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileManagerTest {
 
