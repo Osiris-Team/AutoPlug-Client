@@ -17,6 +17,7 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
+import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -227,7 +228,10 @@ public class TaskJavaUpdater extends BetterThread {
                                 if (files != null)
                                     for (File file :
                                             files) {
-                                        file.delete();
+                                        if (file.isDirectory())
+                                            FileUtils.deleteDirectory(file);
+                                        else
+                                            file.delete();
                                     }
                             }
                             final_dir_dest.mkdirs();

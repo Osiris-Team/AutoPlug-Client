@@ -8,13 +8,10 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.utils.GD;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
 
-import java.io.File;
 import java.io.IOException;
 
 public class GeneralConfig extends DreamYaml {
@@ -112,28 +109,9 @@ public class GeneralConfig extends DreamYaml {
 
         validateOptions();
         saveAndUnlock();
-
-        setGlobalServerPath();
     }
 
     private void validateOptions() {
-    }
-
-
-    // Set the path in GD so its easier to access
-    private void setGlobalServerPath() {
-        FileManager fileManager = new FileManager();
-        String jar = server_jar.asString();
-        if (!jar.equals("auto-find")) {
-            if (jar.contains("/") || jar.contains("\\")) {
-                if (jar.startsWith("./"))
-                    GD.SERVER_JAR = FileManager.convertRelativeToAbsolutePath(jar);
-                else
-                    GD.SERVER_JAR = new File(jar);
-            } else
-                GD.SERVER_JAR = fileManager.serverJar(jar);
-        } else
-            GD.SERVER_JAR = fileManager.serverJar();
     }
 
 }

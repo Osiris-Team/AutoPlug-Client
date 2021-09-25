@@ -69,7 +69,20 @@ public final class Server {
                 // Runs all processes before starting the server
                 new BeforeServerStartupTasks();
 
-                GD.SERVER_JAR = new FileManager().serverJar();
+                // Find server jar
+                GeneralConfig generalConfig = new GeneralConfig();
+                FileManager fileManager = new FileManager();
+                String jar = generalConfig.server_jar.asString();
+                if (!jar.equals("auto-find")) {
+                    if (jar.contains("/") || jar.contains("\\")) {
+                        if (jar.startsWith("./"))
+                            GD.SERVER_JAR = FileManager.convertRelativeToAbsolutePath(jar);
+                        else
+                            GD.SERVER_JAR = new File(jar);
+                    } else
+                        GD.SERVER_JAR = fileManager.serverJar(jar);
+                } else
+                    GD.SERVER_JAR = fileManager.serverJar();
                 if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
                     throw new Exception("Failed to find your server jar! " +
                             "Please check your config, you may need to specify the jars name/path! " +

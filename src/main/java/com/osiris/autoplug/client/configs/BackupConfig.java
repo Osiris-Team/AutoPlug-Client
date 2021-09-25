@@ -95,7 +95,7 @@ public class BackupConfig extends DreamYaml {
                 "Backups all files in your servers root (except folders) to /autoplug/backups/server/...zip.");
         backup_server_files_max_days = put(name, "server-files-backup", "max-days").setDefValues("7").setComments(
                 "Set max-days to 0 if you want to keep your backups forever.");
-        backup_server_files_cool_down = put(name, "server-files-backup", "cool-down").setDefValues("60").setComments(
+        backup_server_files_cool_down = put(name, "server-files-backup", "cool-down").setDefValues("500").setComments(
                 "The cool-down for this task in minutes.",
                 "If you restart your server multiple times in a short amount of time,",
                 "you probably won't want to create backups each time you restart your server.",
@@ -140,7 +140,7 @@ public class BackupConfig extends DreamYaml {
         backup_worlds = put(name, "worlds-backup", "enable").setDefValues("false").setComments(
                 "Backups all folders starting with \"world\" to /autoplug/backups/worlds/...zip");
         backup_worlds_max_days = put(name, "worlds-backup", "max-days").setDefValues("7");
-        backup_worlds_cool_down = put(name, "worlds-backup", "cool-down").setDefValues("60");
+        backup_worlds_cool_down = put(name, "worlds-backup", "cool-down").setDefValues("500");
         backup_worlds_exclude = put(name, "worlds-backup", "exclude", "enable").setDefValues("false");
         backup_worlds_exclude_list = put(name, "worlds-backup", "exclude", "list").setDefValues(
                 "./example/directory",
@@ -166,7 +166,7 @@ public class BackupConfig extends DreamYaml {
         backup_plugins = put(name, "plugins-backup", "enable").setDefValues("true").setComments(
                 "Backups your plugins folder to /autoplug/backups/plugins/...zip");
         backup_plugins_max_days = put(name, "plugins-backup", "max-days").setDefValues("7");
-        backup_plugins_cool_down = put(name, "plugins-backup", "cool-down").setDefValues("60");
+        backup_plugins_cool_down = put(name, "plugins-backup", "cool-down").setDefValues("500");
         backup_plugins_exclude = put(name, "plugins-backup", "exclude", "enable").setDefValues("true");
         backup_plugins_exclude_list = put(name, "plugins-backup", "exclude", "list").setDefValues(
                 "./plugins/dynmap",
