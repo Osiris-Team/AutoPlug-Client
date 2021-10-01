@@ -31,7 +31,8 @@ public class CleanerConfig extends DreamYaml {
 
     public CleanerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/cleaner-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -63,7 +64,7 @@ public class CleanerConfig extends DreamYaml {
         downloads_cleaner_max = put(name, "downloads-cleaner", "max-days").setDefValues("7");
         downloads_cleaner_custom_dir = put(name, "downloads-cleaner", "custom-dir");
 
-        saveAndUnlock();
-
+        save();
+        unlockFile();
     }
 }

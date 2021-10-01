@@ -13,8 +13,9 @@ import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
+import com.osiris.autoplug.client.utils.AsyncInputStream;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
+import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
 import net.lingala.zip4j.ZipFile;
@@ -23,7 +24,10 @@ import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +37,10 @@ import java.util.Properties;
 public final class Server {
 
     public static int PORT = 0;
+    @Nullable
+    public static AsyncInputStream ASYNC_SERVER_IN;
+    private static Process process;
+    private static Thread threadServerAliveChecker;
 
     static {
         Properties properties = new Properties();
@@ -44,54 +52,32 @@ public final class Server {
         }
     }
 
-    @Nullable
-    public static NonBlockingPipedInputStream NB_SERVER_IN;
-    private static Process process;
-    private static Thread threadServerAliveChecker;
-    private static Thread threadReadOutputStream;
-
     public static void start() {
-
         try {
-            if (isRunning()) {
-                AL.warn("Server already running!");
-            } else {
+            if (isRunning()) throw new Exception("Server already running!");
 
-                // Update PORT
-                Properties properties = new Properties();
-                try {
-                    properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
-                    PORT = Integer.parseInt(properties.getProperty("server-port"));
-                } catch (IOException e) {
-                    AL.warn(e);
-                }
-
-                // Runs all processes before starting the server
-                new BeforeServerStartupTasks();
-
-                // Find server jar
-                GeneralConfig generalConfig = new GeneralConfig();
-                FileManager fileManager = new FileManager();
-                String jar = generalConfig.server_jar.asString();
-                if (!jar.equals("auto-find")) {
-                    if (jar.contains("/") || jar.contains("\\")) {
-                        if (jar.startsWith("./"))
-                            GD.SERVER_JAR = FileManager.convertRelativeToAbsolutePath(jar);
-                        else
-                            GD.SERVER_JAR = new File(jar);
-                    } else
-                        GD.SERVER_JAR = fileManager.serverJar(jar);
-                } else
-                    GD.SERVER_JAR = fileManager.serverJar();
-                if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
-                    throw new Exception("Failed to find your server jar! " +
-                            "Please check your config, you may need to specify the jars name/path! " +
-                            "Searched dir: '" + GD.WORKING_DIR + "'");
-
-                AL.info("Note: AutoPlug has some own console commands (enter .help or .h).");
-                AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
-                createProcess(GD.SERVER_JAR.toPath().toString());
+            // Update PORT
+            Properties properties = new Properties();
+            try {
+                properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
+                PORT = Integer.parseInt(properties.getProperty("server-port"));
+            } catch (IOException e) {
+                AL.warn(e);
             }
+
+            // Runs all processes before starting the server
+            new BeforeServerStartupTasks();
+
+            // Find server jar
+            new UtilsJar().determineServerJar();
+            if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
+                throw new Exception("Failed to find your server jar! " +
+                        "Please check your config, you may need to specify the jars name/path! " +
+                        "Searched dir: '" + GD.WORKING_DIR + "'");
+
+            AL.info("Note: AutoPlug has some own console commands (enter .help or .h).");
+            AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
+            createProcess(GD.SERVER_JAR.toPath().toString());
 
         } catch (Exception e) {
             AL.warn(e);
@@ -120,7 +106,7 @@ public final class Server {
             submitCommand(new GeneralConfig().server_stop_command.asString());
             while (Server.isRunning())
                 Thread.sleep(1000);
-            NB_SERVER_IN = null;
+            ASYNC_SERVER_IN = null;
         } else {
             AL.warn("Server not running!");
         }
@@ -233,6 +219,12 @@ public final class Server {
             for (String s : list) {
                 commands.add("-" + s);
             }
+            /* TODO not working:
+            commands.add("-org.jline.terminal.dumb=true");
+            commands.add("-org.jline.terminal.dumb.color=true");
+            commands.add("-org.jline.terminal.type=dumb-color");
+
+             */
         }
 
         // 3. Add the -jar command and server jar path
@@ -273,52 +265,12 @@ public final class Server {
         processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         process = processBuilder.start();
 
-        if (threadReadOutputStream == null) {
-            threadReadOutputStream = new Thread(() -> {
-                try {
-                    boolean isRunningOld = false; // So the stuff in the while loop below only happens once and not every time
-                    InputStream serverIn = null;
-                    while (true) {
-                        if (isRunningOld != isRunning()) {
-                            isRunningOld = isRunning();
-                            serverIn = process.getInputStream();
-                            if (isRunning() && serverIn != null) {
-                                // Get Servers OutputStream, and forward it to a NonBlockingInputStream.
-                                // From there multiple listeners can be attached.
-                                NB_SERVER_IN = new NonBlockingPipedInputStream();
-                                OutputStream pipedOut = new PipedOutputStream(NB_SERVER_IN);
-                                NB_SERVER_IN.actionsOnWriteLineEvent.add(line -> {
-                                    System.out.println(line);
-                                });
-                                if (!NB_SERVER_IN.actionsOnWriteLineEvent.contains(ConOnlineConsoleSend.actionOnServerLineWriteEvent))
-                                    NB_SERVER_IN.actionsOnWriteLineEvent.add(ConOnlineConsoleSend.actionOnServerLineWriteEvent);
-                                int b = -1;
-                                while ((b = serverIn.read()) != -1) {
-                                    pipedOut.write(b);
-                                }
-
-                            } else { // The server is not running, so we check the exit code and restart depending on that
-                                if (process.exitValue() != 0) {
-                                    AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
-                                    if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
-                                        AL.info("Restart on crash is enabled, thus the server is restarting...");
-                                        Server.start();
-                                    }
-                                }
-
-                            }
-                        }
-                        Thread.sleep(1000);
-                    }
-                } catch (Exception e) {
-                    AL.warn(e);
-                }
-            });
-            threadReadOutputStream.start();
-        }
+        // Server OutputStream writes to our process InputStream, thus we can read its output:
+        ASYNC_SERVER_IN = new AsyncInputStream(process.getInputStream());
+        ASYNC_SERVER_IN.listeners.add(line -> System.out.println(line));
+        ASYNC_SERVER_IN.listeners.add(line -> ConOnlineConsoleSend.send(line));
 
         // Also create a thread which checks if the server is running or not.
-        // Resume the terminal if the server stopped running, to allow the use of AutoPlug-Commands
         if (threadServerAliveChecker == null) {
             threadServerAliveChecker = new Thread(() -> {
                 try {
@@ -335,18 +287,19 @@ public final class Server {
                             } else {
                                 AL.info("To stop AutoPlug too, enter '.stop both'.");
                             }
-                            //TERMINAL.resume();
-                            try {
-                                if (NB_SERVER_IN != null) NB_SERVER_IN.close();
-                            } catch (Exception e) {
-                                AL.warn(e);
+
+                            if (process.exitValue() != 0) {
+                                AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
+                                if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
+                                    AL.info("Restart on crash is enabled, thus the server is restarting...");
+                                    Server.start();
+                                }
                             }
-                            NB_SERVER_IN = null;
                         }
                         lastIsRunningCheck = currentIsRunningCheck;
                     }
                 } catch (Exception e) {
-                    AL.warn("Thread for checking if Server is alive was stopped due to an error.", e);
+                    AL.error("Thread for checking if Server is alive was stopped due to an error.", e);
                 }
             });
             threadServerAliveChecker.start();

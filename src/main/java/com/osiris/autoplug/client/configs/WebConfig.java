@@ -31,7 +31,8 @@ public class WebConfig extends DreamYaml {
 
     public WebConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -67,6 +68,7 @@ public class WebConfig extends DreamYaml {
                 "Alive status of server; servers MOTD and player count; CPU frequencies and used/total memory sizes.",
                 "Restart AutoPlug for this change to take affect.");
 
-        saveAndUnlock();
+        save();
+        unlockFile();
     }
 }

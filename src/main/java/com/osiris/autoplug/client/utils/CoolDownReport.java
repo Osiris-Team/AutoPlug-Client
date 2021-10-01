@@ -9,12 +9,10 @@
 package com.osiris.autoplug.client.utils;
 
 public class CoolDownReport {
-    private boolean outOfCoolDown;
     private long msPassedSinceLast;
     private long msCoolDown;
 
-    public CoolDownReport(boolean outOfCoolDown, long msPassedSinceLast, long msCoolDown) {
-        this.outOfCoolDown = outOfCoolDown;
+    public CoolDownReport(long msPassedSinceLast, long msCoolDown) {
         this.msPassedSinceLast = msPassedSinceLast;
         this.msCoolDown = msCoolDown;
     }
@@ -23,12 +21,8 @@ public class CoolDownReport {
         return msCoolDown - msPassedSinceLast;
     }
 
-    public boolean isOutOfCoolDown() {
-        return outOfCoolDown;
-    }
-
-    public void setOutOfCoolDown(boolean outOfCoolDown) {
-        this.outOfCoolDown = outOfCoolDown;
+    public boolean isInCoolDown() {
+        return msPassedSinceLast < msCoolDown;
     }
 
     public long getMsPassedSinceLast() {

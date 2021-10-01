@@ -73,7 +73,12 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>11.3</version>
+            <version>11.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Osiris-Team</groupId>
+            <artifactId>Headless-Browser</artifactId>
+            <version>0.0.9</version>
         </dependency>
 
         <!-- For getting hardware info -->

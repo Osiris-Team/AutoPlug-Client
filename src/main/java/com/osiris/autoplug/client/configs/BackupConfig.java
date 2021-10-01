@@ -75,7 +75,8 @@ public class BackupConfig extends DreamYaml {
 
     public BackupConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -193,7 +194,8 @@ public class BackupConfig extends DreamYaml {
             backup_worlds.setDefValues("true");
         }
 
-        saveAndUnlock();
+        save();
+        unlockFile();
     }
 
     private File pathToFile(String path) {

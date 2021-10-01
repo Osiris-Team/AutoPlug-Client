@@ -59,11 +59,11 @@ public class BeforeServerStartupTasks {
             UpdaterConfig config = new UpdaterConfig();
             SystemConfig systemConfig = new SystemConfig();
             String format = "dd/MM/yyyy HH:mm:ss";
-            CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
+            CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
                     config.global_cool_down.asInt(),
                     new SimpleDateFormat(format),
                     systemConfig.timestamp_last_updater_tasks.asString()); // Get the report first before saving any new values
-            if (!coolDownReport.isOutOfCoolDown()) {
+            if (coolDownReport.isInCoolDown()) {
                 AL.info("Skipped updater tasks. Global updater cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
                 isUpdaterCoolDownActive = true;
             }
@@ -152,8 +152,11 @@ public class BeforeServerStartupTasks {
             }
 
             // Update the updater global cool-down with current time
+            systemConfig.lockFile();
+            systemConfig.load();
             systemConfig.timestamp_last_updater_tasks.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-            systemConfig.save(); // Save the current timestamp to file
+            systemConfig.save();
+            systemConfig.unlockFile();// Save the current timestamp to file
 
             writeFinalStatus(manager.getAll());
 

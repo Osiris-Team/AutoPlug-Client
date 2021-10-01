@@ -30,13 +30,15 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 public class TaskServerUpdater extends BetterThread {
+    private final File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
     private UpdaterConfig updaterConfig;
     private String profile;
     private String serverSoftware;
     private String serverVersion;
-    private final File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
 
     public TaskServerUpdater(String serverSoftware, BetterThreadManager manager) {
         super(serverSoftware, manager);
@@ -64,8 +66,7 @@ public class TaskServerUpdater extends BetterThread {
 
         if (updaterConfig.server_jenkins.asBoolean()) {
             doJenkinsUpdatingLogic();
-        }
-        else if (serverSoftware.equalsIgnoreCase("purpur")){
+        } else if (serverSoftware.equalsIgnoreCase("purpur")) {
             doPurpurUpdatingLogic();
         } else {
             doPaperUpdatingLogic();
@@ -180,32 +181,31 @@ public class TaskServerUpdater extends BetterThread {
         return;
     }
 
-    private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException, NoSuchAlgorithmException {
         PurpurDownloadsAPI purpurDownloadsAPI = new PurpurDownloadsAPI();
-        int build_id = updaterConfig.server_build_id.asInt();
-        int latest_build_id = purpurDownloadsAPI.getLatestBuildId(serverSoftware, serverVersion);
+        int buildId = updaterConfig.server_build_id.asInt();
+        JsonObject latestBuild = purpurDownloadsAPI.getLatestBuild(serverSoftware.toLowerCase(Locale.ROOT), serverVersion);
+        int latestBuildId = latestBuild.get("build").getAsInt();
+        String buildHash = latestBuild.get("md5").getAsString();
+        String url = purpurDownloadsAPI.getLatestDownloadUrl(serverSoftware.toLowerCase(Locale.ROOT), serverVersion);
 
         // Check if the latest build-id is bigger than our current one.
-        if (latest_build_id <= build_id) {
+        if (latestBuildId <= buildId) {
             setStatus("Your server is on the latest version!");
             setSuccess(true);
             return;
         }
 
         if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + ")!");
         } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
 
             // Download the file
-            // TODO
-            String build_hash = purpurDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
-            String build_name = purpurDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-            String url = "https://papermc.io/api/v2/projects/" + serverSoftware + "/versions/" + serverVersion + "/builds/" + latest_build_id + "/downloads/" + build_name;
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest, true);
             download.start();
 
             while (true) {
@@ -213,7 +213,7 @@ public class TaskServerUpdater extends BetterThread {
                 if (download.isFinished()) {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(build_hash)) {
+                        if (download.compareWithMD5(buildHash)) {
                             setStatus("Server update downloaded successfully.");
                             setSuccess(true);
                         } else {
@@ -229,7 +229,7 @@ public class TaskServerUpdater extends BetterThread {
                 }
             }
         } else {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
             File final_dest = GD.SERVER_JAR;
             if (final_dest == null)
                 final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
@@ -237,13 +237,10 @@ public class TaskServerUpdater extends BetterThread {
             final_dest.createNewFile();
 
             // Download the file
-            String build_hash = purpurDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
-            String build_name = purpurDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-            String url = "https://papermc.io/api/v2/projects/" + serverSoftware + "/versions/" + serverVersion + "/builds/" + latest_build_id + "/downloads/" + build_name;
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest, true);
             download.start();
 
             while (true) {
@@ -251,10 +248,10 @@ public class TaskServerUpdater extends BetterThread {
                 if (download.isFinished()) {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(build_hash)) {
+                        if (download.compareWithMD5(buildHash)) {
                             FileUtils.copyFile(cache_dest, final_dest);
-                            setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                            updaterConfig.server_build_id.setValues("" + latest_build_id);
+                            setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
+                            updaterConfig.server_build_id.setValues("" + latestBuildId);
                             updaterConfig.save();
                             setSuccess(true);
                         } else {

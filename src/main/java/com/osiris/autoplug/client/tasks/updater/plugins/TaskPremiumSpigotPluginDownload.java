@@ -25,9 +25,9 @@ import java.io.FileOutputStream;
 import java.util.Random;
 
 /**
- * See {@link #TaskPluginDownload(String, BetterThreadManager, String, String, String, String, File, File)} for details.
+ * See {@link #TaskPremiumSpigotPluginDownload(String, BetterThreadManager, String, String, String, String, File, File)} for details.
  */
-public class TaskPluginDownload extends BetterThread {
+public class TaskPremiumSpigotPluginDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -39,9 +39,9 @@ public class TaskPluginDownload extends BetterThread {
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
 
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, String profile, File finalDest) {
+    public TaskPremiumSpigotPluginDownload(String name, BetterThreadManager manager,
+                                           String plName, String plLatestVersion,
+                                           String url, String profile, File finalDest) {
         this(name, manager, plName, plLatestVersion, url, profile, finalDest, null);
     }
 
@@ -57,16 +57,16 @@ public class TaskPluginDownload extends BetterThread {
      * @param finalDest       the final download destination.
      * @param deleteDest      the file that should be deleted on a successful download. If null nothing gets deleted.
      */
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, String profile, File finalDest, File deleteDest) {
+    public TaskPremiumSpigotPluginDownload(String name, BetterThreadManager manager,
+                                           String plName, String plLatestVersion,
+                                           String url, String profile, File finalDest, File deleteDest) {
         this(name, manager, plName, plLatestVersion, url, profile, finalDest, deleteDest, false);
     }
 
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, String profile, File finalDest, File deleteDest,
-                              boolean isPremium) {
+    public TaskPremiumSpigotPluginDownload(String name, BetterThreadManager manager,
+                                           String plName, String plLatestVersion,
+                                           String url, String profile, File finalDest, File deleteDest,
+                                           boolean isPremium) {
         super(name, manager);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;

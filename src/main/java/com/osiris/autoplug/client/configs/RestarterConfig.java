@@ -40,7 +40,8 @@ public class RestarterConfig extends DreamYaml {
 
     public RestarterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/restarter-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -114,7 +115,8 @@ public class RestarterConfig extends DreamYaml {
         }
 
         validateOptions();
-        saveAndUnlock();
+        save();
+        unlockFile();
     }
 
     private void validateOptions() {

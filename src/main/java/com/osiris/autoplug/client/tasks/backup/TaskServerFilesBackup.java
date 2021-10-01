@@ -57,20 +57,24 @@ public class TaskServerFilesBackup extends BetterThread {
         if (Server.isRunning()) throw new Exception("Cannot perform backup while server is running!");
 
         BackupConfig config = new BackupConfig();
+        SystemConfig systemConfig = new SystemConfig();
+        systemConfig.lockFile();
+        systemConfig.load();
         // Do cool-down check stuff
         String format = "dd/MM/yyyy HH:mm:ss";
-        CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
+        CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
                 config.backup_server_files_cool_down.asInt(),
                 new SimpleDateFormat(format),
-                new SystemConfig().timestamp_last_server_files_backup_task.asString()); // Get the report first before saving any new values
-        if (!coolDownReport.isOutOfCoolDown()) {
+                systemConfig.timestamp_last_server_files_backup_task.asString()); // Get the report first before saving any new values
+        if (coolDownReport.isInCoolDown()) {
+            systemConfig.unlockFile();
             this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
             return;
         }
         // Update the cool-down with current time
-        SystemConfig systemConfig = new SystemConfig();
         systemConfig.timestamp_last_server_files_backup_task.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
         systemConfig.save(); // Save the current timestamp to file
+        systemConfig.unlockFile();
 
 
         String server_backup_dest = autoplug_backups_server.getAbsolutePath() + "/server-files-backup-" + formattedDate + ".zip";

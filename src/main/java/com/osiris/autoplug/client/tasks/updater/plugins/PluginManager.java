@@ -97,8 +97,8 @@ public class PluginManager {
                             // Before: [name1, name2]
                             // After: name1,name2
                             if (author != null) author = Arrays.asList(
-                                    author.replaceAll("[\\[\\]]", "")
-                                            .split(","))
+                                            author.replaceAll("[\\[\\]]", "")
+                                                    .split(","))
                                     .get(0);
 
                             // Also check for ids in the plugin.yml

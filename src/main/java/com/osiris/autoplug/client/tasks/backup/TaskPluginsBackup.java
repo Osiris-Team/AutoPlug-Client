@@ -59,19 +59,23 @@ public class TaskPluginsBackup extends BetterThread {
         BackupConfig config = new BackupConfig();
 
         // Do cool-down check stuff
+        SystemConfig systemConfig = new SystemConfig();
+        systemConfig.lockFile();
+        systemConfig.load();
         String format = "dd/MM/yyyy HH:mm:ss";
-        CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
+        CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
                 config.backup_plugins_cool_down.asInt(),
                 new SimpleDateFormat(format),
-                new SystemConfig().timestamp_last_plugins_backup_task.asString()); // Get the report first before saving any new values
-        if (!coolDownReport.isOutOfCoolDown()) {
+                systemConfig.timestamp_last_plugins_backup_task.asString()); // Get the report first before saving any new values
+        if (coolDownReport.isInCoolDown()) {
+            systemConfig.unlockFile();
             this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
             return;
         }
         // Update the cool-down with current time
-        SystemConfig systemConfig = new SystemConfig();
         systemConfig.timestamp_last_plugins_backup_task.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-        systemConfig.save(); // Save the current timestamp to file
+        systemConfig.save();
+        systemConfig.unlockFile(); // Save the current timestamp to file
 
 
         String plugins_backup_dest = autoplug_backups_plugins.getAbsolutePath() + "/plugins-backup-" + formattedDate + ".zip";

@@ -12,13 +12,11 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +26,8 @@ public class CustomRestartJob implements Job {
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
+            if (!Server.isRunning())
+                throw new Exception("Server is not running. Restart not possible.");
 
             // Before restarting execute commands
             RestarterConfig config = new RestarterConfig();
@@ -69,8 +69,7 @@ public class CustomRestartJob implements Job {
             //Restart the server
             Server.restart();
 
-        } catch (@NotNull InterruptedException | IOException | DuplicateKeyException | DYReaderException | IllegalListException
-                | DYWriterException | NotLoadedException | IllegalKeyException e) {
+        } catch (@NotNull Exception e) {
             AL.warn("Error while executing restart!", e);
         }
     }

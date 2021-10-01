@@ -53,7 +53,8 @@ public class UpdaterConfig extends DreamYaml {
 
     public UpdaterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         super(System.getProperty("user.dir") + "/autoplug/updater-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments("#######################################################################################################################\n" +
                 "    ___       __       ___  __\n" +
@@ -119,12 +120,14 @@ public class UpdaterConfig extends DreamYaml {
                         "- paper (https://papermc.io/)\n" +
                         "- waterfall (https://github.com/PaperMC/Waterfall)\n" +
                         "- travertine (https://github.com/PaperMC/Travertine)\n" +
+                        "- purpur (https://purpur.pl3x.net/)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_version = put(name, "server-updater", "version").setDefValues("1.17.1").setComments(
                 "Currently supported minecraft versions:\n" +
                         "- paper versions: https://papermc.io/api/v2/projects/paper\n" +
                         "- waterfall versions: https://papermc.io/api/v2/projects/waterfall\n" +
                         "- travertine versions: https://papermc.io/api/v2/projects/travertine\n" +
+                        "- purpur versions: https://purpur.pl3x.net/downloads\n" +
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                         "Note: Remember that worlds may not be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
@@ -178,7 +181,8 @@ public class UpdaterConfig extends DreamYaml {
         }
 
         validateOptions();
-        saveAndUnlock();
+        save();
+        unlockFile();
     }
 
     private void validateOptions() {

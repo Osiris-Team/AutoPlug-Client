@@ -19,17 +19,17 @@ import okhttp3.ResponseBody;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
 public class TaskDownload extends BetterThread {
     private String url;
     private File dest;
+    private boolean ignoreContentType;
     private String[] allowedSubContentTypes;
 
     /**
@@ -42,13 +42,14 @@ public class TaskDownload extends BetterThread {
      * @param dest    the downloads final destination.
      */
     public TaskDownload(String name, BetterThreadManager manager, String url, File dest) {
-        this(name, manager, url, dest, (String[]) null);
+        this(name, manager, url, dest, false, (String[]) null);
     }
 
-    public TaskDownload(String name, BetterThreadManager manager, String url, File dest, String... allowedSubContentTypes) {
+    public TaskDownload(String name, BetterThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
         this.dest = dest;
+        this.ignoreContentType = ignoreContentType;
         this.allowedSubContentTypes = allowedSubContentTypes;
     }
 
@@ -67,7 +68,8 @@ public class TaskDownload extends BetterThread {
         Request request = new Request.Builder().url(url)
                 .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
                 .build();
-        Response response = new OkHttpClient().newCall(request).execute();
+
+        Response response = new OkHttpClient.Builder().followRedirects(true).build().newCall(request).execute();
         ResponseBody body = null;
         try {
             if (response.code() != 200)
@@ -76,11 +78,11 @@ public class TaskDownload extends BetterThread {
             body = response.body();
             if (body == null)
                 throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
-            else if (body.contentType() == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
-            else if (!body.contentType().type().equals("application"))
+            else if (!ignoreContentType && body.contentType() == null)
+                throw new Exception("Download of '" + dest.getName() + "' failed due to null content type!");
+            else if (!ignoreContentType && !body.contentType().type().equals("application"))
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
-            else if (!body.contentType().subtype().equals("java-archive")
+            else if (!ignoreContentType && !body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
                     && !body.contentType().subtype().equals("octet-stream")) {
                 if (allowedSubContentTypes == null)
@@ -117,6 +119,13 @@ public class TaskDownload extends BetterThread {
             response.close();
             throw e;
         }
+    }
+
+    public boolean compareWithMD5(String expectedMD5) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(Files.readAllBytes(dest.toPath()));
+        byte[] digest = md.digest();
+        return bytesToHex(digest).equalsIgnoreCase(expectedMD5);
     }
 
     /**

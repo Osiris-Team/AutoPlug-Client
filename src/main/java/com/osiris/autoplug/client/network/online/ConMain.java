@@ -73,8 +73,11 @@ public class ConMain extends Thread {
                                 oldAuth = true;
                                 AL.debug(this.getClass(), "User is online.");
                                 // User is online, so open secondary connections if they weren't already
-                                if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
-                                if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();
+                                if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                                CON_CONSOLE_RECEIVE.open();
+                                if (CON_CONSOLE_SEND.isConnected())
+                                    CON_CONSOLE_SEND.close();
+                                CON_CONSOLE_SEND.open();
                                 //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
                         } else {

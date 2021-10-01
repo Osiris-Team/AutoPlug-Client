@@ -60,20 +60,19 @@ public class UtilsConfig {
 
 
     @NotNull
-    public CoolDownReport checkIfOutOfCoolDown(int coolDownInMinutes, @NotNull SimpleDateFormat format, @Nullable String lastTasksTimestamp) {
+    public CoolDownReport getCoolDown(int coolDownInMinutes, @NotNull SimpleDateFormat format, @Nullable String lastTasksTimestamp) {
         try {
             if (lastTasksTimestamp != null) {
                 long last = format.parse(lastTasksTimestamp).getTime();
                 long now = System.currentTimeMillis();
                 long msSinceLast = now - last;
                 long msCoolDown = ((coolDownInMinutes * 60L) * 1000);
-                boolean isOutOfCoolDown = msSinceLast > msCoolDown;
-                return new CoolDownReport(isOutOfCoolDown, msSinceLast, msCoolDown);
+                return new CoolDownReport(msSinceLast, msCoolDown);
             }
         } catch (Exception e) {
             AL.warn(e);
         }
-        return new CoolDownReport(true, 0, 0);
+        return new CoolDownReport(0, 0);
     }
 
 }

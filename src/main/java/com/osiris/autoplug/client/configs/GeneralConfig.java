@@ -30,7 +30,8 @@ public class GeneralConfig extends DreamYaml {
 
     public GeneralConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/general-config.yml");
-        lockAndLoad();
+        lockFile();
+        load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
                 "#######################################################################################################################\n" +
@@ -108,7 +109,8 @@ public class GeneralConfig extends DreamYaml {
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
         validateOptions();
-        saveAndUnlock();
+        save();
+        unlockFile();
     }
 
     private void validateOptions() {

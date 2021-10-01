@@ -8,11 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
-import com.osiris.autoplug.client.utils.NonBlockingPipedInputStream;
 import com.osiris.autoplug.core.events.MessageEvent;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.Message;
@@ -20,9 +18,7 @@ import com.osiris.autoplug.core.logger.MessageFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 
 
 /**
@@ -33,13 +29,6 @@ import java.io.OutputStreamWriter;
 public class ConOnlineConsoleSend extends SecondaryConnection {
     @Nullable
     private static BufferedWriter bw;
-    public static final NonBlockingPipedInputStream.WriteLineEvent<String> actionOnServerLineWriteEvent = line -> {
-        try {
-            send(line);
-        } catch (Exception e) {
-            AL.warn("Failed to send message to online console!", e);
-        }
-    };
     public static final MessageEvent<Message> actionOnAutoPlugMessageEvent = message -> {
         try {
             boolean isDebug = new LoggerConfig().debug.asBoolean();
@@ -79,27 +68,38 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
     public boolean open() throws Exception {
         if (new WebConfig().online_console_send.asBoolean()) {
             super.open();
-            if (bw == null) {
-                getSocket().setSoTimeout(0);
-                bw = new BufferedWriter(new OutputStreamWriter(getOut()));
+            if (bw != null)
+                bw.close();
 
-                if (!AL.actionsOnMessageEvent.contains(actionOnAutoPlugMessageEvent))
-                    AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
+            getSocket().setSoTimeout(0);
+            bw = new BufferedWriter(new OutputStreamWriter(getOut()));
 
-                Thread t1 = new Thread(() -> {
-                    try {
-                        AL.debug(this.getClass(), "Waiting for server log input to read from...");
-                        while (Server.NB_SERVER_IN == null)
-                            Thread.sleep(200);
+            if (!AL.actionsOnMessageEvent.contains(actionOnAutoPlugMessageEvent))
+                AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
 
-                        if (!Server.NB_SERVER_IN.actionsOnWriteLineEvent.contains(actionOnServerLineWriteEvent))
-                            Server.NB_SERVER_IN.actionsOnWriteLineEvent.add(actionOnServerLineWriteEvent);
-                        AL.debug(this.getClass(), "Server log input now available.");
-                    } catch (Exception e) {
-                        AL.warn(e);
+            // Sending recent server log
+            try {
+                File latestLog = null;
+                for (File f :
+                        new File(System.getProperty("user.dir") + "/logs").listFiles()) {
+                    if (!f.isDirectory() && f.getName().contains("latest")) {
+                        latestLog = f;
+                        AL.debug(this.getClass(), "Found latest log at: " + f.getAbsolutePath());
+                        break;
                     }
-                });
-                t1.start();
+                }
+                if (latestLog == null)
+                    AL.warn("Failed to find latest server log file. Not sending recent server log to console.");
+                else {
+                    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(latestLog))) {
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            send(line);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                AL.warn(e, "Error during recent log sending.");
             }
             AL.debug(this.getClass(), "Online-Console-SEND connected.");
             return true;
@@ -111,12 +111,6 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
 
     @Override
     public void close() throws IOException {
-
-        try {
-            if (Server.NB_SERVER_IN != null)
-                Server.NB_SERVER_IN.actionsOnWriteLineEvent.remove(actionOnServerLineWriteEvent);
-        } catch (Exception ignored) {
-        }
 
         try {
             AL.actionsOnMessageEvent.remove(actionOnAutoPlugMessageEvent);

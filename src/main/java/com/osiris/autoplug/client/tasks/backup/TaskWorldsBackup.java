@@ -56,21 +56,27 @@ public class TaskWorldsBackup extends BetterThread {
     private void createWorldFoldersBackup() throws Exception {
         if (Server.isRunning()) throw new Exception("Cannot perform backup while server is running!");
 
+        AL.info("CREATE WORLD BACKUP!");
+        SystemConfig systemConfig = new SystemConfig();
+        systemConfig.lockFile();
+        systemConfig.load();
         BackupConfig config = new BackupConfig();
         // Do cool-down check stuff
         String format = "dd/MM/yyyy HH:mm:ss";
-        CoolDownReport coolDownReport = new UtilsConfig().checkIfOutOfCoolDown(
+        CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
                 config.backup_worlds_cool_down.asInt(),
                 new SimpleDateFormat(format),
-                new SystemConfig().timestamp_last_worlds_backup_task.asString()); // Get the report first before saving any new values
-        if (!coolDownReport.isOutOfCoolDown()) {
+                systemConfig.timestamp_last_worlds_backup_task.asString()); // Get the report first before saving any new values
+        if (coolDownReport.isInCoolDown()) {
+            systemConfig.unlockFile();
             this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
             return;
         }
         // Update the cool-down with current time
-        SystemConfig systemConfig = new SystemConfig();
         systemConfig.timestamp_last_worlds_backup_task.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-        systemConfig.save(); // Save the current timestamp to file
+        systemConfig.save();
+        systemConfig.unlockFile();// Save the current timestamp to file
+        AL.info("COOLDOWN FINISHED!");
 
 
         String worlds_backup_dest = autoplug_backups_worlds.getAbsolutePath() + "/worlds-backup-" + formattedDate + ".zip";

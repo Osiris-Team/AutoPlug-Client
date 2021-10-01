@@ -13,7 +13,6 @@ import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterWarning;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;

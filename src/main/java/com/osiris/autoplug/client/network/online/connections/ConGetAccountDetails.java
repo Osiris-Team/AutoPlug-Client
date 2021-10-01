@@ -6,17 +6,10 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.processes.updater;
+package com.osiris.autoplug.client.network.online.connections;
 
-import org.junit.jupiter.api.Test;
-
-class TaskServerUpdaterTest {
-
-    @Test
-    public void test() {
-
-
+public class ConGetAccountDetails {
+    public boolean hasPremiumMembership() {
+        return false; //TODO
     }
-
-
 }
