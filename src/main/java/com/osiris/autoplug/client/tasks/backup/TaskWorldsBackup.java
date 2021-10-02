@@ -56,7 +56,6 @@ public class TaskWorldsBackup extends BetterThread {
     private void createWorldFoldersBackup() throws Exception {
         if (Server.isRunning()) throw new Exception("Cannot perform backup while server is running!");
 
-        AL.info("CREATE WORLD BACKUP!");
         SystemConfig systemConfig = new SystemConfig();
         systemConfig.lockFile();
         systemConfig.load();
@@ -76,7 +75,6 @@ public class TaskWorldsBackup extends BetterThread {
         systemConfig.timestamp_last_worlds_backup_task.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
         systemConfig.save();
         systemConfig.unlockFile();// Save the current timestamp to file
-        AL.info("COOLDOWN FINISHED!");
 
 
         String worlds_backup_dest = autoplug_backups_worlds.getAbsolutePath() + "/worlds-backup-" + formattedDate + ".zip";
