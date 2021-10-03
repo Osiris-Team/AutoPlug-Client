@@ -46,12 +46,16 @@ public class UtilsConfig {
         }
     }
 
-    public void printAllModulesToDebug(@NotNull List<DYModule> modules) {
+    public void printAllModulesToDebugExceptServerKey(@NotNull List<DYModule> modules, String serverKey) {
         try {
             UtilsDYModule utils = new UtilsDYModule();
             for (DYModule module :
                     modules) {
-                AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + utils.valuesListToStringList(module.getValues()).toString() + " DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
+                if (module.asString() != null && module.asString().equals(serverKey)) {
+                    AL.debug(this.getClass(), module.getKeys().toString() + " VAL: SERVER KEY NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
+                } else {
+                    AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + utils.valuesListToStringList(module.getValues()).toString() + " DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
+                }
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);

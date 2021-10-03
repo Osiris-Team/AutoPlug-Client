@@ -243,7 +243,7 @@ public class Main {
             new UtilsConfig().setCommentsOfNotUsedOldDYModules(tasksConfig.getAllInEdit(), tasksConfig.getAllLoaded());
             allModules.addAll(tasksConfig.getAllInEdit());
 
-            new UtilsConfig().printAllModulesToDebug(allModules);
+            new UtilsConfig().printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Configurations loaded.");
 
             AL.debug(Main.class, " ");
