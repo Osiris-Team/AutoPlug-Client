@@ -146,9 +146,9 @@ public class Main {
             for (String value :
                     sharedFilesConfig.send_to.asStringList()) {
                 if (value.startsWith("./"))
-                    filesToWatch.add(FileManager.convertRelativeToAbsolutePath(value));
+                    filesToSendTo.add(FileManager.convertRelativeToAbsolutePath(value));
                 else if (value.contains("/") || value.contains("\\"))
-                    filesToWatch.add(new File(value));
+                    filesToSendTo.add(new File(value));
                 else if (value.contains("."))
                     ipsToSendTo.add(value);
                 else
@@ -167,6 +167,8 @@ public class Main {
                     filesToWatch) {
                 watcher.addFileAndListener(file, onFileChangeEvent);
             }
+
+            watcher.printDetails();
 
             AL.info("Done!");
             while (true)
