@@ -11,6 +11,7 @@ package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.*;
 import com.osiris.autoplug.client.console.UserInput;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
@@ -24,6 +25,9 @@ import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.utils.UtilsTimeStopper;
+import com.osiris.dyml.watcher.DYFileEvent;
+import com.osiris.dyml.watcher.DYFileEventListener;
+import com.osiris.dyml.watcher.DYWatcher;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
@@ -118,6 +122,59 @@ public class Main {
             System.err.println("There was a critical error that prevented AutoPlug from starting!");
             return;
         }
+
+        try {
+            SharedFilesConfig sharedFilesConfig = new SharedFilesConfig();
+            if (!sharedFilesConfig.enable.asBoolean())
+                return;
+
+            DYWatcher watcher = DYWatcher.getForFile(WORKING_DIR);
+            watcher.watchDir(WORKING_DIR.toPath(),
+                    true);
+
+            List<File> filesToWatch = new ArrayList<>();
+            for (String pathAsString :
+                    sharedFilesConfig.copy_from.asStringList()) {
+                if (pathAsString.startsWith("./"))
+                    filesToWatch.add(FileManager.convertRelativeToAbsolutePath(pathAsString));
+                else
+                    throw new Exception("Wrongly formatted or absolute path: " + pathAsString);
+            }
+
+            List<File> filesToSendTo = new ArrayList<>();
+            List<String> ipsToSendTo = new ArrayList<>();
+            for (String value :
+                    sharedFilesConfig.send_to.asStringList()) {
+                if (value.startsWith("./"))
+                    filesToWatch.add(FileManager.convertRelativeToAbsolutePath(value));
+                else if (value.contains("/") || value.contains("\\"))
+                    filesToWatch.add(new File(value));
+                else if (value.contains("."))
+                    ipsToSendTo.add(value);
+                else
+                    throw new Exception("Failed to determine if '" + value + "' is absolute/relative path or ipv4/ipv6 address.");
+            }
+
+            DYFileEventListener<DYFileEvent> onFileChangeEvent = fileEvent -> {
+                AL.info("File event " + fileEvent.getWatchEventKind().name() + " for " + fileEvent.getFile().getName() + " with full path " + fileEvent.getFile().getAbsolutePath() + "");
+                for (File file :
+                        filesToSendTo) {
+                    // TODO
+                }
+            };
+
+            for (File file :
+                    filesToWatch) {
+                watcher.addFileAndListener(file, onFileChangeEvent);
+            }
+
+            AL.info("Done!");
+            while (true)
+                Thread.sleep(100);
+        } catch (Exception e) {
+            AL.error(e);
+        }
+
 
         // IF THIS JAR WAS EXECUTED IN TESTING MODE:
         if (args != null) {
