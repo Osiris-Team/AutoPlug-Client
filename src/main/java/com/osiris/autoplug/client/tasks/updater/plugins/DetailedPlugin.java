@@ -17,6 +17,7 @@ public class DetailedPlugin {
     private String author;
     private int spigotId;
     private int bukkitId;
+    private boolean ignoreContentType;
     private String customLink;
 
     public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customLink) {
@@ -83,6 +84,14 @@ public class DetailedPlugin {
 
     public void setBukkitId(int bukkitId) {
         this.bukkitId = bukkitId;
+    }
+
+    public boolean getIgnoreContentType() {
+        return ignoreContentType;
+    }
+
+    public void setIgnoreContentType(boolean ignoreContentType) {
+        this.ignoreContentType = ignoreContentType;
     }
 
     public String getCustomLink() {

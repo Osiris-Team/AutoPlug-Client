@@ -31,6 +31,7 @@ public class TaskPluginDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
+    private final boolean ignoreContentType;
     private final String profile;
     private final File finalDest;
     private final File deleteDest;
@@ -42,30 +43,40 @@ public class TaskPluginDownload extends BetterThread {
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
                               String url, String profile, File finalDest) {
-        this(name, manager, plName, plLatestVersion, url, profile, finalDest, null);
+        this(name, manager, plName, plLatestVersion, url, false, profile, finalDest, null);
+    }
+
+    public TaskPluginDownload(String name, BetterThreadManager manager,
+                              String plName, String plLatestVersion,
+                              String url, boolean ignoreContentType,
+                              String profile, File finalDest) {
+        this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, null);
     }
 
     /**
      * Performs a plugin installation/download according to the users profile.
      *
-     * @param name            this processes name.
-     * @param manager         the parent process manager.
-     * @param plName          plugin name.
-     * @param plLatestVersion plugins latest version.
-     * @param url             the download-url.
-     * @param profile         the users plugin updater profile. NOTIFY, MANUAL or AUTOMATIC.
-     * @param finalDest       the final download destination.
-     * @param deleteDest      the file that should be deleted on a successful download. If null nothing gets deleted.
+     * @param name              this processes name.
+     * @param manager           the parent process manager.
+     * @param plName            plugin name.
+     * @param plLatestVersion   plugins latest version.
+     * @param url               the download-url.
+     * @param ignoreContentType should the HTTP contenttype headers be ignored?
+     * @param profile           the users plugin updater profile. NOTIFY, MANUAL or AUTOMATIC.
+     * @param finalDest         the final download destination.
+     * @param deleteDest        the file that should be deleted on a successful download. If null nothing gets deleted.
      */
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
-                              String url, String profile, File finalDest, File deleteDest) {
-        this(name, manager, plName, plLatestVersion, url, profile, finalDest, deleteDest, false);
+                              String url, boolean ignoreContentType, String profile,
+                              File finalDest, File deleteDest) {
+        this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, deleteDest, false);
     }
 
     public TaskPluginDownload(String name, BetterThreadManager manager,
                               String plName, String plLatestVersion,
-                              String url, String profile, File finalDest, File deleteDest,
+                              String url, boolean ignoreContentType, String profile,
+                              File finalDest, File deleteDest,
                               boolean isPremium) {
         super(name, manager);
         this.plName = plName;
@@ -74,6 +85,7 @@ public class TaskPluginDownload extends BetterThread {
         this.profile = profile;
         this.finalDest = finalDest;
         this.deleteDest = deleteDest;
+        this.ignoreContentType = ignoreContentType;
         this.isPremium = isPremium;
     }
 
@@ -130,9 +142,11 @@ public class TaskPluginDownload extends BetterThread {
                 throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
-            else if (!body.contentType().subtype().equals("java-archive")
-                    && !body.contentType().subtype().equals("jar")
-                    && !body.contentType().subtype().equals("octet-stream"))
+            else if ( !ignoreContentType && (
+                        !body.contentType().subtype().equals("java-archive")
+                        && !body.contentType().subtype().equals("jar")
+                        && !body.contentType().subtype().equals("octet-stream")
+                    ))
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
