@@ -14,17 +14,12 @@ import com.osiris.autoplug.client.console.UserInput;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
-import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThreadDisplayer;
-import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.utils.UtilsTimeStopper;
 import com.osiris.dyml.watcher.DYFileEvent;
 import com.osiris.dyml.watcher.DYFileEventListener;
 import com.osiris.dyml.watcher.DYWatcher;
@@ -33,7 +28,13 @@ import org.fusesource.jansi.AnsiConsole;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardWatchEventKinds;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
 
 import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
@@ -124,111 +125,6 @@ public class Main {
         }
 
         try {
-            SharedFilesConfig sharedFilesConfig = new SharedFilesConfig();
-            if (!sharedFilesConfig.enable.asBoolean())
-                return;
-
-            DYWatcher watcher = DYWatcher.getForFile(WORKING_DIR);
-            watcher.watchDir(WORKING_DIR.toPath(),
-                    true);
-
-            List<File> filesToWatch = new ArrayList<>();
-            for (String pathAsString :
-                    sharedFilesConfig.copy_from.asStringList()) {
-                if (pathAsString.startsWith("./"))
-                    filesToWatch.add(FileManager.convertRelativeToAbsolutePath(pathAsString));
-                else
-                    throw new Exception("Wrongly formatted or absolute path: " + pathAsString);
-            }
-
-            List<File> filesToSendTo = new ArrayList<>();
-            List<String> ipsToSendTo = new ArrayList<>();
-            for (String value :
-                    sharedFilesConfig.send_to.asStringList()) {
-                if (value.startsWith("./"))
-                    filesToSendTo.add(FileManager.convertRelativeToAbsolutePath(value));
-                else if (value.contains("/") || value.contains("\\"))
-                    filesToSendTo.add(new File(value));
-                else if (value.contains("."))
-                    ipsToSendTo.add(value);
-                else
-                    throw new Exception("Failed to determine if '" + value + "' is absolute/relative path or ipv4/ipv6 address.");
-            }
-
-            DYFileEventListener<DYFileEvent> onFileChangeEvent = fileEvent -> {
-                AL.info("File event " + fileEvent.getWatchEventKind().name() + " for " + fileEvent.getFile().getName() + " with full path " + fileEvent.getFile().getAbsolutePath() + "");
-                for (File file :
-                        filesToSendTo) {
-                    // TODO
-                }
-            };
-
-            for (File file :
-                    filesToWatch) {
-                watcher.addFileAndListener(file, onFileChangeEvent);
-            }
-
-            watcher.printDetails();
-
-            AL.info("Done!");
-            while (true)
-                Thread.sleep(100);
-        } catch (Exception e) {
-            AL.error(e);
-        }
-
-
-        // IF THIS JAR WAS EXECUTED IN TESTING MODE:
-        if (args != null) {
-            List<String> argsList = Arrays.asList(args);
-            if (argsList.contains("-test")) {
-                AL.warn("Running in TEST-MODE!");
-                try {
-                    BetterThreadManager man = new BetterThreadManager();
-                    BetterThreadDisplayer dis = new BetterThreadDisplayer(man);
-                    dis.start();
-
-                    UtilsTimeStopper timeStopper = new UtilsTimeStopper();
-                    timeStopper.start();
-                    TaskPluginDownload download = new TaskPluginDownload("Downloader", man,
-                            "Autorank",
-                            "LATEST", "https://api.spiget.org/v2/resources/3239/download", "MANUAL",
-                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
-                    download.start();
-
-                    TaskPluginDownload download1 = new TaskPluginDownload("Downloader", man,
-                            "UltimateChat",
-                            "LATEST", "https://api.spiget.org/v2/resources/23767/download", "MANUAL",
-                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
-                    download1.start();
-
-                    TaskPluginDownload download2 = new TaskPluginDownload("Downloader", man,
-                            "ViaRewind",
-                            "LATEST", "https://api.spiget.org/v2/resources/52109/download", "MANUAL",
-                            new File("" + System.getProperty("user.dir") + "/src/main/test/TestPlugin.jar"));
-                    download2.start();
-
-                    TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man);
-                    taskPluginsUpdater.start();
-
-                    while (!download.isFinished() || !download1.isFinished() || !download2.isFinished())
-                        Thread.sleep(100);
-                    timeStopper.stop();
-                    AL.info("Time took to finish download tasks: " + timeStopper.getFormattedSeconds() + " seconds!");
-
-                    timeStopper.start();
-                    while (!taskPluginsUpdater.isFinished())
-                        Thread.sleep(100);
-                    timeStopper.stop();
-                    AL.info("Time took to finish update checking tasks: " + timeStopper.getFormattedSeconds() + " seconds!");
-                } catch (Exception e) {
-                    AL.error(e);
-                }
-                return; // Stop the program
-            }
-        }
-
-        try {
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -267,42 +163,47 @@ public class Main {
 
             AL.info("Loading configurations...");
             new UtilsJar().determineServerJar();
+            UtilsConfig utilsConfig = new UtilsConfig();
 
             List<DYModule> allModules = new ArrayList<>();
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(generalConfig.getAllInEdit(), generalConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(generalConfig.getAllInEdit(), generalConfig.getAllLoaded());
             allModules.addAll(generalConfig.getAllInEdit());
 
             LoggerConfig loggerConfig = new LoggerConfig();
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
             allModules.addAll(loggerConfig.getAllInEdit());
 
             WebConfig webConfig = new WebConfig(preset);
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());
             allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
             BackupConfig backupConfig = new BackupConfig(preset);
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(backupConfig.getAllInEdit(), backupConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(backupConfig.getAllInEdit(), backupConfig.getAllLoaded());
             allModules.addAll(backupConfig.getAllInEdit());
 
             RestarterConfig restarterConfig = new RestarterConfig(preset);
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(restarterConfig.getAllInEdit(), restarterConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(restarterConfig.getAllInEdit(), restarterConfig.getAllLoaded());
             allModules.addAll(restarterConfig.getAllInEdit());
 
             UpdaterConfig updaterConfig = new UpdaterConfig(preset);
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(updaterConfig.getAllInEdit(), updaterConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(updaterConfig.getAllInEdit(), updaterConfig.getAllLoaded());
             allModules.addAll(updaterConfig.getAllInEdit());
 
             TasksConfig tasksConfig = new TasksConfig();
-            new UtilsConfig().setCommentsOfNotUsedOldDYModules(tasksConfig.getAllInEdit(), tasksConfig.getAllLoaded());
+            utilsConfig.setCommentsOfNotUsedOldDYModules(tasksConfig.getAllInEdit(), tasksConfig.getAllLoaded());
             allModules.addAll(tasksConfig.getAllInEdit());
 
-            new UtilsConfig().printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
+            SharedFilesConfig sharedFilesConfig = new SharedFilesConfig();
+            utilsConfig.setCommentsOfNotUsedOldDYModules(sharedFilesConfig.getAllInEdit(), sharedFilesConfig.getAllLoaded());
+            allModules.addAll(sharedFilesConfig.getAllInEdit());
+
+            utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Configurations loaded.");
 
             AL.debug(Main.class, " ");
@@ -327,6 +228,66 @@ public class Main {
                 Scanner scanner = new Scanner(System.in);
                 generalConfig.server_key.setValues(scanner.nextLine());
                 generalConfig.save();
+            }
+
+
+            try {
+                if (sharedFilesConfig.enable.asBoolean()) {
+
+                    List<File> foldersToWatch = new ArrayList<>();
+                    for (String pathAsString :
+                            sharedFilesConfig.copy_from.asStringList()) {
+                        if (pathAsString.startsWith("./"))
+                            foldersToWatch.add(FileManager.convertRelativeToAbsolutePath(pathAsString));
+                        else
+                            throw new Exception("Wrongly formatted or absolute path: " + pathAsString);
+                    }
+
+                    List<File> filesToSendTo = new ArrayList<>();
+                    //List<String> ipsToSendTo = new ArrayList<>();
+                    for (String value :
+                            sharedFilesConfig.send_to.asStringList()) {
+                        if (value.startsWith("./"))
+                            filesToSendTo.add(FileManager.convertRelativeToAbsolutePath(value));
+                        else if (value.contains("/") || value.contains("\\"))
+                            filesToSendTo.add(new File(value));
+                            // TODO else if (value.contains("."))
+                            //    ipsToSendTo.add(value);
+                        else
+                            throw new Exception("Failed to determine if '" + value + "' is absolute/relative path address."); //TODO or ipv4/ipv6
+                    }
+
+                    DYFileEventListener<DYFileEvent> onFileChangeEvent = event -> {
+                        // Determine relative path from file to server root
+                        // Example: C:/Users/Server/plugins/AutoPlug.jar -> /plugins/AutoPlug.jar
+                        String relPath = event.getFile().getAbsolutePath().replace(WORKING_DIR.getAbsolutePath(), "");
+                        if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
+                            for (File receivingServerRootDir :
+                                    filesToSendTo) {
+                                new File(receivingServerRootDir + relPath).delete();
+                            }
+                        } else if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)
+                                || event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+                            for (File receivingServerRootDir :
+                                    filesToSendTo) {
+                                try {
+                                    Files.copy(event.getPath(), new File(receivingServerRootDir + relPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                } catch (Exception e) {
+                                    AL.warn(e);
+                                }
+                            }
+                        } else
+                            AL.warn("Failed to execute 'send-to' for event type '" + event.getWatchEventKind().name() + "' for file '" + event.getFile() + "'!");
+                    };
+
+                    for (File folder :
+                            foldersToWatch) {
+                        DYWatcher.getForFile(folder, true).addListeners(onFileChangeEvent);
+                        AL.debug(Main.class, "Watching 'copy-from' folder and sub-folders from: " + folder);
+                    }
+                }
+            } catch (Exception e) {
+                AL.warn(e);
             }
 
             ConMain conMain = new ConMain();

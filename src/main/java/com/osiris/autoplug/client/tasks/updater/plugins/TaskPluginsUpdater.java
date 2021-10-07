@@ -24,7 +24,7 @@ import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.headlessbrowser.HBrowser;
-import com.osiris.headlessbrowser.NodeWindow;
+import com.osiris.headlessbrowser.PlaywrightWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 
@@ -45,6 +45,7 @@ public class TaskPluginsUpdater extends BetterThread {
     private final String automaticProfile = "AUTOMATIC";
     private final int updatesDownloaded = 0;
     private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
+    private final List<TaskPremiumSpigotPluginDownload> premiumDownloadTasksList = new ArrayList<>();
     @NotNull
     private final List<DetailedPlugin> includedPlugins = new ArrayList<>();
     @NotNull
@@ -304,7 +305,7 @@ public class TaskPluginsUpdater extends BetterThread {
             } else {
                 AL.debug(this.getClass(), "User has valid Premium-Membership, continuing with updating...");
                 // TODO TESTING:
-                try (NodeWindow window = new HBrowser().openWindow()) {
+                try (PlaywrightWindow window = new HBrowser().openWindow()) {
                     SpigotAuthenticator spigotAuthenticator = new SpigotAuthenticator();
                     spigotAuthenticator.attemptLoginForWindow(window); // Throws exception on login fail
                     for (SearchResult result :
@@ -339,14 +340,14 @@ public class TaskPluginsUpdater extends BetterThread {
                                     if (result.getDownloadType().equals(".jar") || result.getDownloadType().equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                                         if (userProfile.equals(manualProfile)) {
                                             File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
-                                            TaskPremiumSpigotPluginDownload task = new TaskPremiumSpigotPluginDownload("PremiumPluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
-                                            //TODO downloadTasksList.add(task);
+                                            TaskPremiumSpigotPluginDownload task = new TaskPremiumSpigotPluginDownload(window, "PremiumPluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
+                                            premiumDownloadTasksList.add(task);
                                             task.start();
                                         } else {
                                             File oldPl = new File(pl.getInstallationPath());
                                             File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                                            TaskPremiumSpigotPluginDownload task = new TaskPremiumSpigotPluginDownload("PremiumPluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
-                                            //TODO downloadTasksList.add(task);
+                                            TaskPremiumSpigotPluginDownload task = new TaskPremiumSpigotPluginDownload(window, "PremiumPluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
+                                            premiumDownloadTasksList.add(task);
                                             task.start();
                                         }
                                     } else
@@ -365,6 +366,39 @@ public class TaskPluginsUpdater extends BetterThread {
         }
 
         pluginsConfig.save();
+
+        // Wait until all download tasks have finished.
+        while (!premiumDownloadTasksList.isEmpty()) {
+            Thread.sleep(1000);
+            TaskPremiumSpigotPluginDownload finishedDownloadTask = null;
+            for (TaskPremiumSpigotPluginDownload task :
+                    premiumDownloadTasksList) {
+                if (!task.isAlive()) {
+                    finishedDownloadTask = task;
+                    break;
+                }
+            }
+
+            if (finishedDownloadTask != null) {
+                premiumDownloadTasksList.remove(finishedDownloadTask);
+                SearchResult matchingResult = null;
+                for (SearchResult result :
+                        results) {
+                    if (result.getPlugin().getName().equals(finishedDownloadTask.getPlName())) {
+                        matchingResult = result;
+                        break;
+                    }
+                }
+                if (matchingResult == null)
+                    throw new Exception("This should not happen! Please report to the devs!");
+
+                if (finishedDownloadTask.isDownloadSuccessful())
+                    matchingResult.setResultCode((byte) 5);
+
+                if (finishedDownloadTask.isInstallSuccessful())
+                    matchingResult.setResultCode((byte) 6);
+            }
+        }
 
 
         // Wait until all download tasks have finished.

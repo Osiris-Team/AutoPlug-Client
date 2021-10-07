@@ -10,6 +10,6 @@ package com.osiris.autoplug.client.network.online.connections;
 
 public class ConGetAccountDetails {
     public boolean hasPremiumMembership() {
-        return false; //TODO
+        return true; //TODO
     }
 }

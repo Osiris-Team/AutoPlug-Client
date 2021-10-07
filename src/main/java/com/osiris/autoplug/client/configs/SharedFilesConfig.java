@@ -39,21 +39,27 @@ public class SharedFilesConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        enable = put(name, "enable").setDefValues("false").setComments("Enable/Disable sharing files from this server to other servers.\n" +
-                "Once enabled AutoPlug listens for file events in your server root (and its sub-folders). \n" +
-                "If a file event happens and that file/directory is in the 'copy-from' list, then those changes will get sent to the servers in the 'send-to' list.\n" +
+        enable = put(name, "enable").setDefValues("false").setComments("Enable/Disable sharing folders from this server to other servers.\n" +
                 "NOTE: CHANGES TO THIS FILE REQUIRE A AUTOPLUG RESTART TO TAKE AFFECT!\n");
 
         copy_from = put(name, "copy-from").setDefValues("./plugins", "./server.jar")
-                .setComments("List of files/directories to send to the servers in the 'send-to' list.\n" +
-                        "All file paths must start with './' which represents the servers root directory.\n" +
-                        "If you want to share all files from your server simply add './' below.\n");
+                .setComments("List of folders to watch. Once a file event happens, that event/change gets shared/sent to the servers in the 'send-to' list.\n" +
+                        "All folders must be sub-folders of the server root and thus start with './' (the servers root directory).\n" +
+                        "If you want to watch all files from your server simply add './' below.\n" +
+                        "Note that sub-folders of the added folders below are also watched. \n" +
+                        //TODO "More control is in TODO.\n" +
+                        ""
+                );
 
-        send_to = put(name, "send-to").setDefValues("C:\\this\\is\\an\\absolute\\path", "0.0.0.0", "./this/is/a/relative/path").setComments("List of directories/ips of the servers which receive the file changes.\n" +
-                "Note that if the server is not on the same machine (you enter an ip), then you will need to have AutoPlug installed on that server too.\n" +
-                "Otherwise if the server is on the same machine (you enter its path to its server root directory), then u don't need AutoPlug installed on it.\n" +
-                "Note that if you enter a directory that contains multiple servers, AutoPlug detects those individual servers automatically.\n" +
-                "Note that absolute and relative paths, as well as ipv4 and ipv6 addresses are supported.\n");
+        send_to = put(name, "send-to").addDefValueWithComment("C:\\User\\Peter\\servers\\my-second-server", "Example for absolute path")
+                .addDefValueWithComment("./servers/another-server", "Example for relative path")
+                .setComments("List of server root folders of the servers which receive the file changes.\n" +
+                        // TODO "NOT WORKING/IN TODO: Note that if the server is not on the same machine (you enter an ip), then you will need to have AutoPlug installed on that server too.\n" +
+                        // "Otherwise if the server is on the same machine (you enter its path to its server root directory), then you don't need AutoPlug installed on it.\n" +
+                        //TODO "Note that if you enter a folder that contains multiple servers, AutoPlug detects those individual servers automatically.\n" +
+                        "Note that absolute and relative paths" +
+                        //TODO ", as well as ipv4 and ipv6 addresses" +
+                        " are supported.\n");
 
         save();
         unlockFile();

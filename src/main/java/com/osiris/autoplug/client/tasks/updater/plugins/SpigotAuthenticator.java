@@ -12,7 +12,7 @@ import com.google.gson.*;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.headlessbrowser.NodeWindow;
+import com.osiris.headlessbrowser.PlaywrightWindow;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,7 +26,7 @@ public class SpigotAuthenticator {
     /**
      * Throws an exceptions, with the details, if the login attempt fails.
      */
-    public void attemptLoginForWindow(NodeWindow window) throws Exception {
+    public void attemptLoginForWindow(PlaywrightWindow window) throws Exception {
         boolean isLoggedIn = false;
         File spigotCookiesJson = new File(new SystemConfig().getFile().getParentFile() + "/spigot-cookies.json");
         if (!spigotCookiesJson.exists()) spigotCookiesJson.createNewFile();
@@ -97,7 +97,7 @@ public class SpigotAuthenticator {
         }
     }
 
-    public boolean isLoginSuccess(NodeWindow window) {
+    public boolean isLoginSuccess(PlaywrightWindow window) {
         return !window.getDocument().getElementsByClass("accountUsername").isEmpty();
     }
 
