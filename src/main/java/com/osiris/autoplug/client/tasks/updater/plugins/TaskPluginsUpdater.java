@@ -118,6 +118,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     DYModule spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
                     //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                     DYModule bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
+                    DYModule ignoreContentType = pluginsConfig.put(name, plName, "ignore-ContentType").setDefValues("false");
                     DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                     DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
 
@@ -130,6 +131,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     // Update the detailed plugins in-memory values
                     pl.setSpigotId(spigotId.asInt());
                     pl.setBukkitId(bukkitId.asInt());
+                    pl.setIgnoreContentType(ignoreContentType.asBoolean());
                     pl.setCustomLink(customDownloadURL.asString());
 
                     // Check for missing author in plugin.yml
@@ -468,13 +470,13 @@ public class TaskPluginsUpdater extends BetterThread {
                     if (!pl.isPremium()) {
                         if (userProfile.equals(manualProfile)) {
                             File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
-                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, cache_dest);
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, pl.getIgnoreContentType(), userProfile, cache_dest);
                             downloadTasksList.add(task);
                             task.start();
                         } else {
                             File oldPl = new File(pl.getInstallationPath());
                             File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, userProfile, dest, oldPl);
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, pl.getIgnoreContentType(), userProfile, dest, oldPl);
                             downloadTasksList.add(task);
                             task.start();
                         }
