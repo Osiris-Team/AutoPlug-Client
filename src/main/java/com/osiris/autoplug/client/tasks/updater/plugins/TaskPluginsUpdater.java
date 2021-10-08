@@ -118,7 +118,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     DYModule spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
                     //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                     DYModule bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
-                    DYModule ignoreContentType = pluginsConfig.put(name, plName, "ignore-ContentType").setDefValues("false");
+                    DYModule ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                     DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                     DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
 

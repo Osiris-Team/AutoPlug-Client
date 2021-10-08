@@ -271,7 +271,9 @@ public class Main {
                             for (File receivingServerRootDir :
                                     filesToSendTo) {
                                 try {
-                                    Files.copy(event.getPath(), new File(receivingServerRootDir + relPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    File f = new File(receivingServerRootDir + relPath);
+                                    if (!f.exists()) f.createNewFile();
+                                    Files.copy(event.getPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 } catch (Exception e) {
                                     AL.warn(e);
                                 }
