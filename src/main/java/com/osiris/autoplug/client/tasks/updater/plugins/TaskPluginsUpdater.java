@@ -24,7 +24,7 @@ import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.headlessbrowser.HBrowser;
-import com.osiris.headlessbrowser.PlaywrightWindow;
+import com.osiris.headlessbrowser.windows.PlaywrightWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 
@@ -296,6 +296,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
         if (!updatablePremiumSpigotPlugins.isEmpty()) {
             if (!new ConGetAccountDetails().hasPremiumMembership()) {
+                setStatus("Checking Premium plugins...");
                 for (SearchResult result :
                         updatablePremiumSpigotPlugins) {
                     if (result.isPremium()) {
@@ -307,7 +308,7 @@ public class TaskPluginsUpdater extends BetterThread {
             } else {
                 AL.debug(this.getClass(), "User has valid Premium-Membership, continuing with updating...");
                 // TODO TESTING:
-                try (PlaywrightWindow window = new HBrowser().openWindow()) {
+                try (PlaywrightWindow window = new HBrowser().openCustomWindow().headless(false).buildPlaywrightWindow()) {
                     SpigotAuthenticator spigotAuthenticator = new SpigotAuthenticator();
                     spigotAuthenticator.attemptLoginForWindow(window); // Throws exception on login fail
                     for (SearchResult result :

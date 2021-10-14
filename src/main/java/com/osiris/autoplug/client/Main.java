@@ -264,7 +264,8 @@ public class Main {
                         if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
                             for (File receivingServerRootDir :
                                     filesToSendTo) {
-                                new File(receivingServerRootDir + relPath).delete();
+                                new File(receivingServerRootDir + relPath)
+                                        .delete();
                             }
                         } else if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)
                                 || event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
@@ -272,6 +273,7 @@ public class Main {
                                     filesToSendTo) {
                                 try {
                                     File f = new File(receivingServerRootDir + relPath);
+                                    if (!f.getParentFile().exists()) f.getParentFile().mkdirs();
                                     if (!f.exists()) f.createNewFile();
                                     Files.copy(event.getPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 } catch (Exception e) {

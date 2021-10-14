@@ -12,7 +12,8 @@ import com.google.gson.*;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.headlessbrowser.PlaywrightWindow;
+import com.osiris.headlessbrowser.windows.PlaywrightWindow;
+import org.jsoup.nodes.Document;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -52,6 +53,17 @@ public class SpigotAuthenticator {
         AL.debug(this.getClass(), "Logging in with cookies...");
         window.load("https://www.spigotmc.org/login");
         Thread.sleep(new Random().nextInt(10000 - 7000) + 7000); // Wait for Cloudflare checks to finish // Random number between 7s and 10s
+        boolean cloudflarePassed = false;
+        for (int i = 0; i < 60; i++) {
+            Thread.sleep(1000);
+            if (isCloudflarePassed(window)) {
+                cloudflarePassed = true;
+                break;
+            }
+        }
+        if (!cloudflarePassed) throw new Exception("Failed to pass the cloudflare check!");
+        AL.debug(this.getClass(), "Cloudflare passed!");
+
         isLoggedIn = isLoginSuccess(window);
         if (!isLoggedIn) {
             if (spigotCookiesJson.length() != 0)
@@ -59,13 +71,12 @@ public class SpigotAuthenticator {
 
             UpdaterConfig updaterConfig = new UpdaterConfig();
             window.executeJS("" +
-                    "document.getElementById('ctrl_pageLogin_login').value=\"" + updaterConfig.plugin_updater_spigot_username.asString() + "\";" +
-                    "document.getElementById('ctrl_pageLogin_password').value=\"" + updaterConfig.plugin_updater_spigot_password.asString() + "\";" +
-                    "document.forms[0].submit();");
+                    "document.getElementById('ctrl_pageLogin_login').value=\"" + updaterConfig.plugin_updater_spigot_username.asString() + "\";\n" +
+                    "document.getElementById('ctrl_pageLogin_password').value=\"" + updaterConfig.plugin_updater_spigot_password.asString() + "\";\n" +
+                    "document.forms[0].submit();\n");
             Thread.sleep(1000);
             isLoggedIn = isLoginSuccess(window);
         }
-
 
         if (!isLoggedIn) {
             throw new Exception("Spigot-Login failed with provided credentials! Update your credentials and run the updating task again.");
@@ -95,6 +106,11 @@ public class SpigotAuthenticator {
             }
             AL.debug(this.getClass(), "Updated Spigot-Login-Cookies successfully!");
         }
+    }
+
+    private boolean isCloudflarePassed(PlaywrightWindow window) {
+        Document doc = window.getDocument();
+        return doc.getElementsByClass("cf-browser-verification").isEmpty() && doc.getElementsByClass("cf-im-under-attack").isEmpty();
     }
 
     public boolean isLoginSuccess(PlaywrightWindow window) {

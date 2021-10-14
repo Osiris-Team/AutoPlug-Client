@@ -12,14 +12,11 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.headlessbrowser.PlaywrightWindow;
+import com.osiris.headlessbrowser.windows.PlaywrightWindow;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
-/**
- * See {@link #TaskPremiumSpigotPluginDownload(String, BetterThreadManager, String, String, String, String, File, File)} for details.
- */
 public class TaskPremiumSpigotPluginDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;

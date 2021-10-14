@@ -136,6 +136,7 @@ public class ConMain extends Thread {
                         auth = new SecuredConnection((byte) 0);
                         dis = new DataInputStream(auth.getInput());
                         AL.info("Authentication success!");
+                        CON_SERVER_STATUS = new ConServerStatus();
                     } catch (Exception exception) {
                         AL.warn(e);
                     }
