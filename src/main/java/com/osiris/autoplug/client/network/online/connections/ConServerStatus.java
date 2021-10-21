@@ -43,10 +43,9 @@ public class ConServerStatus extends SecondaryConnection {
         super((byte) 4);  // Each connection has its own auth_id.
     }
 
-
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().online_console_send.asBoolean()) {
+        if (new WebConfig().send_server_status.asBoolean()) {
             super.open();
             if (dos == null) {
                 getSocket().setSoTimeout(0);

@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
@@ -27,12 +26,13 @@ import java.io.IOException;
 public class ConMain extends Thread {
 
     // Secondary connections:
-    public static ConOnlineConsoleReceive CON_CONSOLE_RECEIVE;
-    public static ConOnlineConsoleSend CON_CONSOLE_SEND;
-    public static ConServerStatus CON_SERVER_STATUS;
+    public static final ConOnlineConsoleReceive CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
+    public static final ConOnlineConsoleSend CON_CONSOLE_SEND = new ConOnlineConsoleSend();
+    public static final ConServerStatus CON_SERVER_STATUS = new ConServerStatus();
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
 
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
+    public static boolean isUserAuthenticated = false;
 
     @Override
     public void run() {
@@ -44,19 +44,8 @@ public class ConMain extends Thread {
             //Socket socket = auth.getSocket();
             DataInputStream dis = new DataInputStream(auth.getInput());
             //DataOutputStream dos = new DataOutputStream(auth.getOut());
-            boolean isUserAuthenticated;
-
-             /*
-                Create child connection objects, after main connection was established successfully.
-                Note: To establish a connection to the server, the open() method
-                must have been called before.
-                 */
-            CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
-            CON_CONSOLE_SEND = new ConOnlineConsoleSend();
-            CON_SERVER_STATUS = new ConServerStatus();
             //CON_PLUGINS_UPDATER = new PluginsUpdateResultConnection();
-
-            boolean sendStatus = new WebConfig().send_server_status.asBoolean();
+            CON_SERVER_STATUS.open();
 
             isDone = true;
             boolean oldAuth = false; // Local variable that holds the auth boolean before the current one
@@ -66,23 +55,19 @@ public class ConMain extends Thread {
                 try {
                     while (true) {
                         isUserAuthenticated = dis.readBoolean();
-                        if (sendStatus && !CON_SERVER_STATUS.isConnected()) CON_SERVER_STATUS.open();
 
                         if (isUserAuthenticated) {
                             if (!oldAuth) {
-                                oldAuth = true;
                                 AL.debug(this.getClass(), "User is online.");
                                 // User is online, so open secondary connections if they weren't already
                                 if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                                 CON_CONSOLE_RECEIVE.open();
-                                if (CON_CONSOLE_SEND.isConnected())
-                                    CON_CONSOLE_SEND.close();
+                                if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                                 CON_CONSOLE_SEND.open();
                                 //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
                         } else {
                             if (oldAuth) {
-                                oldAuth = false;
                                 AL.debug(this.getClass(), "User is offline.");
                                 // Close secondary connections when user is offline/logged out
                                 if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
@@ -90,6 +75,7 @@ public class ConMain extends Thread {
                                 //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                             }
                         }
+                        oldAuth = isUserAuthenticated;
                         Thread.sleep(1000);
                     }
                 } catch (Exception e) {
@@ -136,14 +122,14 @@ public class ConMain extends Thread {
                         auth = new SecuredConnection((byte) 0);
                         dis = new DataInputStream(auth.getInput());
                         AL.info("Authentication success!");
-                        CON_SERVER_STATUS = new ConServerStatus();
+                        CON_SERVER_STATUS.open();
                     } catch (Exception exception) {
                         AL.warn(e);
                     }
                 }
             }
         } catch (Exception e) {
-            AL.warn(this.getClass(), e, "Connection issues!");
+            AL.warn(this.getClass(), e, "Connection aborted due to issues!");
             isDone = true;
         }
     }

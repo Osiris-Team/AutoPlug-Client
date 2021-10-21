@@ -40,6 +40,7 @@ import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
+    public static final ConMain CON_MAIN = new ConMain();
 
     public static void main(String[] args) {
         // Check various things to ensure an fully functioning application.
@@ -294,8 +295,7 @@ public class Main {
                 AL.warn(e);
             }
 
-            ConMain conMain = new ConMain();
-            conMain.start();
+            CON_MAIN.start();
 
             new ConPluginCommandReceive();
 

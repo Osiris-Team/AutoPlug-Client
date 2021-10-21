@@ -8,7 +8,9 @@
 
 package com.osiris.autoplug.client.console;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +52,7 @@ public final class AutoPlugConsole {
                     AL.info(".kill      | Kills the server without saving (.k)");
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rtasks)");
+                    AL.info(".con info  | Shows details about AutoPlugs network connections (.cinfo)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -77,6 +80,12 @@ public final class AutoPlugConsole {
                     return true;
                 } else if (command.equals(".run tasks") || command.equals(".rtasks")) {
                     new BeforeServerStartupTasks();
+                    return true;
+                } else if (command.equals(".con info") || command.equals(".cinfo")) {
+                    AL.info(Main.CON_MAIN.getName() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user-auth=" + ConMain.isUserAuthenticated);
+                    AL.info(ConMain.CON_SERVER_STATUS.getClass().getName() + " connected=" + ConMain.CON_SERVER_STATUS.isConnected());
+                    AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
+                    AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");

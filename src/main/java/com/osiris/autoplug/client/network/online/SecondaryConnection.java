@@ -47,7 +47,7 @@ public class SecondaryConnection {
     }
 
     public boolean isConnected() {
-        return socket != null && (socket.isConnected() || !socket.isClosed());
+        return socket != null && !socket.isClosed();
     }
 
     public byte getAuthId() {

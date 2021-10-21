@@ -68,9 +68,6 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
     public boolean open() throws Exception {
         if (new WebConfig().online_console_send.asBoolean()) {
             super.open();
-            if (bw != null)
-                bw.close();
-
             getSocket().setSoTimeout(0);
             bw = new BufferedWriter(new OutputStreamWriter(getOut()));
 
@@ -116,14 +113,6 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
             AL.actionsOnMessageEvent.remove(actionOnAutoPlugMessageEvent);
         } catch (Exception ignored) {
         }
-
-        try {
-            if (bw != null)
-                bw.close();
-        } catch (Exception e) {
-            AL.warn("Failed to close writer.", e);
-        }
-        bw = null;
 
         try {
             super.close();
