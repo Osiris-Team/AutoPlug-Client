@@ -47,13 +47,8 @@ public class TaskServerUpdater extends BetterThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
-        updaterConfig = new UpdaterConfig();
-        if (!updaterConfig.server_updater.asBoolean()) {
-            skip();
-            return;
-        }
         if (Server.isRunning()) throw new Exception("Cannot perform update while server is running!");
-
+        updaterConfig = new UpdaterConfig();
         if (!updaterConfig.server_updater.asBoolean()) {
             skip();
             return;
@@ -148,11 +143,6 @@ public class TaskServerUpdater extends BetterThread {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
             GD.SERVER_JAR = new FileManager().serverJar();
             System.out.println(GD.SERVER_JAR);
-            File final_dest = GD.SERVER_JAR;
-            if (final_dest == null)
-                final_dest = new File(GD.WORKING_DIR + "/" + onlineArtifactFileName);
-            if (final_dest.exists()) final_dest.delete();
-            final_dest.createNewFile();
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
@@ -165,6 +155,11 @@ public class TaskServerUpdater extends BetterThread {
                 Thread.sleep(500);
                 if (download.isFinished()) {
                     if (download.isSuccess()) {
+                        File final_dest = GD.SERVER_JAR;
+                        if (final_dest == null)
+                            final_dest = new File(GD.WORKING_DIR + "/" + onlineArtifactFileName);
+                        if (final_dest.exists()) final_dest.delete();
+                        final_dest.createNewFile();
                         FileUtils.copyFile(cache_dest, final_dest);
                         setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
                         updaterConfig.server_jenkins_build_id.setValues("" + latest_build_id);
@@ -230,11 +225,6 @@ public class TaskServerUpdater extends BetterThread {
             }
         } else {
             setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
-            File final_dest = GD.SERVER_JAR;
-            if (final_dest == null)
-                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-            if (final_dest.exists()) final_dest.delete();
-            final_dest.createNewFile();
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
@@ -249,6 +239,11 @@ public class TaskServerUpdater extends BetterThread {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
                         if (download.compareWithMD5(buildHash)) {
+                            File final_dest = GD.SERVER_JAR;
+                            if (final_dest == null)
+                                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
+                            if (final_dest.exists()) final_dest.delete();
+                            final_dest.createNewFile();
                             FileUtils.copyFile(cache_dest, final_dest);
                             setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
                             updaterConfig.server_build_id.setValues("" + latestBuildId);
@@ -319,11 +314,6 @@ public class TaskServerUpdater extends BetterThread {
             }
         } else {
             setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
-            File final_dest = GD.SERVER_JAR;
-            if (final_dest == null)
-                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-            if (final_dest.exists()) final_dest.delete();
-            final_dest.createNewFile();
 
             // Download the file
             String build_hash = paperDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
@@ -341,6 +331,11 @@ public class TaskServerUpdater extends BetterThread {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
                         if (download.compareWithSHA256(build_hash)) {
+                            File final_dest = GD.SERVER_JAR;
+                            if (final_dest == null)
+                                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
+                            if (final_dest.exists()) final_dest.delete();
+                            final_dest.createNewFile();
                             FileUtils.copyFile(cache_dest, final_dest);
                             setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
                             updaterConfig.server_build_id.setValues("" + latest_build_id);

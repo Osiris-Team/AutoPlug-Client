@@ -59,10 +59,10 @@ public class ConOnlineConsoleReceive extends SecondaryConnection {
                 });
                 thread.start();
             }
-            AL.debug(this.getClass(), "Online-Console-RECEIVE connected.");
+            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
-            AL.debug(this.getClass(), "Online-Console-RECEIVE functionality is disabled.");
+            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
     }

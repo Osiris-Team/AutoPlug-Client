@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
@@ -51,8 +52,11 @@ public class SecuredConnection {
     public SecuredConnection(byte con_type) throws Exception {
         this.conType = con_type;
         while (true) {
-            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connecting to AutoPlug-Web...");
-            connect(GD.OFFICIAL_WEBSITE_IP, 35555);
+            SystemConfig systemConfig = new SystemConfig();
+            String ip = systemConfig.autoplug_web_ip.asString();
+            int port = systemConfig.autoplug_web_port.asInt();
+            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
+            connect(ip, port);
 
             // DDOS protection
             int punishment = dataIn.readInt();

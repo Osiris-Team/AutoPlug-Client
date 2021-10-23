@@ -98,10 +98,10 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
             } catch (Exception e) {
                 AL.warn(e, "Error during recent log sending.");
             }
-            AL.debug(this.getClass(), "Online-Console-SEND connected.");
+            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
-            AL.debug(this.getClass(), "Online-Console-SEND functionality is disabled.");
+            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
     }

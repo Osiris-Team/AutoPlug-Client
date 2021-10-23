@@ -109,7 +109,7 @@ public class ConServerStatus extends SecondaryConnection {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
-            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' disabled.");
+            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
     }

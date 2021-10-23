@@ -24,6 +24,7 @@ public class WebConfig extends DreamYaml {
     public DYModule send_self_updater_results;
 
     public DYModule send_server_status;
+    public DYModule file_manager;
 
     public WebConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
@@ -64,9 +65,14 @@ public class WebConfig extends DreamYaml {
         send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
 
 
-        send_server_status = put(name, "send-server-status").setDefValues("true").setComments("Sends following information to the web-server:",
+        send_server_status = put(name, "send-server-status").setDefValues("true").setComments(
+                "Establishes the connection, once you are logged in to AutoPlug-Web.",
+                "Sends following information to the web-server:",
                 "Alive status of server; servers MOTD and player count; CPU frequencies and used/total memory sizes.",
                 "Restart AutoPlug for this change to take affect.");
+
+        file_manager = put(name, "file-manager").setDefValues("true").setComments("Establishes the connection, once you are logged in to AutoPlug-Web.",
+                "Enables you to manage this servers files from AutoPlugs' web panel.");
 
         save();
         unlockFile();

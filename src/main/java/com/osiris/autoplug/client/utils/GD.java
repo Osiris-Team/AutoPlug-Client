@@ -18,7 +18,6 @@ import java.io.File;
  */
 public class GD {
     public static final String OFFICIAL_WEBSITE = "https://autoplug.online/";
-    public static final String OFFICIAL_WEBSITE_IP = "144.91.78.158";
     public static final String AUTHOR = "Osiris Team";
     @NotNull
     public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
