@@ -7,24 +7,36 @@
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
 
 ## AutoPlug-Client | What can it do?
-Well quite a bunch of things actually...
-The most outstanding one being (probably), an automated way of updating your server plugins.
-Then there is some more stuff:
- - Automated self updating
- - Automated JRE (Java Runtime Enviornment) updating
- - Automated server software updating
- - Automated, scheduled server restarting
- - Automated, modularized backup creation
- - Note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
+
+Well quite a bunch of things actually... The most outstanding one being (probably), an automated way of updating your
+server plugins. Then there is some more stuff:
+
+- Automated self updating
+- Automated JRE (Java Runtime Enviornment) updating
+- Automated server software updating
+- Automated, scheduled server restarting
+- Automated, modularized backup creation
+- Note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
+
+Premium [AutoPlug-Web](https://autoplug.one) features:
+
+Online Console:
+[](online-console.gif)
+
+Online File-Manager:
+[](file-manager.gif)
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
-If you have never contributed before, we recommend this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). 
-If you are planning to make big changes, create an issue first, where you explain what you want to do. Thank you in advance for every
-contribution!
+If you have never contributed before, we recommend
+this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). If you are planning to make
+big changes, create an issue first, where you explain what you want to do. Thank you in advance for every contribution!
 
 Details:
-  - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+
+- Written in [Java](https://java.com/),
+  with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
+  of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
   - Built with [Maven](https://maven.apache.org/), profiles: clean package
   - `AutoPlug-Client.jar` gets exported to the `AP-TEST-SERVER` folder, for further testing
 
