@@ -16,8 +16,7 @@ import java.io.IOException;
 
 public class WebConfig extends DreamYaml {
 
-    public DYModule online_console_send;
-    public DYModule online_console_receive;
+    public DYModule online_console;
 
     public DYModule send_plugins_updater_results;
     public DYModule send_server_updater_results;
@@ -48,14 +47,11 @@ public class WebConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        online_console_send = put(name, "online-console", "send").setDefValues("false")
-                .setComments("Sends the recent log messages (and future messages) to the Online-Console.",
+        online_console = put(name, "online-console").setDefValues("false")
+                .setComments("Sends recent log messages (and future messages) to the Online-Console and can receive commands from it.",
                         "To have as little impact on your server as possible, this only happens when you are logged in.");
-        online_console_receive = put(name, "online-console", "receive").setDefValues("false")
-                .setComments("Receives messages from the Online-Console and executes them.");
         if (preset.equals(ConfigPreset.FAST)) {
-            online_console_send.setDefValues("true");
-            online_console_receive.setDefValues("true");
+            online_console.setDefValues("true");
         }
 
         send_plugins_updater_results = put(name, "updater-results", "send-plugins-updaters-results").setDefValues("true")

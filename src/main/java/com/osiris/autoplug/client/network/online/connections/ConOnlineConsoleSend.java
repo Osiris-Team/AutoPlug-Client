@@ -66,7 +66,7 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().online_console_send.asBoolean()) {
+        if (new WebConfig().online_console.asBoolean()) {
             super.open();
             getSocket().setSoTimeout(0);
             bw = new BufferedWriter(new OutputStreamWriter(getOut()));

@@ -56,7 +56,11 @@ public class SecuredConnection {
             String ip = systemConfig.autoplug_web_ip.asString();
             int port = systemConfig.autoplug_web_port.asInt();
             AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
-            connect(ip, port);
+            if (systemConfig.autoplug_web_ssl.asBoolean())
+                createSSLConnection(ip, port);
+            else {
+                createInsecureConnection(ip, port);
+            }
 
             // DDOS protection
             int punishment = dataIn.readInt();
@@ -114,7 +118,7 @@ public class SecuredConnection {
      * @param port Server port.
      * @throws Exception
      */
-    public void connect(String host, int port) throws Exception {
+    public void createSSLConnection(String host, int port) throws Exception {
         //SSLContext ctx = SSLContext.getInstance("TLSv1.3");
         SocketFactory factory = SSLSocketFactory.getDefault();
         socket = factory.createSocket(host, port);
@@ -128,6 +132,15 @@ public class SecuredConnection {
 
         ((SSLSocket) socket).startHandshake();
 
+        socket.setSoTimeout(30000);
+        input = socket.getInputStream();
+        output = socket.getOutputStream();
+        dataIn = new DataInputStream(input);
+        dataOut = new DataOutputStream(output);
+    }
+
+    public void createInsecureConnection(String host, int port) throws Exception {
+        socket = new Socket(host, port);
         socket.setSoTimeout(30000);
         input = socket.getInputStream();
         output = socket.getOutputStream();

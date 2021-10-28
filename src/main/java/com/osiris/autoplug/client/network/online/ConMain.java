@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online;
 
+import com.osiris.autoplug.client.network.online.connections.ConFileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
@@ -29,6 +30,7 @@ public class ConMain extends Thread {
     public static final ConOnlineConsoleReceive CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
     public static final ConOnlineConsoleSend CON_CONSOLE_SEND = new ConOnlineConsoleSend();
     public static final ConServerStatus CON_SERVER_STATUS = new ConServerStatus();
+    public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
 
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
@@ -64,6 +66,8 @@ public class ConMain extends Thread {
                                 CON_CONSOLE_RECEIVE.open();
                                 if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                                 CON_CONSOLE_SEND.open();
+                                if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
+                                CON_FILE_MANAGER.open();
                                 //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
                         } else {
@@ -72,6 +76,7 @@ public class ConMain extends Thread {
                                 // Close secondary connections when user is offline/logged out
                                 if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                                 if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                                if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
                                 //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                             }
                         }
@@ -115,6 +120,12 @@ public class ConMain extends Thread {
                         AL.warn(e1);
                     }
 
+                    try {
+                        if (CON_FILE_MANAGER != null && CON_FILE_MANAGER.isConnected())
+                            CON_FILE_MANAGER.close();
+                    } catch (IOException e1) {
+                        AL.warn(e1);
+                    }
 
                     Thread.sleep(30000);
                     try {

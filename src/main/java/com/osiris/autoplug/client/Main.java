@@ -46,7 +46,6 @@ public class Main {
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
         try {
-
             System.out.println();
             System.out.println("Initialising " + GD.VERSION);
             // SELF-UPDATER: Are we in the downloads directory? If yes, it means that this jar is an update and we need to install it.

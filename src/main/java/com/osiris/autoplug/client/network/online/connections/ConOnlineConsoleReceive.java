@@ -36,7 +36,7 @@ public class ConOnlineConsoleReceive extends SecondaryConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().online_console_receive.asBoolean()) {
+        if (new WebConfig().online_console.asBoolean()) {
             super.open();
             if (thread == null) {
                 thread = new Thread(() -> {
