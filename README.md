@@ -20,11 +20,8 @@ server plugins. Then there is some more stuff:
 
 Premium [AutoPlug-Web](https://autoplug.one) features:
 
-Online Console:
-[](online-console.gif)
-
-Online File-Manager:
-[](file-manager.gif)
+- [Online Console](online-console.gif)
+- [Online File-Manager](file-manager.gif)
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
