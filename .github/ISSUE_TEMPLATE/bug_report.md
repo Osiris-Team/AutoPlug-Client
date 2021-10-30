@@ -1,28 +1,27 @@
 ---
-name: Bug report about: Create a report to help us improve title: ''
+name: Bug report
+about: Help making AutoPlug better.
+title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Importance:** Enter a value between 0-10, where 10 is the most important thing on the planet.
-
-**Description:**
-A clear and concise description of what the bug is and what you expected to happen.
-
-**Steps:**
-Steps to reproduce the behavior:
-
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Screenshot(s):**
-If applicable, add screenshots to help explain your problem.
-
-**Error-Message(s):**
+**Log**
 ```log
- - Insert parts of the log, relevant to the error. 
- - Do NOT include sensitive information! Ex. server key.
+Extract relevant information from your log and insert it here. Logs are usually located at /autoplug/logs.
+The log contains your system details at some point. If possible you should insert them here too.
+It also contains warnings with stack traces. Insert relevant warnings and other messages here.
 ```
+
+**Expected**
+What did you expect to happen.
+
+**Actual**
+What did actually happen.
+
+**Steps**
+(Optional) Steps to reproduce the behaviour.
+
+**Screenshots**
+(Optional) Screenshots to help explain your problem. You can copy and paste them here.
