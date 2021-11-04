@@ -69,6 +69,38 @@ public class UFDataIn {
         return lines;
     }
 
+    /**
+     * Returns a list containing the lines of the file.
+     */
+    public List<String> readStream() throws IOException {
+        List<String> lines = new ArrayList<>();
+        String line;
+        while ((line = reader.readLine()) != null && !line.equals("\u001a")) {
+            lines.add(line + "\n");
+        }
+        return lines;
+    }
+
+    /**
+     * Returns a list containing the lines of the file. <br>
+     *
+     * @param maxBytes the maximum amount of bytes to read.
+     * @throws LimitExceededException when the provided maximum bytes amount was read.
+     */
+    public List<String> readStream(long maxBytes) throws IOException, LimitExceededException {
+        List<String> lines = new ArrayList<>();
+        long bytesRead = 0;
+        String line;
+        while ((line = reader.readLine()) != null && !line.equals("\u001a")) { // Stop at 10 mb
+            lines.add(line + "\n");
+            bytesRead = bytesRead + line.getBytes().length;
+            if (bytesRead > maxBytes) {
+                throw new LimitExceededException("Exceeded the maximum allowed bytes: " + maxBytes);
+            }
+        }
+        return lines;
+    }
+
     public byte readByte() throws IOException {
         return Byte.parseByte(readLine());
     }

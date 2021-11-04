@@ -28,6 +28,10 @@ public class GeneralConfig extends DreamYaml {
     public DYModule server_arguments_list;
     public DYModule server_restart_on_crash;
 
+    public DYModule directory_cleaner;
+    public DYModule directory_cleaner_max_days;
+    public DYModule directory_cleaner_files;
+
     public GeneralConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/general-config.yml");
         lockFile();
@@ -107,6 +111,16 @@ public class GeneralConfig extends DreamYaml {
         server_arguments_list = put(name, "server", "arguments", "list").setDefValues("--nogui");
 
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
+
+        directory_cleaner = put(name, "directory-cleaner", "enabled").setDefValues("true").setCountTopSpaces(1)
+                .setComments("Deletes files older than 'max-days' in the selected directories.");
+        directory_cleaner_max_days = put(name, "directory-cleaner", "max-days")
+                .setComments("If the file is older than the provided time in days, it gets deleted.").setDefValues("7");
+        directory_cleaner_files = put(name, "directory-cleaner", "list")
+                .setComments("The list of directories to clean.",
+                        "By default sub-directories will not get cleaned, unless you add 'true' before its path, like shown below.",
+                        "Supported paths are relative (starting with './' which is the servers root directory) and absolute paths.")
+                .setDefValues("true ./autoplug/logs", "./autoplug/downloads");
 
         validateOptions();
         save();

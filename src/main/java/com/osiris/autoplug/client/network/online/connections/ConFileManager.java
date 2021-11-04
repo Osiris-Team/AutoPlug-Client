@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 
 public class ConFileManager extends SecondaryConnection {
@@ -58,6 +59,10 @@ public class ConFileManager extends SecondaryConnection {
                             doProtocolForRenamingFile();
                         } else if (requestType == 4) {
                             doProtocolForSavingFile();
+                        } else if (requestType == 5) {
+                            doProtocolForReceivingUploadedFile();
+                        } else if (requestType == 6) {
+                            doProtocolForCopyOrCutFiles();
                         } else {
                             AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
                         }
@@ -74,6 +79,55 @@ public class ConFileManager extends SecondaryConnection {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
+    }
+
+    private void doProtocolForCopyOrCutFiles() throws IOException {
+        int filesCount = dis.readInt();
+        boolean isCopy = dis.readBoolean();
+        File targetDir = new File(dis.readLine());
+        try {
+            for (int i = 0; i < filesCount; i++) {
+                File f = new File(dis.readLine());
+                boolean isDir = dis.readBoolean();
+                if (isCopy) // Make regular "copy" operation
+                    if (isDir)
+                        FileUtils.copyDirectory(f, new File(targetDir + "/" + f.getName()));
+                    else
+                        Files.copy(f.toPath(), new File(targetDir + "/" + f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                else {
+                    // Make "cut" operation, which means that the previous file gets deleted after copying to its new destination
+                    if (isDir) {
+                        FileUtils.copyDirectory(f, new File(targetDir + "/" + f.getName()));
+                        FileUtils.deleteDirectory(f);
+                    } else {
+                        Files.copy(f.toPath(), new File(targetDir + "/" + f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        f.delete();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            AL.warn(e);
+            dos.writeBoolean(false);
+            dos.writeLine("Critical error while copying/cutting a file! Check your servers log for further details: " + e.getMessage());
+        }
+        dos.writeBoolean(true);
+    }
+
+    private void doProtocolForReceivingUploadedFile() throws IOException {
+        File file = new File(dis.readLine());
+        if (!file.exists()) file.createNewFile();
+        try (BufferedWriter fw = new BufferedWriter(new FileWriter(file))) {
+            String line;
+            while ((line = dis.readLine()) != null && !line.equals("\u001a")) {
+                fw.write(line + "\n");
+                fw.flush();
+            }
+        } catch (Exception e) {
+            AL.warn(e);
+            dos.writeBoolean(false);
+            dos.writeLine("Critical error while saving uploaded file! Check your servers log for further details: " + e.getMessage());
+        }
+        dos.writeBoolean(true);
     }
 
     private void doProtocolForSavingFile() throws IOException {
