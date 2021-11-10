@@ -17,7 +17,7 @@ import java.io.File;
  * GlobalData, which is always static and used frequently in this project
  */
 public class GD {
-    public static final String OFFICIAL_WEBSITE = "https://autoplug.online/";
+    public static final String OFFICIAL_WEBSITE = "https://autoplug.one/";
     public static final String AUTHOR = "Osiris Team";
     @NotNull
     public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
