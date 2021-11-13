@@ -25,7 +25,7 @@ class UtilsWebClientTest {
     @Test
     void test() {
         WebClient client = UtilsWebClient.getNewCustomClient(30000, 10000,
-                UtilsWebClient.buildUniqueUserAgent()); //"AutoPlug Client/"+new Random().nextInt()+" - https://autoplug.online"
+                UtilsWebClient.buildUniqueUserAgent()); //"AutoPlug Client/"+new Random().nextInt()+" - https://autoplug.one"
 
         String testUrl1 = "https://www.spigotmc.org/resources/unlimited-enchants.82329/download?version=348662";
         String testUrl2 = "https://www.spigotmc.org/resources/rankmeup-gui-based-rankup-plugin-1-8-1-16.81464/download?version=348659";
