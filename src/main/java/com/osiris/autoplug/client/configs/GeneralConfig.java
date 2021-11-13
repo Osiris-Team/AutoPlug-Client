@@ -52,7 +52,7 @@ public class GeneralConfig extends DreamYaml {
 
 
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
-                "Enter your Server-Key here. You get it by registering yourself and your server on https://autoplug.online.\n" +
+                "Enter your Server-Key here. You get it by registering yourself and your server on https://autoplug.one.\n" +
                         "The Server-Key enables remote access from your account.\n" +
                         "No matter what, keep this key private to ensure your servers security!");
 

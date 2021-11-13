@@ -126,7 +126,7 @@ public class TaskPluginDownload extends BetterThread {
         AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
         Request request = new Request.Builder().url(url)
-                .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.online")
+                .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.one")
                 .build();
 
         Response response = new OkHttpClient().newCall(request).execute();
