@@ -99,16 +99,16 @@ public final class AutoPlugConsole {
                     } else {
                         AL.info("Details from " + con.getClass().getSimpleName() + ":");
                         AL.info("Host: " + con.host);
-                        AL.info("Port: " + con.port);
+                        AL.info("Port: " + Server.PORT);
                         AL.info("Running: " + con.isRunning);
                         AL.info("Motd: " + con.strippedMotd);
                         AL.info("Version: " + con.version);
                         AL.info("Players: " + con.currentPlayers);
-                        AL.info("CPU Speed: " + con.cpuSpeed);
-                        AL.info("CPU Max. Speed: " + con.cpuMaxSpeed);
-                        AL.info("MEM available: " + con.memAvailable);
-                        AL.info("MEM used: " + con.memUsed);
-                        AL.info("MEM total: " + con.memTotal);
+                        AL.info("CPU Speed in GHz: " + con.cpuSpeed);
+                        AL.info("CPU Max. Speed in GHz: " + con.cpuMaxSpeed);
+                        AL.info("MEM available in Gb: " + con.memAvailable);
+                        AL.info("MEM used in Gb: " + con.memUsed);
+                        AL.info("MEM total in Gb: " + con.memTotal);
                     }
                     return true;
                 } else {

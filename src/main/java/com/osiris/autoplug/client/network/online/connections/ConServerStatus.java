@@ -30,7 +30,6 @@ import java.io.IOException;
  */
 public class ConServerStatus extends SecondaryConnection {
     public String host = "localhost";
-    public int port = Server.PORT;
     public boolean isRunning;
     public String strippedMotd;
     public String version;
@@ -65,7 +64,7 @@ public class ConServerStatus extends SecondaryConnection {
                 thread = new Thread(() -> {
                     try {
                         while (true) {
-                            MineStat mineStat = new MineStat(host, port);
+                            MineStat mineStat = new MineStat(host, Server.PORT);
                             dos.writeBoolean((isRunning = mineStat.isServerUp()));
                             dos.writeUTF((strippedMotd = "" + mineStat.getStrippedMotd()));
                             dos.writeUTF((version = "" + mineStat.getVersion()));
