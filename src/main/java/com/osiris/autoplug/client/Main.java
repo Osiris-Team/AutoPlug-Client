@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
@@ -175,6 +177,19 @@ public class Main {
             LoggerConfig loggerConfig = new LoggerConfig();
             utilsConfig.setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
             allModules.addAll(loggerConfig.getAllInEdit());
+            // Extra debug options
+            if (loggerConfig.debug.asBoolean()) {
+                AL.debug(Main.class, "Note that debug mode is enabled.");
+                AL.debug(Main.class, "Enabled HtmlUnit logger!");
+                Logger.getLogger("com.gargoylesoftware").setLevel(Level.ALL);
+                AL.debug(Main.class, "Enabled Quartz logger!");
+                Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.ALL);
+                Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.ALL);
+            } else {
+                Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+                Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.OFF);
+                Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.OFF);
+            }
 
             WebConfig webConfig = new WebConfig(preset);
             utilsConfig.setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());

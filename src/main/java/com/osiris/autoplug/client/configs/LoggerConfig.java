@@ -8,14 +8,11 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class LoggerConfig extends DreamYaml {
 
@@ -51,26 +48,9 @@ public class LoggerConfig extends DreamYaml {
                 "Forces the terminal to use ANSI. Note that this may fail."
         );
 
-        extraDebugOptions();
         save();
         unlockFile();
     }
 
-    private void extraDebugOptions() {
-        //Enable debug mode for libs
-        Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
-        if (debug.asBoolean()) {
-            AL.debug(this.getClass(), "Enabled HtmlUnit logger!");
-            Logger.getLogger("com.gargoylesoftware").setLevel(Level.ALL);
-        }
-        //Enable debug mode for libs
-        Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.OFF);
-        Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.OFF);
-        if (debug.asBoolean()) {
-            AL.debug(this.getClass(), "Enabled Quartz logger!");
-            Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.ALL);
-            Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.ALL);
-        }
-    }
 
 }

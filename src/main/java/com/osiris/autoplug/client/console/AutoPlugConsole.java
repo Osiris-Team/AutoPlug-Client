@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.console;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
@@ -44,15 +45,16 @@ public final class AutoPlugConsole {
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info("All available AutoPlug-Console commands:");
-                    AL.info(".help      | Prints out this (Shortcut: .h)");
-                    AL.info(".start     | Starts the server (.s)");
-                    AL.info(".restart   | Restarts the server (.r)");
-                    AL.info(".stop      | Stops and saves the server (.st)");
-                    AL.info(".stop both | Stops, saves your server and closes AutoPlug safely (.stb)");
-                    AL.info(".kill      | Kills the server without saving (.k)");
-                    AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
-                    AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rtasks)");
-                    AL.info(".con info  | Shows details about AutoPlugs network connections (.cinfo)");
+                    AL.info(".help        | Prints out this (Shortcut: .h)");
+                    AL.info(".start       | Starts the server (.s)");
+                    AL.info(".restart     | Restarts the server (.r)");
+                    AL.info(".stop        | Stops and saves the server (.st)");
+                    AL.info(".stop both   | Stops, saves your server and closes AutoPlug safely (.stb)");
+                    AL.info(".kill        | Kills the server without saving (.k)");
+                    AL.info(".kill both   | Kills the server without saving and closes AutoPlug (.kb)");
+                    AL.info(".run tasks   | Runs the 'before server startup tasks' without starting the server (.rtasks)");
+                    AL.info(".con info    | Shows details about AutoPlugs network connections (.cinfo)");
+                    AL.info(".server info | Shows details about this server (.sinfo)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -87,6 +89,27 @@ public final class AutoPlugConsole {
                     AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
                     AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
                     AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
+                    return true;
+                } else if (command.equals(".server info") || command.equals(".sinfo")) {
+                    ConServerStatus con = ConMain.CON_SERVER_STATUS;
+                    AL.info("Running: " + Server.isRunning());
+                    AL.info("Port: " + Server.PORT);
+                    if (!con.isConnected()) {
+                        AL.info(con.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
+                    } else {
+                        AL.info("Details from " + con.getClass().getSimpleName() + ":");
+                        AL.info("Host: " + con.host);
+                        AL.info("Port: " + con.port);
+                        AL.info("Running: " + con.isRunning);
+                        AL.info("Motd: " + con.strippedMotd);
+                        AL.info("Version: " + con.version);
+                        AL.info("Players: " + con.currentPlayers);
+                        AL.info("CPU Speed: " + con.cpuSpeed);
+                        AL.info("CPU Max. Speed: " + con.cpuMaxSpeed);
+                        AL.info("MEM available: " + con.memAvailable);
+                        AL.info("MEM used: " + con.memUsed);
+                        AL.info("MEM total: " + con.memTotal);
+                    }
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");

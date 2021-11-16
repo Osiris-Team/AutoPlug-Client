@@ -29,15 +29,23 @@ import java.io.IOException;
  * Note that
  */
 public class ConServerStatus extends SecondaryConnection {
-    // TODO send a String array containing details about the servers status
-    // Interval 5 seconds
-    // Use minestat here to get server details.
-    // Use other stuff to get system details like cpu and ram usage
-
+    public String host = "localhost";
+    public int port = Server.PORT;
+    public boolean isRunning;
+    public String strippedMotd;
+    public String version;
+    public int currentPlayers;
+    public int maxPlayers;
+    public String cpuSpeed;
+    public String cpuMaxSpeed;
+    public String memAvailable;
+    public String memUsed;
+    public String memTotal;
 
     @Nullable
     private DataOutputStream dos;
     private Thread thread;
+
 
     public ConServerStatus() {
         super((byte) 4);  // Each connection has its own auth_id.
@@ -57,12 +65,12 @@ public class ConServerStatus extends SecondaryConnection {
                 thread = new Thread(() -> {
                     try {
                         while (true) {
-                            MineStat mineStat = new MineStat("localhost", Server.PORT);
-                            dos.writeBoolean(mineStat.isServerUp());
-                            dos.writeUTF("" + mineStat.getStrippedMotd());
-                            dos.writeUTF("" + mineStat.getVersion());
-                            dos.writeInt(mineStat.getCurrentPlayers());
-                            dos.writeInt(mineStat.getMaximumPlayers());
+                            MineStat mineStat = new MineStat(host, port);
+                            dos.writeBoolean((isRunning = mineStat.isServerUp()));
+                            dos.writeUTF((strippedMotd = "" + mineStat.getStrippedMotd()));
+                            dos.writeUTF((version = "" + mineStat.getVersion()));
+                            dos.writeInt((currentPlayers = mineStat.getCurrentPlayers()));
+                            dos.writeInt((maxPlayers = mineStat.getMaximumPlayers()));
 
                             // Send hardware info
                             HardwareAbstractionLayer hal = si.getHardware();
@@ -80,8 +88,8 @@ public class ConServerStatus extends SecondaryConnection {
                                 currentFrq = currentFrq / i;
                             }
                             if (cpu != null) {
-                                dos.writeUTF("" + currentFrq / oneGigaHertzInHertz);
-                                dos.writeUTF("" + cpu.getMaxFreq() / oneGigaHertzInHertz);
+                                dos.writeUTF((cpuSpeed = "" + currentFrq / oneGigaHertzInHertz));
+                                dos.writeUTF((cpuMaxSpeed = "" + cpu.getMaxFreq() / oneGigaHertzInHertz));
                             } else {
                                 dos.writeUTF("0");
                                 dos.writeUTF("0");
@@ -89,9 +97,9 @@ public class ConServerStatus extends SecondaryConnection {
 
 
                             if (memory != null) {
-                                dos.writeUTF("" + memory.getAvailable() / oneGigaByteInBytes);
-                                dos.writeUTF("" + (memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes);
-                                dos.writeUTF("" + memory.getTotal() / oneGigaByteInBytes);
+                                dos.writeUTF((memAvailable = "" + memory.getAvailable() / oneGigaByteInBytes));
+                                dos.writeUTF((memUsed = "" + (memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes));
+                                dos.writeUTF((memTotal = "" + memory.getTotal() / oneGigaByteInBytes));
                             } else {
                                 dos.writeUTF("0");
                                 dos.writeUTF("0");
