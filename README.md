@@ -25,21 +25,24 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
-If you have never contributed before, we recommend
-this [Beginners Article](https://www.jetbrains.com/help/idea/contribute-to-projects.html). If you are planning to make
-big changes, create an issue first, where you explain what you want to do. Thank you in advance for every contribution!
+Beginners:
+
+- [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
+- [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
+
+Important:
+
+- Create an issue first, if you want to do big changes.
+- You can pick and work on any issue. 
+- Please comment on the issue you picked, that you are working on it.
 
 Details:
 
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-  - Built with [Maven](https://maven.apache.org/), profiles: clean package
+  - Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `AutoPlug-Client.jar` 
   - `AutoPlug-Client.jar` gets exported to the `AP-TEST-SERVER` folder, for further testing
-
-If you don't know how to import a GitHub project, check out this guide:
-
-- For IntelliJ IDEA checkout the [Cloning Guide](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ## AutoPlug-Client | Libraries
 
