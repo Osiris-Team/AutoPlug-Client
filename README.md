@@ -33,7 +33,7 @@ Beginners:
 Important:
 
 - Create an issue first, if you want to do big changes.
-- You can pick and work on any issue. 
+- You can pick and work on any open issue. 
 - Please comment on the issue you picked, that you are working on it.
 
 Details:
