@@ -66,4 +66,8 @@ public class UFDataOut {
     public void writeLong(long val) throws IOException {
         writeLine("" + val);
     }
+
+    public void writeFloat(float val) throws IOException {
+        writeLine("" + val);
+    }
 }

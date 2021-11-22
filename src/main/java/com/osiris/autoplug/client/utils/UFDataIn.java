@@ -117,4 +117,8 @@ public class UFDataIn {
         return Long.parseLong(readLine());
     }
 
+    public float readFloat() throws IOException {
+        return Float.parseFloat(readLine());
+    }
+
 }

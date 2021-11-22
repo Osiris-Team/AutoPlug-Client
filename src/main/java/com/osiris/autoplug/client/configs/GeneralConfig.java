@@ -112,7 +112,8 @@ public class GeneralConfig extends DreamYaml {
 
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
-        directory_cleaner = put(name, "directory-cleaner", "enabled").setDefValues("true").setCountTopSpaces(1)
+        put(name, "directory-cleaner").setCountTopSpaces(1);
+        directory_cleaner = put(name, "directory-cleaner", "enabled").setDefValues("true")
                 .setComments("Deletes files older than 'max-days' in the selected directories.");
         directory_cleaner_max_days = put(name, "directory-cleaner", "max-days")
                 .setComments("If the file is older than the provided time in days, it gets deleted.").setDefValues("7");

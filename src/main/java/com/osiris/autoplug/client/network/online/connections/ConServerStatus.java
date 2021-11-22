@@ -12,14 +12,13 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.MineStat;
+import com.osiris.autoplug.client.utils.UFDataOut;
 import com.osiris.autoplug.core.logger.AL;
-import org.jetbrains.annotations.Nullable;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 
@@ -29,22 +28,21 @@ import java.io.IOException;
  * Note that
  */
 public class ConServerStatus extends SecondaryConnection {
+    public float cpuSpeed;
+    public float cpuMaxSpeed;
+
     public String host = "localhost";
+
     public boolean isRunning;
     public String strippedMotd;
     public String version;
     public int currentPlayers;
     public int maxPlayers;
-    public String cpuSpeed;
-    public String cpuMaxSpeed;
-    public String memAvailable;
-    public String memUsed;
-    public String memTotal;
-
-    @Nullable
-    private DataOutputStream dos;
+    public float memAvailable;
+    public float memUsed;
+    public float memTotal;
+    private UFDataOut dos;
     private Thread thread;
-
 
     public ConServerStatus() {
         super((byte) 4);  // Each connection has its own auth_id.
@@ -56,22 +54,34 @@ public class ConServerStatus extends SecondaryConnection {
             super.open();
             if (dos == null) {
                 getSocket().setSoTimeout(0);
-                dos = getDataOut();
-                int oneGigaByteInBytes = 1073741824;
-                int oneGigaHertzInHertz = 1000000000;
+                dos = new UFDataOut(getOut());
+                float oneGigaByteInBytes = 1073741824.0f;
+                float oneGigaHertzInHertz = 1000000000.0f;
                 SystemInfo si = new SystemInfo();
-
                 thread = new Thread(() -> {
                     try {
                         while (true) {
+                            // MC server related info:
                             MineStat mineStat = new MineStat(host, Server.PORT);
-                            dos.writeBoolean((isRunning = mineStat.isServerUp()));
-                            dos.writeUTF((strippedMotd = "" + mineStat.getStrippedMotd()));
-                            dos.writeUTF((version = "" + mineStat.getVersion()));
-                            dos.writeInt((currentPlayers = mineStat.getCurrentPlayers()));
-                            dos.writeInt((maxPlayers = mineStat.getMaximumPlayers()));
+                            isRunning = mineStat.isServerUp();
+                            strippedMotd = mineStat.getStrippedMotd();
+                            if (strippedMotd == null)
+                                strippedMotd = "-";
+                            version = mineStat.getVersion();
+                            if (version != null)
+                                version = version.replaceAll("[a-zA-Z]", "");
+                            else
+                                version = "-";
+                            currentPlayers = mineStat.getCurrentPlayers();
+                            maxPlayers = mineStat.getMaximumPlayers();
 
-                            // Send hardware info
+                            dos.writeBoolean(isRunning);
+                            dos.writeLine(strippedMotd);
+                            dos.writeLine(version);
+                            dos.writeInt(currentPlayers);
+                            dos.writeInt(maxPlayers);
+
+                            // Hardware info:
                             HardwareAbstractionLayer hal = si.getHardware();
                             CentralProcessor cpu = hal.getProcessor();
                             GlobalMemory memory = hal.getMemory();
@@ -86,23 +96,24 @@ public class ConServerStatus extends SecondaryConnection {
                                 }
                                 currentFrq = currentFrq / i;
                             }
+
                             if (cpu != null) {
-                                dos.writeUTF((cpuSpeed = "" + currentFrq / oneGigaHertzInHertz));
-                                dos.writeUTF((cpuMaxSpeed = "" + cpu.getMaxFreq() / oneGigaHertzInHertz));
+                                dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
+                                dos.writeFloat((cpu.getMaxFreq() / oneGigaHertzInHertz));
                             } else {
-                                dos.writeUTF("0");
-                                dos.writeUTF("0");
+                                dos.writeFloat(0);
+                                dos.writeFloat(0);
                             }
 
 
                             if (memory != null) {
-                                dos.writeUTF((memAvailable = "" + memory.getAvailable() / oneGigaByteInBytes));
-                                dos.writeUTF((memUsed = "" + (memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes));
-                                dos.writeUTF((memTotal = "" + memory.getTotal() / oneGigaByteInBytes));
+                                dos.writeFloat((memAvailable = (memory.getAvailable() / oneGigaByteInBytes)));
+                                dos.writeFloat((memUsed = ((memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes)));
+                                dos.writeFloat((memTotal = (memory.getTotal() / oneGigaByteInBytes)));
                             } else {
-                                dos.writeUTF("0");
-                                dos.writeUTF("0");
-                                dos.writeUTF("0");
+                                dos.writeFloat(0);
+                                dos.writeFloat(0);
+                                dos.writeFloat(0);
                             }
 
                             Thread.sleep(5000);
@@ -123,14 +134,6 @@ public class ConServerStatus extends SecondaryConnection {
 
     @Override
     public void close() throws IOException {
-        try {
-            if (dos != null)
-                dos.close();
-        } catch (Exception e) {
-            AL.warn("Failed to close writer.", e);
-        }
-        dos = null;
-
         try {
             super.close();
         } catch (Exception e) {
