@@ -20,9 +20,9 @@ import java.io.IOException;
  * Details here: https://api.adoptium.net/q/swagger-ui
  */
 public class AdoptV3API {
-    private static final String START_DOWNLOAD_URL = "https://api.adoptium.net/v3/binary/version/";
-    private static final String START_RELEASES_URL = "https://api.adoptium.net/v3/info/release_versions?architecture=";
-    private static final String START_ASSETS_URL = "https://api.adoptium.net/v3/assets/version/";
+    private final String START_DOWNLOAD_URL = "https://api.adoptium.net/v3/binary/version/";
+    private final String START_RELEASES_URL = "https://api.adoptium.net/v3/info/release_versions?architecture=";
+    private final String START_ASSETS_URL = "https://api.adoptium.net/v3/assets/version/";
 
     /**
      * Creates and returns a new url from the provided parameters. <br>

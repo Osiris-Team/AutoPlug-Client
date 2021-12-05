@@ -108,14 +108,17 @@ public class TaskJavaUpdater extends BetterThread {
         int currentBuildId = 0;
         if (updaterConfig.java_updater_build_id.asString() != null)
             currentBuildId = updaterConfig.java_updater_build_id.asInt();
-        AdoptV3API.ImageType imageType = AdoptV3API.ImageType.JRE;
+        AdoptV3API.ImageType imageType = AdoptV3API.ImageType.JDK;
+        // Using JRE here instead breaks the endpoint below somehow and returns 404
+        // when onlyLTS is disabled. That's why we must use JDK currently.
+        // TODO Hopefully this is temporary and can be fixed soon.
 
         JsonObject jsonReleases = new AdoptV3API().getReleases(
                 osArchitectureType,
                 isLargeHeapSize,
                 imageType,
                 true,
-                false,
+                true, // Changing this to false makes the api return even fewer versions, which is pretty weird.
                 osType,
                 50,
                 AdoptV3API.VendorProjectType.JDK,
@@ -150,7 +153,7 @@ public class TaskJavaUpdater extends BetterThread {
                 isLargeHeapSize,
                 imageType,
                 true,
-                false,
+                true,
                 osType,
                 50,
                 AdoptV3API.VendorProjectType.JDK,
