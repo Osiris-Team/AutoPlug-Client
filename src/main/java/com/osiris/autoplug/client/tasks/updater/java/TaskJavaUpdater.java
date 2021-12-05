@@ -118,7 +118,6 @@ public class TaskJavaUpdater extends BetterThread {
                 false,
                 osType,
                 50,
-                false, // Use adopt jdk instead, because other vendors are not supported by this search somehow
                 AdoptV3API.VendorProjectType.JDK,
                 AdoptV3API.ReleaseType.GENERAL_AVAILABILITY
         );
@@ -154,7 +153,6 @@ public class TaskJavaUpdater extends BetterThread {
                 false,
                 osType,
                 50,
-                false, // Use adopt jdk instead, because other vendors are not supported by this search somehow
                 AdoptV3API.VendorProjectType.JDK,
                 AdoptV3API.ReleaseType.GENERAL_AVAILABILITY);
 
@@ -170,7 +168,6 @@ public class TaskJavaUpdater extends BetterThread {
                 imageType,
                 true,
                 isLargeHeapSize,
-                false, // Use adopt jdk instead, because other vendors are not supported by this search somehow
                 AdoptV3API.VendorProjectType.JDK
         );
 

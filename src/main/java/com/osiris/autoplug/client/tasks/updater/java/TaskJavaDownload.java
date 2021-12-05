@@ -91,7 +91,7 @@ public class TaskJavaDownload extends BetterThread {
                 fileName = fileName.replace(".file", ".tar.gz");
             } else {
                 // In this case we check the response header for file information
-                // Example: (content-disposition, attachment; filename=OpenJDK15U-jre_x86-32_windows_hotspot_15.0.2_7.zip)
+                // Example: (content-disposition, attachment; filename=JDK15U-jre_x86-32_windows_hotspot_15.0.2_7.zip)
                 String contentDispo = response.headers().get("content-disposition");
                 if (contentDispo == null)
                     throw new Exception("Failed to determine download file type!");
