@@ -84,7 +84,9 @@ public class TaskPluginsUpdater extends BetterThread {
                         "spigot-id: Can be found directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
                         "bukkit-id: Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n" +
                         "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
-                        "custom-download-url: must be a static url to the plugins latest jar file" +
+                        "custom-download-url: must be a static url to the plugins latest jar file.\n" +
+                        "alternatives.github.repo-name: The github repository name can be found in its url or on its page. Example: Osiris-Team/AutoPlug-Client (full url: https://github.com/Osiris-Team/AutoPlug-Client)\n" +
+                        "alternatives.github.asset-name: The name of the asset to download. For example 'AutoPlug-Client.jar'. Without version information.\n" +
                         "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                         "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
                         "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
@@ -115,6 +117,8 @@ public class TaskPluginsUpdater extends BetterThread {
                     DYModule ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                     DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                     DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
+                    DYModule githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
+                    DYModule githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
 
                     // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                     if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -127,6 +131,8 @@ public class TaskPluginsUpdater extends BetterThread {
                     pl.setBukkitId(bukkitId.asInt());
                     pl.setIgnoreContentType(ignoreContentType.asBoolean());
                     pl.setCustomLink(customDownloadURL.asString());
+                    pl.setGithubRepoName(githubRepoUrl.asString());
+                    pl.setGithubAssetName(githubAssetName.asString());
 
                     // Check for missing author in plugin.yml
                     if ((pl.getVersion() == null || pl.getVersion().trim().isEmpty())
@@ -190,6 +196,7 @@ public class TaskPluginsUpdater extends BetterThread {
         setMax(size);
 
         // TODO USE THIS FOR RESULT REPORT
+        int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
         int sizeBukkitPlugins = 0;
         int sizeCustomLinkPlugins = 0;
@@ -205,7 +212,10 @@ public class TaskPluginsUpdater extends BetterThread {
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.getSpigotId() != 0) {
+                if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
+                    sizeGithubPlugins++;
+                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByGithubUrl(pl)));
+                } else if (pl.getSpigotId() != 0) {
                     sizeSpigotPlugins++; // SPIGOT PLUGIN
                     activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
                 } else if (pl.getBukkitId() != 0) {

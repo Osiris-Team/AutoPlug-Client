@@ -19,6 +19,8 @@ public class DetailedPlugin {
     private int bukkitId;
     private boolean ignoreContentType;
     private String customLink;
+    private String githubRepoName;
+    private String githubAssetName;
 
     public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customLink) {
         this.installationPath = installationPath;
@@ -28,6 +30,39 @@ public class DetailedPlugin {
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customLink = customLink;
+    }
+
+    public String getConfigPath() {
+        return configPath;
+    }
+
+    public void setConfigPath(String configPath) {
+        this.configPath = configPath;
+    }
+
+    public boolean isIgnoreContentType() {
+        return ignoreContentType;
+    }
+
+    /**
+     * Example: Osiris-Team/AutoPlug-Client
+     *
+     * @return
+     */
+    public String getGithubRepoName() {
+        return githubRepoName;
+    }
+
+    public void setGithubRepoName(String githubRepoName) {
+        this.githubRepoName = githubRepoName;
+    }
+
+    public String getGithubAssetName() {
+        return githubAssetName;
+    }
+
+    public void setGithubAssetName(String githubAssetName) {
+        this.githubAssetName = githubAssetName;
     }
 
     public boolean isPremium() {

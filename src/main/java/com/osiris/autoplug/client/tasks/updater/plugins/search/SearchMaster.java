@@ -49,4 +49,7 @@ public class SearchMaster {
         return new BukkitSearchById().search(plugin);
     }
 
+    public SearchResult searchByGithubUrl(DetailedPlugin pl) {
+        return new GithubSearchByUrl().search(pl);
+    }
 }
