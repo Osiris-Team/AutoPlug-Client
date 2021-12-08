@@ -1,9 +1,25 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
- * All rights reserved.
+ * MineStat.java - A Minecraft server status checker
+ * Copyright (C) 2014-2021 Lloyd Dilley
+ * http://www.dilley.me/
  *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/**
+ * @author Lloyd Dilley
  */
 
 package com.osiris.autoplug.client.utils;
@@ -16,15 +32,9 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-/**
- * @author Lloyd Dilley
- */
 public class MineStat {
-    public static final String VERSION = "2.1.0"; // MineStat version
-    public static final byte NUM_FIELDS = 6;      // number of values expected from server
-    public static final byte NUM_FIELDS_BETA = 3; // number of values expected from a 1.8b/1.3 server
-    public static final int DEFAULT_TIMEOUT = 5;  // default TCP timeout in seconds
-    public static final int DEFAULT_PORT = 25565; // default TCP port
+    public final byte NUM_FIELDS = 6;      // number of values expected from server
+    public final byte NUM_FIELDS_BETA = 3; // number of values expected from a 1.8b/1.3 server
     /**
      * Hostname or IP address of the Minecraft server
      */
@@ -74,11 +84,11 @@ public class MineStat {
     private String requestType;
 
     public MineStat(String address) {
-        this(address, DEFAULT_PORT, DEFAULT_TIMEOUT, Request.NONE);
+        this(address, 25565, 5, Request.NONE);
     }
 
     public MineStat(String address, int port) {
-        this(address, port, DEFAULT_TIMEOUT, Request.NONE);
+        this(address, port, 5, Request.NONE);
     }
 
     public MineStat(String address, int port, int timeout) {
