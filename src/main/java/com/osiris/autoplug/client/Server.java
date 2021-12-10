@@ -150,7 +150,7 @@ public final class Server {
         // 1. Which java version should be used
         UpdaterConfig updaterConfig = new UpdaterConfig();
         if (updaterConfig.java_updater.asBoolean()
-                && (updaterConfig.java_updater_profile.asString().equals("AUTOMATIC") || updaterConfig.java_updater_profile.asString().equals("MANUAL"))) {
+                && (updaterConfig.java_updater_profile.asString().equals("AUTOMATIC"))) {
             FileManager fileManager = new FileManager();
             File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
             List<File> folders = fileManager.getFoldersFrom(jreFolder);
