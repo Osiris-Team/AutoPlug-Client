@@ -95,12 +95,12 @@ public class UpdaterConfig extends DreamYaml {
                 "If you selected the AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
                 "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug/system/jre, which then will be used to run your server."
         );
-        java_updater_version = put(name, "java-updater", "version").setDefValues("16").setComments(
+        java_updater_version = put(name, "java-updater", "version").setDefValues("17").setComments(
                 "The major Java version. List of versions available: https://api.adoptium.net/v3/info/available_releases",
-                "Note: If you change this, also remove the \"build-id\" value to guarantee correct update-detection."
+                "Note: If you change this, also set the \"build-id\" value to 0, to guarantee correct update-detection."
         );
-        java_updater_build_id = put(name, "java-updater", "build-id").setComments(
-                "If you change the Java version, remember to remove this value, to ensure proper update-detection.",
+        java_updater_build_id = put(name, "java-updater", "build-id").setDefValues("0").setComments(
+                "If you change the Java version, remember to set this value to 0, to ensure proper update-detection.",
                 "Otherwise don't touch this. It gets replaced after every successful update automatically.");
         java_updater_large_heap = put(name, "java-updater", "large-heap").setDefValues("false").setComments(
                 "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
