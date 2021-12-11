@@ -10,10 +10,17 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
+import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
+import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
+import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.utils.UtilsBetterThread;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BetterThreadManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -45,16 +52,20 @@ public final class AutoPlugConsole {
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info("All available AutoPlug-Console commands:");
-                    AL.info(".help        | Prints out this (Shortcut: .h)");
-                    AL.info(".start       | Starts the server (.s)");
-                    AL.info(".restart     | Restarts the server (.r)");
-                    AL.info(".stop        | Stops and saves the server (.st)");
-                    AL.info(".stop both   | Stops, saves your server and closes AutoPlug safely (.stb)");
-                    AL.info(".kill        | Kills the server without saving (.k)");
-                    AL.info(".kill both   | Kills the server without saving and closes AutoPlug (.kb)");
-                    AL.info(".run tasks   | Runs the 'before server startup tasks' without starting the server (.rtasks)");
-                    AL.info(".con info    | Shows details about AutoPlugs network connections (.cinfo)");
-                    AL.info(".server info | Shows details about this server (.sinfo)");
+                    AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".start | Starts the server (.s)");
+                    AL.info(".restart | Restarts the server (.r)");
+                    AL.info(".stop | Stops and saves the server (.st)");
+                    AL.info(".stop both | Stops, saves your server and closes AutoPlug safely (.stb)");
+                    AL.info(".kill | Kills the server without saving (.k)");
+                    AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
+                    AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
+                    AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
+                    AL.info(".server info | Shows details about this server (.si)");
+                    AL.info(".check | Checks for AutoPlug updates and behaves according to the selected profile (.c)");
+                    AL.info(".check java | Checks for AutoPlug updates and behaves according to the selected profile (.cj)");
+                    AL.info(".check server | Checks for AutoPlug updates and behaves according to the selected profile (.cs)");
+                    AL.info(".check plugins | Checks for AutoPlug updates and behaves according to the selected profile (.cp)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -80,17 +91,17 @@ public final class AutoPlugConsole {
                     AL.info("Achievement unlocked: Double kill!");
                     System.exit(0);
                     return true;
-                } else if (command.equals(".run tasks") || command.equals(".rtasks")) {
+                } else if (command.equals(".run tasks") || command.equals(".rt")) {
                     new BeforeServerStartupTasks();
                     return true;
-                } else if (command.equals(".con info") || command.equals(".cinfo")) {
+                } else if (command.equals(".con info") || command.equals(".ci")) {
                     AL.info(Main.CON_MAIN.getName() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user-auth=" + ConMain.isUserAuthenticated);
                     AL.info(ConMain.CON_SERVER_STATUS.getClass().getName() + " connected=" + ConMain.CON_SERVER_STATUS.isConnected());
                     AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
                     AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
                     AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
                     return true;
-                } else if (command.equals(".server info") || command.equals(".sinfo")) {
+                } else if (command.equals(".server info") || command.equals(".si")) {
                     ConServerStatus con = ConMain.CON_SERVER_STATUS;
                     AL.info("Running: " + Server.isRunning());
                     AL.info("Port: " + Server.PORT);
@@ -111,7 +122,24 @@ public final class AutoPlugConsole {
                         AL.info("MEM total in Gb: " + con.memTotal);
                     }
                     return true;
-                } else {
+                }
+                else if (command.equals(".check") || command.equals(".c")) {
+                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskSelfUpdater("SelfUpdater", man);
+                    return true;
+                }else if (command.equals(".check java") || command.equals(".cj")) {
+                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskJavaUpdater("JavaUpdater", man);
+                    return true;
+                }else if (command.equals(".check server") || command.equals(".cs")) {
+                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskServerUpdater("ServerUpdater",man);
+                    return true;
+                }else if (command.equals(".check plugins") || command.equals(".cp")) {
+                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskPluginsUpdater("PluginsUpdater",man);
+                    return true;
+                }else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
                 }

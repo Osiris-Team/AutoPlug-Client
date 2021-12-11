@@ -40,8 +40,8 @@ public class TaskServerUpdater extends BetterThread {
     private String serverSoftware;
     private String serverVersion;
 
-    public TaskServerUpdater(String serverSoftware, BetterThreadManager manager) {
-        super(serverSoftware, manager);
+    public TaskServerUpdater(String name, BetterThreadManager manager) {
+        super(name, manager);
     }
 
     @Override
