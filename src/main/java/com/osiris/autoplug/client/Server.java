@@ -151,6 +151,12 @@ public final class Server {
         UpdaterConfig updaterConfig = new UpdaterConfig();
         if (updaterConfig.java_updater.asBoolean()
                 && (updaterConfig.java_updater_profile.asString().equals("AUTOMATIC"))) {
+            try {
+                if (updaterConfig.java_updater_build_id.asInt() == 0) // Throws nullpointer if value if empty
+                    throw new Exception();
+            } catch (Exception e) {
+                throw new Exception("Java-Updater is enabled, but Java-Installation was not found! Enter .rtasks to re-run the tasks and install Java.");
+            }
             FileManager fileManager = new FileManager();
             File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
             List<File> folders = fileManager.getFoldersFrom(jreFolder);
