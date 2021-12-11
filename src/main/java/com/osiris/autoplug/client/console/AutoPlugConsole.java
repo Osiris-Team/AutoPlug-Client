@@ -63,9 +63,9 @@ public final class AutoPlugConsole {
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
                     AL.info(".server info | Shows details about this server (.si)");
                     AL.info(".check | Checks for AutoPlug updates and behaves according to the selected profile (.c)");
-                    AL.info(".check java | Checks for AutoPlug updates and behaves according to the selected profile (.cj)");
-                    AL.info(".check server | Checks for AutoPlug updates and behaves according to the selected profile (.cs)");
-                    AL.info(".check plugins | Checks for AutoPlug updates and behaves according to the selected profile (.cp)");
+                    AL.info(".check java | Checks for Java updates and behaves according to the selected profile (.cj)");
+                    AL.info(".check server | Checks for server updates and behaves according to the selected profile (.cs)");
+                    AL.info(".check plugins | Checks for plugins updates and behaves according to the selected profile (.cp)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
