@@ -205,6 +205,7 @@ public class TaskPluginsUpdater extends BetterThread {
         setMax(size);
 
         // TODO USE THIS FOR RESULT REPORT
+        int sizeJenkinsPlugins = 0;
         int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
         int sizeBukkitPlugins = 0;
@@ -222,7 +223,7 @@ public class TaskPluginsUpdater extends BetterThread {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
-                    sizeGithubPlugins++;
+                    sizeJenkinsPlugins++;
                     activeFutures.add(executorService.submit(() -> new SearchMaster().searchByJenkinsUrl(pl)));
                 } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
                     sizeGithubPlugins++;
