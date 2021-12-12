@@ -123,19 +123,19 @@ public final class AutoPlugConsole {
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskSelfUpdater("SelfUpdater", man);
+                    new TaskSelfUpdater("SelfUpdater", man).start();
                     return true;
                 } else if (command.equals(".check java") || command.equals(".cj")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskJavaUpdater("JavaUpdater", man);
+                    new TaskJavaUpdater("JavaUpdater", man).start();
                     return true;
                 } else if (command.equals(".check server") || command.equals(".cs")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskServerUpdater("ServerUpdater", man);
+                    new TaskServerUpdater("ServerUpdater", man).start();
                     return true;
                 } else if (command.equals(".check plugins") || command.equals(".cp")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskPluginsUpdater("PluginsUpdater", man);
+                    new TaskPluginsUpdater("PluginsUpdater", man).start();
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
