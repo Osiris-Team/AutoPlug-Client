@@ -78,8 +78,8 @@ public class TaskServerUpdater extends BetterThread {
             build_id = updaterConfig.server_jenkins_build_id.asInt();
 
         JsonTools json_tools = new JsonTools();
-        JsonObject json_purpur = json_tools.getJsonObject(project_url + "/api/json");
-        JsonObject json_last_successful_build = json_purpur.get("lastSuccessfulBuild").getAsJsonObject();
+        JsonObject json_project = json_tools.getJsonObject(project_url + "/api/json");
+        JsonObject json_last_successful_build = json_project.get("lastSuccessfulBuild").getAsJsonObject();
         int latest_build_id = json_last_successful_build.get("number").getAsInt();
         if (latest_build_id <= build_id) {
             setStatus("Your server is on the latest version!");

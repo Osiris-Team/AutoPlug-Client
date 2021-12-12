@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
+import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;
@@ -36,6 +37,8 @@ public class TaskPluginDownload extends BetterThread {
     private final File finalDest;
     private final File deleteDest;
     private final boolean isPremium;
+    public DetailedPlugin plugin;
+    public SearchResult searchResult;
     private File dest;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;

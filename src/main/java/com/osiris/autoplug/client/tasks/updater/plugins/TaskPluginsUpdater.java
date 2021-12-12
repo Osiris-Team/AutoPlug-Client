@@ -86,7 +86,10 @@ public class TaskPluginsUpdater extends BetterThread {
                         "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
                         "custom-download-url: must be a static url to the plugins latest jar file.\n" +
                         "alternatives.github.repo-name: The github repository name can be found in its url or on its page. Example: Osiris-Team/AutoPlug-Client (full url: https://github.com/Osiris-Team/AutoPlug-Client)\n" +
-                        "alternatives.github.asset-name: The name of the asset to download. For example 'AutoPlug-Client.jar'. Without version information.\n" +
+                        "alternatives.github.asset-name: The name of the asset to download, without version info. For example 'AutoPlug-Client.jar'.\n" +
+                        "alternatives.jenkins.project-url: The url of the jenkins project. For example: https://ci.ender.zone/job/EssentialsX/\n" +
+                        "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info. For example 'EssentialsXdev+dae.jar'.\n" +
+                        "alternatives.jenkins.build-id: The currently installed build identifier. Don't touch this.\n" +
                         "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                         "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
                         "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
@@ -119,6 +122,9 @@ public class TaskPluginsUpdater extends BetterThread {
                     DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
                     DYModule githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
                     DYModule githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
+                    DYModule jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
+                    DYModule jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
+                    DYModule jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
                     // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                     if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -133,6 +139,9 @@ public class TaskPluginsUpdater extends BetterThread {
                     pl.setCustomLink(customDownloadURL.asString());
                     pl.setGithubRepoName(githubRepoUrl.asString());
                     pl.setGithubAssetName(githubAssetName.asString());
+                    pl.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
+                    pl.setJenkinsArtifactName(jenkinsArtifactName.asString());
+                    pl.setJenkinsBuildId(jenkinsBuildId.asInt());
 
                     // Check for missing author in plugin.yml
                     if ((pl.getVersion() == null || pl.getVersion().trim().isEmpty())
@@ -212,7 +221,10 @@ public class TaskPluginsUpdater extends BetterThread {
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
+                if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
+                    sizeGithubPlugins++;
+                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByJenkinsUrl(pl)));
+                } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
                     sizeGithubPlugins++;
                     activeFutures.add(executorService.submit(() -> new SearchMaster().searchByGithubUrl(pl)));
                 } else if (pl.getSpigotId() != 0) {
@@ -268,7 +280,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     if (code == 1 && pl.isPremium())
                         updatablePremiumSpigotPlugins.add(result);
                     else
-                        doDownloadLogic(pl, code, type, latest, downloadUrl, resultSpigotId, resultBukkitId);
+                        doDownloadLogic(pl, result);
 
                 } else if (code == 2)
                     if (result.getException() != null)
@@ -336,8 +348,16 @@ public class TaskPluginsUpdater extends BetterThread {
                 if (finishedDownloadTask.isDownloadSuccessful())
                     matchingResult.setResultCode((byte) 5);
 
-                if (finishedDownloadTask.isInstallSuccessful())
+                if (finishedDownloadTask.isInstallSuccessful()) {
                     matchingResult.setResultCode((byte) 6);
+                    DYModule jenkinsBuildId = pluginsConfig.get(
+                            pluginsConfigName, finishedDownloadTask.getPlName(), "alternatives", "jenkins", "build-id");
+                    jenkinsBuildId.setValues("" + finishedDownloadTask.searchResult.jenkinsId);
+                    DYModule version = pluginsConfig.get(
+                            pluginsConfigName, finishedDownloadTask.getPlName(), "version");
+                    version.setValues(finishedDownloadTask.searchResult.getLatestVersion());
+                }
+
             }
         }
 
@@ -351,10 +371,17 @@ public class TaskPluginsUpdater extends BetterThread {
             }
         }
 
+        pluginsConfig.save();
         finish("Finished checking all plugins (" + results.size() + "/" + size + ")");
     }
 
-    private void doDownloadLogic(@NotNull DetailedPlugin pl, byte code, @NotNull String type, String latest, String url, @NotNull String resultSpigotId, @NotNull String resultBukkitId) {
+    private void doDownloadLogic(@NotNull DetailedPlugin pl, SearchResult result) {
+        byte code = result.getResultCode();
+        String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
+        String latest = result.getLatestVersion(); // The latest version as String
+        String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
+        String resultSpigotId = result.getSpigotId();
+        String resultBukkitId = result.getBukkitId();
         if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {
@@ -369,19 +396,23 @@ public class TaskPluginsUpdater extends BetterThread {
             }
 
             if (userProfile.equals(notifyProfile)) {
-                addInfo("NOTIFY: Plugin '" + pl.getName() + "' has an update available (" + pl.getVersion() + " -> " + latest + "). Download url: " + url);
+                addInfo("NOTIFY: Plugin '" + pl.getName() + "' has an update available (" + pl.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                     if (!pl.isPremium()) {
                         if (userProfile.equals(manualProfile)) {
                             File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
-                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, pl.getIgnoreContentType(), userProfile, cache_dest);
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, downloadUrl, pl.getIgnoreContentType(), userProfile, cache_dest);
+                            task.plugin = pl;
+                            task.searchResult = result;
                             downloadTasksList.add(task);
                             task.start();
                         } else {
                             File oldPl = new File(pl.getInstallationPath());
                             File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
-                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, url, pl.getIgnoreContentType(), userProfile, dest, oldPl);
+                            TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, downloadUrl, pl.getIgnoreContentType(), userProfile, dest, oldPl);
+                            task.plugin = pl;
+                            task.searchResult = result;
                             downloadTasksList.add(task);
                             task.start();
                         }

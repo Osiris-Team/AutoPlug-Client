@@ -52,4 +52,8 @@ public class SearchMaster {
     public SearchResult searchByGithubUrl(DetailedPlugin pl) {
         return new GithubSearchByUrl().search(pl);
     }
+
+    public SearchResult searchByJenkinsUrl(DetailedPlugin pl) {
+        return new JenkinsSearchByUrl().search(pl);
+    }
 }

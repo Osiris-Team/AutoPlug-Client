@@ -1,17 +1,22 @@
+/*
+ * Copyright (c) 2021 Osiris-Team.
+ * All rights reserved.
+ *
+ * This software is copyrighted work, licensed under the terms
+ * of the MIT-License. Consult the "LICENSE" file for details.
+ */
+
 package com.osiris.autoplug.client.utils;
 
-import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.configs.LoggerConfig;
+import com.osiris.autoplug.client.configs.TasksConfig;
 import com.osiris.autoplug.client.tasks.CustomDisplayer;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 public class UtilsBetterThread {
 
@@ -19,7 +24,7 @@ public class UtilsBetterThread {
         LoggerConfig loggerConfig = new LoggerConfig();
         TasksConfig tasksConfig = new TasksConfig();
         BetterThreadManager manager = new BetterThreadManager();
-        if (tasksConfig.live_tasks.asBoolean()){
+        if (tasksConfig.live_tasks.asBoolean()) {
             new BetterThreadDisplayer(
                     manager,
                     "[" + loggerConfig.autoplug_label.asString() + "]",

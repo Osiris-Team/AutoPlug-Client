@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
@@ -122,24 +121,23 @@ public final class AutoPlugConsole {
                         AL.info("MEM total in Gb: " + con.memTotal);
                     }
                     return true;
-                }
-                else if (command.equals(".check") || command.equals(".c")) {
+                } else if (command.equals(".check") || command.equals(".c")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
                     new TaskSelfUpdater("SelfUpdater", man);
                     return true;
-                }else if (command.equals(".check java") || command.equals(".cj")) {
+                } else if (command.equals(".check java") || command.equals(".cj")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
                     new TaskJavaUpdater("JavaUpdater", man);
                     return true;
-                }else if (command.equals(".check server") || command.equals(".cs")) {
+                } else if (command.equals(".check server") || command.equals(".cs")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskServerUpdater("ServerUpdater",man);
+                    new TaskServerUpdater("ServerUpdater", man);
                     return true;
-                }else if (command.equals(".check plugins") || command.equals(".cp")) {
+                } else if (command.equals(".check plugins") || command.equals(".cp")) {
                     BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskPluginsUpdater("PluginsUpdater",man);
+                    new TaskPluginsUpdater("PluginsUpdater", man);
                     return true;
-                }else {
+                } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
                 }

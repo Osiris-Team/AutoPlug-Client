@@ -21,6 +21,8 @@ public class SearchResult {
     private final String downloadType;
     private final String spigotId;
     private final String bukkitId;
+    // TODO remove getters and setters and make everything public for easier future coding
+    public int jenkinsId;
     boolean isPremium;
     private byte resultCode;
     private Exception exception;

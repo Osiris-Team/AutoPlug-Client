@@ -42,7 +42,7 @@ public class GithubSearchByUrl {
                     String name = element.getAsJsonObject().get("name").getAsString()
                             .replaceAll("\\d", "")
                             .replaceAll("[.]", "")
-                            .replaceAll("[-]", ""); // Removes numbers dots and hyphens
+                            .replaceAll("[-]", ""); // Removes numbers, dots and hyphens
                     comparedNames.add(name);
                     if (StringComparator.similarity(name, githubAssetName)
                             >= 0.90) {

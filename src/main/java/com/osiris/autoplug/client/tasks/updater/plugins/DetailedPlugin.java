@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
 public class DetailedPlugin {
-    boolean isPremium;
+    private boolean isPremium;
     private String configPath;
     private String installationPath;
     private String name;
@@ -21,15 +21,42 @@ public class DetailedPlugin {
     private String customLink;
     private String githubRepoName;
     private String githubAssetName;
+    private String jenkinsProjectUrl;
+    private String jenkinsArtifactName;
+    private int jenkinsBuildId;
 
     public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customLink) {
-        this.installationPath = installationPath;
-        this.name = name;
+        this.setInstallationPath(installationPath);
+        this.setName(name);
         this.version = version;
         this.author = author;
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customLink = customLink;
+    }
+
+    public String getJenkinsProjectUrl() {
+        return jenkinsProjectUrl;
+    }
+
+    public void setJenkinsProjectUrl(String jenkinsProjectUrl) {
+        this.jenkinsProjectUrl = jenkinsProjectUrl;
+    }
+
+    public String getJenkinsArtifactName() {
+        return jenkinsArtifactName;
+    }
+
+    public void setJenkinsArtifactName(String jenkinsArtifactName) {
+        this.jenkinsArtifactName = jenkinsArtifactName;
+    }
+
+    public int getJenkinsBuildId() {
+        return jenkinsBuildId;
+    }
+
+    public void setJenkinsBuildId(int jenkinsBuildId) {
+        this.jenkinsBuildId = jenkinsBuildId;
     }
 
     public String getConfigPath() {
