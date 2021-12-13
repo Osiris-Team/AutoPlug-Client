@@ -20,7 +20,9 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -273,8 +275,27 @@ public final class Server {
 
         // Server OutputStream writes to our process InputStream, thus we can read its output:
         ASYNC_SERVER_IN = new AsyncInputStream(process.getInputStream());
-        ASYNC_SERVER_IN.listeners.add(line -> System.out.println(line));
-        ASYNC_SERVER_IN.listeners.add(line -> ConOnlineConsoleSend.send(line));
+        ASYNC_SERVER_IN.listeners.add(line -> {
+            try {
+                Ansi ansi = Ansi.ansi();
+                if (StringUtils.containsIgnoreCase(line, "error") ||
+                        StringUtils.containsIgnoreCase(line, "critical") ||
+                        StringUtils.containsIgnoreCase(line, "exception")) {
+                    ansi.fgRed().a(line).reset();
+                } else if (StringUtils.containsIgnoreCase(line, "warn") ||
+                        StringUtils.containsIgnoreCase(line, "warning")) {
+                    ansi.fgYellow().a(line).reset();
+                } else if (StringUtils.containsIgnoreCase(line, "debug")) {
+                    ansi.fgBlue().a(line).reset();
+                } else {
+                    ansi.a(line).reset();
+                }
+                System.out.println(ansi);
+                ConOnlineConsoleSend.send("" + ansi);
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        });
 
         // Also create a thread which checks if the server is running or not.
         if (threadServerAliveChecker == null) {
