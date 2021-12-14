@@ -86,9 +86,9 @@ public class TaskPluginsUpdater extends BetterThread {
                         "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
                         "custom-download-url: must be a static url to the plugins latest jar file.\n" +
                         "alternatives.github.repo-name: The github repository name can be found in its url or on its page. Example: Osiris-Team/AutoPlug-Client (full url: https://github.com/Osiris-Team/AutoPlug-Client)\n" +
-                        "alternatives.github.asset-name: The name of the asset to download, without version info. For example 'AutoPlug-Client.jar'.\n" +
+                        "alternatives.github.asset-name: The name of the asset to download, without version info (remove numbers, dots and hyphens). For example 'AutoPlug-Clientjar'.\n" +
                         "alternatives.jenkins.project-url: The url of the jenkins project. For example: https://ci.ender.zone/job/EssentialsX/\n" +
-                        "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info. For example 'EssentialsXdev+dae.jar'.\n" +
+                        "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info (remove numbers, dots and hyphens). For example 'EssentialsXdev+daejar'.\n" +
                         "alternatives.jenkins.build-id: The currently installed build identifier. Don't touch this.\n" +
                         "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                         "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +

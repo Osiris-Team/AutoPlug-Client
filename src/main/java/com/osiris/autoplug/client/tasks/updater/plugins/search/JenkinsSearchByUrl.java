@@ -15,6 +15,10 @@ import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
 import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.core.json.JsonTools;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class JenkinsSearchByUrl {
 
     public SearchResult search(DetailedPlugin plugin) {
@@ -49,6 +53,7 @@ public class JenkinsSearchByUrl {
                     }
                 }
 
+                List<String> comparedNames = new ArrayList<>();
                 if (download_url == null)
                     for (JsonElement e :
                             arrayArtifacts) {
@@ -56,6 +61,7 @@ public class JenkinsSearchByUrl {
                                 .replaceAll("\\d", "")
                                 .replaceAll("[.]", "")
                                 .replaceAll("[-]", ""); // Removes numbers, dots and hyphens
+                        comparedNames.add(name);
                         if (StringComparator.similarity(name, artifact_name) > minimumSimilarity) {
                             onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
                             download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
@@ -64,7 +70,7 @@ public class JenkinsSearchByUrl {
                     }
 
                 if (download_url == null) {
-                    throw new Exception("Failed to find an equal or similar artifact-name '" + artifact_name + "' inside of '" + arrayArtifacts + "'!");
+                    throw new Exception("Failed to find an equal or similar artifact-name '" + artifact_name + "' inside of '" + Arrays.toString(comparedNames.toArray()) + "'!");
                 }
             }
         } catch (Exception e) {
