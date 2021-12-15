@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
@@ -43,6 +44,7 @@ public final class Server {
     public static AsyncInputStream ASYNC_SERVER_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
+    private static boolean colorServerLog;
 
     static {
         Properties properties = new Properties();
@@ -50,6 +52,11 @@ public final class Server {
             properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
             PORT = Integer.parseInt(properties.getProperty("server-port"));
         } catch (IOException e) {
+            AL.warn(e);
+        }
+        try {
+            colorServerLog = new LoggerConfig().color_server_log.asBoolean();
+        } catch (Exception e) {
             AL.warn(e);
         }
     }
@@ -278,15 +285,19 @@ public final class Server {
         ASYNC_SERVER_IN.listeners.add(line -> {
             try {
                 Ansi ansi = Ansi.ansi();
-                if (StringUtils.containsIgnoreCase(line, "error") ||
-                        StringUtils.containsIgnoreCase(line, "critical") ||
-                        StringUtils.containsIgnoreCase(line, "exception")) {
-                    ansi.fgRed().a(line).reset();
-                } else if (StringUtils.containsIgnoreCase(line, "warn") ||
-                        StringUtils.containsIgnoreCase(line, "warning")) {
-                    ansi.fgYellow().a(line).reset();
-                } else if (StringUtils.containsIgnoreCase(line, "debug")) {
-                    ansi.fgBlue().a(line).reset();
+                if (colorServerLog) {
+                    if (StringUtils.containsIgnoreCase(line, "error") ||
+                            StringUtils.containsIgnoreCase(line, "critical") ||
+                            StringUtils.containsIgnoreCase(line, "exception")) {
+                        ansi.fgRed().a(line).reset();
+                    } else if (StringUtils.containsIgnoreCase(line, "warn") ||
+                            StringUtils.containsIgnoreCase(line, "warning")) {
+                        ansi.fgYellow().a(line).reset();
+                    } else if (StringUtils.containsIgnoreCase(line, "debug")) {
+                        ansi.fgCyan().a(line).reset();
+                    } else {
+                        ansi.a(line).reset();
+                    }
                 } else {
                     ansi.a(line).reset();
                 }

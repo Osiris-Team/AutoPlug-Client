@@ -88,7 +88,7 @@ public class TaskPluginsUpdater extends BetterThread {
                         "alternatives.github.repo-name: The github repository name can be found in its url or on its page. Example: Osiris-Team/AutoPlug-Client (full url: https://github.com/Osiris-Team/AutoPlug-Client)\n" +
                         "alternatives.github.asset-name: The name of the asset to download, without version info (remove numbers, dots and hyphens). For example 'AutoPlug-Clientjar'.\n" +
                         "alternatives.jenkins.project-url: The url of the jenkins project. For example: https://ci.ender.zone/job/EssentialsX/\n" +
-                        "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info (remove numbers, dots and hyphens). For example 'EssentialsX.jar'.\n" +
+                        "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info (remove numbers, dots and hyphens). For example 'EssentialsXjar'.\n" +
                         "alternatives.jenkins.build-id: The currently installed build identifier. Don't touch this.\n" +
                         "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
                         "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +

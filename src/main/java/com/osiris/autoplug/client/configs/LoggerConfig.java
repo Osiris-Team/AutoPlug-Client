@@ -19,6 +19,7 @@ public class LoggerConfig extends DreamYaml {
     public DYModule debug;
     public DYModule autoplug_label;
     public DYModule force_ansi;
+    public DYModule color_server_log;
 
     public LoggerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
@@ -46,6 +47,9 @@ public class LoggerConfig extends DreamYaml {
         autoplug_label = put(name, "autoplug-label").setDefValues("AP");
         force_ansi = put(name, "force-ANSI").setDefValues("false").setComments(
                 "Forces the terminal to use ANSI. Note that this may fail."
+        );
+        color_server_log = put(name, "color-server-log").setDefValues("true").setComments(
+                "Checks the received line for specific words like 'warn' or 'exception' etc. and colors it accordingly."
         );
 
         save();
