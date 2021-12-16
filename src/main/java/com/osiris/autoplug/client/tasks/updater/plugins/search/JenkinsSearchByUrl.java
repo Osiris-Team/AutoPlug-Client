@@ -12,7 +12,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
-import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.core.json.JsonTools;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class JenkinsSearchByUrl {
 
     public SearchResult search(DetailedPlugin plugin) {
         String project_url = plugin.getJenkinsProjectUrl();
-        String artifact_name = plugin.getJenkinsArtifactName();
+        String providedArtifactName = plugin.getJenkinsArtifactName();
         int build_id = plugin.getJenkinsBuildId();
         double minimumSimilarity = 0.90;
 
@@ -43,34 +42,48 @@ public class JenkinsSearchByUrl {
                 resultCode = 1;
                 String buildUrl = json_last_successful_build.get("url").getAsString() + "/api/json";
                 JsonArray arrayArtifacts = json_tools.getJsonObject(buildUrl).getAsJsonArray("artifacts");
-                String onlineArtifactFileName = null;
+
+                // Contains JsonObjects sorted by their artifact names lengths, from smallest to longest.
+                // The following does that sorting.
+                List<JsonObject> sortedArtifactObjects = new ArrayList<>();
                 for (JsonElement e :
                         arrayArtifacts) {
-                    if (e.getAsJsonObject().get("fileName").getAsString().equals(artifact_name)) {
-                        onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
-                        download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
+                    JsonObject obj = e.getAsJsonObject();
+                    String name = obj.get("fileName").getAsString();
+                    if (sortedArtifactObjects.size() == 0) sortedArtifactObjects.add(obj);
+                    else {
+                        int finalIndex = 0;
+                        boolean isSmaller = false;
+                        for (int i = 0; i < sortedArtifactObjects.size(); i++) {
+                            String n = sortedArtifactObjects.get(i).get("fileName").getAsString();
+                            if (name.length() < n.length()) {
+                                isSmaller = true;
+                                finalIndex = i;
+                                break;
+                            }
+                        }
+                        if (!isSmaller) sortedArtifactObjects.add(obj);
+                        else sortedArtifactObjects.add(finalIndex, obj);
+                    }
+                }
+
+                // Find artifact-name containing our provided artifact-name
+                for (JsonObject obj : sortedArtifactObjects) {
+                    String n = obj.get("fileName").getAsString();
+                    if (n.contains(providedArtifactName)) {
+                        download_url = project_url + "/" + latest_build_id + "/artifact/" + obj.get("relativePath").getAsString();
                         break;
                     }
                 }
 
-                List<String> comparedNames = new ArrayList<>();
-                if (download_url == null)
-                    for (JsonElement e :
-                            arrayArtifacts) {
-                        String name = e.getAsJsonObject().get("fileName").getAsString()
-                                .replaceAll("\\d", "")
-                                .replaceAll("[.]", "")
-                                .replaceAll("[-]", ""); // Removes numbers, dots and hyphens
-                        comparedNames.add(name);
-                        if (StringComparator.similarity(name, artifact_name) > minimumSimilarity) {
-                            onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
-                            download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
-                            break;
-                        }
-                    }
-
                 if (download_url == null) {
-                    throw new Exception("Failed to find an equal or similar artifact-name '" + artifact_name + "' inside of '" + Arrays.toString(comparedNames.toArray()) + "'!");
+                    List<String> names = new ArrayList<>();
+                    for (JsonObject obj :
+                            sortedArtifactObjects) {
+                        String n = obj.get("fileName").getAsString();
+                        names.add(n);
+                    }
+                    throw new Exception("Failed to find an artifact-name containing '" + providedArtifactName + "' inside of '" + Arrays.toString(names.toArray()) + "'!");
                 }
             }
         } catch (Exception e) {

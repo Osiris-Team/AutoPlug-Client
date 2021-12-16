@@ -25,9 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Random;
 
-/**
- * See {@link #TaskPluginDownload(String, BetterThreadManager, String, String, String, String, File, File)} for details.
- */
+
 public class TaskPluginDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;
@@ -82,6 +80,9 @@ public class TaskPluginDownload extends BetterThread {
                               File finalDest, File deleteDest,
                               boolean isPremium) {
         super(name, manager);
+        // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
+        plName = plName.replaceAll("[\\\\]", "-").replaceAll("[/]", "-");
+        plLatestVersion = plLatestVersion.replaceAll("[\\\\]", "-").replaceAll("[/]", "-");
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;
@@ -106,6 +107,7 @@ public class TaskPluginDownload extends BetterThread {
         } else {
             download();
             isDownloadSuccessful = true;
+            AL.debug(this.getClass(), "Installing plugin into " + finalDest.getAbsolutePath());
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
             if (deleteDest != null && deleteDest.exists()) deleteDest.delete();
@@ -121,12 +123,12 @@ public class TaskPluginDownload extends BetterThread {
         if (!dir.exists()) dir.mkdirs();
 
         dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].jar");
+        AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + url + "'");
         if (dest.exists()) dest.delete();
         dest.createNewFile();
 
         final String fileName = dest.getName();
         setStatus("Downloading " + fileName + "... (0kb/0kb)");
-        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
         Request request = new Request.Builder().url(url)
                 .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.one")

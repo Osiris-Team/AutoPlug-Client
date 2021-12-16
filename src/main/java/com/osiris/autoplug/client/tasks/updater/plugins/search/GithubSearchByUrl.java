@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.tasks.updater.plugins.search;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
-import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
 
@@ -36,21 +35,49 @@ public class GithubSearchByUrl {
             latestVersion = latestRelease.get("tag_name").getAsString();
             if (new UtilsVersion().compare(plugin.getVersion(), latestVersion)) {
                 resultCode = 1;
-                List<String> comparedNames = new ArrayList<>();
-                for (JsonElement element :
+                // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.
+                // The following does that sorting.
+                List<JsonObject> sortedArtifactObjects = new ArrayList<>();
+                for (JsonElement e :
                         latestRelease.getAsJsonArray("assets")) {
-                    String name = element.getAsJsonObject().get("name").getAsString()
-                            .replaceAll("\\d", "")
-                            .replaceAll("[.]", "")
-                            .replaceAll("[-]", ""); // Removes numbers, dots and hyphens
-                    comparedNames.add(name);
-                    if (StringComparator.similarity(name, githubAssetName)
-                            >= 0.90) {
-                        downloadUrl = element.getAsJsonObject().get("browser_download_url").getAsString();
+                    JsonObject obj = e.getAsJsonObject();
+                    String name = obj.get("name").getAsString();
+                    if (sortedArtifactObjects.size() == 0) sortedArtifactObjects.add(obj);
+                    else {
+                        int finalIndex = 0;
+                        boolean isSmaller = false;
+                        for (int i = 0; i < sortedArtifactObjects.size(); i++) {
+                            String n = sortedArtifactObjects.get(i).get("name").getAsString();
+                            if (name.length() < n.length()) {
+                                isSmaller = true;
+                                finalIndex = i;
+                                break;
+                            }
+                        }
+                        if (!isSmaller) sortedArtifactObjects.add(obj);
+                        else sortedArtifactObjects.add(finalIndex, obj);
                     }
                 }
-                if (downloadUrl == null)
-                    throw new Exception("Failed to find asset with name similarity over 90%. Compared name '" + githubAssetName + "' with: " + Arrays.toString(comparedNames.toArray()));
+
+                // Find asset-name containing our provided asset-name
+                for (JsonObject obj : sortedArtifactObjects) {
+                    String n = obj.get("name").getAsString();
+                    if (n.contains(githubAssetName)) {
+                        downloadUrl = obj.get("browser_download_url").getAsString();
+                        break;
+                    }
+                }
+
+                if (downloadUrl == null) {
+                    List<String> names = new ArrayList<>();
+                    for (JsonObject obj :
+                            sortedArtifactObjects) {
+                        String n = obj.get("name").getAsString();
+                        names.add(n);
+                    }
+                    throw new Exception("Failed to find an asset-name containing '" + githubAssetName + "' inside of " + Arrays.toString(names.toArray()));
+                }
+
             }
         } catch (Exception e) {
             exception = e;
