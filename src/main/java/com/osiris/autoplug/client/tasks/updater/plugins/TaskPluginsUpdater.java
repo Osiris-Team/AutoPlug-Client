@@ -136,7 +136,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     pl.setSpigotId(spigotId.asInt());
                     pl.setBukkitId(bukkitId.asInt());
                     pl.setIgnoreContentType(ignoreContentType.asBoolean());
-                    pl.setCustomLink(customDownloadURL.asString());
+                    pl.setCustomDownloadURL(customDownloadURL.asString());
                     pl.setGithubRepoName(githubRepoUrl.asString());
                     pl.setGithubAssetName(githubAssetName.asString());
                     pl.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
@@ -209,7 +209,6 @@ public class TaskPluginsUpdater extends BetterThread {
         int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
         int sizeBukkitPlugins = 0;
-        int sizeCustomLinkPlugins = 0;
         int sizeUnknownPlugins = 0;
 
         ExecutorService executorService;
@@ -234,14 +233,6 @@ public class TaskPluginsUpdater extends BetterThread {
                 } else if (pl.getBukkitId() != 0) {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
                     activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
-                } else if (pl.getCustomLink() != null && !pl.getCustomLink().isEmpty()) {
-                    sizeCustomLinkPlugins++; // CUSTOM LINK PLUGIN
-                    if (pl.getSpigotId() != 0)
-                        activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
-                    else if (pl.getBukkitId() != 0)
-                        activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
-                    else
-                        activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
                     activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
@@ -383,6 +374,8 @@ public class TaskPluginsUpdater extends BetterThread {
         String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
         String resultSpigotId = result.getSpigotId();
         String resultBukkitId = result.getBukkitId();
+        if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
+
         if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {

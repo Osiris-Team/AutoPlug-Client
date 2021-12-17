@@ -18,21 +18,21 @@ public class DetailedPlugin {
     private int spigotId;
     private int bukkitId;
     private boolean ignoreContentType;
-    private String customLink;
+    private String customDownloadURL;
     private String githubRepoName;
     private String githubAssetName;
     private String jenkinsProjectUrl;
     private String jenkinsArtifactName;
     private int jenkinsBuildId;
 
-    public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customLink) {
+    public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.setInstallationPath(installationPath);
         this.setName(name);
         this.version = version;
         this.author = author;
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
-        this.customLink = customLink;
+        this.customDownloadURL = customDownloadURL;
     }
 
     public String getJenkinsProjectUrl() {
@@ -156,11 +156,11 @@ public class DetailedPlugin {
         this.ignoreContentType = ignoreContentType;
     }
 
-    public String getCustomLink() {
-        return customLink;
+    public String getCustomDownloadURL() {
+        return customDownloadURL;
     }
 
-    public void setCustomLink(String customLink) {
-        this.customLink = customLink;
+    public void setCustomDownloadURL(String customDownloadURL) {
+        this.customDownloadURL = customDownloadURL;
     }
 }
