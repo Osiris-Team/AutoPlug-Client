@@ -1,4 +1,8 @@
-![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
+<div align="center">
+<div>
+   <img src="https://i.imgur.com/BMpvtWP.png">
+</div>
+  
 ## Links
 - Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
 - For beta versions, visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
