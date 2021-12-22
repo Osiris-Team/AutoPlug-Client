@@ -19,7 +19,9 @@ server plugins. Then there is some more stuff:
 - Automated server software updating
 - Automated, scheduled server restarting
 - Automated, modularized backup creation
-- Note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
+- Fast, asynchronous, multithreaded task execution
+- Have synchronized (shared) folders
+- Web-Panel for starting, stopping restarting the server and viewing the last updating results summaries
 
 Premium [AutoPlug-Web](https://autoplug.one) features:
 
