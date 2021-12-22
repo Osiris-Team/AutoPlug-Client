@@ -10,13 +10,10 @@
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
 
 ## AutoPlug-Client | What can it do?
-
-Well quite a bunch of things actually... The most outstanding one being (probably), an automated way of updating your
-server plugins. Then there is some more stuff:
-
 - Automated self updating
 - Automated JRE (Java Runtime Enviornment) updating
 - Automated server software updating
+- Automated plugins updating
 - Automated, scheduled server restarting
 - Automated, modularized backup creation
 - Fast, asynchronous, multithreaded task execution
