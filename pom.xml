@@ -14,7 +14,7 @@
 
     <groupId>online.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>5.6.1</version>
+    <version>5.6.2</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -234,7 +234,8 @@
                 </executions>
             </plugin>
 
-            <!--Important for AutoPlugs Self-Updater! -->
+            <!-- Important for AutoPlugs Self-Updater! -->
+            <!-- Generates a autoplug.properties file inside the generated jar file, with the stuff inside <properties> -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>

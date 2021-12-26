@@ -141,26 +141,42 @@ public class Main {
 
             ConfigPreset preset = ConfigPreset.DEFAULT;
             if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
-                int a = 0;
-                while (true) {
-                    AL.info("Thank you for installing AutoPlug!");
-                    AL.info("It seems like this is your first run,");
-                    AL.info("please select a configuration preset:");
-                    AL.info("1: The 'fast preset' makes sure that all recommended features");
-                    AL.info("are enabled and thus saves you a lot of time configuring AutoPlug.");
-                    AL.info("2: The 'default preset' is for sceptics and a bunch of");
-                    AL.info("features need to be enabled manually. Have fun configuring!");
-                    AL.info("Insert your desired preset (1 or 2) below and press enter:");
-                    Scanner scanner = new Scanner(System.in);
-                    a = scanner.nextInt();
-                    if (a == 1) {
-                        preset = ConfigPreset.FAST;
-                        break;
-                    } else if (a == 2) {
-                        preset = ConfigPreset.DEFAULT;
-                        break;
+                String line = null;
+                AL.info("Thank you for installing AutoPlug!");
+                AL.info("It seems like this is your first run,");
+                AL.info("please select a configuration preset:");
+                AL.info("1: The 'fast' preset makes sure that all recommended features");
+                AL.info("are enabled and thus saves you a lot of time configuring AutoPlug.");
+                AL.info("2: The 'default' preset is for sceptics and a bunch of");
+                AL.info("features need to be enabled manually. Have fun configuring!");
+                AL.info("Insert your desired preset below and press enter:");
+                Scanner scanner = new Scanner(System.in);
+                while (true)
+                    try {
+                        line = scanner.nextLine();
+                        try {
+                            int num = Integer.parseInt(line);
+                            if (num == 1) {
+                                preset = ConfigPreset.FAST;
+                                break;
+                            } else if (num == 2) {
+                                preset = ConfigPreset.DEFAULT;
+                                break;
+                            } else
+                                throw new Exception();
+                        } catch (Exception e) {
+                            if (line.equals("fast")) {
+                                preset = ConfigPreset.FAST;
+                                break;
+                            } else if (line.equals("default")) {
+                                preset = ConfigPreset.DEFAULT;
+                                break;
+                            } else
+                                throw new Exception();
+                        }
+                    } catch (Exception e) {
+                        AL.warn("Your input was wrong. Please enter either the presets number (1 or 2) or its name (fast or default).", e);
                     }
-                }
             }
 
             AL.info("Loading configurations...");
@@ -238,8 +254,9 @@ public class Main {
             if (key == null || key.isEmpty() || key.equals("INSERT_KEY_HERE")) {
                 AL.info("No Server-Key found at " + generalConfig.server_key.getKeys().toString() + ".");
                 AL.info("To get a Server-Key for this server, register yourself at");
-                AL.info(GD.OFFICIAL_WEBSITE + " and add this server.");
+                AL.info(GD.OFFICIAL_WEBSITE + " and add this server. ");
                 AL.info("Insert your Server-Key below and press enter:");
+                AL.info("(Insert NO_KEY if you don't want to make use of the web features.)");
                 Scanner scanner = new Scanner(System.in);
                 generalConfig.server_key.setValues(scanner.nextLine());
                 generalConfig.save();

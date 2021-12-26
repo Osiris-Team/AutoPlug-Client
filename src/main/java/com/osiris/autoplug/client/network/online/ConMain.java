@@ -43,10 +43,7 @@ public class ConMain extends Thread {
             AL.info("Authenticating server...");
             SecuredConnection auth = new SecuredConnection((byte) 0);
             AL.info("Authentication success!");
-            //Socket socket = auth.getSocket();
             DataInputStream dis = new DataInputStream(auth.getInput());
-            //DataOutputStream dos = new DataOutputStream(auth.getOut());
-            //CON_PLUGINS_UPDATER = new PluginsUpdateResultConnection();
             CON_SERVER_STATUS.open();
 
             isDone = true;
@@ -94,6 +91,13 @@ public class ConMain extends Thread {
                     try {
                         if (auth.getSocket() != null && !auth.getSocket().isClosed())
                             auth.getSocket().close();
+                    } catch (IOException ioException) {
+                        AL.warn(ioException);
+                    }
+
+                    // Make sure socket is really closed
+                    try {
+                        CON_SERVER_STATUS.close();
                     } catch (IOException ioException) {
                         AL.warn(ioException);
                     }
