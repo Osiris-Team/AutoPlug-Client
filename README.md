@@ -1,4 +1,7 @@
-![](https://rapidus-info.webnode.com/_files/200000003-4d08d4d08f/AutoPlug%20GitHub%20Header%20800x80.png)
+<div align="center">
+   <img src="https://i.imgur.com/BMpvtWP.png">
+</div>
+  
 ## Links
 - Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
 - For beta versions, visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
@@ -7,16 +10,15 @@
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
 
 ## AutoPlug-Client | What can it do?
-
-Well quite a bunch of things actually... The most outstanding one being (probably), an automated way of updating your
-server plugins. Then there is some more stuff:
-
 - Automated self updating
 - Automated JRE (Java Runtime Enviornment) updating
 - Automated server software updating
+- Automated plugins updating
 - Automated, scheduled server restarting
 - Automated, modularized backup creation
-- Note that the tasks above are all performed before starting the server (in multiple threads, aka asynchronously)
+- Fast, asynchronous, multithreaded task execution
+- Have synchronized (shared) folders
+- Web-Panel for starting, stopping restarting the server and viewing the last updating results summaries
 
 Premium [AutoPlug-Web](https://autoplug.one) features:
 
