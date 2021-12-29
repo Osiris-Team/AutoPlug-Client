@@ -62,9 +62,21 @@ public class ConPluginsUpdateResult extends SecondaryConnection {
         dos.writeInt(searchResults.size());
         for (SearchResult result :
                 searchResults) {
-            dos.writeUTF(result.getPlugin().getName());
-            dos.writeUTF(result.getPlugin().getAuthor());
-            dos.writeUTF(result.getPlugin().getVersion());
+            if (result.getDownloadType() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getPlugin().getName());
+
+            if (result.getDownloadType() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getPlugin().getAuthor());
+
+            if (result.getDownloadType() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.getPlugin().getVersion());
+
             dos.writeByte(result.getResultCode());
 
             if (result.getDownloadType() == null)
