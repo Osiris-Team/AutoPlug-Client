@@ -6,8 +6,8 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.server;
+package com.osiris.autoplug.client.tasks.updater.search;
 
-public class JenkinsAPI {
+class SearchMasterTest {
 
 }

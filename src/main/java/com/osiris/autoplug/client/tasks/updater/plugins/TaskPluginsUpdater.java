@@ -12,8 +12,7 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
-import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchMaster;
-import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
@@ -223,19 +222,19 @@ public class TaskPluginsUpdater extends BetterThread {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
                     sizeJenkinsPlugins++;
-                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByJenkinsUrl(pl)));
+                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByJenkinsUrl(pl)));
                 } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
                     sizeGithubPlugins++;
-                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByGithubUrl(pl)));
+                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByGithubUrl(pl)));
                 } else if (pl.getSpigotId() != 0) {
                     sizeSpigotPlugins++; // SPIGOT PLUGIN
-                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchBySpigotId(pl)));
+                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchBySpigotId(pl)));
                 } else if (pl.getBukkitId() != 0) {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
-                    activeFutures.add(executorService.submit(() -> new SearchMaster().searchByBukkitId(pl)));
+                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByBukkitId(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
-                    activeFutures.add(executorService.submit(() -> new SearchMaster().unknownSearch(pl)));
+                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().unknownSearch(pl)));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));

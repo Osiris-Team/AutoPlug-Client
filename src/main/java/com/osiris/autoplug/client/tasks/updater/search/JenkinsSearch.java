@@ -6,32 +6,27 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins.search;
+package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
 import com.osiris.autoplug.core.json.JsonTools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class JenkinsSearchByUrl {
+public class JenkinsSearch {
 
-    public SearchResult search(DetailedPlugin plugin) {
-        String project_url = plugin.getJenkinsProjectUrl();
-        String providedArtifactName = plugin.getJenkinsArtifactName();
-        int build_id = plugin.getJenkinsBuildId();
-        double minimumSimilarity = 0.90;
-
+    public SearchResult search(String project_url, String providedArtifactName, int build_id) {
         Exception exception = null;
         byte resultCode = 0;
         String download_url = null;
         String downloadType = ".jar";
         String latestVersion = null;
         int latest_build_id = 0;
+        String fileName = null;
         try {
             JsonTools json_tools = new JsonTools();
             JsonObject json_project = json_tools.getJsonObject(project_url + "/api/json");
@@ -71,6 +66,7 @@ public class JenkinsSearchByUrl {
                 for (JsonObject obj : sortedArtifactObjects) {
                     String n = obj.get("fileName").getAsString();
                     if (n.contains(providedArtifactName)) {
+                        fileName = n;
                         download_url = project_url + "/" + latest_build_id + "/artifact/" + obj.get("relativePath").getAsString();
                         break;
                     }
@@ -91,9 +87,10 @@ public class JenkinsSearchByUrl {
             resultCode = 2;
         }
 
-        SearchResult rs = new SearchResult(plugin, resultCode, latestVersion, download_url, downloadType, null, null, false);
+        SearchResult rs = new SearchResult(null, resultCode, latestVersion, download_url, downloadType, null, null, false);
         rs.setException(exception);
         rs.jenkinsId = latest_build_id;
+        rs.fileName = fileName;
         return rs;
     }
 

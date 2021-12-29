@@ -6,7 +6,7 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins.search.bukkit;
+package com.osiris.autoplug.client.tasks.updater.search.bukkit;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
-import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 

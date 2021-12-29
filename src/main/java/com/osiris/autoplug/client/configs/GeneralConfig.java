@@ -75,12 +75,12 @@ public class GeneralConfig extends DreamYaml {
                 "Note that this value gets ignored if you have the 'java-updater' enabled.");
 
         server_jar = put(name, "server", "jar-path").setDefValues("auto-find").setComments(
-                "The auto-find feature will scan through your servers root directory and find the first jar with another name than AutoPlug-Client.jar.\n" +
+                "The auto-find feature will scan through your servers root directory and select the first jar other than the AutoPlug-Client.jar.\n" +
                         "The auto-find feature could fail or pick the wrong jar if...\n" +
-                        "... you have 2 or more jars in your servers root directory (AutoPlug-Client.jar NOT included).\n" +
+                        "... you have more than 2 jars in total, in your servers root directory.\n" +
                         "... your server jar is located in another directory.\n" +
-                        "You can fix this by entering its absolute or relative file path (Linux and Windows formats are supported) below.\n" +
-                        "'./' represents AutoPlugs current working directory (usually the server root). \n" +
+                        "You can fix these by entering its absolute or relative file path below (Linux and Windows formats are supported).\n" +
+                        "'./' represents AutoPlugs current working directory (the server root). \n" +
                         "Relative file paths examples: './paper.jar' or './my-server.jar' (AutoPlug translates them to absolute file paths automatically)\n" +
                         "Absolute file paths examples: Linux: '/user/servers/mc-survival/paper.jar' or Windows: 'D:\\John\\MC-SERVERS\\survival\\my-server.jar' \n");
 

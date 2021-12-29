@@ -6,11 +6,10 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins.search;
+package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
 
@@ -18,22 +17,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GithubSearchByUrl {
+public class GithubSearch {
 
-    public SearchResult search(DetailedPlugin plugin) {
-        String githubRepoName = plugin.getGithubRepoName();
-        String githubAssetName = plugin.getGithubAssetName();
+    public SearchResult search(String githubRepoName, String githubAssetName, String version) {
+
 
         Exception exception = null;
         byte resultCode = 0;
         String downloadUrl = null;
         String downloadType = ".jar";
         String latestVersion = null;
+        String fileName = null;
         try {
             JsonObject latestRelease = new JsonTools()
                     .getJsonObject("https://api.github.com/repos/" + githubRepoName + "/releases/latest");
             latestVersion = latestRelease.get("tag_name").getAsString();
-            if (new UtilsVersion().compare(plugin.getVersion(), latestVersion)) {
+            if (new UtilsVersion().compare(version, latestVersion)) {
                 resultCode = 1;
                 // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.
                 // The following does that sorting.
@@ -63,6 +62,7 @@ public class GithubSearchByUrl {
                 for (JsonObject obj : sortedArtifactObjects) {
                     String n = obj.get("name").getAsString();
                     if (n.contains(githubAssetName)) {
+                        fileName = n;
                         downloadUrl = obj.get("browser_download_url").getAsString();
                         break;
                     }
@@ -84,8 +84,9 @@ public class GithubSearchByUrl {
             resultCode = 2;
         }
 
-        SearchResult rs = new SearchResult(plugin, resultCode, latestVersion, downloadUrl, downloadType, null, null, false);
+        SearchResult rs = new SearchResult(null, resultCode, latestVersion, downloadUrl, downloadType, null, null, false);
         rs.setException(exception);
+        rs.fileName = fileName;
         return rs;
     }
 }

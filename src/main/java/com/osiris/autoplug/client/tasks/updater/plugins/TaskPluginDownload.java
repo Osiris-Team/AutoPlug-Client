@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
-import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BetterThread;

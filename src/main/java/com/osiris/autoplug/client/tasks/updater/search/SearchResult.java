@@ -6,7 +6,7 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins.search;
+package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
 
@@ -15,17 +15,18 @@ import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
  * after finishing a search.
  */
 public class SearchResult {
-    private final DetailedPlugin plugin;
-    private final String latestVersion;
-    private final String downloadUrl;
-    private final String downloadType;
-    private final String spigotId;
-    private final String bukkitId;
     // TODO remove getters and setters and make everything public for easier future coding
+    public DetailedPlugin plugin;
+    public String latestVersion;
+    public String downloadUrl;
+    public String downloadType;
+    public String spigotId;
+    public String bukkitId;
     public int jenkinsId;
-    boolean isPremium;
-    private byte resultCode;
-    private Exception exception;
+    public boolean isPremium;
+    public byte resultCode;
+    public Exception exception;
+    public String fileName;
 
     /**
      * @param resultCode    All codes: <br>
@@ -52,7 +53,6 @@ public class SearchResult {
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.isPremium = isPremium;
-        plugin.setPremium(isPremium);
     }
 
     public boolean isPremium() {

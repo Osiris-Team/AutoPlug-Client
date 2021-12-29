@@ -6,12 +6,12 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins.search.spigot;
+package com.osiris.autoplug.client.tasks.updater.search.spigot;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
-import com.osiris.autoplug.client.tasks.updater.plugins.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.core.logger.AL;
 

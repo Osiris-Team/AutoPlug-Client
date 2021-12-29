@@ -35,10 +35,11 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule server_software;
     public DYModule server_version;
     public DYModule server_build_id;
-    public DYModule server_jenkins;
+    public DYModule server_github_repo_name;
+    public DYModule server_github_asset_name;
+    public DYModule server_github_version;
     public DYModule server_jenkins_project_url;
     public DYModule server_jenkins_artifact_name;
-    public DYModule server_jenkins_artifact_name_similarity;
     public DYModule server_jenkins_build_id;
 
     public DYModule plugin_updater;
@@ -134,22 +135,23 @@ public class UpdaterConfig extends DreamYaml {
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                         "Otherwise don't touch this. It will gets updated after every successful update automatically.");
 
-        server_jenkins = put(name, "server-updater", "alternatives", "jenkins", "enable").setDefValues("false").setComments(
-                "If this is enabled the value from 'server-software' is ignored."
+        server_github_repo_name = put(name, "server-updater", "alternatives", "github", "repo-name").setComments(
+                "The github repository name can be found in its url or on its page. Example: EssentialsX/Essentials (full url: https://github.com/EssentialsX/Essentials)"
         );
+        server_github_asset_name = put(name, "server-updater", "alternatives", "github", "asset-name").setComments(
+                "The name of the release asset to download, without version info. For example 'EssentialsX'."
+        );
+        server_github_version = put(name, "server-updater", "alternatives", "github", "version").setDefValues("0").setComments(
+                "Remember to set this to 0, if you changed the repo-name. Otherwise don't touch it."
+        );
+
+
         server_jenkins_project_url = put(name, "server-updater", "alternatives", "jenkins", "project-url").setComments(
-                "For the server-software Purpur, for example, the project-url would be: https://ci.pl3x.net/job/Purpur");
+                "The url of the jenkins project. For example: https://ci.ender.zone/job/EssentialsX/");
         server_jenkins_artifact_name = put(name, "server-updater", "alternatives", "jenkins", "artifact-name").setComments(
-                "Purpur for example has multiple artifacts available for download (see https://ci.pl3x.net/job/Purpur/1267).",
-                "That's why you need to specify the name of the artifact you wish to download.",
-                "Its ok to not enter the exact name. See below for more info.");
-        server_jenkins_artifact_name_similarity = put(name, "server-updater", "alternatives", "jenkins", "artifact-name-similarity").setDefValues("70")
-                .setComments("If there was no equal artifact-name found online, the artifact name with a similarity over this percentage gets chosen.",
-                        "This is useful when the artifact name online contains version details like its build-id or its version.",
-                        "Its recommended to set this above 50%. Note that it cannot be set to 100.",
-                        "Remove the value to disable.");
-        server_jenkins_build_id = put(name, "server-updater", "alternatives", "jenkins", "build-id").setComments(
-                "Remember to remove or set this to 0, if you changed the project-url or artifact-name. Otherwise don't touch it.");
+                "The name of the artifact to download, without version info. For example 'EssentialsX'.");
+        server_jenkins_build_id = put(name, "server-updater", "alternatives", "jenkins", "build-id").setDefValues("0").setComments(
+                "Remember to set this to 0, if you changed the project-url or artifact-name. Otherwise don't touch it.");
 
 
         put(name, "plugins-updater").setCountTopSpaces(1);
@@ -204,12 +206,6 @@ public class UpdaterConfig extends DreamYaml {
             String correction = plugin_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugin_updater_profile.setValues(correction);
-        }
-
-        if (server_jenkins_artifact_name_similarity.asInt() == 100
-                || server_jenkins_artifact_name_similarity.asInt() == 0) {
-            AL.warn("Config error -> " + server_jenkins_artifact_name_similarity.getKeys() + " must be between 0-100. Applied default!");
-            server_jenkins_artifact_name_similarity.setValues(server_jenkins_artifact_name_similarity.getDefValue());
         }
 
     }

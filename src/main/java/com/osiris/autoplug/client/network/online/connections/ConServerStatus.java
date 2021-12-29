@@ -41,7 +41,6 @@ public class ConServerStatus extends SecondaryConnection {
     public float memAvailable;
     public float memUsed;
     public float memTotal;
-    private UFDataOut dos;
     private Thread thread;
 
     public ConServerStatus() {
@@ -52,78 +51,76 @@ public class ConServerStatus extends SecondaryConnection {
     public boolean open() throws Exception {
         if (new WebConfig().send_server_status.asBoolean()) {
             super.open();
-            if (dos == null) {
-                getSocket().setSoTimeout(0);
-                dos = new UFDataOut(getOut());
-                float oneGigaByteInBytes = 1073741824.0f;
-                float oneGigaHertzInHertz = 1000000000.0f;
-                SystemInfo si = new SystemInfo();
-                thread = new Thread(() -> {
-                    try {
-                        while (true) {
-                            // MC server related info:
-                            MineStat mineStat = new MineStat(host, Server.PORT);
-                            isRunning = mineStat.isServerUp();
-                            strippedMotd = mineStat.getStrippedMotd();
-                            if (strippedMotd == null)
-                                strippedMotd = "-";
-                            version = mineStat.getVersion();
-                            if (version != null)
-                                version = version.replaceAll("[a-zA-Z]", "");
-                            else
-                                version = "-";
-                            currentPlayers = mineStat.getCurrentPlayers();
-                            maxPlayers = mineStat.getMaximumPlayers();
+            getSocket().setSoTimeout(0);
+            UFDataOut dos = new UFDataOut(getOut());
+            float oneGigaByteInBytes = 1073741824.0f;
+            float oneGigaHertzInHertz = 1000000000.0f;
+            SystemInfo si = new SystemInfo();
+            thread = new Thread(() -> {
+                try {
+                    while (true) {
+                        // MC server related info:
+                        MineStat mineStat = new MineStat(host, Server.PORT);
+                        isRunning = mineStat.isServerUp();
+                        strippedMotd = mineStat.getStrippedMotd();
+                        if (strippedMotd == null)
+                            strippedMotd = "-";
+                        version = mineStat.getVersion();
+                        if (version != null)
+                            version = version.replaceAll("[a-zA-Z]", "");
+                        else
+                            version = "-";
+                        currentPlayers = mineStat.getCurrentPlayers();
+                        maxPlayers = mineStat.getMaximumPlayers();
 
-                            dos.writeBoolean(isRunning);
-                            dos.writeLine(strippedMotd);
-                            dos.writeLine(version);
-                            dos.writeInt(currentPlayers);
-                            dos.writeInt(maxPlayers);
+                        dos.writeBoolean(isRunning);
+                        dos.writeLine(strippedMotd);
+                        dos.writeLine(version);
+                        dos.writeInt(currentPlayers);
+                        dos.writeInt(maxPlayers);
 
-                            // Hardware info:
-                            HardwareAbstractionLayer hal = si.getHardware();
-                            CentralProcessor cpu = hal.getProcessor();
-                            GlobalMemory memory = hal.getMemory();
-                            // Calc average frequency in mhz
-                            long currentFrq = 0;
-                            int i = 0;
-                            if (cpu != null) {
-                                for (long frq :
-                                        cpu.getCurrentFreq()) {
-                                    currentFrq = currentFrq + frq;
-                                    i++;
-                                }
-                                currentFrq = currentFrq / i;
+                        // Hardware info:
+                        HardwareAbstractionLayer hal = si.getHardware();
+                        CentralProcessor cpu = hal.getProcessor();
+                        GlobalMemory memory = hal.getMemory();
+                        // Calc average frequency in mhz
+                        long currentFrq = 0;
+                        int i = 0;
+                        if (cpu != null) {
+                            for (long frq :
+                                    cpu.getCurrentFreq()) {
+                                currentFrq = currentFrq + frq;
+                                i++;
                             }
-
-                            if (cpu != null) {
-                                dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
-                                dos.writeFloat((cpu.getMaxFreq() / oneGigaHertzInHertz));
-                            } else {
-                                dos.writeFloat(0);
-                                dos.writeFloat(0);
-                            }
-
-
-                            if (memory != null) {
-                                dos.writeFloat((memAvailable = (memory.getAvailable() / oneGigaByteInBytes)));
-                                dos.writeFloat((memUsed = ((memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes)));
-                                dos.writeFloat((memTotal = (memory.getTotal() / oneGigaByteInBytes)));
-                            } else {
-                                dos.writeFloat(0);
-                                dos.writeFloat(0);
-                                dos.writeFloat(0);
-                            }
-
-                            Thread.sleep(5000);
+                            currentFrq = currentFrq / i;
                         }
-                    } catch (Exception e) {
-                        AL.warn(e);
+
+                        if (cpu != null) {
+                            dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
+                            dos.writeFloat((cpu.getMaxFreq() / oneGigaHertzInHertz));
+                        } else {
+                            dos.writeFloat(0);
+                            dos.writeFloat(0);
+                        }
+
+
+                        if (memory != null) {
+                            dos.writeFloat((memAvailable = (memory.getAvailable() / oneGigaByteInBytes)));
+                            dos.writeFloat((memUsed = ((memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes)));
+                            dos.writeFloat((memTotal = (memory.getTotal() / oneGigaByteInBytes)));
+                        } else {
+                            dos.writeFloat(0);
+                            dos.writeFloat(0);
+                            dos.writeFloat(0);
+                        }
+
+                        Thread.sleep(5000);
                     }
-                });
-                thread.start();
-            }
+                } catch (Exception e) {
+                    AL.warn(e);
+                }
+            });
+            thread.start();
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {

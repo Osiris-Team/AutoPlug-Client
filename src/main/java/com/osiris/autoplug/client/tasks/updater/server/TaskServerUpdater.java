@@ -8,16 +8,15 @@
 
 package com.osiris.autoplug.client.tasks.updater.server;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
+import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
+import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.StringComparator;
-import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.betterthread.BetterThread;
@@ -59,8 +58,8 @@ public class TaskServerUpdater extends BetterThread {
 
         setStatus("Searching for updates...");
 
-        if (updaterConfig.server_jenkins.asBoolean()) {
-            doJenkinsUpdatingLogic();
+        if (updaterConfig.server_github_repo_name.asString() != null || updaterConfig.server_jenkins_project_url.asString() != null) {
+            doAlternativeUpdatingLogic();
         } else if (serverSoftware.equalsIgnoreCase("purpur")) {
             doPurpurUpdatingLogic();
         } else {
@@ -69,61 +68,38 @@ public class TaskServerUpdater extends BetterThread {
         finish();
     }
 
-    private void doJenkinsUpdatingLogic() throws IOException, WrongJsonTypeException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException {
-        String project_url = updaterConfig.server_jenkins_project_url.asString();
-        String artifact_name = updaterConfig.server_jenkins_artifact_name.asString();
-        double minimumSimilarity = Double.parseDouble("0." + updaterConfig.server_jenkins_artifact_name_similarity.asInt());
-        int build_id = 0;
-        if (updaterConfig.server_jenkins_build_id.asString() != null)
-            build_id = updaterConfig.server_jenkins_build_id.asInt();
+    private void doAlternativeUpdatingLogic() throws DYWriterException, IOException, InterruptedException, DuplicateKeyException, DYReaderException, IllegalListException {
+        SearchResult sr = null;
+        if (updaterConfig.server_github_repo_name.asString() != null) {
+            sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
+                    updaterConfig.server_github_asset_name.asString(),
+                    updaterConfig.server_github_version.asString());
 
-        JsonTools json_tools = new JsonTools();
-        JsonObject json_project = json_tools.getJsonObject(project_url + "/api/json");
-        JsonObject json_last_successful_build = json_project.get("lastSuccessfulBuild").getAsJsonObject();
-        int latest_build_id = json_last_successful_build.get("number").getAsInt();
-        if (latest_build_id <= build_id) {
-            setStatus("Your server is on the latest version!");
-            setSuccess(true);
-            return;
-        }
-        String buildUrl = json_last_successful_build.get("url").getAsString() + "/api/json";
-        JsonArray arrayArtifacts = json_tools.getJsonObject(buildUrl).getAsJsonArray("artifacts");
-        String onlineArtifactFileName = null;
-        String download_url = null;
-        for (JsonElement e :
-                arrayArtifacts) {
-            if (e.getAsJsonObject().get("fileName").getAsString().equals(artifact_name)) {
-                onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
-                download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
-                break;
+            if (sr.resultCode == 1) {
+                doInstallDependingOnProfile(updaterConfig.server_github_version.asString(), sr.latestVersion, sr.downloadUrl, sr.fileName);
+            }
+        } else {
+            sr = new JenkinsSearch().search(updaterConfig.server_jenkins_project_url.asString(),
+                    updaterConfig.server_jenkins_artifact_name.asString(),
+                    updaterConfig.server_jenkins_build_id.asInt());
+
+            if (sr.resultCode == 1) {
+                doInstallDependingOnProfile(updaterConfig.server_jenkins_build_id.asString(), sr.latestVersion, sr.downloadUrl, sr.fileName);
             }
         }
+    }
 
-        if (download_url == null && updaterConfig.server_jenkins_artifact_name_similarity.asString() != null)
-            for (JsonElement e :
-                    arrayArtifacts) {
-                if (StringComparator.similarity(e.getAsJsonObject().get("fileName").getAsString(), artifact_name) > minimumSimilarity) {
-                    onlineArtifactFileName = e.getAsJsonObject().get("fileName").getAsString();
-                    download_url = project_url + "/" + latest_build_id + "/artifact/" + e.getAsJsonObject().get("relativePath").getAsString();
-                    break;
-                }
-            }
-
-        if (download_url == null) {
-            finish("Failed to find an equal or similar artifact-name '" + artifact_name + "' inside of '" + arrayArtifacts + "'!", false);
-            return;
-        }
-
+    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException {
         if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
+            setStatus("Update found (" + version + " -> " + latestVersion + ")!");
         } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+            setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
 
             // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), download_url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {
@@ -140,15 +116,15 @@ public class TaskServerUpdater extends BetterThread {
                 }
             }
         } else {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+            setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
             GD.SERVER_JAR = new FileManager().serverJar();
             System.out.println(GD.SERVER_JAR);
 
             // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineArtifactFileName);
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), download_url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {
@@ -157,12 +133,12 @@ public class TaskServerUpdater extends BetterThread {
                     if (download.isSuccess()) {
                         File final_dest = GD.SERVER_JAR;
                         if (final_dest == null)
-                            final_dest = new File(GD.WORKING_DIR + "/" + onlineArtifactFileName);
+                            final_dest = new File(GD.WORKING_DIR + "/" + onlineFileName);
                         if (final_dest.exists()) final_dest.delete();
                         final_dest.createNewFile();
                         FileUtils.copyFile(cache_dest, final_dest);
-                        setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                        updaterConfig.server_jenkins_build_id.setValues("" + latest_build_id);
+                        setStatus("Server update was installed successfully (" + version + " -> " + latestVersion + ")!");
+                        updaterConfig.server_jenkins_build_id.setValues("" + latestVersion);
                         updaterConfig.save();
                         setSuccess(true);
                     } else {
@@ -173,7 +149,6 @@ public class TaskServerUpdater extends BetterThread {
                 }
             }
         }
-        return;
     }
 
     private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException, NoSuchAlgorithmException {
