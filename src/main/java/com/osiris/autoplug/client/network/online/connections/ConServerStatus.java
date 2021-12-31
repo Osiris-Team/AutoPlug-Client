@@ -31,7 +31,7 @@ public class ConServerStatus extends SecondaryConnection {
     public float cpuSpeed;
     public float cpuMaxSpeed;
 
-    public String host = "localhost";
+    public String host = "127.0.0.1"; // instead of localhost, use directly the resolved loop-back address
 
     public boolean isRunning;
     public MineStat mineStat;
@@ -57,6 +57,7 @@ public class ConServerStatus extends SecondaryConnection {
             float oneGigaByteInBytes = 1073741824.0f;
             float oneGigaHertzInHertz = 1000000000.0f;
             SystemInfo si = new SystemInfo();
+            host = new WebConfig().send_server_status_ip.asString();
             thread = new Thread(() -> {
                 try {
                     while (true) {

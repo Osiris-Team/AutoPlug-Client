@@ -114,13 +114,13 @@ public class MineStat {
                 // SLP 1.4/1.5
                 Retval retval = legacyRequest(address, port, getTimeout());
                 // SLP 1.8b/1.3
-                if (retval != Retval.SUCCESS)
+                if (retval != Retval.SUCCESS && retval != Retval.CONNFAIL)
                     retval = betaRequest(address, port, getTimeout());
                 // SLP 1.6
-                if (retval != Retval.SUCCESS)
+                if (retval != Retval.CONNFAIL)
                     retval = extendedLegacyRequest(address, port, getTimeout());
                 // SLP 1.7
-                if (retval != Retval.SUCCESS)
+                if (retval != Retval.CONNFAIL)
                     retval = jsonRequest(address, port, getTimeout());
 
                 pingResult = retval;
