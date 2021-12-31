@@ -119,6 +119,10 @@ public final class AutoPlugConsole {
                         AL.info("MEM available in Gb: " + con.memAvailable);
                         AL.info("MEM used in Gb: " + con.memUsed);
                         AL.info("MEM total in Gb: " + con.memTotal);
+                        if (con.mineStat != null) {
+                            AL.info("Ping result: " + con.mineStat.pingResult.name());
+                        } else
+                            AL.info("Ping result: -");
                     }
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {

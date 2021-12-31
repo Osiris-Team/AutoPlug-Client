@@ -34,6 +34,7 @@ public class ConServerStatus extends SecondaryConnection {
     public String host = "localhost";
 
     public boolean isRunning;
+    public MineStat mineStat;
     public String strippedMotd;
     public String version;
     public int currentPlayers;
@@ -60,7 +61,7 @@ public class ConServerStatus extends SecondaryConnection {
                 try {
                     while (true) {
                         // MC server related info:
-                        MineStat mineStat = new MineStat(host, Server.PORT);
+                        mineStat = new MineStat(host, Server.PORT);
                         isRunning = mineStat.isServerUp();
                         strippedMotd = mineStat.getStrippedMotd();
                         if (strippedMotd == null)
