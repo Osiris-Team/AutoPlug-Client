@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -60,6 +60,7 @@ public final class AutoPlugConsole {
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
+                    AL.info(".con main | Establishes the main connection if not connected. (.cm)");
                     AL.info(".server info | Shows details about this server (.si)");
                     AL.info(".check | Checks for AutoPlug updates and behaves according to the selected profile (.c)");
                     AL.info(".check java | Checks for Java updates and behaves according to the selected profile (.cj)");
@@ -99,6 +100,14 @@ public final class AutoPlugConsole {
                     AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
                     AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
                     AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
+                    return true;
+                } else if (command.equals(".con main") || command.equals(".cm")) {
+                    if (Main.CON_MAIN.isAlive()) {
+                        AL.warn("Main connection is already active.");
+                        return true;
+                    }
+                    Main.CON_MAIN = new ConMain();
+                    Main.CON_MAIN.start();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
                     ConServerStatus con = ConMain.CON_SERVER_STATUS;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -42,7 +42,7 @@ import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
-    public static final ConMain CON_MAIN = new ConMain();
+    public static ConMain CON_MAIN = new ConMain();
 
     public static void main(String[] args) {
         // Check various things to ensure an fully functioning application.
@@ -133,7 +133,6 @@ public class Main {
             AL.info("   / __ / // / __/ _ \\/ ___/ / // / _ `/   ");
             AL.info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
             AL.info("                                 /___/    ");
-            AL.info("");
             AL.info("Version: " + GD.VERSION);
             AL.info("Author: " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
@@ -338,8 +337,9 @@ public class Main {
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working
             // and thus no information will be sent to the online console, when the user is online.
-            while (true)
-                Thread.sleep(1000);
+            //while (true)
+            //    Thread.sleep(1000);
+
 
         } catch (Exception e) {
             AL.error(e.getMessage(), e);

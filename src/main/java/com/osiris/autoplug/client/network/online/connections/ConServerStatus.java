@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -99,7 +99,7 @@ public class ConServerStatus extends SecondaryConnection {
 
                         if (cpu != null) {
                             dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
-                            dos.writeFloat((cpu.getMaxFreq() / oneGigaHertzInHertz));
+                            dos.writeFloat((cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz)));
                         } else {
                             dos.writeFloat(0);
                             dos.writeFloat(0);
