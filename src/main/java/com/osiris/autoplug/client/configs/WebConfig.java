@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -22,7 +22,8 @@ public class WebConfig extends DreamYaml {
     public DYModule send_server_updater_results;
     public DYModule send_self_updater_results;
 
-    public DYModule send_server_status;
+    public DYModule send_public_details;
+    public DYModule send_private_details;
     public DYModule send_server_status_ip;
     public DYModule file_manager;
 
@@ -46,7 +47,8 @@ public class WebConfig extends DreamYaml {
                         "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
                         "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
                         "\n" +
-                        "#######################################################################################################################");
+                        "#######################################################################################################################" +
+                        "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
 
         online_console = put(name, "online-console").setDefValues("false")
                 .setComments("Sends recent log messages (and future messages) to the Online-Console and can receive commands from it.",
@@ -62,14 +64,18 @@ public class WebConfig extends DreamYaml {
         send_self_updater_results = put(name, "updater-results", "send-self-updaters-results").setDefValues("true");
 
 
-        send_server_status = put(name, "send-server-status").setDefValues("true").setComments(
-                "Establishes the connection, once you are logged in to AutoPlug-Web.",
-                "Sends following information to the web-server:",
-                "Alive status of server; servers MOTD and player count; CPU frequencies and used/total memory sizes.",
-                "Restart AutoPlug for this change to take affect.");
-        send_server_status_ip = put(name, "send-server-status", "ip").setDefValues("127.0.0.1").setComments(
-                "The ip-address from where to retrieve server details, like MOTD, player count etc.",
-                "The port gets automatically detected.");
+        send_public_details = put(name, "send-details", "public").setDefValues("true").setComments(
+                "Sent information:",
+                "- Server status (is it running/online or not)",
+                "- Player count",
+                "This connection stays always active.");
+        send_private_details = put(name, "send-details", "private").setDefValues("true").setComments(
+                "Sent information:",
+                "- CPU maximum and current speeds",
+                "- Memory maximum size and currently used size",
+                "This connection is only active when logged in.");
+        send_server_status_ip = put(name, "send-details", "ip").setDefValues("127.0.0.1").setComments(
+                "The ip-address from where to retrieve server details, like MOTD, player count etc. The port gets automatically detected.");
 
         file_manager = put(name, "file-manager").setDefValues("true").setComments("Establishes the connection, once you are logged in to AutoPlug-Web.",
                 "Enables you to manage this servers files from AutoPlugs' web panel.");

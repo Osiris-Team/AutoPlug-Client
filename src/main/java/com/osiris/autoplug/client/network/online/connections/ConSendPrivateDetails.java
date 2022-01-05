@@ -8,10 +8,8 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
-import com.osiris.autoplug.client.utils.MineStat;
 import com.osiris.autoplug.client.utils.UFDataOut;
 import com.osiris.autoplug.core.logger.AL;
 import oshi.SystemInfo;
@@ -23,64 +21,34 @@ import java.io.IOException;
 
 
 /**
- * Read the InputStreams of AutoPlug and the Minecraft server and
- * send it to the AutoPlug server when the user is online.
- * Note that
+ * Sends private details to AutoPlug-Web like
+ * CPU speeds and memory used/total. Should only
+ * be active when user is logged in.
  */
-public class ConServerStatus extends SecondaryConnection {
+public class ConSendPrivateDetails extends SecondaryConnection {
     public float cpuSpeed;
     public float cpuMaxSpeed;
-
-    public String host = "127.0.0.1"; // instead of localhost, use directly the resolved loop-back address
-
-    public boolean isRunning;
-    public MineStat mineStat;
-    public String strippedMotd;
-    public String version;
-    public int currentPlayers;
-    public int maxPlayers;
     public float memAvailable;
     public float memUsed;
     public float memTotal;
     private Thread thread;
 
-    public ConServerStatus() {
-        super((byte) 4);  // Each connection has its own auth_id.
+    public ConSendPrivateDetails() {
+        super((byte) 6);  // Each connection has its own auth_id.
     }
 
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().send_server_status.asBoolean()) {
+        if (new WebConfig().send_private_details.asBoolean()) {
             super.open();
             getSocket().setSoTimeout(0);
             UFDataOut dos = new UFDataOut(getOut());
             float oneGigaByteInBytes = 1073741824.0f;
             float oneGigaHertzInHertz = 1000000000.0f;
             SystemInfo si = new SystemInfo();
-            host = new WebConfig().send_server_status_ip.asString();
             thread = new Thread(() -> {
                 try {
                     while (true) {
-                        // MC server related info:
-                        mineStat = new MineStat(host, Server.PORT);
-                        isRunning = mineStat.isServerUp();
-                        strippedMotd = mineStat.getStrippedMotd();
-                        if (strippedMotd == null)
-                            strippedMotd = "-";
-                        version = mineStat.getVersion();
-                        if (version != null)
-                            version = version.replaceAll("[a-zA-Z]", "");
-                        else
-                            version = "-";
-                        currentPlayers = mineStat.getCurrentPlayers();
-                        maxPlayers = mineStat.getMaximumPlayers();
-
-                        dos.writeBoolean(isRunning);
-                        dos.writeLine(strippedMotd);
-                        dos.writeLine(version);
-                        dos.writeInt(currentPlayers);
-                        dos.writeInt(maxPlayers);
-
                         // Hardware info:
                         HardwareAbstractionLayer hal = si.getHardware();
                         CentralProcessor cpu = hal.getProcessor();

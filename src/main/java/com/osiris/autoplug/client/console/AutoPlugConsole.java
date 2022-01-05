@@ -11,7 +11,8 @@ package com.osiris.autoplug.client.console;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
+import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
+import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
@@ -60,7 +61,7 @@ public final class AutoPlugConsole {
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
-                    AL.info(".con main | Establishes the main connection if not connected. (.cm)");
+                    AL.info(".con reload | Closes and reconnects all connections (.cr)");
                     AL.info(".server info | Shows details about this server (.si)");
                     AL.info(".check | Checks for AutoPlug updates and behaves according to the selected profile (.c)");
                     AL.info(".check java | Checks for Java updates and behaves according to the selected profile (.cj)");
@@ -96,42 +97,44 @@ public final class AutoPlugConsole {
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
                     AL.info(Main.CON_MAIN.getName() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user-auth=" + ConMain.isUserAuthenticated);
-                    AL.info(ConMain.CON_SERVER_STATUS.getClass().getName() + " connected=" + ConMain.CON_SERVER_STATUS.isConnected());
+                    AL.info(ConMain.CON_PUBLIC_DETAILS.getClass().getName() + " connected=" + ConMain.CON_PUBLIC_DETAILS.isConnected());
+                    AL.info(ConMain.CON_PRIVATE_DETAILS.getClass().getName() + " connected=" + ConMain.CON_PRIVATE_DETAILS.isConnected());
                     AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
                     AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
                     AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
                     return true;
-                } else if (command.equals(".con main") || command.equals(".cm")) {
-                    if (Main.CON_MAIN.isAlive()) {
-                        AL.warn("Main connection is already active.");
+                } else if (command.equals(".con reload") || command.equals(".cr")) {
+                    AL.info("It takes around 30 seconds to reconnect. Please be patient.");
+                    if (!Main.CON_MAIN.isAlive() || Main.CON_MAIN.isInterrupted()) {
+                        Main.CON_MAIN = new ConMain();
+                        Main.CON_MAIN.start();
                         return true;
                     }
-                    Main.CON_MAIN = new ConMain();
-                    Main.CON_MAIN.start();
+                    Main.CON_MAIN.closeAll();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
-                    ConServerStatus con = ConMain.CON_SERVER_STATUS;
+                    ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
+                    ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());
                     AL.info("Port: " + Server.PORT);
-                    if (!con.isConnected()) {
-                        AL.info(con.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
+                    if (!conPublic.isConnected()) {
+                        AL.info(conPublic.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
                     } else {
-                        AL.info("Details from " + con.getClass().getSimpleName() + ":");
-                        AL.info("Host: " + con.host);
-                        AL.info("Port: " + Server.PORT);
-                        AL.info("Running: " + con.isRunning);
-                        AL.info("Motd: " + con.strippedMotd);
-                        AL.info("Version: " + con.version);
-                        AL.info("Players: " + con.currentPlayers);
-                        AL.info("CPU Speed in GHz: " + con.cpuSpeed);
-                        AL.info("CPU Max. Speed in GHz: " + con.cpuMaxSpeed);
-                        AL.info("MEM available in Gb: " + con.memAvailable);
-                        AL.info("MEM used in Gb: " + con.memUsed);
-                        AL.info("MEM total in Gb: " + con.memTotal);
-                        if (con.mineStat != null) {
-                            AL.info("Ping result: " + con.mineStat.pingResult.name());
+                        AL.info("Details from " + conPublic.getClass().getSimpleName() + ":");
+                        AL.info("Host: " + conPublic.host + ":" + Server.PORT);
+                        AL.info("Running: " + conPublic.isRunning);
+                        AL.info("Version: " + conPublic.version);
+                        AL.info("Players: " + conPublic.currentPlayers);
+                        if (conPublic.mineStat != null) {
+                            AL.info("Ping result: " + conPublic.mineStat.pingResult.name());
                         } else
                             AL.info("Ping result: -");
+                        AL.info("Details from " + conPrivate.getClass().getSimpleName() + ":");
+                        AL.info("CPU current: " + conPrivate.cpuSpeed + " GHz");
+                        AL.info("CPU max: " + conPrivate.cpuMaxSpeed + " GHz");
+                        AL.info("MEM free: " + conPrivate.memAvailable + " Gb");
+                        AL.info("MEM used: " + conPrivate.memUsed + " Gb");
+                        AL.info("MEM total: " + conPrivate.memTotal + " Gb");
                     }
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,10 +8,7 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.network.online.connections.ConFileManager;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
-import com.osiris.autoplug.client.network.online.connections.ConServerStatus;
+import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.DataInputStream;
@@ -25,11 +22,13 @@ import java.io.IOException;
  * If it receives a true boolean it means that the user is logged in and opens new connections.
  */
 public class ConMain extends Thread {
+    public static final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
 
     // Secondary connections:
     public static final ConOnlineConsoleReceive CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
     public static final ConOnlineConsoleSend CON_CONSOLE_SEND = new ConOnlineConsoleSend();
-    public static final ConServerStatus CON_SERVER_STATUS = new ConServerStatus();
+    public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
+    public SecuredConnection auth;
     public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
     //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
 
@@ -41,10 +40,10 @@ public class ConMain extends Thread {
         try {
             super.run();
             AL.info("Authenticating server...");
-            SecuredConnection auth = new SecuredConnection((byte) 0);
+            auth = new SecuredConnection((byte) 0);
             AL.info("Authentication success!");
             DataInputStream dis = new DataInputStream(auth.getInput());
-            CON_SERVER_STATUS.open();
+            CON_PUBLIC_DETAILS.open();
 
             isDone = true;
             boolean oldAuth = false; // Local variable that holds the auth boolean before the current one
@@ -65,6 +64,8 @@ public class ConMain extends Thread {
                                 CON_CONSOLE_SEND.open();
                                 if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
                                 CON_FILE_MANAGER.open();
+                                if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
+                                CON_PRIVATE_DETAILS.open();
                                 //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                             }
                         } else {
@@ -74,6 +75,7 @@ public class ConMain extends Thread {
                                 if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                                 if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                                 if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
+                                if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
                                 //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                             }
                         }
@@ -86,50 +88,7 @@ public class ConMain extends Thread {
                     // Reset booleans
                     oldAuth = false;
                     isUserAuthenticated = false;
-
-                    // Make sure socket is really closed
-                    try {
-                        if (auth.getSocket() != null && !auth.getSocket().isClosed())
-                            auth.getSocket().close();
-                    } catch (IOException ioException) {
-                        AL.warn(ioException);
-                    }
-
-                    // Make sure socket is really closed
-                    try {
-                        CON_SERVER_STATUS.close();
-                    } catch (IOException ioException) {
-                        AL.warn(ioException);
-                    }
-
-                    // Close child connections
-                    try {
-                        if (CON_CONSOLE_RECEIVE != null && CON_CONSOLE_RECEIVE.isConnected())
-                            CON_CONSOLE_RECEIVE.close();
-                    } catch (IOException e1) {
-                        AL.warn(e1);
-                    }
-
-                    try {
-                        if (CON_CONSOLE_SEND != null && CON_SERVER_STATUS.isConnected())
-                            CON_CONSOLE_SEND.close();
-                    } catch (IOException e1) {
-                        AL.warn(e1);
-                    }
-
-                    try {
-                        if (CON_SERVER_STATUS != null && CON_SERVER_STATUS.isConnected())
-                            CON_SERVER_STATUS.close();
-                    } catch (IOException e1) {
-                        AL.warn(e1);
-                    }
-
-                    try {
-                        if (CON_FILE_MANAGER != null && CON_FILE_MANAGER.isConnected())
-                            CON_FILE_MANAGER.close();
-                    } catch (IOException e1) {
-                        AL.warn(e1);
-                    }
+                    closeAll();
 
                     Thread.sleep(30000);
                     try {
@@ -137,7 +96,7 @@ public class ConMain extends Thread {
                         auth = new SecuredConnection((byte) 0);
                         dis = new DataInputStream(auth.getInput());
                         AL.info("Authentication success!");
-                        CON_SERVER_STATUS.open();
+                        CON_PUBLIC_DETAILS.open();
                     } catch (Exception exception) {
                         AL.warn(e);
                     }
@@ -148,4 +107,51 @@ public class ConMain extends Thread {
             isDone = true;
         }
     }
+
+    public void closeAll() {
+        // Make sure socket is really closed
+        try {
+            if (auth != null && auth.getSocket() != null && !auth.getSocket().isClosed())
+                auth.getSocket().close();
+        } catch (IOException ioException) {
+            AL.warn(ioException);
+        }
+
+        // Close child connections
+        try {
+            if (CON_CONSOLE_RECEIVE.isConnected())
+                CON_CONSOLE_RECEIVE.close();
+        } catch (IOException e1) {
+            AL.warn(e1);
+        }
+
+        try {
+            if (CON_CONSOLE_SEND.isConnected())
+                CON_CONSOLE_SEND.close();
+        } catch (IOException e1) {
+            AL.warn(e1);
+        }
+
+        try {
+            if (CON_PUBLIC_DETAILS.isConnected())
+                CON_PUBLIC_DETAILS.close();
+        } catch (IOException e1) {
+            AL.warn(e1);
+        }
+
+        try {
+            if (CON_PRIVATE_DETAILS.isConnected())
+                CON_PRIVATE_DETAILS.close();
+        } catch (IOException e1) {
+            AL.warn(e1);
+        }
+
+        try {
+            if (CON_FILE_MANAGER.isConnected())
+                CON_FILE_MANAGER.close();
+        } catch (IOException e1) {
+            AL.warn(e1);
+        }
+    }
+
 }

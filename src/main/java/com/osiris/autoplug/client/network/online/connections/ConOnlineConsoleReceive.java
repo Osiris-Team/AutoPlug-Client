@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -38,27 +38,27 @@ public class ConOnlineConsoleReceive extends SecondaryConnection {
     public boolean open() throws Exception {
         if (new WebConfig().online_console.asBoolean()) {
             super.open();
-            if (thread == null) {
-                thread = new Thread(() -> {
-                    try {
-                        Socket socket = getSocket();
-                        socket.setSoTimeout(0);
-                        InputStream in = getSocket().getInputStream();
-                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                            String line;
-                            while (!socket.isClosed() && (line = reader.readLine()) != null) {
-                                AL.info("Received Web-Command: " + line);
-                                if (!AutoPlugConsole.executeCommand(line))
-                                    Server.submitCommand(line);
-                            }
+            if (thread != null && (thread.isAlive() || !thread.isInterrupted()))
+                thread.interrupt();
+            thread = new Thread(() -> {
+                try {
+                    Socket socket = getSocket();
+                    socket.setSoTimeout(0);
+                    InputStream in = getSocket().getInputStream();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                        String line;
+                        while (!socket.isClosed() && (line = reader.readLine()) != null) {
+                            AL.info("Received Web-Command: " + line);
+                            if (!AutoPlugConsole.executeCommand(line))
+                                Server.submitCommand(line);
                         }
-                    } catch (Exception e) {
-                        AL.warn(this.getClass(), e);
                     }
+                } catch (Exception e) {
+                    AL.warn(this.getClass(), e);
+                }
 
-                });
-                thread.start();
-            }
+            });
+            thread.start();
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
