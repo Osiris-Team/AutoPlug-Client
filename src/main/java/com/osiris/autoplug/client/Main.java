@@ -10,7 +10,7 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.console.UserInput;
+import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
@@ -329,7 +329,7 @@ public class Main {
 
             new ConPluginCommandReceive();
 
-            UserInput.keyboard();
+            new ThreadUserInput().start();
 
             if (generalConfig.server_auto_start.asBoolean())
                 Server.start();
