@@ -37,18 +37,18 @@ public class WebConfig extends DreamYaml {
         load();
         String name = getFileNameWithoutExt();
         put(name).setComments(
-                "#######################################################################################################################\n" +
-                        "    ___       __       ___  __\n" +
-                        "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
-                        "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
-                        " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                        "                                /___/ Web-Config\n" +
-                        "Thank you for using AutoPlug!\n" +
-                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
-                        "\n" +
-                        "#######################################################################################################################" +
-                        "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
+                "#######################################################################################################################",
+                "    ___       __       ___  __",
+                "   / _ |__ __/ /____  / _ \\/ /_ _____ _",
+                "  / __ / // / __/ _ \\/ ___/ / // / _ `/",
+                " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /",
+                "                                /___/ Web-Config",
+                "Thank you for using AutoPlug!",
+                "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/",
+                "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC",
+                " ",
+                "#######################################################################################################################",
+                "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
 
         online_console = put(name, "online-console").setDefValues("false")
                 .setComments("Sends recent log messages (and future messages) to the Online-Console and can receive commands from it.",
