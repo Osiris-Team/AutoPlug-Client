@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -213,12 +213,7 @@ public class ConFileManager extends SecondaryConnection {
             File[] files = requestedFile.listFiles();
             if (files == null) dos.writeInt(0);
             else {
-                if (requestedFile.getParentFile() != null && requestedFile.getParentFile().exists()) {
-                    dos.writeInt(files.length + 1); // +1 for parent directory
-                    sendParentDirDetails(requestedFile.getParentFile());
-                } else {
-                    dos.writeInt(files.length);
-                }
+                dos.writeInt(files.length);
 
                 for (File f :
                         files) { // Send directories first and then files
