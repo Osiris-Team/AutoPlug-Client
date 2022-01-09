@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -62,7 +62,8 @@ public class PluginManager {
                     zis = new ZipInputStream(fis);
                     ze = zis.getNextEntry();
                     while (ze != null) {
-                        if (ze.getName().equals("plugin.yml")) {
+                        String fileName = ze.getName();
+                        if (fileName.equals("plugin.yml") || fileName.equals("bungee.yml")) {
                             // Extract this plugin.yml file
                             FileOutputStream fos = new FileOutputStream(ymlFile);
                             int len;

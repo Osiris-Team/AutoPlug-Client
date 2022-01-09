@@ -116,12 +116,11 @@ public final class AutoPlugConsole {
                     ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
                     ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());
-                    AL.info("Port: " + Server.PORT);
                     if (!conPublic.isConnected()) {
                         AL.info(conPublic.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
                     } else {
                         AL.info("Details from " + conPublic.getClass().getSimpleName() + ":");
-                        AL.info("Host: " + conPublic.host + ":" + Server.PORT);
+                        AL.info("Host: " + conPublic.host + ":" + conPublic.port);
                         AL.info("Running: " + conPublic.isRunning);
                         AL.info("Version: " + conPublic.version);
                         AL.info("Players: " + conPublic.currentPlayers);

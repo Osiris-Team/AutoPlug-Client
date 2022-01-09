@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -10,10 +10,16 @@ package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.DYWriterException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +34,10 @@ public class UtilsConfig {
      * Also warns the user about these in the console. <br>
      * Note that this only works for config sections that have values. <br>
      */
-    public void setCommentsOfNotUsedOldDYModules(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+    public void checkForDeprecatedSections(DreamYaml yaml) throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        yaml.lockFile();
+        List<DYModule> inEditModules = yaml.getAllInEdit();
+        List<DYModule> loadedModules = yaml.getAllLoaded();
         List<DYModule> oldModules = new ArrayList<>();
         UtilsDYModule utils = new UtilsDYModule();
         for (DYModule m :
@@ -41,9 +50,11 @@ public class UtilsConfig {
         // Set the comments
         for (DYModule oldM :
                 oldModules) {
-            oldM.setComments("[!!!] DEPRECATION WARNING [!!!]",
-                    "THIS CONFIG SECTION WAS RENAMED OR REMOVED AND THUS ITS VALUE WILL BE IGNORED!");
+            yaml.get(oldM.getKeys()).setComments("DEPRECATION WARNING <---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------",
+                    "THE BELOW WAS RENAMED OR REMOVED AND THUS ITS VALUE(S) WILL BE IGNORED!");
         }
+        yaml.save();
+        yaml.unlockFile();
     }
 
     public void printAllModulesToDebugExceptServerKey(@NotNull List<DYModule> modules, String serverKey) {

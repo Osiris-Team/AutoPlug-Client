@@ -8,14 +8,16 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.MineStat;
 import com.osiris.autoplug.client.utils.UFDataOut;
 import com.osiris.autoplug.core.logger.AL;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -25,7 +27,7 @@ import java.io.IOException;
  */
 public class ConSendPublicDetails extends SecondaryConnection {
     public String host = "127.0.0.1"; // instead of localhost, use directly the resolved loop-back address
-
+    public int port = 0;
     public boolean isRunning;
     public MineStat mineStat;
     public String version;
@@ -43,12 +45,39 @@ public class ConSendPublicDetails extends SecondaryConnection {
             super.open();
             getSocket().setSoTimeout(0);
             UFDataOut dos = new UFDataOut(getOut());
-            host = new WebConfig().send_server_status_ip.asString();
+            WebConfig webConfig = new WebConfig();
+            host = webConfig.send_server_status_ip.asString();
+            if (webConfig.send_server_status_port.asString() == null) {
+                try { // Find port of server
+                    String portAsString = null;
+                    try {
+                        Properties properties = new Properties();
+                        properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
+                        portAsString = properties.getProperty("server-port");
+                    } catch (Exception ignored) {
+                    }
+                    // TODO detect port for proxies and other servers.
+                    // For bungeecord the port is located inside config.yml.
+                    // Problem with that file is that is has yml features unsupported by DreamYaml at the moment.
+                    // Maybe make a more universal approach like getting the port after the server process was started.
+
+                    if (portAsString != null) {
+                        port = webConfig.send_server_status_port.setDefValues(portAsString).asInt();
+                        webConfig.lockFile();
+                        webConfig.save();
+                        webConfig.unlockFile();
+                    } else
+                        throw new Exception("Failed to find the servers' port! Please set it manually inside the '/autoplug/web-config.yml'.");
+                } catch (Exception e) {
+                    AL.warn(e);
+                }
+            } else
+                port = webConfig.send_server_status_port.asInt();
             thread = new Thread(() -> {
                 try {
                     while (true) {
                         // MC server related info:
-                        mineStat = new MineStat(host, Server.PORT);
+                        mineStat = new MineStat(host, port);
                         isRunning = mineStat.isServerUp();
                         version = mineStat.getVersion();
                         if (version != null)

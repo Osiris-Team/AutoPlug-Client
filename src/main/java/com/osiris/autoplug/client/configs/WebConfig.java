@@ -25,6 +25,7 @@ public class WebConfig extends DreamYaml {
     public DYModule send_public_details;
     public DYModule send_private_details;
     public DYModule send_server_status_ip;
+    public DYModule send_server_status_port;
     public DYModule file_manager;
 
     public WebConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
@@ -75,7 +76,9 @@ public class WebConfig extends DreamYaml {
                 "- Memory maximum size and currently used size",
                 "This connection is only active when logged in.");
         send_server_status_ip = put(name, "send-details", "ip").setDefValues("127.0.0.1").setComments(
-                "The ip-address from where to retrieve server details, like MOTD, player count etc. The port gets automatically detected.");
+                "The ip-address from where to retrieve server details, like MOTD, player count etc.");
+        send_server_status_port = put(name, "send-details", "port").setComments(
+                "The port from where to retrieve server details. Gets automatically detected on start. If that fails you get a warning.");
 
         file_manager = put(name, "file-manager").setDefValues("true").setComments("Establishes the connection, once you are logged in to AutoPlug-Web.",
                 "Enables you to manage this servers files from AutoPlugs' web panel.");

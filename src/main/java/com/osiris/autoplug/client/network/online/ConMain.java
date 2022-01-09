@@ -28,12 +28,11 @@ public class ConMain extends Thread {
     public static final ConOnlineConsoleReceive CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
     public static final ConOnlineConsoleSend CON_CONSOLE_SEND = new ConOnlineConsoleSend();
     public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
-    public SecuredConnection auth;
     public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
-    //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
-
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
+    //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
     public static boolean isUserAuthenticated = false;
+    public SecuredConnection auth;
 
     @Override
     public void run() {

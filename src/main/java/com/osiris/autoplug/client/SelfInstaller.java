@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -59,12 +59,12 @@ public class SelfInstaller {
             }
         }
 
-        File oldJar = new FileManager().autoplugJar(parentDir);
-        if (oldJar == null)
+        File oldAutoPlugJar = new FileManager().autoplugJar(parentDir);
+        if (oldAutoPlugJar == null)
             throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar or a jar with autoplug.properties inside, in " + parentDir.getAbsolutePath());
 
         // Since we can't copy this jar because its currently running
-        // we rely on a already made copy of it.
+        // we rely on an already made copy of it.
         // That copy should've been done after downloading the update (this jar).
         MyVisitor<Path> myVisitor = new MyVisitor<Path>("AutoPlug-Client-Copy.jar");
         Files.walkFileTree(GD.WORKING_DIR.toPath(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), 1, myVisitor);
@@ -75,12 +75,12 @@ public class SelfInstaller {
         // Copy and overwrite the old jar with the update file
         // Note: Deletion of the current jar and the copy jar are done
         // at startup.
-        System.out.println("Installing update for jar file: '" + oldJar.getAbsolutePath() + "'...");
+        System.out.println("Installing update for jar file: '" + oldAutoPlugJar.getAbsolutePath() + "'...");
         for (int i = 1; i < 11; i++) {
             try {
-                if (!isFileInUse(oldJar)) {
+                if (!isFileInUse(oldAutoPlugJar)) {
                     System.out.println("Old jar is not in use. Installing update...");
-                    Files.copy(copyJar.toPath(), oldJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(copyJar.toPath(), oldAutoPlugJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     break;
                 }
             } catch (Exception e) {
@@ -92,7 +92,7 @@ public class SelfInstaller {
         }
         System.out.println("Successfully installed update!");
         // Start that updated old jar and close this one
-        startJarFromPath(oldJar, oldJar.getParentFile());
+        startJarFromPath(oldAutoPlugJar, oldAutoPlugJar.getParentFile());
         System.exit(0);
     }
 

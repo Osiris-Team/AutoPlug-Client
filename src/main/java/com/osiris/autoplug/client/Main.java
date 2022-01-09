@@ -178,6 +178,7 @@ public class Main {
                     }
             }
 
+
             AL.info("Loading configurations...");
             new UtilsJar().determineServerJar();
             UtilsConfig utilsConfig = new UtilsConfig();
@@ -186,11 +187,11 @@ public class Main {
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
-            utilsConfig.setCommentsOfNotUsedOldDYModules(generalConfig.getAllInEdit(), generalConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(generalConfig);
             allModules.addAll(generalConfig.getAllInEdit());
 
             LoggerConfig loggerConfig = new LoggerConfig();
-            utilsConfig.setCommentsOfNotUsedOldDYModules(loggerConfig.getAllInEdit(), loggerConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(loggerConfig);
             allModules.addAll(loggerConfig.getAllInEdit());
             // Extra debug options
             if (loggerConfig.debug.asBoolean()) {
@@ -207,30 +208,30 @@ public class Main {
             }
 
             WebConfig webConfig = new WebConfig(preset);
-            utilsConfig.setCommentsOfNotUsedOldDYModules(webConfig.getAllInEdit(), webConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(webConfig);
             allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
             BackupConfig backupConfig = new BackupConfig(preset);
-            utilsConfig.setCommentsOfNotUsedOldDYModules(backupConfig.getAllInEdit(), backupConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(backupConfig);
             allModules.addAll(backupConfig.getAllInEdit());
 
             RestarterConfig restarterConfig = new RestarterConfig(preset);
-            utilsConfig.setCommentsOfNotUsedOldDYModules(restarterConfig.getAllInEdit(), restarterConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(restarterConfig);
             allModules.addAll(restarterConfig.getAllInEdit());
 
             UpdaterConfig updaterConfig = new UpdaterConfig(preset);
-            utilsConfig.setCommentsOfNotUsedOldDYModules(updaterConfig.getAllInEdit(), updaterConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(updaterConfig);
             allModules.addAll(updaterConfig.getAllInEdit());
 
             TasksConfig tasksConfig = new TasksConfig();
-            utilsConfig.setCommentsOfNotUsedOldDYModules(tasksConfig.getAllInEdit(), tasksConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(tasksConfig);
             allModules.addAll(tasksConfig.getAllInEdit());
 
             SharedFilesConfig sharedFilesConfig = new SharedFilesConfig();
-            utilsConfig.setCommentsOfNotUsedOldDYModules(sharedFilesConfig.getAllInEdit(), sharedFilesConfig.getAllLoaded());
+            utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());

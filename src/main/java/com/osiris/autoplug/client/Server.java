@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -28,51 +28,30 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 
 public final class Server {
 
-    public static int PORT = 0;
     @Nullable
     public static AsyncInputStream ASYNC_SERVER_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
     private static boolean colorServerLog;
 
-    static {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
-            PORT = Integer.parseInt(properties.getProperty("server-port"));
-        } catch (IOException e) {
-            AL.warn(e);
-        }
-        try {
-            colorServerLog = new LoggerConfig().color_server_log.asBoolean();
-        } catch (Exception e) {
-            AL.warn(e);
-        }
-    }
-
     public static void start() {
         try {
-            if (isRunning()) throw new Exception("Server already running!");
-
-            // Update PORT
-            Properties properties = new Properties();
             try {
-                properties.load(new FileInputStream(GD.WORKING_DIR + "/server.properties"));
-                PORT = Integer.parseInt(properties.getProperty("server-port"));
-            } catch (IOException e) {
+                colorServerLog = new LoggerConfig().color_server_log.asBoolean();
+            } catch (Exception e) {
                 AL.warn(e);
             }
+
+            if (isRunning()) throw new Exception("Server already running!");
 
             // Runs all processes before starting the server
             new BeforeServerStartupTasks();

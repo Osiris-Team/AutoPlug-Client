@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 public class UtilsJar {
+
 
     public File determineServerJar() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
         GeneralConfig generalConfig = new GeneralConfig();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class MineStat {
     public final byte NUM_FIELDS = 6;      // number of values expected from server
     public final byte NUM_FIELDS_BETA = 3; // number of values expected from a 1.8b/1.3 server
+    public Retval pingResult;
     /**
      * Hostname or IP address of the Minecraft server
      */
@@ -70,8 +71,6 @@ public class MineStat {
      * SLP protocol version
      */
     private String requestType;
-
-    public Retval pingResult;
 
     public MineStat(String address) {
         this(address, 25565, 5, Request.NONE);
