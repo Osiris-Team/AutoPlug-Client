@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Importance:** 0/10 (Enter a value between 0-10, where 10 is the most important thing on the planet)
+**Importance:** 0/10
 
 **Problem:**
 Describe why you are writing this feature request.
