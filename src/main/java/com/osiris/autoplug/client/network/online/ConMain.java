@@ -38,15 +38,29 @@ public class ConMain extends Thread {
     @Override
     public void run() {
         super.run();
+        try {
+            AL.info("Authenticating server...");
+            auth = new SecuredConnection((byte) 0);
+            AL.info("Authentication success!");
+            dis = new DataInputStream(auth.getInput());
+            CON_PUBLIC_DETAILS.open();
+            isDone = true;
+        } catch (Exception e) {
+            AL.warn(e);
+            isDone = true;
+            return;
+        }
         while (true) {
             try {
-                AL.info("Authenticating server...");
-                auth = new SecuredConnection((byte) 0);
-                AL.info("Authentication success!");
-                dis = new DataInputStream(auth.getInput());
-                CON_PUBLIC_DETAILS.open();
-                isDone = true;
+                if (auth == null || !auth.getSocket().isConnected()) {
+                    AL.info("Authenticating server...");
+                    auth = new SecuredConnection((byte) 0);
+                    AL.info("Authentication success!");
+                    dis = new DataInputStream(auth.getInput());
+                    CON_PUBLIC_DETAILS.open();
+                }
 
+                isDone = true;
                 while (true) {
                     isLoggedIn = dis.readBoolean();
                     if (isLoggedIn) {
