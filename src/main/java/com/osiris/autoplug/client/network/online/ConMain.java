@@ -30,80 +30,75 @@ public class ConMain extends Thread {
     public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
     public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
-    //public static PluginsUpdateResultConnection CON_PLUGINS_UPDATER;
-    public static boolean isUserAuthenticated = false;
+    public static boolean isLoggedIn = false;
+    public static boolean isLoggedInOld = false; // Local variable that holds the auth boolean before the current one
     public SecuredConnection auth;
+    public DataInputStream dis;
 
     @Override
     public void run() {
-        try {
-            super.run();
-            AL.info("Authenticating server...");
-            auth = new SecuredConnection((byte) 0);
-            AL.info("Authentication success!");
-            DataInputStream dis = new DataInputStream(auth.getInput());
-            CON_PUBLIC_DETAILS.open();
+        super.run();
+        while (true) {
+            try {
+                AL.info("Authenticating server...");
+                auth = new SecuredConnection((byte) 0);
+                AL.info("Authentication success!");
+                dis = new DataInputStream(auth.getInput());
+                CON_PUBLIC_DETAILS.open();
+                isDone = true;
 
-            isDone = true;
-            boolean oldAuth = false; // Local variable that holds the auth boolean before the current one
-            while (true) {
-                // It can happen that we don't get a response because the web server is offline
-                // In that case see the catch statement
-                try {
-                    while (true) {
-                        isUserAuthenticated = dis.readBoolean();
-
-                        if (isUserAuthenticated) {
-                            if (!oldAuth) {
-                                AL.debug(this.getClass(), "User is online.");
-                                // User is online, so open secondary connections if they weren't already
-                                if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
-                                CON_CONSOLE_RECEIVE.open();
-                                if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
-                                CON_CONSOLE_SEND.open();
-                                if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
-                                CON_FILE_MANAGER.open();
-                                if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
-                                CON_PRIVATE_DETAILS.open();
-                                //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
-                            }
-                        } else {
-                            if (oldAuth) {
-                                AL.debug(this.getClass(), "User is offline.");
-                                // Close secondary connections when user is offline/logged out
-                                if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
-                                if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
-                                if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
-                                if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
-                                //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
-                            }
+                while (true) {
+                    isLoggedIn = dis.readBoolean();
+                    if (isLoggedIn) {
+                        if (!isLoggedInOld) {
+                            AL.debug(this.getClass(), "User is online.");
+                            // User is online, so open secondary connections if they weren't already
+                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                            CON_CONSOLE_RECEIVE.open();
+                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                            CON_CONSOLE_SEND.open();
+                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
+                            CON_FILE_MANAGER.open();
+                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
+                            CON_PRIVATE_DETAILS.open();
+                            //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         }
-                        oldAuth = isUserAuthenticated;
-                        Thread.sleep(1000);
+                    } else {
+                        if (isLoggedInOld) {
+                            AL.debug(this.getClass(), "User is offline.");
+                            // Close secondary connections when user is offline/logged out
+                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
+                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
+                            //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
+                        }
                     }
-                } catch (Exception e) {
-                    AL.warn("Lost connection to AutoPlug-Web! Reconnecting in 30 seconds...", e);
+                    isLoggedInOld = isLoggedIn;
+                    Thread.sleep(1000);
+                }
+            } catch (Exception e) {
+                isDone = true;
+                AL.warn(e);
 
-                    // Reset booleans
-                    oldAuth = false;
-                    isUserAuthenticated = false;
-                    closeAll();
-
-                    Thread.sleep(30000);
+                // Reset booleans
+                isLoggedInOld = false;
+                isLoggedIn = false;
+                closeAll();
+                if (auth == null || auth.errorCode == 0) {
+                    AL.warn("Connection problems! Reconnecting in 30 seconds...");
                     try {
-                        AL.info("Authenticating server...");
-                        auth = new SecuredConnection((byte) 0);
-                        dis = new DataInputStream(auth.getInput());
-                        AL.info("Authentication success!");
-                        CON_PUBLIC_DETAILS.open();
+                        Thread.sleep(30000);
                     } catch (Exception exception) {
-                        AL.warn(e);
+                        AL.warn(exception);
+                        AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
+                        break;
                     }
+                } else {
+                    AL.warn("Connection problems! Reconnect manually by entering '.con reload'.");
+                    break;
                 }
             }
-        } catch (Exception e) {
-            AL.warn(this.getClass(), e, "Connection aborted due to issues!");
-            isDone = true;
         }
     }
 

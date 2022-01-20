@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -32,6 +32,7 @@ import java.net.Socket;
  */
 public class SecuredConnection {
     private final byte conType;
+    public byte errorCode = 0;
     private Socket socket;
     private InputStream input;
     private OutputStream output;
@@ -80,33 +81,33 @@ public class SecuredConnection {
         dos.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
         dos.writeByte(con_type); // Send connection type
 
-        byte response = dis.readByte(); // Get response
-        switch (response) {
+        errorCode = dis.readByte(); // Get response
+        switch (errorCode) {
             case 0:
                 AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticated server successfully!");
                 break;
             case 1:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + " and get your server-key. Restart AutoPlug when done.");
             case 2:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
             case 3:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Make sure that the primary connection is established before all the secondary connections!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Make sure that the primary connection is established before all the secondary connections!");
             case 4:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
             case 5:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): No user account found for the provided server key!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
             case 6:
                 String ip = dis.readUTF();
                 String hostname = dis.readUTF();
                 int port = dis.readInt();
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "):" +
                         " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
             case 7:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "):" +
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "):" +
                         " A severe error occurred at AutoPlug-Web. Please notify the developers!");
             default:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + response + "): Unknown error code " + response + ". Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Unknown error code " + errorCode + ". Make sure that AutoPlug is up-to-date!");
         }
     }
 

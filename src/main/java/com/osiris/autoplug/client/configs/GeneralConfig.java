@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -15,10 +15,11 @@ import com.osiris.dyml.exceptions.*;
 import java.io.IOException;
 
 public class GeneralConfig extends DreamYaml {
+    public DYModule autoplug_auto_stop;
+
     public DYModule server_key;
     public DYModule server_auto_start;
     public DYModule server_auto_eula;
-    public DYModule server_autoplug_stop;
     public DYModule server_stop_command;
     public DYModule server_java_path;
     public DYModule server_jar;
@@ -50,7 +51,11 @@ public class GeneralConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
+        put(name, "autoplug").setCountTopSpaces(1);
+        autoplug_auto_stop = put(name, "autoplug", "auto-stop").setDefValues("false").setComments(
+                "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
 
+        put(name, "server").setCountTopSpaces(1);
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
                 "Enter your Server-Key here. You get it by registering yourself and your server on https://autoplug.one.\n" +
                         "The Server-Key enables remote access from your account.\n" +
@@ -60,9 +65,6 @@ public class GeneralConfig extends DreamYaml {
                 "Starts your server with the start of AutoPlug.");
         server_auto_eula = put(name, "server", "auto-eula").setDefValues("true").setComments(
                 "Creates an eula.txt file if not existing and accepts it.");
-
-        server_autoplug_stop = put(name, "server", "autoplug-stop").setDefValues("false").setComments(
-                "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
 
         server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
                 "AutoPlug uses this command to stop your server.");

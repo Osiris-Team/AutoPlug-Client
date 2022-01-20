@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -84,7 +84,7 @@ public class TaskPluginsUpdater extends BetterThread {
                         "bukkit-id: Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n" +
                         "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
                         "custom-download-url: must be a static url to the plugins latest jar file.\n" +
-                        "alternatives.github.repo-name: The github repository name can be found in its url or on its page. Example: EssentialsX/Essentials (full url: https://github.com/EssentialsX/Essentials)\n" +
+                        "alternatives.github.repo-name: <author>/<name> Example: EssentialsX/Essentials (can be found in its url: https://github.com/EssentialsX/Essentials)\n" +
                         "alternatives.github.asset-name: The name of the release asset to download, without version info. For example 'EssentialsX'.\n" +
                         "alternatives.jenkins.project-url: The url of the jenkins project. For example: https://ci.ender.zone/job/EssentialsX/\n" +
                         "alternatives.jenkins.artifact-name: The name of the artifact to download, without version info. For example 'EssentialsX'.\n" +

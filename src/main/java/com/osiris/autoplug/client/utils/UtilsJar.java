@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.Collection;
 import java.util.Properties;
 
 public class UtilsJar {
-
 
     public File determineServerJar() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
         GeneralConfig generalConfig = new GeneralConfig();
@@ -36,10 +36,23 @@ public class UtilsJar {
                 else
                     GD.SERVER_JAR = new File(jar);
             } else
-                GD.SERVER_JAR = fileManager.serverJar(jar);
+                GD.SERVER_JAR = new File(jar);
         } else
             GD.SERVER_JAR = fileManager.serverJar();
         return GD.SERVER_JAR;
+    }
+
+    /**
+     * Returns the currently running jar file.
+     */
+    public File getThisJar() throws URISyntaxException {
+        String path = Main.class
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toURI()
+                .getPath();
+        return new File(path);
     }
 
     @NotNull

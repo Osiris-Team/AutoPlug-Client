@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -17,6 +17,7 @@ import java.io.File;
  * GlobalData, which is always static and used frequently in this project
  */
 public class GD {
+    // TODO make all of these not static and deprecate this class
     public static final String OFFICIAL_WEBSITE = "https://autoplug.one/";
     public static final String AUTHOR = "Osiris Team";
     @NotNull
@@ -25,7 +26,6 @@ public class GD {
     public static File PLUGINS_DIR;
     @Nullable
     public static File SERVER_JAR = null; // Gets set in UpdaterConfig
-    public static File AUTOPLUG_JAR = null; // Gets set in Main
 
     static {
         WORKING_DIR = new File(System.getProperty("user.dir"));

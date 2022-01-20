@@ -298,7 +298,7 @@ public final class Server {
                         currentIsRunningCheck = Server.isRunning();
                         if (!currentIsRunningCheck && lastIsRunningCheck) {
                             AL.info("Server was stopped.");
-                            if (new GeneralConfig().server_autoplug_stop.asBoolean()) {
+                            if (new GeneralConfig().autoplug_auto_stop.asBoolean()) {
                                 AL.info("Stopping AutoPlug too, since 'autoplug-stop' is enabled.");
                                 System.exit(0);
                             } else {

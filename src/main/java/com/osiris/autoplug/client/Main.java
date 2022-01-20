@@ -80,14 +80,6 @@ public class Main {
                 return;
             }
 
-            String jarPath = Main.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()
-                    .getPath();
-            GD.AUTOPLUG_JAR = new File(jarPath);
-
             SystemChecker system = new SystemChecker();
             system.checkReadWritePermissions();
             system.checkInternetAccess();
@@ -119,7 +111,7 @@ public class Main {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-            AL.debug(Main.class, "Running autoplug from: " + jarPath);
+            AL.debug(Main.class, "Running autoplug from: " + new UtilsJar().getThisJar());
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("There was a critical error that prevented AutoPlug from starting!");
@@ -179,7 +171,7 @@ public class Main {
             }
 
 
-            AL.info("Loading configurations...");
+            AL.info("Checking configurations...");
             new UtilsJar().determineServerJar();
             UtilsConfig utilsConfig = new UtilsConfig();
 
@@ -235,7 +227,7 @@ public class Main {
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
-            AL.info("Configurations loaded.");
+            AL.info("Configurations checked.");
 
             AL.debug(Main.class, " ");
             AL.debug(Main.class, "DEBUG DETAILS:");
