@@ -47,7 +47,7 @@ public class ConFileManager extends SecondaryConnection {
             thread = new Thread(() -> {
                 try {
                     while (true) {
-                        byte requestType = dis.readByte();
+                        byte requestType = dis.readByte(); // Blocks indefinitely
                         getSocket().setSoTimeout(5000);
                         if (requestType == 0) {
                             doProtocolForSendingFileDetails();
@@ -63,6 +63,8 @@ public class ConFileManager extends SecondaryConnection {
                             doProtocolForReceivingUploadedFile();
                         } else if (requestType == 6) {
                             doProtocolForCopyOrCutFiles();
+                        } else if (requestType == 7) {
+                            doProtocolForSendingRoots();
                         } else {
                             AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
                         }
@@ -79,6 +81,16 @@ public class ConFileManager extends SecondaryConnection {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
+    }
+
+    private void doProtocolForSendingRoots() throws IOException {
+        File[] roots = File.listRoots();
+        dos.writeInt(roots.length);
+        for (File f :
+                roots) {
+            dos.writeLine(f.getAbsolutePath()); // For example "C:\" or "D:\" etc. on Windows
+        }
+
     }
 
     private void doProtocolForCopyOrCutFiles() throws IOException {

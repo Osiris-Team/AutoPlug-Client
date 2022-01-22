@@ -32,7 +32,7 @@ public class ConMain extends Thread {
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
     public static boolean isLoggedIn = false;
     public static boolean isLoggedInOld = false; // Local variable that holds the auth boolean before the current one
-    public SecuredConnection auth;
+    public SecuredConnection con;
     public DataInputStream dis;
 
     @Override
@@ -40,9 +40,9 @@ public class ConMain extends Thread {
         super.run();
         try {
             AL.info("Authenticating server...");
-            auth = new SecuredConnection((byte) 0);
+            con = new SecuredConnection((byte) 0);
             AL.info("Authentication success!");
-            dis = new DataInputStream(auth.getInput());
+            dis = new DataInputStream(con.getInput());
             CON_PUBLIC_DETAILS.open();
             isDone = true;
         } catch (Exception e) {
@@ -52,11 +52,11 @@ public class ConMain extends Thread {
         }
         while (true) {
             try {
-                if (auth == null || !auth.getSocket().isConnected()) {
+                if (con == null || !con.isAlive()) {
                     AL.info("Authenticating server...");
-                    auth = new SecuredConnection((byte) 0);
+                    con = new SecuredConnection((byte) 0);
                     AL.info("Authentication success!");
-                    dis = new DataInputStream(auth.getInput());
+                    dis = new DataInputStream(con.getInput());
                     CON_PUBLIC_DETAILS.open();
                 }
 
@@ -99,7 +99,7 @@ public class ConMain extends Thread {
                 isLoggedInOld = false;
                 isLoggedIn = false;
                 closeAll();
-                if (auth == null || auth.errorCode == 0) {
+                if (con == null || con.errorCode == 0) {
                     AL.warn("Connection problems! Reconnecting in 30 seconds...");
                     try {
                         Thread.sleep(30000);
@@ -119,8 +119,8 @@ public class ConMain extends Thread {
     public void closeAll() {
         // Make sure socket is really closed
         try {
-            if (auth != null && auth.getSocket() != null && !auth.getSocket().isClosed())
-                auth.getSocket().close();
+            if (con != null && con.getSocket() != null && !con.getSocket().isClosed())
+                con.getSocket().close();
         } catch (IOException ioException) {
             AL.warn(ioException);
         }

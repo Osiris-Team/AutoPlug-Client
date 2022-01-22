@@ -159,6 +159,10 @@ public class SecuredConnection {
         );
     }
 
+    public boolean isAlive() {
+        return socket != null && !socket.isClosed();
+    }
+
     public Socket getSocket() {
         return socket;
     }
