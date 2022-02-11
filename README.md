@@ -33,7 +33,8 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 
 ### Bounties
 Some issues are marked with a tag/label like this: `bounty: 10€`, which means that the first person
-creating a pull request for fixing that issue will receive the bounty (10€). Note that payments are only made via PayPal, so make sure
+creating a pull request for fixing that issue will receive the bounty (10€). Note that your code must have
+at least one test demonstrating that the implemented fix/feature is working. Also note that payments are only made via PayPal, so make sure
 that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
 By commiting to an issue with the bounty tag you agree to these terms.
 
