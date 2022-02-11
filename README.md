@@ -28,18 +28,19 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 ## AutoPlug-Client | Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
 Beginners:
-
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
-Important:
+Bounties:
+Some issues are marked with a tag like this: `bounty: 10€`, which means that the first person
+creating a pull request for fixing that issue will receive the bounty (10€).
 
+Important:
 - Create an issue first, if you want to do big changes.
 - You can pick and work on any open issue. 
 - Please comment on the issue you picked, that you are working on it.
 
 Details:
-
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
