@@ -32,7 +32,7 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ### Bounties
-Some issues are marked with a tag like this: `bounty: 10€`, which means that the first person
+Some issues are marked with a tag/label like this: `bounty: 10€`, which means that the first person
 creating a pull request for fixing that issue will receive the bounty (10€). Note that payments are only made via PayPal, so make sure
 that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
 By commiting to an issue with the bounty tag you agree to these terms.
