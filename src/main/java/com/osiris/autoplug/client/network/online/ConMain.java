@@ -116,6 +116,10 @@ public class ConMain extends Thread {
         }
     }
 
+    public boolean isConnected() {
+        return con != null && con.getSocket() != null && !con.getSocket().isClosed() && con.getSocket().isConnected();
+    }
+
     public void closeAll() {
         // Make sure socket is really closed
         try {
