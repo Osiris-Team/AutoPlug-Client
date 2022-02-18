@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,11 +8,12 @@
 
 package com.osiris.autoplug.client.tasks;
 
-import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.configs.LoggerConfig;
+import com.osiris.autoplug.client.configs.SystemConfig;
+import com.osiris.autoplug.client.configs.TasksConfig;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.tasks.backup.TaskPluginsBackup;
-import com.osiris.autoplug.client.tasks.backup.TaskServerFilesBackup;
-import com.osiris.autoplug.client.tasks.backup.TaskWorldsBackup;
+import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
@@ -83,19 +84,15 @@ public class BeforeServerStartupTasks {
                 displayer.start();
             else {
                 AL.info("Waiting for before startup tasks to finish...");
-                if (new BackupConfig().backup_worlds.asBoolean())
-                    AL.info("Note that world backups are enabled. The bigger your worlds, the longer it will take to back them up!");
                 new CustomDisplayer(manager).start();
             }
 
             // Create processes
             TaskSelfUpdater selfUpdater = null;
             if (!isUpdaterCoolDownActive)
-                selfUpdater = new TaskSelfUpdater("Self-Updater", manager);
+                selfUpdater = new TaskSelfUpdater("SelfUpdater", manager);
 
-            TaskServerFilesBackup taskServerFilesBackup = new TaskServerFilesBackup("ServerFilesBackup", manager);
-            TaskWorldsBackup taskWorldsBackup = new TaskWorldsBackup("WorldsBackup", manager);
-            TaskPluginsBackup taskPluginsBackup = new TaskPluginsBackup("PluginsBackup", manager);
+            TaskBackup taskBackup = new TaskBackup("BackupTask", manager);
 
             TaskGeneral taskGeneral = new TaskGeneral("GeneralTasks", manager);
 
@@ -121,12 +118,10 @@ public class BeforeServerStartupTasks {
                     Thread.sleep(1000);
             }
 
-            taskWorldsBackup.start();
-            taskPluginsBackup.start();
-            taskServerFilesBackup.start();
+            taskBackup.start();
 
             // Wait till backup is done
-            while (!taskWorldsBackup.isFinished() || !taskPluginsBackup.isFinished() || !taskServerFilesBackup.isFinished())
+            while (!taskBackup.isFinished())
                 Thread.sleep(1000);
 
             taskGeneral.start();

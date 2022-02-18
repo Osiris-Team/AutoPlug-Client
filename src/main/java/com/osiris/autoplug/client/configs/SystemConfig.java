@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -16,9 +16,7 @@ import java.io.IOException;
 
 public class SystemConfig extends DreamYaml {
 
-    public DYModule timestamp_last_server_files_backup_task;
-    public DYModule timestamp_last_worlds_backup_task;
-    public DYModule timestamp_last_plugins_backup_task;
+    public DYModule timestamp_last_backup;
 
     public DYModule timestamp_last_updater_tasks; // Only matters if global cooldown for updaters is enabled
     public DYModule autoplug_web_ssl;
@@ -44,9 +42,7 @@ public class SystemConfig extends DreamYaml {
 
         timestamp_last_updater_tasks = put(name, "timestamp-last-updater-tasks");
 
-        timestamp_last_server_files_backup_task = put(name, "timestamp-last-server-files-backup-task");
-        timestamp_last_worlds_backup_task = put(name, "timestamp-last-worlds-backup-task");
-        timestamp_last_plugins_backup_task = put(name, "timestamp-last-plugins-backup-task");
+        timestamp_last_backup = put(name, "timestamp-last-backup-task");
 
         autoplug_web_ssl = put(name, "autoplug-web-ssl").setDefValues("true").setComments("If localhost is used below, remember to set this to false too!");
         autoplug_web_ip = put(name, "autoplug-web-ip").setDefValues("144.91.78.158").setComments("Set to localhost to test on the local server.");
