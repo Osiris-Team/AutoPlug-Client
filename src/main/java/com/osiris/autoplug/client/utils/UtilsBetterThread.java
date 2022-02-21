@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -20,23 +20,24 @@ import java.io.IOException;
 
 public class UtilsBetterThread {
 
-    public BetterThreadManager createManagerWithDisplayer() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException, JLineLinkException {
+    public MyBetterThreadManager createManagerWithDisplayer() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException, JLineLinkException {
         LoggerConfig loggerConfig = new LoggerConfig();
         TasksConfig tasksConfig = new TasksConfig();
         BetterThreadManager manager = new BetterThreadManager();
+        BetterThreadDisplayer displayer = new BetterThreadDisplayer(
+                manager,
+                "[" + loggerConfig.autoplug_label.asString() + "]",
+                "[TASK]",
+                null,
+                tasksConfig.show_warnings.asBoolean(),
+                tasksConfig.show_detailed_warnings.asBoolean(),
+                tasksConfig.refresh_interval.asInt());
         if (tasksConfig.live_tasks.asBoolean()) {
-            new BetterThreadDisplayer(
-                    manager,
-                    "[" + loggerConfig.autoplug_label.asString() + "]",
-                    "[TASK]",
-                    null,
-                    tasksConfig.show_warnings.asBoolean(),
-                    tasksConfig.show_detailed_warnings.asBoolean(),
-                    tasksConfig.refresh_interval.asInt()).start();
+            displayer.start();
         } else {
             new CustomDisplayer(manager).start();
         }
-        return manager;
+        return new MyBetterThreadManager(manager, displayer);
     }
 
 }

@@ -61,9 +61,11 @@ public class PluginManager {
                     fis = new FileInputStream(jar);
                     zis = new ZipInputStream(fis);
                     ze = zis.getNextEntry();
+                    boolean found = false;
                     while (ze != null) {
                         String fileName = ze.getName();
-                        if (fileName.equals("plugin.yml") || fileName.equals("bungee.yml")) {
+                        if (!found && (fileName.equals("plugin.yml") || fileName.equals("bungee.yml"))) {
+                            found = true;
                             // Extract this plugin.yml file
                             FileOutputStream fos = new FileOutputStream(ymlFile);
                             int len;

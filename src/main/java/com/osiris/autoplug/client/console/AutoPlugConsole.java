@@ -18,9 +18,10 @@ import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.utils.MyBetterThreadManager;
 import com.osiris.autoplug.client.utils.UtilsBetterThread;
+import com.osiris.autoplug.client.utils.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThreadManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -137,20 +138,24 @@ public final class AutoPlugConsole {
                     }
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {
-                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskSelfUpdater("SelfUpdater", man).start();
+                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskSelfUpdater("SelfUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
                     return true;
                 } else if (command.equals(".check java") || command.equals(".cj")) {
-                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskJavaUpdater("JavaUpdater", man).start();
+                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskJavaUpdater("JavaUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
                     return true;
                 } else if (command.equals(".check server") || command.equals(".cs")) {
-                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskServerUpdater("ServerUpdater", man).start();
+                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskServerUpdater("ServerUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
                     return true;
                 } else if (command.equals(".check plugins") || command.equals(".cp")) {
-                    BetterThreadManager man = new UtilsBetterThread().createManagerWithDisplayer();
-                    new TaskPluginsUpdater("PluginsUpdater", man).start();
+                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskPluginsUpdater("PluginsUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");

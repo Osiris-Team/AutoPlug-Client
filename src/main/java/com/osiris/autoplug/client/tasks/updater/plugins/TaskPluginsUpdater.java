@@ -158,10 +158,10 @@ public class TaskPluginsUpdater extends BetterThread {
                         this.addWarning("Plugin " + pl.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
                     }
 
-                    if (!exclude.asBoolean())
-                        includedPlugins.add(pl);
-                    else
+                    if (exclude.asBoolean())
                         excludedPlugins.add(pl);
+                    else
+                        includedPlugins.add(pl);
                 } catch (DuplicateKeyException e) {
                     addWarning(new BetterWarning(this, e, "Duplicate plugin '" + pl.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
                             "Its recommended to remove it."));
@@ -199,9 +199,9 @@ public class TaskPluginsUpdater extends BetterThread {
         // The minimum required information is:
         // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
         setStatus("Fetching latest plugin data...");
-        int size = includedPlugins.size();
-        if (size == 0) throw new Exception("Plugins size is 0! Nothing to check...");
-        setMax(size);
+        int includedSize = includedPlugins.size();
+        if (includedSize == 0) throw new Exception("Plugins size is 0! Nothing to check...");
+        setMax(includedSize);
 
         // TODO USE THIS FOR RESULT REPORT
         int sizeJenkinsPlugins = 0;
@@ -212,7 +212,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
         ExecutorService executorService;
         if (updaterConfig.plugin_updater_async.asBoolean())
-            executorService = Executors.newFixedThreadPool(size);
+            executorService = Executors.newFixedThreadPool(includedSize);
         else
             executorService = Executors.newSingleThreadExecutor();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
@@ -265,7 +265,7 @@ public class TaskPluginsUpdater extends BetterThread {
                 String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
                 String resultSpigotId = result.getSpigotId();
                 String resultBukkitId = result.getBukkitId();
-                this.setStatus("Checked '" + pl.getName() + "' plugin (" + results.size() + "/" + size + ")");
+                this.setStatus("Checked '" + pl.getName() + "' plugin (" + results.size() + "/" + includedSize + ")");
                 if (code == 0 || code == 1) {
 
                     if (code == 1 && pl.isPremium())
@@ -363,7 +363,13 @@ public class TaskPluginsUpdater extends BetterThread {
         }
 
         pluginsConfig.save();
-        finish("Finished checking all plugins (" + results.size() + "/" + size + ")");
+        if (excludedPlugins.size() > 0) {
+            includedSize += excludedPlugins.size();
+            finish("Checked " + results.size() + "/" + includedSize + " plugins. Some plugins were excluded.");
+        } else {
+            finish("Checked " + results.size() + "/" + includedSize + " plugins.");
+        }
+
     }
 
     private void doDownloadLogic(@NotNull DetailedPlugin pl, SearchResult result) {

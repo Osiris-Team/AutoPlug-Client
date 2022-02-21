@@ -50,6 +50,7 @@ public class ConMain extends Thread {
             isDone = true;
             return;
         }
+        int msUntilRetry = 30000;
         while (true) {
             try {
                 if (con == null || !con.isAlive()) {
@@ -58,6 +59,7 @@ public class ConMain extends Thread {
                     AL.info("Authentication success!");
                     dis = new DataInputStream(con.getInput());
                     CON_PUBLIC_DETAILS.open();
+                    msUntilRetry = 30000;
                 }
 
                 isDone = true;
@@ -100,9 +102,10 @@ public class ConMain extends Thread {
                 isLoggedIn = false;
                 closeAll();
                 if (con == null || con.errorCode == 0) {
-                    AL.warn("Connection problems! Reconnecting in 30 seconds...");
+                    AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
                     try {
-                        Thread.sleep(30000);
+                        Thread.sleep(msUntilRetry);
+                        msUntilRetry += 30000;
                     } catch (Exception exception) {
                         AL.warn(exception);
                         AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");

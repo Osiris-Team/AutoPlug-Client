@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -162,5 +162,9 @@ public class DetailedPlugin {
 
     public void setCustomDownloadURL(String customDownloadURL) {
         this.customDownloadURL = customDownloadURL;
+    }
+
+    public String toPrintString() {
+        return "name='" + name + "' version='" + version + "' author='" + author + "' path='" + installationPath + "'";
     }
 }

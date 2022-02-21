@@ -22,16 +22,13 @@ import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.UtilsConfig;
+import com.osiris.autoplug.client.utils.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.LogFileWriter;
-import com.osiris.autoplug.core.logger.Message;
-import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadDisplayer;
 import com.osiris.betterthread.BetterThreadManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -153,24 +150,11 @@ public class BeforeServerStartupTasks {
             systemConfig.save();
             systemConfig.unlockFile();// Save the current timestamp to file
 
-            writeFinalStatus(manager.getAll());
 
             if (!tasksConfig.live_tasks.asBoolean())
                 displayer.printAll();
 
-
-            PrintWriter printWriter = new PrintWriter(LogFileWriter.BUFFERED_WRITER);
-
-            // We want the log file to have all the information.
-            boolean showWarnings = displayer.isShowWarnings();
-            boolean showDetailedWarnings = displayer.isShowDetailedWarnings();
-            displayer.setShowWarnings(true);
-            displayer.setShowDetailedWarnings(true);
-
-            displayer.printAndWriteResults(null, printWriter);
-
-            displayer.setShowWarnings(showWarnings);
-            displayer.setShowDetailedWarnings(showDetailedWarnings);
+            new UtilsTasks().writeAndPrintFinalResults(manager, displayer);
 
             // We don't need to do the below, because its already automatically done when the tasks finish
             //displayer.printAndWriteResults(printStream, null);
@@ -204,22 +188,7 @@ public class BeforeServerStartupTasks {
     }
 
     private void writeFinalStatus(List<BetterThread> all) {
-        for (BetterThread t :
-                all) {
-            StringBuilder builder = new StringBuilder();
-            if (t.isSuccess())
-                builder.append("[OK]");
-            else if (t.isSkipped())
-                builder.append("[SKIPPED]");
-            else
-                builder.append("[" + t.getWarnings().size() + "x WARN]");
 
-            builder.append("[" + t.getName() + "] ");
-            builder.append(t.getStatus());
-
-            LogFileWriter.writeToLog(MessageFormatter.formatForFile(
-                    new Message(Message.Type.INFO, builder.toString())));
-        }
     }
 
     private void printFinalStatus(@NotNull List<BetterThread> all) {
