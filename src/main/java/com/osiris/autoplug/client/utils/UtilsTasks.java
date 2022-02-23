@@ -38,6 +38,8 @@ public class UtilsTasks {
                 builder.append("[OK]");
             else if (t.isSkipped())
                 builder.append("[SKIPPED]");
+            else if (t.getWarnings().isEmpty())
+                builder.append("[FAILED]");
             else
                 builder.append("[" + t.getWarnings().size() + "x WARN]");
 

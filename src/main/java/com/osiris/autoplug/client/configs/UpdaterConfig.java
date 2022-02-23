@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -35,6 +35,7 @@ public class UpdaterConfig extends DreamYaml {
     public DYModule server_software;
     public DYModule server_version;
     public DYModule server_build_id;
+    public DYModule server_skip_hash_check;
     public DYModule server_github_repo_name;
     public DYModule server_github_asset_name;
     public DYModule server_github_version;
@@ -134,6 +135,8 @@ public class UpdaterConfig extends DreamYaml {
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                         "Otherwise don't touch this. It will gets updated after every successful update automatically.");
+        server_skip_hash_check = put(name, "server-updater", "skip-hash-check").setDefValues("false").setComments(
+                "Its not recommended to enable this.");
 
         server_github_repo_name = put(name, "server-updater", "alternatives", "github", "repo-name").setComments(
                 "The github repository name can be found in its url or on its page. Example: EssentialsX/Essentials (full url: https://github.com/EssentialsX/Essentials)"

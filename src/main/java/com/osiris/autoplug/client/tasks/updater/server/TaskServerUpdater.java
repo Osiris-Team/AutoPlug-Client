@@ -196,7 +196,7 @@ public class TaskServerUpdater extends BetterThread {
                             setStatus("Server update downloaded successfully.");
                             setSuccess(true);
                         } else {
-                            setStatus("Downloaded server update is broken. Nothing changed!");
+                            setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
                             setSuccess(false);
                         }
 
@@ -234,8 +234,22 @@ public class TaskServerUpdater extends BetterThread {
                             updaterConfig.save();
                             setSuccess(true);
                         } else {
-                            setStatus("Downloaded server update is broken. Nothing changed!");
-                            setSuccess(false);
+                            if (updaterConfig.server_skip_hash_check.asBoolean()) {
+                                addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
+                                File final_dest = GD.SERVER_JAR;
+                                if (final_dest == null)
+                                    final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
+                                if (final_dest.exists()) final_dest.delete();
+                                final_dest.createNewFile();
+                                FileUtils.copyFile(cache_dest, final_dest);
+                                setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
+                                updaterConfig.server_build_id.setValues("" + latestBuildId);
+                                updaterConfig.save();
+                                setSuccess(true);
+                            } else {
+                                setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
+                                setSuccess(false);
+                            }
                         }
 
                     } else {
@@ -285,7 +299,7 @@ public class TaskServerUpdater extends BetterThread {
                             setStatus("Server update downloaded successfully.");
                             setSuccess(true);
                         } else {
-                            setStatus("Downloaded server update is broken. Nothing changed!");
+                            setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
                             setSuccess(false);
                         }
 
@@ -326,8 +340,22 @@ public class TaskServerUpdater extends BetterThread {
                             updaterConfig.save();
                             setSuccess(true);
                         } else {
-                            setStatus("Downloaded server update is broken. Nothing changed!");
-                            setSuccess(false);
+                            if (updaterConfig.server_skip_hash_check.asBoolean()) {
+                                addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
+                                File final_dest = GD.SERVER_JAR;
+                                if (final_dest == null)
+                                    final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
+                                if (final_dest.exists()) final_dest.delete();
+                                final_dest.createNewFile();
+                                FileUtils.copyFile(cache_dest, final_dest);
+                                setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
+                                updaterConfig.server_build_id.setValues("" + latest_build_id);
+                                updaterConfig.save();
+                                setSuccess(true);
+                            } else {
+                                setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
+                                setSuccess(false);
+                            }
                         }
 
                     } else {
