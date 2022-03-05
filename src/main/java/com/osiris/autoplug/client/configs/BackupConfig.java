@@ -10,8 +10,8 @@ package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.File;
@@ -19,29 +19,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BackupConfig extends DreamYaml {
+public class BackupConfig extends Yaml {
 
-    public DYModule backup;
-    public DYModule backup_max_days;
-    public DYModule backup_cool_down;
-    public DYModule backup_exclude;
-    public DYModule backup_exclude_list;
-    public DYModule backup_include;
-    public DYModule backup_include_list;
-    public DYModule backup_upload;
-    public DYModule backup_upload_delete_on_complete;
-    public DYModule backup_upload_host;
-    public DYModule backup_upload_port;
-    public DYModule backup_upload_user;
-    public DYModule backup_upload_password;
-    public DYModule backup_upload_path;
-    public DYModule backup_upload_rsa;
+    public YamlSection backup;
+    public YamlSection backup_max_days;
+    public YamlSection backup_cool_down;
+    public YamlSection backup_exclude;
+    public YamlSection backup_exclude_list;
+    public YamlSection backup_include;
+    public YamlSection backup_include_list;
+    public YamlSection backup_upload;
+    public YamlSection backup_upload_delete_on_complete;
+    public YamlSection backup_upload_host;
+    public YamlSection backup_upload_port;
+    public YamlSection backup_upload_user;
+    public YamlSection backup_upload_password;
+    public YamlSection backup_upload_path;
+    public YamlSection backup_upload_rsa;
 
-    public BackupConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public BackupConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
     }
 
-    public BackupConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public BackupConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
         lockFile();
         load();
@@ -59,7 +59,7 @@ public class BackupConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        put(name).setCountTopSpaces(1);
+        put(name).setCountTopLineBreaks(1);
         backup = put(name, "enable").setDefValues("true");
         backup_max_days = put(name, "max-days").setDefValues("7").setComments(
                 "Set max-days to 0 if you want to keep your backups forever.");

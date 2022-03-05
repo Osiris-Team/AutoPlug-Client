@@ -8,32 +8,32 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class GeneralConfig extends DreamYaml {
-    public DYModule autoplug_auto_stop;
+public class GeneralConfig extends Yaml {
+    public YamlSection autoplug_auto_stop;
 
-    public DYModule server_key;
-    public DYModule server_auto_start;
-    public DYModule server_auto_eula;
-    public DYModule server_stop_command;
-    public DYModule server_java_path;
-    public DYModule server_jar;
-    public DYModule server_flags_enabled;
-    public DYModule server_flags_list;
-    public DYModule server_arguments_enabled;
-    public DYModule server_arguments_list;
-    public DYModule server_restart_on_crash;
+    public YamlSection server_key;
+    public YamlSection server_auto_start;
+    public YamlSection server_auto_eula;
+    public YamlSection server_stop_command;
+    public YamlSection server_java_path;
+    public YamlSection server_jar;
+    public YamlSection server_flags_enabled;
+    public YamlSection server_flags_list;
+    public YamlSection server_arguments_enabled;
+    public YamlSection server_arguments_list;
+    public YamlSection server_restart_on_crash;
 
-    public DYModule directory_cleaner;
-    public DYModule directory_cleaner_max_days;
-    public DYModule directory_cleaner_files;
+    public YamlSection directory_cleaner;
+    public YamlSection directory_cleaner_max_days;
+    public YamlSection directory_cleaner_files;
 
-    public GeneralConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    public GeneralConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/general-config.yml");
         lockFile();
         load();
@@ -51,11 +51,11 @@ public class GeneralConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        put(name, "autoplug").setCountTopSpaces(1);
+        put(name, "autoplug").setCountTopLineBreaks(1);
         autoplug_auto_stop = put(name, "autoplug", "auto-stop").setDefValues("false").setComments(
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
 
-        put(name, "server").setCountTopSpaces(1);
+        put(name, "server").setCountTopLineBreaks(1);
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
                 "Enter your Server-Key here. You get it by registering yourself and your server on https://autoplug.one.\n" +
                         "The Server-Key enables remote access from your account.\n" +
@@ -114,7 +114,7 @@ public class GeneralConfig extends DreamYaml {
 
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 
-        put(name, "directory-cleaner").setCountTopSpaces(1);
+        put(name, "directory-cleaner").setCountTopLineBreaks(1);
         directory_cleaner = put(name, "directory-cleaner", "enabled").setDefValues("true")
                 .setComments("Deletes files older than 'max-days' in the selected directories.");
         directory_cleaner_max_days = put(name, "directory-cleaner", "max-days")

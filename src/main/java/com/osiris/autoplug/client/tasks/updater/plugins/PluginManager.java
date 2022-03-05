@@ -10,8 +10,8 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import net.lingala.zip4j.ZipFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,16 +76,16 @@ public class PluginManager {
                             zis.closeEntry();
 
                             // Load the plugin.yml and get its details
-                            final DreamYaml ymlConfig = new DreamYaml(ymlFile);
+                            final Yaml ymlConfig = new Yaml(ymlFile);
                             ymlConfig.load();
 
                             String name = ymlConfig.put("name").asString();
                             //if (name==null || name.isEmpty()){ // In this case use the jars name as name
                             //    name = jar.getName();
                             //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
-                            DYModule version = ymlConfig.put("version");
-                            DYModule authorRaw = ymlConfig.put("author");
-                            DYModule authorsRaw = ymlConfig.put("authors");
+                            YamlSection version = ymlConfig.put("version");
+                            YamlSection authorRaw = ymlConfig.put("author");
+                            YamlSection authorsRaw = ymlConfig.put("authors");
 
                             String author = null;
                             if (!authorRaw.getValues().isEmpty())
@@ -107,8 +107,8 @@ public class PluginManager {
                             // Also check for ids in the plugin.yml
                             int spigotId = 0;
                             int bukkitId = 0;
-                            DYModule mSpigotId = ymlConfig.get("spigot-id");
-                            DYModule mBukkitId = ymlConfig.get("bukkit-id");
+                            YamlSection mSpigotId = ymlConfig.get("spigot-id");
+                            YamlSection mBukkitId = ymlConfig.get("bukkit-id");
                             if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
                             if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 

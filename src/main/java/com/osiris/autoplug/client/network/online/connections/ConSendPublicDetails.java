@@ -58,7 +58,7 @@ public class ConSendPublicDetails extends SecondaryConnection {
                     }
                     // TODO detect port for proxies and other servers.
                     // For bungeecord the port is located inside config.yml.
-                    // Problem with that file is that is has yml features unsupported by DreamYaml at the moment.
+                    // Problem with that file is that is has yml features unsupported by Yaml at the moment.
                     // Maybe make a more universal approach like getting the port after the server process was started.
 
                     if (portAsString != null) {

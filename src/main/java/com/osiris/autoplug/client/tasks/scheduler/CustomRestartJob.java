@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.tasks.scheduler;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
+import com.osiris.dyml.YamlSection;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -31,11 +31,11 @@ public class CustomRestartJob implements Job {
 
             // Before restarting execute commands
             RestarterConfig config = new RestarterConfig();
-            List<DYModule> modules = config.c_restarter_commands.getChildModules();
+            List<YamlSection> modules = config.c_restarter_commands.getChildModules();
 
             // Sort the stuff
             List<Integer> keysAsIntsList = new ArrayList<>();
-            for (DYModule m :
+            for (YamlSection m :
                     modules) {
                 keysAsIntsList.add(Integer.parseInt(m.getLastKey()));
             }
@@ -47,7 +47,7 @@ public class CustomRestartJob implements Job {
 
             AL.info("Executing scheduled restart in " + keysAsIntsArray[0] + "sec(s)...");
             for (int i = keysAsIntsArray[0]; i >= 0; i--) { // The first int, has the highest value, bc of the sorting
-                for (DYModule m :
+                for (YamlSection m :
                         modules) {
                     if (Integer.parseInt(m.getLastKey()) == i) {
                         AL.debug(this.getClass(), "Executing command(s): " + m.getValues().toString());

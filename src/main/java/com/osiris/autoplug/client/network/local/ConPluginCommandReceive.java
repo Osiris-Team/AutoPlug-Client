@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -97,7 +97,7 @@ public class ConPluginCommandReceive {
                         thread.start();
                     }
                 }
-            } catch (IOException | DYWriterException | NotLoadedException | IllegalKeyException | DuplicateKeyException | DYReaderException | IllegalListException e) {
+            } catch (IOException | YamlWriterException | NotLoadedException | IllegalKeyException | DuplicateKeyException | YamlReaderException | IllegalListException e) {
                 e.printStackTrace();
             }
 

@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class UtilsBetterThread {
 
-    public MyBetterThreadManager createManagerWithDisplayer() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException, JLineLinkException {
+    public MyBetterThreadManager createManagerWithDisplayer() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
         LoggerConfig loggerConfig = new LoggerConfig();
         TasksConfig tasksConfig = new TasksConfig();
         BetterThreadManager manager = new BetterThreadManager();

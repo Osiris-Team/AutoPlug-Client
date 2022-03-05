@@ -17,8 +17,8 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,7 +45,7 @@ public class TaskPluginsUpdater extends BetterThread {
     private final List<DetailedPlugin> allPlugins = new ArrayList<>();
     @NotNull
     private final List<DetailedPlugin> excludedPlugins = new ArrayList<>();
-    DreamYaml pluginsConfig;
+    Yaml pluginsConfig;
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private String pluginsConfigName;
@@ -61,7 +61,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
     @Override
     public void runAtStart() throws Exception {
-        pluginsConfig = new DreamYaml(System.getProperty("user.dir") + "/autoplug/plugins-config.yml");
+        pluginsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/plugins-config.yml");
         pluginsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = pluginsConfig.getFileNameWithoutExt();
         pluginsConfig.put(name).setComments(
@@ -96,7 +96,7 @@ public class TaskPluginsUpdater extends BetterThread {
                         "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
                         "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2\n");
 
-        DYModule keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
+        YamlSection keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
                 .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
         PluginManager man = new PluginManager();
@@ -109,21 +109,21 @@ public class TaskPluginsUpdater extends BetterThread {
                     if (pl.getName() == null || pl.getName().isEmpty())
                         throw new Exception("The plugins name couldn't be determined for '" + pl.getInstallationPath() + "'!");
 
-                    DYModule exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
-                    DYModule version = pluginsConfig.put(name, plName, "version").setDefValues(pl.getVersion());
-                    DYModule latestVersion = pluginsConfig.put(name, plName, "latest-version");
-                    DYModule author = pluginsConfig.put(name, plName, "author").setDefValues(pl.getAuthor());
-                    DYModule spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
-                    //DYModule songodaId = new DYModule(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
-                    DYModule bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
-                    DYModule ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
-                    DYModule customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
-                    DYModule customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
-                    DYModule githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
-                    DYModule githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
-                    DYModule jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
-                    DYModule jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
-                    DYModule jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                    YamlSection exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
+                    YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(pl.getVersion());
+                    YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
+                    YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(pl.getAuthor());
+                    YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
+                    //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
+                    YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
+                    YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
+                    YamlSection customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
+                    YamlSection customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
+                    YamlSection githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
+                    YamlSection githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
+                    YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
+                    YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
+                    YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
                     // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                     if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -284,12 +284,12 @@ public class TaskPluginsUpdater extends BetterThread {
                     getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
                 try {
-                    DYModule mSpigotId = pluginsConfig.get(pluginsConfigName, pl.getName(), "spigot-id");
+                    YamlSection mSpigotId = pluginsConfig.get(pluginsConfigName, pl.getName(), "spigot-id");
                     if (resultSpigotId != null
                             && (mSpigotId.asString() == null || mSpigotId.asInt() == 0)) // Because we can get a "null" string from the server
                         mSpigotId.setValues(resultSpigotId);
 
-                    DYModule mBukkitId = pluginsConfig.get(pluginsConfigName, pl.getName(), "bukkit-id");
+                    YamlSection mBukkitId = pluginsConfig.get(pluginsConfigName, pl.getName(), "bukkit-id");
                     if (resultBukkitId != null
                             && (mSpigotId.asString() == null || mSpigotId.asInt() == 0)) // Because we can get a "null" string from the server
                         mBukkitId.setValues(resultBukkitId);
@@ -341,10 +341,10 @@ public class TaskPluginsUpdater extends BetterThread {
 
                 if (finishedDownloadTask.isInstallSuccessful()) {
                     matchingResult.setResultCode((byte) 6);
-                    DYModule jenkinsBuildId = pluginsConfig.get(
+                    YamlSection jenkinsBuildId = pluginsConfig.get(
                             pluginsConfigName, finishedDownloadTask.getPlName(), "alternatives", "jenkins", "build-id");
                     jenkinsBuildId.setValues("" + finishedDownloadTask.searchResult.jenkinsId);
-                    DYModule version = pluginsConfig.get(
+                    YamlSection version = pluginsConfig.get(
                             pluginsConfigName, finishedDownloadTask.getPlName(), "version");
                     version.setValues(finishedDownloadTask.searchResult.getLatestVersion());
                 }
@@ -388,7 +388,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
             try {
                 // Update the in-memory config
-                DYModule mLatest = pluginsConfig.get(pluginsConfigName, pl.getName(), "latest-version");
+                YamlSection mLatest = pluginsConfig.get(pluginsConfigName, pl.getName(), "latest-version");
                 mLatest.setValues(latest); // Gets saved later
             } catch (Exception e) {
                 getWarnings().add(new BetterWarning(this, e));

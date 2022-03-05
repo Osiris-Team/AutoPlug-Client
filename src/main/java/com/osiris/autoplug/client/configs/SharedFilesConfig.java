@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,20 +8,20 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class SharedFilesConfig extends DreamYaml {
+public class SharedFilesConfig extends Yaml {
 
-    public DYModule enable;
-    public DYModule copy_from;
-    public DYModule send_to;
+    public YamlSection enable;
+    public YamlSection copy_from;
+    public YamlSection send_to;
 
 
-    public SharedFilesConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public SharedFilesConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/shared-files-config.yml");
         lockFile();
         load();
@@ -51,8 +51,10 @@ public class SharedFilesConfig extends DreamYaml {
                         ""
                 );
 
-        send_to = put(name, "send-to").addDefValueWithComment("C:\\User\\Peter\\servers\\my-second-server", "Example for absolute path")
-                .addDefValueWithComment("./servers/another-server", "Example for relative path")
+        send_to = put(name, "send-to").addDefValues("C:\\User\\Peter\\servers\\my-second-server")
+                .addDefSideComments("Example for absolute path")
+                .addDefValues("./servers/another-server")
+                .addDefSideComments("Example for relative path")
                 .setComments("List of server root folders of the servers which receive the file changes.\n" +
                         // TODO "NOT WORKING/IN TODO: Note that if the server is not on the same machine (you enter an ip), then you will need to have AutoPlug installed on that server too.\n" +
                         // "Otherwise if the server is on the same machine (you enter its path to its server root directory), then you don't need AutoPlug installed on it.\n" +

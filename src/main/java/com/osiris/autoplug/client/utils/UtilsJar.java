@@ -25,7 +25,7 @@ import java.util.Properties;
 
 public class UtilsJar {
 
-    public File determineServerJar() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public File determineServerJar() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         GeneralConfig generalConfig = new GeneralConfig();
         FileManager fileManager = new FileManager();
         String jar = generalConfig.server_jar.asString();

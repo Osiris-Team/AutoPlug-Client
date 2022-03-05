@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,21 +8,21 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class TasksConfig extends DreamYaml {
+public class TasksConfig extends Yaml {
 
-    public DYModule live_tasks;
-    public DYModule refresh_interval;
+    public YamlSection live_tasks;
+    public YamlSection refresh_interval;
 
-    public DYModule show_warnings;
-    public DYModule show_detailed_warnings;
+    public YamlSection show_warnings;
+    public YamlSection show_detailed_warnings;
 
-    public TasksConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    public TasksConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/tasks-config.yml");
         lockFile();
         load();
@@ -40,7 +40,7 @@ public class TasksConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        put(name, "live-tasks").setCountTopSpaces(1);
+        put(name, "live-tasks").setCountTopLineBreaks(1);
         live_tasks = put(name, "live-tasks", "enable").setDefValues("true").setComments(
                 "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
                         "Enabling this on unsupported platform will result in console spam.");
@@ -48,7 +48,7 @@ public class TasksConfig extends DreamYaml {
                 "Refresh interval in milliseconds.\n" +
                         "How often a task should get refreshed and update its information. Default is: 250ms");
 
-        put(name, "show-warnings").setCountTopSpaces(1);
+        put(name, "show-warnings").setCountTopLineBreaks(1);
         show_warnings = put(name, "show-warnings").setDefValues("true").setComments(
                 "If the tasks produced warnings, these get shown.",
                 "Its recommended to keep this option enabled.");

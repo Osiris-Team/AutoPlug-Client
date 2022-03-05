@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,20 +8,20 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class LoggerConfig extends DreamYaml {
+public class LoggerConfig extends Yaml {
 
-    public DYModule debug;
-    public DYModule autoplug_label;
-    public DYModule force_ansi;
-    public DYModule color_server_log;
+    public YamlSection debug;
+    public YamlSection autoplug_label;
+    public YamlSection force_ansi;
+    public YamlSection color_server_log;
 
-    public LoggerConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    public LoggerConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
         lockFile();
         load();

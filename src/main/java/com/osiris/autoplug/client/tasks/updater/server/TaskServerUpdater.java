@@ -21,10 +21,10 @@ import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DYWriterException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
+import com.osiris.dyml.exceptions.YamlWriterException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -68,7 +68,7 @@ public class TaskServerUpdater extends BetterThread {
         finish();
     }
 
-    private void doAlternativeUpdatingLogic() throws DYWriterException, IOException, InterruptedException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void doAlternativeUpdatingLogic() throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException {
         SearchResult sr = null;
         if (updaterConfig.server_github_repo_name.asString() != null) {
             sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
@@ -98,7 +98,7 @@ public class TaskServerUpdater extends BetterThread {
         }
     }
 
-    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException {
         if (profile.equals("NOTIFY")) {
             setStatus("Update found (" + version + " -> " + latestVersion + ")!");
         } else if (profile.equals("MANUAL")) {
@@ -160,7 +160,7 @@ public class TaskServerUpdater extends BetterThread {
         }
     }
 
-    private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException, NoSuchAlgorithmException {
+    private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NoSuchAlgorithmException {
         PurpurDownloadsAPI purpurDownloadsAPI = new PurpurDownloadsAPI();
         int buildId = updaterConfig.server_build_id.asInt();
         JsonObject latestBuild = purpurDownloadsAPI.getLatestBuild(serverSoftware.toLowerCase(Locale.ROOT), serverVersion);
@@ -262,7 +262,7 @@ public class TaskServerUpdater extends BetterThread {
         }
     }
 
-    private void doPaperUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, DYWriterException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void doPaperUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException {
 
         PaperDownloadsAPI paperDownloadsAPI = new PaperDownloadsAPI();
         int build_id = updaterConfig.server_build_id.asInt();

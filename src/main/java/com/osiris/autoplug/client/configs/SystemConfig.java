@@ -8,23 +8,23 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class SystemConfig extends DreamYaml {
+public class SystemConfig extends Yaml {
 
-    public DYModule timestamp_last_backup;
+    public YamlSection timestamp_last_backup;
 
-    public DYModule timestamp_last_updater_tasks; // Only matters if global cooldown for updaters is enabled
-    public DYModule autoplug_web_ssl;
-    public DYModule autoplug_web_ip;
-    public DYModule autoplug_web_port;
+    public YamlSection timestamp_last_updater_tasks; // Only matters if global cooldown for updaters is enabled
+    public YamlSection autoplug_web_ssl;
+    public YamlSection autoplug_web_ip;
+    public YamlSection autoplug_web_port;
 
 
-    public SystemConfig() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/system/config.yml");
         lockFile();
         load();

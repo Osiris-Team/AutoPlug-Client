@@ -18,11 +18,10 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.watcher.DYFileEvent;
-import com.osiris.dyml.watcher.DYFileEventListener;
-import com.osiris.dyml.watcher.DYWatcher;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.watcher.DirWatcher;
+import com.osiris.dyml.watcher.FileEvent;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
@@ -35,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,13 +98,13 @@ public class Main {
             //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
 
             // Start the logger
-            DreamYaml logC = new DreamYaml(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
+            Yaml logC = new Yaml(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
             logC.load();
-            DYModule debug = logC.put("logger-config", "debug").setDefValues("false");
-            DYModule autoplug_label = logC.put("logger-config", "autoplug-label").setDefValues("AP");
-            DYModule force_ansi = logC.put("logger-config", "force-ANSI").setDefValues("false");
+            YamlSection debug = logC.put("logger-config", "debug").setDefValues("false");
+            YamlSection autoplug_label = logC.put("logger-config", "autoplug-label").setDefValues("AP");
+            YamlSection force_ansi = logC.put("logger-config", "force-ANSI").setDefValues("false");
             new AL().start(autoplug_label.asString(),
-                    debug.asBoolean(), // must be a new DreamYaml and not the LoggerConfig
+                    debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug/logs"),
                     force_ansi.asBoolean()
             );
@@ -175,7 +175,7 @@ public class Main {
             new UtilsJar().determineServerJar();
             UtilsConfig utilsConfig = new UtilsConfig();
 
-            List<DYModule> allModules = new ArrayList<>();
+            List<YamlSection> allModules = new ArrayList<>();
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
@@ -281,10 +281,10 @@ public class Main {
                             throw new Exception("Failed to determine if '" + value + "' is absolute/relative path address."); //TODO or ipv4/ipv6
                     }
 
-                    DYFileEventListener<DYFileEvent> onFileChangeEvent = event -> {
+                    Consumer<FileEvent> onFileChangeEvent = event -> {
                         // Determine relative path from file to server root
                         // Example: C:/Users/Server/plugins/AutoPlug.jar -> /plugins/AutoPlug.jar
-                        String relPath = event.getFile().getAbsolutePath().replace(WORKING_DIR.getAbsolutePath(), "");
+                        String relPath = event.file.getAbsolutePath().replace(WORKING_DIR.getAbsolutePath(), "");
                         if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
                             for (File receivingServerRootDir :
                                     filesToSendTo) {
@@ -299,18 +299,18 @@ public class Main {
                                     File f = new File(receivingServerRootDir + relPath);
                                     if (!f.getParentFile().exists()) f.getParentFile().mkdirs();
                                     if (!f.exists()) f.createNewFile();
-                                    Files.copy(event.getPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    Files.copy(event.path, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
                                 } catch (Exception e) {
                                     AL.warn(e);
                                 }
                             }
                         } else
-                            AL.warn("Failed to execute 'send-to' for event type '" + event.getWatchEventKind().name() + "' for file '" + event.getFile() + "'!");
+                            AL.warn("Failed to execute 'send-to' for event type '" + event.getWatchEventKind().name() + "' for file '" + event.file + "'!");
                     };
 
                     for (File folder :
                             foldersToWatch) {
-                        DYWatcher.getForFile(folder, true).addListeners(onFileChangeEvent);
+                        DirWatcher.get(folder, true).addListeners(onFileChangeEvent);
                         AL.debug(Main.class, "Watching 'copy-from' folder and sub-folders from: " + folder);
                     }
                 }

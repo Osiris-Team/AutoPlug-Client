@@ -9,13 +9,13 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DYWriterException;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.exceptions.YamlReaderException;
+import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.dyml.utils.UtilsYamlSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,13 +34,13 @@ public class UtilsConfig {
      * Also warns the user about these in the console. <br>
      * Note that this only works for config sections that have values. <br>
      */
-    public void checkForDeprecatedSections(DreamYaml yaml) throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public void checkForDeprecatedSections(Yaml yaml) throws YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
         yaml.lockFile();
-        List<DYModule> inEditModules = yaml.getAllInEdit();
-        List<DYModule> loadedModules = yaml.getAllLoaded();
-        List<DYModule> oldModules = new ArrayList<>();
-        UtilsDYModule utils = new UtilsDYModule();
-        for (DYModule m :
+        List<YamlSection> inEditModules = yaml.getAllInEdit();
+        List<YamlSection> loadedModules = yaml.getAllLoaded();
+        List<YamlSection> oldModules = new ArrayList<>();
+        UtilsYamlSection utils = new UtilsYamlSection();
+        for (YamlSection m :
                 loadedModules) {
             if (utils.getExisting(m, inEditModules) == null && m.asString() != null) {
                 oldModules.add(m);
@@ -48,7 +48,7 @@ public class UtilsConfig {
             }
         }
         // Set the comments
-        for (DYModule oldM :
+        for (YamlSection oldM :
                 oldModules) {
             yaml.get(oldM.getKeys()).setComments("DEPRECATION WARNING <---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------",
                     "THE BELOW WAS RENAMED OR REMOVED AND THUS ITS VALUE(S) WILL BE IGNORED!");
@@ -57,10 +57,10 @@ public class UtilsConfig {
         yaml.unlockFile();
     }
 
-    public void printAllModulesToDebugExceptServerKey(@NotNull List<DYModule> modules, String serverKey) {
+    public void printAllModulesToDebugExceptServerKey(@NotNull List<YamlSection> modules, String serverKey) {
         try {
-            UtilsDYModule utils = new UtilsDYModule();
-            for (DYModule module :
+            UtilsYamlSection utils = new UtilsYamlSection();
+            for (YamlSection module :
                     modules) {
                 if (module.asString() != null && module.asString().equals(serverKey)) {
                     AL.debug(this.getClass(), module.getKeys().toString() + " VAL: SERVER KEY NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());

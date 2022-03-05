@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,10 +9,10 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
-import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.utils.UtilsYamlSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -20,25 +20,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class RestarterConfig extends DreamYaml {
+public class RestarterConfig extends Yaml {
 
-    public DYModule restarter_enabled;
-    public DYModule restarter_times_raw;
+    public YamlSection restarter_enabled;
+    public YamlSection restarter_times_raw;
     @NotNull
     public List<Integer> restarter_times_minutes = new ArrayList<>();
     @NotNull
     public List<Integer> restarter_times_hours = new ArrayList<>();
-    public DYModule restarter_commands;
+    public YamlSection restarter_commands;
 
-    public DYModule c_restarter_enabled;
-    public DYModule c_restarter_cron;
-    public DYModule c_restarter_commands;
+    public YamlSection c_restarter_enabled;
+    public YamlSection c_restarter_cron;
+    public YamlSection c_restarter_commands;
 
-    public RestarterConfig() throws DYWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public RestarterConfig() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
     }
 
-    public RestarterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+    public RestarterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/restarter-config.yml");
         lockFile();
         load();
@@ -56,7 +56,7 @@ public class RestarterConfig extends DreamYaml {
                         "\n" +
                         "#######################################################################################################################");
 
-        put(name, "daily-restarter").setCountTopSpaces(1);
+        put(name, "daily-restarter").setCountTopLineBreaks(1);
         restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("false").setComments(
                 "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
                         "Make sure to have the other scheduler disabled.");
@@ -83,14 +83,14 @@ public class RestarterConfig extends DreamYaml {
             put(name, "daily-restarter", "commands", "list", "1").setDefValues("say Restarting in 1.");
             put(name, "daily-restarter", "commands", "list", "0").setDefValues("say Restarting...");
         }
-        UtilsDYModule utilsDYModule = new UtilsDYModule();
-        for (DYModule m :
+        UtilsYamlSection utilsYamlSection = new UtilsYamlSection();
+        for (YamlSection m :
                 restarter_commands.getChildModules()) {
-            if (utilsDYModule.getExisting(m, getAllInEdit()) == null)
+            if (utilsYamlSection.getExisting(m, getAllInEdit()) == null)
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
-        put(name, "custom-restarter").setCountTopSpaces(1);
+        put(name, "custom-restarter").setCountTopLineBreaks(1);
         c_restarter_enabled = put(name, "custom-restarter", "enable").setDefValues("false").setComments(
                 "Enable/Disable the custom scheduler for restarting your minecraft server.\n" +
                         "Make sure to have the other scheduler disabled.\n" +
@@ -108,9 +108,9 @@ public class RestarterConfig extends DreamYaml {
             put(name, "custom-restarter", "commands", "list", "1").setDefValues("say Restarting in 1.");
             put(name, "custom-restarter", "commands", "list", "0").setDefValues("say Restarting...");
         }
-        for (DYModule m :
+        for (YamlSection m :
                 c_restarter_commands.getChildModules()) {
-            if (utilsDYModule.getExisting(m, getAllInEdit()) == null)
+            if (utilsYamlSection.getExisting(m, getAllInEdit()) == null)
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
@@ -158,7 +158,7 @@ public class RestarterConfig extends DreamYaml {
         }
 
 
-        for (DYModule m :
+        for (YamlSection m :
                 restarter_commands.getChildModules()) {
             try {
                 Integer.parseInt(m.getLastKey());
@@ -168,7 +168,7 @@ public class RestarterConfig extends DreamYaml {
             }
         }
 
-        for (DYModule m :
+        for (YamlSection m :
                 c_restarter_commands.getChildModules()) {
             try {
                 Integer.parseInt(m.getLastKey());

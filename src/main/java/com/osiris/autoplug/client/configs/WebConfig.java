@@ -8,31 +8,31 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class WebConfig extends DreamYaml {
+public class WebConfig extends Yaml {
 
-    public DYModule online_console;
+    public YamlSection online_console;
 
-    public DYModule send_plugins_updater_results;
-    public DYModule send_server_updater_results;
-    public DYModule send_self_updater_results;
+    public YamlSection send_plugins_updater_results;
+    public YamlSection send_server_updater_results;
+    public YamlSection send_self_updater_results;
 
-    public DYModule send_public_details;
-    public DYModule send_private_details;
-    public DYModule send_server_status_ip;
-    public DYModule send_server_status_port;
-    public DYModule file_manager;
+    public YamlSection send_public_details;
+    public YamlSection send_private_details;
+    public YamlSection send_server_status_ip;
+    public YamlSection send_server_status_port;
+    public YamlSection file_manager;
 
-    public WebConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public WebConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
     }
 
-    public WebConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public WebConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
         lockFile();
         load();

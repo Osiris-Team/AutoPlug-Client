@@ -9,49 +9,49 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class UpdaterConfig extends DreamYaml {
+public class UpdaterConfig extends Yaml {
 
-    public DYModule global_cool_down;
+    public YamlSection global_cool_down;
 
-    public DYModule self_updater;
-    public DYModule self_updater_profile;
-    public DYModule self_updater_build;
+    public YamlSection self_updater;
+    public YamlSection self_updater_profile;
+    public YamlSection self_updater_build;
 
-    public DYModule java_updater;
-    public DYModule java_updater_profile;
-    //public DYModule java_updater_vendor; // Currently not supported, because only adopt-api is implemented at the moment
-    public DYModule java_updater_version;
-    public DYModule java_updater_build_id;
-    public DYModule java_updater_large_heap;
+    public YamlSection java_updater;
+    public YamlSection java_updater_profile;
+    //public YamlSection java_updater_vendor; // Currently not supported, because only adopt-api is implemented at the moment
+    public YamlSection java_updater_version;
+    public YamlSection java_updater_build_id;
+    public YamlSection java_updater_large_heap;
 
-    public DYModule server_updater;
-    public DYModule server_updater_profile;
-    public DYModule server_software;
-    public DYModule server_version;
-    public DYModule server_build_id;
-    public DYModule server_skip_hash_check;
-    public DYModule server_github_repo_name;
-    public DYModule server_github_asset_name;
-    public DYModule server_github_version;
-    public DYModule server_jenkins_project_url;
-    public DYModule server_jenkins_artifact_name;
-    public DYModule server_jenkins_build_id;
+    public YamlSection server_updater;
+    public YamlSection server_updater_profile;
+    public YamlSection server_software;
+    public YamlSection server_version;
+    public YamlSection server_build_id;
+    public YamlSection server_skip_hash_check;
+    public YamlSection server_github_repo_name;
+    public YamlSection server_github_asset_name;
+    public YamlSection server_github_version;
+    public YamlSection server_jenkins_project_url;
+    public YamlSection server_jenkins_artifact_name;
+    public YamlSection server_jenkins_build_id;
 
-    public DYModule plugin_updater;
-    public DYModule plugin_updater_profile;
-    public DYModule plugin_updater_async;
+    public YamlSection plugin_updater;
+    public YamlSection plugin_updater_profile;
+    public YamlSection plugin_updater_async;
 
-    public UpdaterConfig() throws NotLoadedException, DYWriterException, IOException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public UpdaterConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
     }
 
-    public UpdaterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    public UpdaterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/updater-config.yml");
         lockFile();
         load();
@@ -73,14 +73,14 @@ public class UpdaterConfig extends DreamYaml {
                 "MANUAL: Only downloads the updates to /autoplug/downloads.\n" +
                 "AUTOMATIC: Downloads and installs updates automatically.");
 
-        put(name, "global-cool-down").setCountTopSpaces(1);
+        put(name, "global-cool-down").setCountTopLineBreaks(1);
         global_cool_down = put(name, "global-cool-down").setDefValues("60").setComments(
                 "Cool-down time in minutes to the next updater tasks execution.",
                 "Prevents unnecessary spam of updating/update checking tasks and thus shortens the server startup time.",
                 "Useful when testing plugins/configs and having to restart the server often in a short amount of time.",
                 "Set to 0 to disable.");
 
-        put(name, "self-updater").setCountTopSpaces(1);
+        put(name, "self-updater").setCountTopLineBreaks(1);
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(
                 "AutoPlug is able to update itself automatically.",
                 "Its strongly recommended to have this feature enabled,",
@@ -91,7 +91,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Choose between 'stable' and 'beta' builds.",
                 "Stable builds are recommended.");
 
-        put(name, "java-updater").setCountTopSpaces(1);
+        put(name, "java-updater").setCountTopLineBreaks(1);
         java_updater = put(name, "java-updater", "enable").setDefValues("false");
         java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "If you selected the AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
@@ -108,7 +108,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Only enable if you plan to give your server more than 57gb of ram, otherwise not recommended.");
 
 
-        put(name, "server-updater").setCountTopSpaces(1);
+        put(name, "server-updater").setCountTopLineBreaks(1);
         server_updater = put(name, "server-updater", "enable").setDefValues("false");
 
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
@@ -157,7 +157,7 @@ public class UpdaterConfig extends DreamYaml {
                 "Remember to set this to 0, if you changed the project-url or artifact-name. Otherwise don't touch it.");
 
 
-        put(name, "plugins-updater").setCountTopSpaces(1);
+        put(name, "plugins-updater").setCountTopLineBreaks(1);
         plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
                 "Updates your plugins in to /plugins directory.",
                 "The results are sent to AutoPlug-Web. You can configure this in the web-config.",

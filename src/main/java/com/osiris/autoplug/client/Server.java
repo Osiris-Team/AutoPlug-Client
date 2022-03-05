@@ -86,7 +86,7 @@ public final class Server {
     /**
      * Blocks until the server was stopped.
      */
-    public static void stop() throws IOException, InterruptedException, DYWriterException, NotLoadedException, IllegalKeyException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public static void stop() throws IOException, InterruptedException, YamlWriterException, NotLoadedException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
 
         AL.info("Stopping server...");
 
