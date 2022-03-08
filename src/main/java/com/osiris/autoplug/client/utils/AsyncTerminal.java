@@ -19,6 +19,9 @@ import java.util.function.Consumer;
 
 public class AsyncTerminal {
     public Process process;
+    public AsyncReader readerLines;
+    public AsyncReader readerErrLines;
+    public OutputStream out;
 
     public AsyncTerminal(File workingDir, Consumer<String> onLineReceived,
                          Consumer<String> onErrorLineReceived, String... commands) throws IOException {
@@ -41,9 +44,13 @@ public class AsyncTerminal {
         this.process = p;
         InputStream in = process.getInputStream();
         InputStream inErr = process.getErrorStream();
-        OutputStream out = process.getOutputStream();
-        new AsyncReader(in, onLineReceived);
-        new AsyncReader(inErr, onErrorLineReceived);
+        this.out = process.getOutputStream();
+        this.readerLines = new AsyncReader(in, onLineReceived);
+        this.readerErrLines = new AsyncReader(inErr, onErrorLineReceived);
+        sendCommands(commands);
+    }
+
+    public void sendCommands(String... commands) throws IOException {
         if (commands != null && commands.length != 0)
             for (String command :
                     commands) {

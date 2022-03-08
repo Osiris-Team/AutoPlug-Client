@@ -76,6 +76,12 @@
             <version>12.8</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.Osiris-Team</groupId>
+            <artifactId>jProcesses2</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+
         <!-- For getting hardware info -->
         <dependency>
             <groupId>com.github.oshi</groupId>
