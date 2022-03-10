@@ -187,12 +187,11 @@ public class Main {
             allModules.addAll(loggerConfig.getAllInEdit());
             // Extra debug options
             if (loggerConfig.debug.asBoolean()) {
-                AL.debug(Main.class, "Note that debug mode is enabled.");
-                AL.debug(Main.class, "Enabled HtmlUnit logger!");
+                AL.info("Note that debug mode is enabled.");
                 Logger.getLogger("com.gargoylesoftware").setLevel(Level.ALL);
-                AL.debug(Main.class, "Enabled Quartz logger!");
                 Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.ALL);
                 Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.ALL);
+                Logger.getLogger("org.jline").setLevel(Level.ALL);
             } else {
                 Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
                 Logger.getLogger("org.quartz.impl.StdSchedulerFactory").setLevel(Level.OFF);

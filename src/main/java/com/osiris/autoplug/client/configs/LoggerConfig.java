@@ -49,7 +49,7 @@ public class LoggerConfig extends Yaml {
                 "Forces the terminal to use ANSI. Note that this may fail."
         );
         color_server_log = put(name, "color-server-log").setDefValues("true").setComments(
-                "Checks the received line for specific words like 'warn' or 'exception' etc. and colors it accordingly."
+                "Checks the received line from the server process for specific words like 'warn' or 'exception' etc. and colors it accordingly."
         );
 
         save();
