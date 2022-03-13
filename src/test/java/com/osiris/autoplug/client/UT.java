@@ -19,9 +19,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Utils for test classes.
+ * Utils for tests.
  */
-public class UTest {
+public class UT {
     public static MyBetterThreadManager createManagerWithDisplayer() throws JLineLinkException {
         BetterThreadManager manager = new BetterThreadManager();
         CustomDisplayer customDisplayer = new CustomDisplayer(manager);

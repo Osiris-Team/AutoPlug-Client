@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.server;
 
-import com.osiris.autoplug.client.UTest;
+import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.MyBetterThreadManager;
 import com.osiris.betterthread.exceptions.JLineLinkException;
@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TaskServerUpdaterTest {
 
     public TaskServerUpdaterTest() throws IOException {
-        UTest.initLogger();
-        UTest.initDefaults();
+        UT.initLogger();
+        UT.initDefaults();
     }
 
     @Test
     void testPaper() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
-        MyBetterThreadManager maMan = UTest.createManagerWithDisplayer();
+        MyBetterThreadManager maMan = UT.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
         updaterConfig.server_updater.setValues("true");
