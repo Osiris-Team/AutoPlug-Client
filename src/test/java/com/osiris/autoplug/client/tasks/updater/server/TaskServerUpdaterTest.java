@@ -21,13 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TaskServerUpdaterTest {
 
-    public TaskServerUpdaterTest() throws IOException {
-        UT.initLogger();
-        UT.initDefaults();
-    }
-
     @Test
     void testPaper() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
+        UT.initLogger();
+        UT.initDefaults();
         MyBetterThreadManager maMan = UT.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
