@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,6 +21,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 public class CustomDisplayer extends Thread {
     private final BetterThreadManager manager;
+    public int timeoutMs = 3000;
     private byte anim;
 
     public CustomDisplayer(BetterThreadManager manager) throws JLineLinkException {
@@ -31,7 +32,7 @@ public class CustomDisplayer extends Thread {
     public void run() {
         try {
             while (printAll()) {
-                sleep(3000);
+                sleep(timeoutMs);
             }
         } catch (Exception e) {
             e.printStackTrace();

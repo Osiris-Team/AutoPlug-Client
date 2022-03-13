@@ -1,5 +1,7 @@
 **/target/
 **/AP-TEST-SERVER/
+/autoplug
+/test
 
 # IDEA
 **/.idea/

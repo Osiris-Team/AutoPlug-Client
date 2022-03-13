@@ -33,7 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
 public class TaskServerUpdater extends BetterThread {
-    private final File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
+    public File downloadsDir = GD.DOWNLOADS_DIR;
     private UpdaterConfig updaterConfig;
     private String profile;
     private String serverSoftware;

@@ -24,12 +24,14 @@ public class GD {
     public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
+    public static File DOWNLOADS_DIR;
     @Nullable
     public static File SERVER_JAR = null; // Gets set in UpdaterConfig
 
     static {
         WORKING_DIR = new File(System.getProperty("user.dir"));
         PLUGINS_DIR = new File(System.getProperty("user.dir") + "/plugins");
+        DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/autoplug/downloads");
         try {
             VERSION = "AutoPlug-Client - " + new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
         } catch (Exception e) {
