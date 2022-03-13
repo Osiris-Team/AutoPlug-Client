@@ -47,6 +47,7 @@ public final class Server {
 
     public static void start() {
         try {
+            new ProcessBuilder().start();
             try {
                 colorServerLog = new LoggerConfig().color_server_log.asBoolean();
             } catch (Exception e) {
@@ -206,8 +207,9 @@ public final class Server {
                     },
                     startCommand
             );
-            Thread.sleep(1000); // Just to make sure the terminal and server process were started
-            List<JProcess> childProcesses = processUtils.getThisProcess().childProcesses;
+            List<JProcess> processes = processUtils.getProcesses();
+            Thread.sleep(2000); // Just to make sure the terminal and server process were started
+            List<JProcess> childProcesses = processUtils.getThisProcess(processes).childProcesses;
             if (childProcesses.size() > 1) { // Find the right terminal process
                 // If there are multiple child processes of this process, we need to find the process closest to the
                 // current start time. That's why we do the below:
