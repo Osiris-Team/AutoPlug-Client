@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.network.local;
 
 
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
@@ -47,10 +47,15 @@ public class ConPluginCommandReceive {
                         AL.debug(this.getClass(), "Binding on port " + port + "...");
                         local_server_socket = new ServerSocket(port);
                         AL.debug(this.getClass(), "Success!");
+                        new SystemConfig().autoplug_plugin_port.setValues("" + port);
                     } catch (IOException e) {
                         AL.debug(this.getClass(), "Failed to bind on port " + port + "! " + e.getMessage());
                         local_server_socket = null;
                         port++;
+                    }
+                    if (port == 36565) {
+                        AL.warn("Failed to bind on a port. Tried 100 ports between 35565 and 36565.");
+                        return;
                     }
                 }
 
@@ -63,13 +68,13 @@ public class ConPluginCommandReceive {
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-                    GeneralConfig config = new GeneralConfig();
-                    dos.writeUTF(config.server_key.asString());
-                    if (!dis.readUTF().equals(config.server_key.asString())) {
+                    String key = new SystemConfig().autoplug_plugin_key.asString();
+                    dos.writeUTF(key);
+                    if (!dis.readUTF().equals(key)) {
                         socket.close();
                     } else {
                         socket.setSoTimeout(0);
-                        AL.info("AutoPlug-Plugin with matching Server-Key connected.");
+                        AL.info("AutoPlug-Plugin with matching private plugin key connected.");
 
                         Thread thread = new Thread(() -> {
                             try {
@@ -77,16 +82,9 @@ public class ConPluginCommandReceive {
                                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                                     String line;
                                     while (!socket.isClosed() && (line = reader.readLine()) != null) {
-                                        String sKey = line.split(" ")[0];
-                                        String command = line.substring(line.indexOf(" ") + 1);
-
-                                        if (sKey == null || !sKey.equals(config.server_key.asString())) {
-                                            AL.warn("Received Plugin-Command without Server-Key or the Server-Keys didn't match. Command '" + command + "' was not executed!");
-                                        } else {
-                                            AL.info("Received Plugin-Command: " + command);
-                                            if (!AutoPlugConsole.executeCommand(command))
-                                                Server.submitCommand(command);
-                                        }
+                                        AL.info("Received Plugin-Command: " + line);
+                                        if (!AutoPlugConsole.executeCommand(line))
+                                            Server.submitCommand(line);
                                     }
                                 }
                             } catch (Exception e) {
