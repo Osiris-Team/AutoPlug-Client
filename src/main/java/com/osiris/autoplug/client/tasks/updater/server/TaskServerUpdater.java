@@ -267,11 +267,14 @@ public class TaskServerUpdater extends BetterThread {
     private void doFabricUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NoSuchAlgorithmException {
         FabricDownloadsAPI fabricDownloadsAPI = new FabricDownloadsAPI();
         String[] buildId = updaterConfig.server_build_id.getValue().asArraySplitByColons();
-        String[] loaderId = buildId[0].split(".");
+        if (buildId.length <= 1) {
+            buildId = new String[] {"0.0.0", "0.0.0"};
+        }
+        String[] loaderId = buildId[0].split("\\.");
         int loaderMajorId = Integer.valueOf(loaderId[0]);
         int loaderMinorId = Integer.valueOf(loaderId[1]);
         int loaderBuildId = Integer.valueOf(loaderId[2]);
-        String[] installerId = buildId[1].split(".");
+        String[] installerId = buildId[1].split("\\.");
         int installerMajorId = Integer.valueOf(installerId[0]);
         int installerMinorId = Integer.valueOf(installerId[1]);
         int installerBuildId = Integer.valueOf(installerId[2]);
@@ -284,8 +287,6 @@ public class TaskServerUpdater extends BetterThread {
         int latestInstallerMinorId = latestInstaller.get("minorID").getAsInt();
         int latestInstallerBuildId = latestInstaller.get("buildID").getAsInt();
         String[] latestBuildId = {latestLoader.get("version").getAsString(), latestInstaller.get("version").getAsString()};
-        //JsonObject latestBuild = fabricDownloadsAPI.getLatestLoader();
-        //int latestBuildId = latestBuild.get("build").getAsInt();
         //String buildHash = latestBuild.get("md5").getAsString();
         String url = fabricDownloadsAPI.getLatestDownloadUrl(serverVersion, latestLoader.get("version").getAsString(), latestInstaller.get("version").getAsString());
 

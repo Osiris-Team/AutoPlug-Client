@@ -20,16 +20,16 @@ public class FabricDownloadsAPI {
     private final String baseUrl = "https://meta.fabricmc.net/v2/versions";
 
     public JsonObject getLatestLoader() throws WrongJsonTypeException, IOException, HttpErrorException {
-        final String address = baseUrl + "/loader";
+        final String address = baseUrl + "/loader?limit=1";
         JsonObject latest = new JsonObject();
-        for (JsonElement element : new JsonTools().getJsonObject(address).getAsJsonArray()) {
+        for (JsonElement element : new JsonTools().getJsonArray(address)) {
             JsonObject obj = element.getAsJsonObject();
             if (obj.get("stable").getAsBoolean()) {
                 String version = obj.get("version").getAsString();
                 latest.addProperty("version", version);
-                latest.addProperty("majorID", version.split(".")[0]);
-                latest.addProperty("minorID", version.split(".")[1]);
-                latest.addProperty("buildID", version.split(".")[2]);
+                latest.addProperty("majorID", version.split("\\.")[0]);
+                latest.addProperty("minorID", version.split("\\.")[1]);
+                latest.addProperty("buildID", version.split("\\.")[2]);
                 break;
             }
         }
@@ -37,16 +37,16 @@ public class FabricDownloadsAPI {
     }
 
     public JsonObject getLatestInstaller(String serverVersion) throws WrongJsonTypeException, IOException, HttpErrorException {
-        final String address = baseUrl + "/installer";
+        final String address = baseUrl + "/installer?limit=1";
         JsonObject latest = new JsonObject();
-        for (JsonElement element : new JsonTools().getJsonObject(address).getAsJsonArray()) {
+        for (JsonElement element : new JsonTools().getJsonArray(address)) {
             JsonObject obj = element.getAsJsonObject();
             if (obj.get("stable").getAsBoolean()) {
                 String version = obj.get("version").getAsString();
                 latest.addProperty("version", version);
-                latest.addProperty("majorID", version.split(".")[0]);
-                latest.addProperty("minorID", version.split(".")[1]);
-                latest.addProperty("buildID", version.split(".")[2]);
+                latest.addProperty("majorID", version.split("\\.")[0]);
+                latest.addProperty("minorID", version.split("\\.")[1]);
+                latest.addProperty("buildID", version.split("\\.")[2]);
                 break;
             }
         }
@@ -54,6 +54,6 @@ public class FabricDownloadsAPI {
     }
 
     public String getLatestDownloadUrl(String serverVersion, String loaderVersion, String installerVersion) {
-        return baseUrl + "/" + serverVersion + "/" + loaderVersion + "/" + installerVersion + "/server/jar";
+        return baseUrl + "/loader/" + serverVersion + "/" + loaderVersion + "/" + installerVersion + "/server/jar";
     }
 }
