@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.utils.UtilsRandom;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
@@ -22,6 +23,8 @@ public class SystemConfig extends Yaml {
     public YamlSection autoplug_web_ssl;
     public YamlSection autoplug_web_ip;
     public YamlSection autoplug_web_port;
+    public YamlSection autoplug_plugin_key;
+    public YamlSection autoplug_plugin_port;
 
 
     public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -47,6 +50,11 @@ public class SystemConfig extends Yaml {
         autoplug_web_ssl = put(name, "autoplug-web-ssl").setDefValues("true").setComments("If localhost is used below, remember to set this to false too!");
         autoplug_web_ip = put(name, "autoplug-web-ip").setDefValues("144.91.78.158").setComments("Set to localhost to test on the local server.");
         autoplug_web_port = put(name, "autoplug-web-port").setDefValues("35555");
+
+        autoplug_plugin_key = put(name, "autoplug-plugin-key");
+        if (autoplug_plugin_key.asString() == null)
+            autoplug_plugin_key.setValues(new UtilsRandom().generateNewKey(500));
+        autoplug_plugin_port = put(name, "autoplug-plugin-port");
 
         save();
         unlockFile();
