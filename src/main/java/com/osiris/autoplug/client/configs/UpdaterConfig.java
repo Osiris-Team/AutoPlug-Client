@@ -68,10 +68,11 @@ public class UpdaterConfig extends Yaml {
                 "\n" +
                 "#######################################################################################################################\n" +
                 "All the updaters below search for updates before your server gets started.\n" +
-                "Available profiles for all updaters are: NOTIFY, MANUAL and AUTOMATIC.\n" +
-                "NOTIFY: Only notifies when updates are available.\n" +
-                "MANUAL: Only downloads the updates to /autoplug/downloads.\n" +
-                "AUTOMATIC: Downloads and installs updates automatically.");
+                "Available profiles for all updaters are: NOTIFY, MANUAL and AUTOMATIC.\n\n" +
+
+                "NOTIFY:        \tOnly notifies when updates are available.\n" +
+                "MANUAL:        \tOnly downloads the updates to /autoplug/downloads.\n" +
+                "AUTOMATIC:     \tDownloads and installs updates automatically.");
 
         put(name, "global-cool-down").setCountTopLineBreaks(1);
         global_cool_down = put(name, "global-cool-down").setDefValues("60").setComments(
@@ -115,19 +116,21 @@ public class UpdaterConfig extends Yaml {
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below.\n" +
                         "Currently supported:\n" +
-                        "- paper (https://papermc.io/)\n" +
-                        "- waterfall (https://github.com/PaperMC/Waterfall)\n" +
-                        "- travertine (https://github.com/PaperMC/Travertine)\n" +
-                        "- velocity (https://github.com/PaperMC/Velocity)\n" +
-                        "- purpur (https://purpur.pl3x.net/)\n" +
+                        "- paper        \t(https://papermc.io/)\n" +
+                        "- waterfall    \t(https://github.com/PaperMC/Waterfall)\n" +
+                        "- travertine   \t(https://github.com/PaperMC/Travertine)\n" +
+                        "- velocity     \t(https://github.com/PaperMC/Velocity)\n" +
+                        "- purpur       \t(https://purpur.pl3x.net/)\n" +
+                        "- fabric       \t(https://fabricmc.net/)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_version = put(name, "server-updater", "version").setDefValues("1.17.1").setComments(
                 "Currently supported minecraft versions:\n" +
-                        "- paper versions: https://papermc.io/api/v2/projects/paper\n" +
-                        "- waterfall versions: https://papermc.io/api/v2/projects/waterfall\n" +
-                        "- travertine versions: https://papermc.io/api/v2/projects/travertine\n" +
-                        "- velocity versions: https://papermc.io/api/v2/projects/velocity\n" +
-                        "- purpur versions: https://purpur.pl3x.net/downloads\n" +
+                        "- paper versions:      \thttps://papermc.io/api/v2/projects/paper\n" +
+                        "- waterfall versions:  \thttps://papermc.io/api/v2/projects/waterfall\n" +
+                        "- travertine versions: \thttps://papermc.io/api/v2/projects/travertine\n" +
+                        "- velocity versions:   \thttps://papermc.io/api/v2/projects/velocity\n" +
+                        "- purpur versions:     \thttps://purpur.pl3x.net/downloads\n" +
+                        "- fabric versions:     \thttps://fabricmc.net/use/installer\n" +
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                         "Note: Remember that worlds may not be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");

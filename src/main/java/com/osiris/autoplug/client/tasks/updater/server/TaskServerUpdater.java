@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class TaskServerUpdater extends BetterThread {
@@ -387,7 +388,7 @@ public class TaskServerUpdater extends BetterThread {
                         if (final_dest.exists()) final_dest.delete();
                         final_dest.createNewFile();
                         FileUtils.copyFile(cache_dest, final_dest);
-                        setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
+                        setStatus("Server update was installed successfully (" + Arrays.toString(buildId) + " -> " + Arrays.toString(latestBuildId) + ")!");
                         updaterConfig.server_build_id.setValues("" + String.join(",", latestBuildId));
                         updaterConfig.save();
                         setSuccess(true);
