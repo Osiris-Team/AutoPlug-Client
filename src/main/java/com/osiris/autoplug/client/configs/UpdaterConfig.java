@@ -114,25 +114,15 @@ public class UpdaterConfig extends Yaml {
 
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
-                "Select your favorite server software. Enter the name below.\n" +
-                        "Currently supported:\n" +
-                        "- paper        \t(https://papermc.io/)\n" +
-                        "- waterfall    \t(https://github.com/PaperMC/Waterfall)\n" +
-                        "- travertine   \t(https://github.com/PaperMC/Travertine)\n" +
-                        "- velocity     \t(https://github.com/PaperMC/Velocity)\n" +
-                        "- purpur       \t(https://purpur.pl3x.net/)\n" +
-                        "- fabric       \t(https://fabricmc.net/)\n" +
+                "Select your favorite server software. Enter the name below. Supported software:\n" +
+                        "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric)\n" +
+                        "-> Learn more about them here: https://papermc.io/ | https://github.com/PaperMC/Waterfall | https://github.com/PaperMC/Travertine | https://github.com/PaperMC/Velocity | https://purpur.pl3x.net/ | https://fabricmc.net/\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-        server_version = put(name, "server-updater", "version").setDefValues("1.17.1").setComments(
-                "Currently supported minecraft versions:\n" +
-                        "- paper versions:      \thttps://papermc.io/api/v2/projects/paper\n" +
-                        "- waterfall versions:  \thttps://papermc.io/api/v2/projects/waterfall\n" +
-                        "- travertine versions: \thttps://papermc.io/api/v2/projects/travertine\n" +
-                        "- velocity versions:   \thttps://papermc.io/api/v2/projects/velocity\n" +
-                        "- purpur versions:     \thttps://purpur.pl3x.net/downloads\n" +
-                        "- fabric versions:     \thttps://fabricmc.net/use/installer\n" +
+        server_version = put(name, "server-updater", "version").setDefValues("1.18.2").setComments(
+                "Select the servers' version. A list of supported version can be found in the links below:\n" +
+                        "- Minecraft versions: https://papermc.io/api/v2/projects/paper | https://papermc.io/api/v2/projects/waterfall | https://papermc.io/api/v2/projects/travertine | https://papermc.io/api/v2/projects/velocity | https://purpur.pl3x.net/downloads | https://fabricmc.net/use/installer\n" +
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
-                        "Note: Remember that worlds may not be converted to older versions.\n" +
+                        "Note: Remember that worlds cannot be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
