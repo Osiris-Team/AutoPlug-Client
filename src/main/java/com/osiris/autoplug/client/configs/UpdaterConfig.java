@@ -79,6 +79,7 @@ public class UpdaterConfig extends Yaml {
                 "Cool-down time in minutes to the next updater tasks execution.",
                 "Prevents unnecessary spam of updating/update checking tasks and thus shortens the server startup time.",
                 "Useful when testing plugins/configs and having to restart the server often in a short amount of time.",
+                "You can force-check stuff with the '.check' command.",
                 "Set to 0 to disable.");
 
         put(name, "self-updater").setCountTopLineBreaks(1);

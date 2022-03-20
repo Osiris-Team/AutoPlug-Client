@@ -42,19 +42,17 @@ public class ConPluginCommandReceive {
                 //Search for a free port starting at 35565 and connect to it
                 int port = 35565;
                 while (local_server_socket == null) {
-
                     try {
-                        AL.debug(this.getClass(), "Binding on port " + port + "...");
+                        AL.debug(this.getClass(), "Binding on localhost:" + port + " for AutoPlug-Plugin...");
                         local_server_socket = new ServerSocket(port);
                         AL.debug(this.getClass(), "Success!");
-                        new SystemConfig().autoplug_plugin_port.setValues("" + port);
                     } catch (IOException e) {
                         AL.debug(this.getClass(), "Failed to bind on port " + port + "! " + e.getMessage());
                         local_server_socket = null;
                         port++;
                     }
-                    if (port == 36565) {
-                        AL.warn("Failed to bind on a port. Tried 100 ports between 35565 and 36565.");
+                    if (port == 35665) {
+                        AL.warn("Failed to bind on a port. Tried 100 ports between 35565 and 35665.");
                         return;
                     }
                 }

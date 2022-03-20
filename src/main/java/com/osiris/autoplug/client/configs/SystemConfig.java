@@ -24,7 +24,6 @@ public class SystemConfig extends Yaml {
     public YamlSection autoplug_web_ip;
     public YamlSection autoplug_web_port;
     public YamlSection autoplug_plugin_key;
-    public YamlSection autoplug_plugin_port;
 
 
     public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -54,7 +53,6 @@ public class SystemConfig extends Yaml {
         autoplug_plugin_key = put(name, "autoplug-plugin-key");
         if (autoplug_plugin_key.asString() == null)
             autoplug_plugin_key.setValues(new UtilsRandom().generateNewKey(500));
-        autoplug_plugin_port = put(name, "autoplug-plugin-port");
 
         save();
         unlockFile();
