@@ -269,16 +269,16 @@ public class TaskServerUpdater extends BetterThread {
         FabricDownloadsAPI fabricDownloadsAPI = new FabricDownloadsAPI();
         String[] buildId = updaterConfig.server_build_id.getValue().asArraySplitByColons();
         if (buildId.length <= 1) {
-            buildId = new String[] {"0.0.0", "0.0.0"};
+            buildId = new String[]{"0.0.0", "0.0.0"};
         }
         String[] loaderId = buildId[0].split("\\.");
-        int loaderMajorId = Integer.valueOf(loaderId[0]);
-        int loaderMinorId = Integer.valueOf(loaderId[1]);
-        int loaderBuildId = Integer.valueOf(loaderId[2]);
+        int loaderMajorId = Integer.parseInt(loaderId[0]);
+        int loaderMinorId = Integer.parseInt(loaderId[1]);
+        int loaderBuildId = Integer.parseInt(loaderId[2]);
         String[] installerId = buildId[1].split("\\.");
-        int installerMajorId = Integer.valueOf(installerId[0]);
-        int installerMinorId = Integer.valueOf(installerId[1]);
-        int installerBuildId = Integer.valueOf(installerId[2]);
+        int installerMajorId = Integer.parseInt(installerId[0]);
+        int installerMinorId = Integer.parseInt(installerId[1]);
+        int installerBuildId = Integer.parseInt(installerId[2]);
         JsonObject latestLoader = fabricDownloadsAPI.getLatestLoader();
         int latestLoaderMajorId = latestLoader.get("majorID").getAsInt();
         int latestLoaderMinorId = latestLoader.get("minorID").getAsInt();
@@ -293,12 +293,12 @@ public class TaskServerUpdater extends BetterThread {
 
         // Check if the latest build-id is bigger than our current one.
         if (
-            latestLoaderMajorId <= loaderMajorId &&
-            latestLoaderMinorId <= loaderMinorId &&
-            latestLoaderBuildId <= loaderBuildId &&
-            latestInstallerMajorId <= installerMajorId &&
-            latestInstallerMinorId <= installerMinorId &&
-            latestInstallerBuildId <= installerBuildId
+                latestLoaderMajorId <= loaderMajorId &&
+                        latestLoaderMinorId <= loaderMinorId &&
+                        latestLoaderBuildId <= loaderBuildId &&
+                        latestInstallerMajorId <= installerMajorId &&
+                        latestInstallerMinorId <= installerMinorId &&
+                        latestInstallerBuildId <= installerBuildId
         ) {
             setStatus("Your server is on the latest version!");
             setSuccess(true);
@@ -424,11 +424,13 @@ public class TaskServerUpdater extends BetterThread {
             // Download the file
             String build_hash = paperDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
             String build_name = paperDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-            String url = "https://papermc.io/api/v2/projects/" + serverSoftware + "/versions/" + serverVersion + "/builds/" + latest_build_id + "/downloads/" + build_name;
+
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(),
+                    paperDownloadsAPI.getDownloadUrl(serverSoftware, serverVersion, latest_build_id, build_name),
+                    cache_dest);
             download.start();
 
             while (true) {
@@ -457,11 +459,12 @@ public class TaskServerUpdater extends BetterThread {
             // Download the file
             String build_hash = paperDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
             String build_name = paperDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-            String url = "https://papermc.io/api/v2/projects/" + serverSoftware + "/versions/" + serverVersion + "/builds/" + latest_build_id + "/downloads/" + build_name;
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest);
+            TaskDownload download = new TaskDownload("ServerDownloader", getManager(),
+                    paperDownloadsAPI.getDownloadUrl(serverSoftware, serverVersion, latest_build_id, build_name),
+                    cache_dest);
             download.start();
 
             while (true) {

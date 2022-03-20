@@ -32,6 +32,26 @@ class TaskServerUpdaterTest {
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
         updaterConfig.server_software.setValues("paper");
         updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_build_id.setValues("");
+        updaterConfig.save();
+        new TaskServerUpdater("ServerUpdater", maMan.manager)
+                .start(); // Do not run too often because of rest API limits
+        maMan.customDisplayer.join(); // Wait for completion
+        assertEquals(0, maMan.manager.getAllWarnings().size());
+    }
+
+    @Test
+    void testFabric() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
+        UT.initLogger();
+        UT.initDefaults();
+        MyBetterThreadManager maMan = UT.createManagerWithDisplayer();
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        updaterConfig.load();
+        updaterConfig.server_updater.setValues("true");
+        updaterConfig.server_updater_profile.setValues("AUTOMATIC");
+        updaterConfig.server_software.setValues("fabric");
+        updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
