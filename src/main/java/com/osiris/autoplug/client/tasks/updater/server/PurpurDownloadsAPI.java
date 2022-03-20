@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
+import com.osiris.autoplug.core.logger.AL;
 
 import java.io.IOException;
 
@@ -19,11 +20,14 @@ public class PurpurDownloadsAPI {
     private final String baseUrl = "https://api.pl3x.net/v2";
 
     public JsonObject getLatestBuild(String serverSoftware, String serverVersion) throws WrongJsonTypeException, IOException, HttpErrorException {
-        final String address = baseUrl + "/" + serverSoftware + "/" + serverVersion + "/latest";
-        return new JsonTools().getJsonObject(address).getAsJsonObject();
+        final String url = baseUrl + "/" + serverSoftware + "/" + serverVersion + "/latest";
+        AL.debug(this.getClass(), url);
+        return new JsonTools().getJsonObject(url).getAsJsonObject();
     }
 
     public String getLatestDownloadUrl(String serverSoftware, String serverVersion) {
-        return baseUrl + "/" + serverSoftware + "/" + serverVersion + "/latest/download";
+        final String url = baseUrl + "/" + serverSoftware + "/" + serverVersion + "/latest/download";
+        AL.debug(this.getClass(), url);
+        return url;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
+import com.osiris.autoplug.core.logger.AL;
 
 import java.io.IOException;
 
@@ -20,9 +21,10 @@ public class FabricDownloadsAPI {
     private final String baseUrl = "https://meta.fabricmc.net/v2/versions";
 
     public JsonObject getLatestLoader() throws WrongJsonTypeException, IOException, HttpErrorException {
-        final String address = baseUrl + "/loader?limit=1";
+        final String url = baseUrl + "/loader?limit=1";
+        AL.debug(this.getClass(), url);
         JsonObject latest = new JsonObject();
-        for (JsonElement element : new JsonTools().getJsonArray(address)) {
+        for (JsonElement element : new JsonTools().getJsonArray(url)) {
             JsonObject obj = element.getAsJsonObject();
             if (obj.get("stable").getAsBoolean()) {
                 String version = obj.get("version").getAsString();
@@ -37,9 +39,10 @@ public class FabricDownloadsAPI {
     }
 
     public JsonObject getLatestInstaller(String serverVersion) throws WrongJsonTypeException, IOException, HttpErrorException {
-        final String address = baseUrl + "/installer?limit=1";
+        final String url = baseUrl + "/installer?limit=1";
+        AL.debug(this.getClass(), url);
         JsonObject latest = new JsonObject();
-        for (JsonElement element : new JsonTools().getJsonArray(address)) {
+        for (JsonElement element : new JsonTools().getJsonArray(url)) {
             JsonObject obj = element.getAsJsonObject();
             if (obj.get("stable").getAsBoolean()) {
                 String version = obj.get("version").getAsString();
@@ -54,6 +57,8 @@ public class FabricDownloadsAPI {
     }
 
     public String getLatestDownloadUrl(String serverVersion, String loaderVersion, String installerVersion) {
-        return baseUrl + "/loader/" + serverVersion + "/" + loaderVersion + "/" + installerVersion + "/server/jar";
+        final String url = baseUrl + "/loader/" + serverVersion + "/" + loaderVersion + "/" + installerVersion + "/server/jar";
+        AL.debug(this.getClass(), url);
+        return url;
     }
 }
