@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
-import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ConPluginsUpdateResult extends SecondaryConnection {
     private final List<SearchResult> searchResults;
-    private final List<DetailedPlugin> excludedPlugins;
+    private final List<MinecraftPlugin> excludedPlugins;
 
     /**
      * To send the provided information to AutoPlug-Web make sure to call {@link #open()}.
@@ -35,7 +35,7 @@ public class ConPluginsUpdateResult extends SecondaryConnection {
      * @param excludedPlugins plugins that were excluded from the check.
      */
     public ConPluginsUpdateResult(List<SearchResult> searchResults,
-                                  List<DetailedPlugin> excludedPlugins) {
+                                  List<MinecraftPlugin> excludedPlugins) {
         super((byte) 3);
         this.searchResults = searchResults;
         this.excludedPlugins = excludedPlugins;
@@ -106,7 +106,7 @@ public class ConPluginsUpdateResult extends SecondaryConnection {
         }
 
         dos.writeInt(excludedPlugins.size());
-        for (DetailedPlugin excludedPl :
+        for (MinecraftPlugin excludedPl :
                 excludedPlugins) {
             String plName = excludedPl.getName();
             if (plName == null)

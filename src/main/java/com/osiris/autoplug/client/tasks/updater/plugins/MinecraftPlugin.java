@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
-public class DetailedPlugin {
+public class MinecraftPlugin {
     private boolean isPremium;
     private String configPath;
     private String installationPath;
@@ -25,7 +25,7 @@ public class DetailedPlugin {
     private String jenkinsArtifactName;
     private int jenkinsBuildId;
 
-    public DetailedPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
+    public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.setInstallationPath(installationPath);
         this.setName(name);
         this.version = version;

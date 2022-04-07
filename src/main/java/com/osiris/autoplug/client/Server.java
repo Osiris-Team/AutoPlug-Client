@@ -37,11 +37,25 @@ import java.util.List;
 
 public final class Server {
 
+    /**
+     * True if current dir contains the .fabric folder.
+     */
+    public static boolean isFabric;
     @Nullable
     public static AsyncInputStream ASYNC_SERVER_IN;
     private static Process process;
     private static Thread threadServerAliveChecker;
     private static boolean colorServerLog;
+
+    static {
+        for (File f :
+                new File(System.getProperty("user.dir")).listFiles()) {
+            if (f.getName().equals(".fabric")) {
+                isFabric = true;
+                break;
+            }
+        }
+    }
 
     public static void start() {
         try {

@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BetterThread;
 import com.osiris.betterthread.BetterThreadManager;
 import com.osiris.betterthread.BetterWarning;
@@ -40,11 +41,11 @@ public class TaskPluginsUpdater extends BetterThread {
     private final int updatesDownloaded = 0;
     private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
     @NotNull
-    private final List<DetailedPlugin> includedPlugins = new ArrayList<>();
+    private final List<MinecraftPlugin> includedPlugins = new ArrayList<>();
     @NotNull
-    private final List<DetailedPlugin> allPlugins = new ArrayList<>();
+    private final List<MinecraftPlugin> allPlugins = new ArrayList<>();
     @NotNull
-    private final List<DetailedPlugin> excludedPlugins = new ArrayList<>();
+    private final List<MinecraftPlugin> excludedPlugins = new ArrayList<>();
     Yaml pluginsConfig;
     private UpdaterConfig updaterConfig;
     private String userProfile;
@@ -99,20 +100,30 @@ public class TaskPluginsUpdater extends BetterThread {
         YamlSection keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
                 .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
-        PluginManager man = new PluginManager();
+        pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
+        updaterConfig = new UpdaterConfig();
+        userProfile = updaterConfig.plugins_updater_profile.asString();
+
+        if (!updaterConfig.plugins_updater.asBoolean()) {
+            skip();
+            return;
+        }
+        if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
+
+        UtilsMinecraft man = new UtilsMinecraft();
         this.allPlugins.addAll(man.getPlugins());
         if (!allPlugins.isEmpty())
-            for (DetailedPlugin pl :
+            for (MinecraftPlugin installedPlugin :
                     allPlugins) {
                 try {
-                    final String plName = pl.getName();
-                    if (pl.getName() == null || pl.getName().isEmpty())
-                        throw new Exception("The plugins name couldn't be determined for '" + pl.getInstallationPath() + "'!");
+                    final String plName = installedPlugin.getName();
+                    if (installedPlugin.getName() == null || installedPlugin.getName().isEmpty())
+                        throw new Exception("The plugins name couldn't be determined for '" + installedPlugin.getInstallationPath() + "'!");
 
                     YamlSection exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
-                    YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(pl.getVersion());
+                    YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(installedPlugin.getVersion());
                     YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
-                    YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(pl.getAuthor());
+                    YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
                     YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
                     //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                     YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
@@ -126,44 +137,44 @@ public class TaskPluginsUpdater extends BetterThread {
                     YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
                     // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
-                    if (pl.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
-                        spigotId.setValues("" + pl.getSpigotId());
-                    if (pl.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
-                        bukkitId.setValues("" + pl.getBukkitId());
+                    if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
+                        spigotId.setValues("" + installedPlugin.getSpigotId());
+                    if (installedPlugin.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
+                        bukkitId.setValues("" + installedPlugin.getBukkitId());
 
                     // Update the detailed plugins in-memory values
-                    pl.setSpigotId(spigotId.asInt());
-                    pl.setBukkitId(bukkitId.asInt());
-                    pl.setIgnoreContentType(ignoreContentType.asBoolean());
-                    pl.setCustomDownloadURL(customDownloadURL.asString());
-                    pl.setGithubRepoName(githubRepoUrl.asString());
-                    pl.setGithubAssetName(githubAssetName.asString());
-                    pl.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
-                    pl.setJenkinsArtifactName(jenkinsArtifactName.asString());
-                    pl.setJenkinsBuildId(jenkinsBuildId.asInt());
+                    installedPlugin.setSpigotId(spigotId.asInt());
+                    installedPlugin.setBukkitId(bukkitId.asInt());
+                    installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
+                    installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
+                    installedPlugin.setGithubRepoName(githubRepoUrl.asString());
+                    installedPlugin.setGithubAssetName(githubAssetName.asString());
+                    installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
+                    installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
+                    installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
 
                     // Check for missing author in plugin.yml
-                    if ((pl.getVersion() == null || pl.getVersion().trim().isEmpty())
+                    if ((installedPlugin.getVersion() == null || installedPlugin.getVersion().trim().isEmpty())
                             && (spigotId.asString() == null || spigotId.asInt() == 0)
                             && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
                         exclude.setValues("true");
-                        this.addWarning("Plugin " + pl.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
+                        this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
                     }
 
                     // Check for missing version in plugin.yml
-                    if ((pl.getAuthor() == null || pl.getAuthor().trim().isEmpty())
+                    if ((installedPlugin.getAuthor() == null || installedPlugin.getAuthor().trim().isEmpty())
                             && (spigotId.asString() == null || spigotId.asInt() == 0)
                             && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
                         exclude.setValues("true");
-                        this.addWarning("Plugin " + pl.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
+                        this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
                     }
 
                     if (exclude.asBoolean())
-                        excludedPlugins.add(pl);
+                        excludedPlugins.add(installedPlugin);
                     else
-                        includedPlugins.add(pl);
+                        includedPlugins.add(installedPlugin);
                 } catch (DuplicateKeyException e) {
-                    addWarning(new BetterWarning(this, e, "Duplicate plugin '" + pl.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
+                    addWarning(new BetterWarning(this, e, "Duplicate plugin '" + installedPlugin.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
                             "Its recommended to remove it."));
                 } catch (Exception e) {
                     addWarning(new BetterWarning(this, e));
@@ -175,15 +186,6 @@ public class TaskPluginsUpdater extends BetterThread {
         else {
             pluginsConfig.save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
         }
-        pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
-        updaterConfig = new UpdaterConfig();
-        userProfile = updaterConfig.plugin_updater_profile.asString();
-
-        if (!updaterConfig.plugin_updater.asBoolean()) {
-            skip();
-            return;
-        }
-        if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
 
         // TODO DO COOL-DOWN CHECK STUFF LOCALLY
         /*
@@ -200,7 +202,8 @@ public class TaskPluginsUpdater extends BetterThread {
         // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
         setStatus("Fetching latest plugin data...");
         int includedSize = includedPlugins.size();
-        if (includedSize == 0) throw new Exception("Plugins size is 0! Nothing to check...");
+        if (includedSize == 0)
+            throw new Exception("No plugins found in " + updaterConfig.plugins_updater_path.asString() + "! Nothing to check...");
         setMax(includedSize);
 
         // TODO USE THIS FOR RESULT REPORT
@@ -211,30 +214,30 @@ public class TaskPluginsUpdater extends BetterThread {
         int sizeUnknownPlugins = 0;
 
         ExecutorService executorService;
-        if (updaterConfig.plugin_updater_async.asBoolean())
+        if (updaterConfig.plugins_updater_async.asBoolean())
             executorService = Executors.newFixedThreadPool(includedSize);
         else
             executorService = Executors.newSingleThreadExecutor();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
-        for (DetailedPlugin pl :
+        for (MinecraftPlugin pl :
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
                     sizeJenkinsPlugins++;
-                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByJenkinsUrl(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
                 } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
                     sizeGithubPlugins++;
-                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByGithubUrl(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByGithubUrl(pl)));
                 } else if (pl.getSpigotId() != 0) {
                     sizeSpigotPlugins++; // SPIGOT PLUGIN
-                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchBySpigotId(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginBySpigotId(pl)));
                 } else if (pl.getBukkitId() != 0) {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
-                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().searchByBukkitId(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginByBukkitId(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
-                    activeFutures.add(executorService.submit(() -> new PluginUpdateFinder().unknownSearch(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownPlugin(pl)));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));
@@ -258,7 +261,7 @@ public class TaskPluginsUpdater extends BetterThread {
                 activeFutures.remove(finishedFuture);
                 SearchResult result = finishedFuture.get();
                 results.add(result);
-                DetailedPlugin pl = result.getPlugin();
+                MinecraftPlugin pl = result.getPlugin();
                 byte code = result.getResultCode();
                 String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
                 String latest = result.getLatestVersion(); // The latest version as String
@@ -372,7 +375,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
     }
 
-    private void doDownloadLogic(@NotNull DetailedPlugin pl, SearchResult result) {
+    private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {
         byte code = result.getResultCode();
         String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
         String latest = result.getLatestVersion(); // The latest version as String
@@ -428,12 +431,12 @@ public class TaskPluginsUpdater extends BetterThread {
      * That means, that a plugin must have its name, its authors name and its version in its plugin.yml file.
      */
     @NotNull
-    public List<DetailedPlugin> getIncludedPlugins() {
+    public List<MinecraftPlugin> getIncludedPlugins() {
         return includedPlugins;
     }
 
     @NotNull
-    public List<DetailedPlugin> getExcludedPlugins() {
+    public List<MinecraftPlugin> getExcludedPlugins() {
         return excludedPlugins;
     }
 
@@ -441,7 +444,7 @@ public class TaskPluginsUpdater extends BetterThread {
      * Returns a list containing all plugins found in the /plugins directory. <br>
      */
     @NotNull
-    public List<DetailedPlugin> getAllPlugins() {
+    public List<MinecraftPlugin> getAllPlugins() {
         return allPlugins;
     }
 

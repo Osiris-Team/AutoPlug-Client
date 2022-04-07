@@ -6,7 +6,7 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins;
+package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class TaskPluginDownload extends BetterThread {
+public class TaskModDownload extends BetterThread {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -34,50 +34,50 @@ public class TaskPluginDownload extends BetterThread {
     private final File finalDest;
     private final File deleteDest;
     private final boolean isPremium;
-    public MinecraftPlugin plugin;
+    public MinecraftMod mod;
     public SearchResult searchResult;
     private File dest;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
 
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, String profile, File finalDest) {
+    public TaskModDownload(String name, BetterThreadManager manager,
+                           String plName, String plLatestVersion,
+                           String url, String profile, File finalDest) {
         this(name, manager, plName, plLatestVersion, url, false, profile, finalDest, null);
     }
 
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, boolean ignoreContentType,
-                              String profile, File finalDest) {
+    public TaskModDownload(String name, BetterThreadManager manager,
+                           String plName, String plLatestVersion,
+                           String url, boolean ignoreContentType,
+                           String profile, File finalDest) {
         this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, null);
     }
 
     /**
-     * Performs a plugin installation/download according to the users profile.
+     * Performs a mod installation/download according to the users profile.
      *
      * @param name              this processes name.
      * @param manager           the parent process manager.
-     * @param plName            plugin name.
-     * @param plLatestVersion   plugins latest version.
+     * @param plName            mod name.
+     * @param plLatestVersion   mods latest version.
      * @param url               the download-url.
      * @param ignoreContentType should the HTTP contenttype headers be ignored?
-     * @param profile           the users plugin updater profile. NOTIFY, MANUAL or AUTOMATIC.
+     * @param profile           the users mod updater profile. NOTIFY, MANUAL or AUTOMATIC.
      * @param finalDest         the final download destination.
      * @param deleteDest        the file that should be deleted on a successful download. If null nothing gets deleted.
      */
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, boolean ignoreContentType, String profile,
-                              File finalDest, File deleteDest) {
+    public TaskModDownload(String name, BetterThreadManager manager,
+                           String plName, String plLatestVersion,
+                           String url, boolean ignoreContentType, String profile,
+                           File finalDest, File deleteDest) {
         this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, deleteDest, false);
     }
 
-    public TaskPluginDownload(String name, BetterThreadManager manager,
-                              String plName, String plLatestVersion,
-                              String url, boolean ignoreContentType, String profile,
-                              File finalDest, File deleteDest,
-                              boolean isPremium) {
+    public TaskModDownload(String name, BetterThreadManager manager,
+                           String plName, String plLatestVersion,
+                           String url, boolean ignoreContentType, String profile,
+                           File finalDest, File deleteDest,
+                           boolean isPremium) {
         super(name, manager);
         // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
         plName = plName.replaceAll("[\\\\]", "-").replaceAll("[/]", "-");
@@ -106,7 +106,7 @@ public class TaskPluginDownload extends BetterThread {
         } else {
             download();
             isDownloadSuccessful = true;
-            AL.debug(this.getClass(), "Installing plugin into " + finalDest.getAbsolutePath());
+            AL.debug(this.getClass(), "Installing mod into " + finalDest.getAbsolutePath());
             if (finalDest.exists()) finalDest.delete();
             finalDest.createNewFile();
             if (deleteDest != null && deleteDest.exists()) deleteDest.delete();

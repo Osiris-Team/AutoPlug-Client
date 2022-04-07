@@ -6,14 +6,21 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.tasks.updater.plugins;
+package com.osiris.autoplug.client.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import net.lingala.zip4j.ZipFile;
 import org.jetbrains.annotations.NotNull;
+import org.tomlj.Toml;
+import org.tomlj.TomlParseResult;
+import org.tomlj.TomlTable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,11 +32,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class PluginManager {
+public class UtilsMinecraft {
 
     @NotNull
-    public List<DetailedPlugin> getPlugins() {
-        List<DetailedPlugin> plugins = new ArrayList<>();
+    public List<MinecraftPlugin> getPlugins() {
+        List<MinecraftPlugin> plugins = new ArrayList<>();
 
         FileManager fm = new FileManager();
 
@@ -112,7 +119,7 @@ public class PluginManager {
                             if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
                             if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
-                            plugins.add(new DetailedPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
+                            plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
                         }
                         // Get next file in zip
                         zis.closeEntry();
@@ -150,22 +157,122 @@ public class PluginManager {
     }
 
     @NotNull
-    @Deprecated
-    private File extractPluginYmlFile(@NotNull File jar) throws Exception {
-        // A jar file is actually a zip file, thats why we can use this method
-        ZipFile zip = new ZipFile(jar);
+    public List<MinecraftMod> getMods(File dir) {
+        List<MinecraftMod> mods = new ArrayList<>();
 
-        // The plugin yml file we will extract from the jar
-        String path = System.getProperty("user.dir") + "/autoplug/system";
-        File pluginYml = new File(path);
-        if (pluginYml.exists()) {
-            pluginYml.delete();
+        // Location where each plugin.yml file will be extracted to
+        byte[] buffer = new byte[1024];
+
+        if (!dir.exists()) return mods;
+        for (File jar :
+                dir.listFiles()) {
+            if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
+
+            FileInputStream fis = null;
+            ZipInputStream zis = null;
+            ZipEntry ze = null;
+            try {
+                fis = new FileInputStream(jar);
+                zis = new ZipInputStream(fis);
+                ze = zis.getNextEntry();
+                boolean found = false;
+                while (ze != null) {
+                    String fileName = ze.getName();
+                    if (!found && (fileName.equals("fabric.mod.json") // Support for fabric mods
+                            || fileName.equals("mods.toml")) // Support for forge mods
+                    ) {
+                        String config = "";
+                        found = true;
+                        // Extract this config file
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            config += Arrays.copyOf(buffer, len);
+                        }
+                        zis.closeEntry();
+
+                        // Load the config and get its details
+                        if (fileName.equals("mods.toml")) { // Forge mod
+                            TomlParseResult result = Toml.parse(config);
+                            //result.errors().forEach(error -> System.err.println(error.toString())); // Ignore errors
+                            TomlTable table = result.getArray("mods").getTable(0);
+                            String name = null;
+                            try {
+                                name = table.getString("displayName");
+                            } catch (Exception e) {
+                            }
+                            String author = null;
+                            try {
+                                author = table.getString("authors"); // TODO find out how people separate multiple authors here
+                            } catch (Exception e) {
+                            }
+                            if (author == null) try {
+                                author = table.getString("author");
+                            } catch (Exception e) {
+                            }
+                            String version = null;
+                            try {
+                                version = table.getString("version");
+                            } catch (Exception e) {
+                            }
+                            String bukkitId = null;
+                            try {
+                                bukkitId = table.getString("modId");
+                            } catch (Exception e) {
+                            }
+                            mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
+                        } else { // Fabric mod
+                            JsonObject obj = new Gson().fromJson(config, JsonObject.class);
+                            String name = obj.get("name").getAsString();
+                            //if (name==null || name.isEmpty()){ // In this case use the jars name as name
+                            //    name = jar.getName();
+                            //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
+                            String version = obj.get("version").getAsString();
+                            JsonElement authorRaw = obj.get("author");
+                            JsonElement authorsRaw = obj.get("authors");
+
+                            String author = null;
+                            if (!authorRaw.isJsonNull())
+                                author = authorRaw.getAsString();
+                            else
+                                author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+
+                            // Also check for ids in the config
+                            String modrinthId = obj.get("id").getAsString();
+                            mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null));
+                        }
+                    }
+                    // Get next file in zip
+                    zis.closeEntry();
+                    ze = zis.getNextEntry();
+                } // Loop end
+                // Close last ZipEntry
+                zis.closeEntry();
+                zis.close();
+                fis.close();
+
+            } catch (Exception e) {
+                AL.warn("Failed to get plugin information for: " + jar.getName(), e);
+            } finally {
+                try {
+                    if (zis != null && ze != null)
+                        zis.closeEntry();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (zis != null)
+                        zis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (fis != null) fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
-        // This extracts the plugin yml file
-        zip.extractFile("plugin.yml", path);
-
-        return pluginYml;
+        return mods;
     }
 
 }

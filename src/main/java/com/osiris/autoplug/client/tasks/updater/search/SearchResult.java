@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,7 +8,8 @@
 
 package com.osiris.autoplug.client.tasks.updater.search;
 
-import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
+import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 
 /**
  * Contains all the relevant information
@@ -16,7 +17,8 @@ import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
  */
 public class SearchResult {
     // TODO remove getters and setters and make everything public for easier future coding
-    public DetailedPlugin plugin;
+    public MinecraftPlugin plugin;
+    public MinecraftMod mod;
     public String latestVersion;
     public String downloadUrl;
     public String downloadType;
@@ -43,7 +45,7 @@ public class SearchResult {
      * @param spigotId      only !=null after an algorithm search where no id(spigot/bukkit) was provided.
      * @param bukkitId      only !=null after an algorithm search where no id(spigot/bukkit) was provided.
      */
-    public SearchResult(DetailedPlugin plugin, byte resultCode, String latestVersion, String downloadUrl,
+    public SearchResult(MinecraftPlugin plugin, byte resultCode, String latestVersion, String downloadUrl,
                         String downloadType, String spigotId, String bukkitId, boolean isPremium) {
         this.plugin = plugin;
         this.resultCode = resultCode;
@@ -59,7 +61,7 @@ public class SearchResult {
         return isPremium;
     }
 
-    public DetailedPlugin getPlugin() {
+    public MinecraftPlugin getPlugin() {
         return plugin;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,19 +21,19 @@ import java.util.List;
  * Spiget is used, since spigotmc.org has no official API available.
  */
 public class SpigetAPI {
-    private final static String LINK_API = "https://api.spiget.org/v2/";
+    private final String LINK_API = "https://api.spiget.org/v2/";
 
-    private final static String LINK_AUTHORS = "https://api.spiget.org/v2/authors/";
-    private final static String LINK_RESOURCES = "https://api.spiget.org/v2/resources?size=";
-    private final static String LINK_RESOURCES_NEW = "https://api.spiget.org/v2/resources/new?size=";
+    private final String LINK_AUTHORS = "https://api.spiget.org/v2/authors/";
+    private final String LINK_RESOURCES = "https://api.spiget.org/v2/resources?size=";
+    private final String LINK_RESOURCES_NEW = "https://api.spiget.org/v2/resources/new?size=";
 
-    private final static String LINK_SEARCH_RESOURCES = "https://api.spiget.org/v2/search/resources/";
-    private final static String LINK_SEARCH_AUTHORS = "https://api.spiget.org/v2/search/authors/";
+    private final String LINK_SEARCH_RESOURCES = "https://api.spiget.org/v2/search/resources/";
+    private final String LINK_SEARCH_AUTHORS = "https://api.spiget.org/v2/search/authors/";
 
-    private final static String SORT_DESC_DOWNLOADS = "?sort=-downloads";
-    private final static String SORT_DESC_UPDATED = "&sort=-updateDate";
-    private final static String SORT_DESC_LIKES = "&sort=-likes";
-    private final static String SORT_BY_RATINGS = "&sort=-rating";
+    private final String SORT_DESC_DOWNLOADS = "?sort=-downloads";
+    private final String SORT_DESC_UPDATED = "&sort=-updateDate";
+    private final String SORT_DESC_LIKES = "&sort=-likes";
+    private final String SORT_BY_RATINGS = "&sort=-rating";
 
 
     /**

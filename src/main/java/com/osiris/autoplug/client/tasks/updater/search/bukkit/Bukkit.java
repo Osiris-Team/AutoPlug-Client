@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -28,8 +28,8 @@ import java.net.URL;
  */
 @Deprecated
 public class Bukkit {
-    private static final String REQUEST_URL_1 = "https://servermods.forgesvc.net/servermods/projects?search=";
-    private static final String REQUEST_URL_2 = "https://servermods.forgesvc.net/servermods/files?projectIds=";
+    private final String REQUEST_URL_1 = "https://servermods.forgesvc.net/servermods/projects?search=";
+    private final String REQUEST_URL_2 = "https://servermods.forgesvc.net/servermods/files?projectIds=";
 
     private String INPUT_PLUGIN_NAME;
     private String OUTPUT_PLUGIN_VERSION;

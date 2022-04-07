@@ -43,9 +43,15 @@ public class UpdaterConfig extends Yaml {
     public YamlSection server_jenkins_artifact_name;
     public YamlSection server_jenkins_build_id;
 
-    public YamlSection plugin_updater;
-    public YamlSection plugin_updater_profile;
-    public YamlSection plugin_updater_async;
+    public YamlSection plugins_updater;
+    public YamlSection plugins_updater_profile;
+    public YamlSection plugins_updater_path;
+    public YamlSection plugins_updater_async;
+
+    public YamlSection mods_updater;
+    public YamlSection mods_updater_profile;
+    public YamlSection mods_updater_path;
+    public YamlSection mods_updater_async;
 
     public UpdaterConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this(ConfigPreset.DEFAULT);
@@ -152,12 +158,23 @@ public class UpdaterConfig extends Yaml {
 
 
         put(name, "plugins-updater").setCountTopLineBreaks(1);
-        plugin_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
-                "Updates your plugins in to /plugins directory.",
-                "The results are sent to AutoPlug-Web. You can configure this in the web-config.",
+        plugins_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
+                "Updates your plugins and the results are sent to AutoPlug-Web. You can configure this in the web-config.",
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
-        plugin_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
-        plugin_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
+        plugins_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
+        plugins_updater_path = put(name, "plugins-updater", "path").setDefValues("./plugins");
+        plugins_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
+                "Asynchronously checks for updates.",
+                "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
+                "The only downside of this is that your log file gets a bit messy.");
+
+        put(name, "mods-updater").setCountTopLineBreaks(1);
+        mods_updater = put(name, "mods-updater", "enable").setDefValues("true").setComments(
+                "Updates your mods and the results are sent to AutoPlug-Web. You can configure this in the web-config.",
+                "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
+        mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("MANUAL");
+        mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
+        mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
@@ -167,7 +184,7 @@ public class UpdaterConfig extends Yaml {
             java_updater_profile.setDefValues("AUTOMATIC");
             server_updater.setDefValues("true");
             server_updater_profile.setDefValues("AUTOMATIC");
-            plugin_updater_profile.setDefValues("AUTOMATIC");
+            plugins_updater_profile.setDefValues("AUTOMATIC");
         }
 
         validateOptions();
@@ -179,7 +196,7 @@ public class UpdaterConfig extends Yaml {
         String selfP = self_updater_profile.asString();
         String jP = java_updater_profile.asString();
         String sP = server_updater_profile.asString();
-        String uP = plugin_updater_profile.asString();
+        String uP = plugins_updater_profile.asString();
 
         if (!selfP.equals("NOTIFY") && !selfP.equals("MANUAL") && !selfP.equals("AUTOMATIC")) {
             String correction = self_updater_profile.getDefValue().asString();
@@ -200,9 +217,9 @@ public class UpdaterConfig extends Yaml {
         }
 
         if (!uP.equals("NOTIFY") && !uP.equals("MANUAL") && !uP.equals("AUTOMATIC")) {
-            String correction = plugin_updater_profile.getDefValue().asString();
-            AL.warn("Config error -> " + plugin_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
-            plugin_updater_profile.setValues(correction);
+            String correction = plugins_updater_profile.getDefValue().asString();
+            AL.warn("Config error -> " + plugins_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            plugins_updater_profile.setValues(correction);
         }
 
     }

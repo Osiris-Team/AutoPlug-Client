@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.tasks.updater.search.spigot;
 
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.tasks.updater.plugins.DetailedPlugin;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
@@ -17,7 +17,7 @@ import com.osiris.autoplug.core.logger.AL;
 
 public class SpigotSearchById {
 
-    public SearchResult search(DetailedPlugin plugin) {
+    public SearchResult search(MinecraftPlugin plugin) {
         int spigotId = plugin.getSpigotId();
         Exception exception = null;
 

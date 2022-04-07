@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -26,7 +26,7 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Search & find files!
- * (Not efficient code. Rework needed!)
+ * TODO (Not tasty code. Rework needed!)
  */
 public class FileManager {
     private final List<File> queryFiles = new ArrayList<>();
