@@ -168,6 +168,42 @@ public class UtilsMinecraft {
                         if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
                         plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
+                    } else if (fileName.equals("velocity-plugin.json")) {
+                        found = true;
+                        // Extract this plugin.yml file
+                        String config = "";
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            config += Arrays.copyOf(buffer, len);
+                        }
+                        zis.closeEntry();
+
+                        // Load the plugin.yml and get its details
+                        JsonObject jsonConfig = JsonParser.parseString(config).getAsJsonObject();
+
+                        String name = jsonConfig.get("name").getAsString();
+                        //if (name==null || name.isEmpty()){ // In this case use the jars name as name
+                        //    name = jar.getName();
+                        //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
+                        String version = jsonConfig.get("version").getAsString();
+                        JsonElement authorRaw = jsonConfig.get("author");
+                        JsonElement authorsRaw = jsonConfig.get("authors");
+
+                        String author = null;
+                        if (!authorRaw.isJsonNull())
+                            author = authorRaw.getAsString();
+                        else
+                            author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+
+                        // Also check for ids in the plugin.yml
+                        int spigotId = 0;
+                        int bukkitId = 0;
+                        JsonElement mSpigotId = jsonConfig.get("spigot-id");
+                        JsonElement mBukkitId = jsonConfig.get("bukkit-id");
+                        if (!mSpigotId.isJsonNull()) spigotId = mSpigotId.getAsInt();
+                        if (!mBukkitId.isJsonNull()) bukkitId = mBukkitId.getAsInt();
+
+                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version, author, spigotId, bukkitId, null));
                     }
                     if (found) break;
                     // Get next file in zip
