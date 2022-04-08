@@ -10,11 +10,8 @@
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
 
 ## What can it do?
-- Automated self updating
-- Automated JRE (Java Runtime Enviornment) updating
-- Automated server software updating
-- Automated plugins updating
-- Automated, scheduled server restarting
+- Automated self, server-software, plugins and JRE (Java Runtime Enviornment) updating
+- Scheduled server restarts
 - Automated, modularized backup creation
 - Fast, asynchronous, multithreaded task execution
 - Have synchronized (shared) folders
