@@ -18,7 +18,18 @@ import com.osiris.autoplug.core.logger.AL;
 public class ModrinthAPI {
     private final String baseUrl = "https://api.modrinth.com/v2";
 
+    private boolean isInt(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
     public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
+        if (mod.modrinthId == null && !isInt(mod.curseforgeId)) mod.modrinthId = mod.curseforgeId; // Slug
         String url = baseUrl + "/project/" + mod.modrinthId + "/version?loaders=[\"" +
                 (Server.isFabric ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
         Exception exception = null;
@@ -27,6 +38,8 @@ public class ModrinthAPI {
         String downloadUrl = null;
         byte code = 0;
         try {
+            if (mod.modrinthId == null)
+                throw new Exception("Modrinth-id is null!"); // Modrinth id can be slug or actual id
             AL.debug(this.getClass(), url);
             JsonObject release = new JsonTools().getJsonArray(url).get(0).getAsJsonObject();
             latest = release.get("version_number").getAsString();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client;
 
-import com.osiris.autoplug.client.tasks.scheduler.JobScheduler;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.*;
@@ -66,13 +65,6 @@ public class SystemChecker {
                 if (Server.isRunning()) Server.stop();
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to stopping the server!", e);
-            }
-
-            try {
-                new JobScheduler(); // To avoid class not found exception...
-                JobScheduler.safeShutdown();
-            } catch (Exception e) {
-                AL.warn("Error during shutdown, related to the scheduler!", e);
             }
 
             try {

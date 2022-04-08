@@ -32,7 +32,7 @@ public class CurseForgeAPI {
 
     public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
         boolean isIdNumber = isInt(mod.curseforgeId);
-        String url = baseUrl + "/" + mod.curseforgeId + "/files";
+        String url;
         Exception exception = null;
         String latest = null;
         String type = ".jar";
@@ -44,6 +44,8 @@ public class CurseForgeAPI {
                 mod.curseforgeId = json.get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
                 mod.fileDate = json.get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("file").getAsJsonObject().get("fileDate").getAsString();
             }
+            if (mod.curseforgeId == null) throw new Exception("Curseforge-id is null!");
+            url = baseUrl + "/" + mod.curseforgeId + "/files";
             AL.debug(this.getClass(), url);
             JsonArray arr = new JsonTools().getJsonArray(url);
             JsonObject release = null;

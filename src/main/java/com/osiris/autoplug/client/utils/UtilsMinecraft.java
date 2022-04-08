@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
@@ -24,7 +25,6 @@ import org.tomlj.TomlTable;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +33,68 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class UtilsMinecraft {
+
+    public String getInstalledVersion() {
+        return getInstalledVersion(GD.SERVER_JAR);
+    }
+
+    /**
+     * Returns the version string like "1.18.1" from the
+     * version.json that is located in every server jar.
+     * Returns null if that wasn't possible.
+     */
+    public String getInstalledVersion(File serverJar) {
+        String version = null;
+        // Location where each plugin.yml file will be extracted to
+        byte[] buffer = new byte[1024];
+
+        if (!serverJar.exists()) return null;
+        FileInputStream fis = null;
+        ZipInputStream zis = null;
+        ZipEntry ze = null;
+        try {
+            fis = new FileInputStream(serverJar);
+            zis = new ZipInputStream(fis);
+            ze = zis.getNextEntry();
+            boolean found = false;
+            while (ze != null) {
+                String fileName = ze.getName();
+                if (fileName.equals("version.json")) {
+                    String config = "";
+                    found = true;
+                    // Extract this config file
+                    int len;
+                    while ((len = zis.read(buffer)) > 0) {
+                        config += Arrays.copyOf(buffer, len);
+                    }
+                    zis.closeEntry();
+                    version = JsonParser.parseString(config).getAsJsonObject().get("id").getAsString();
+                }
+                if (found) break;
+            }
+        } catch (Exception e) {
+            AL.warn(e);
+        } finally {
+            try {
+                if (zis != null && ze != null)
+                    zis.closeEntry();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                if (zis != null)
+                    zis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (fis != null) fis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return version;
+    }
 
     @NotNull
     public List<MinecraftPlugin> getPlugins() {
@@ -43,116 +105,102 @@ public class UtilsMinecraft {
         // Get a list of all jar files in the /plugins dir
         List<File> plJarFiles = fm.getAllPlugins();
 
-        // Location where each plugin.yml file will be extracted to
-        File ymlFile = new File(System.getProperty("user.dir") + "/autoplug/system/plugin.yml");
+
         byte[] buffer = new byte[1024];
 
-        /*
-        1. Extract information from each jars "plugin.yml" file
-        2. Convert into a Plugin.class
-        3. Add the Plugin.class to the plugins list
-         */
-        if (!plJarFiles.isEmpty())
-            for (File jar :
-                    plJarFiles) {
-                FileInputStream fis = null;
-                ZipInputStream zis = null;
-                ZipEntry ze = null;
-                try {
-                    // Clean up old
-                    if (ymlFile.exists()) {
-                        ymlFile.delete();
-                        ymlFile.createNewFile();
-                    }
-
-                    fis = new FileInputStream(jar);
-                    zis = new ZipInputStream(fis);
-                    ze = zis.getNextEntry();
-                    boolean found = false;
-                    while (ze != null) {
-                        String fileName = ze.getName();
-                        if (!found && (fileName.equals("plugin.yml") || fileName.equals("bungee.yml"))) {
-                            found = true;
-                            // Extract this plugin.yml file
-                            FileOutputStream fos = new FileOutputStream(ymlFile);
-                            int len;
-                            while ((len = zis.read(buffer)) > 0) {
-                                fos.write(buffer, 0, len);
-                            }
-                            fos.close();
-                            zis.closeEntry();
-
-                            // Load the plugin.yml and get its details
-                            final Yaml ymlConfig = new Yaml(ymlFile);
-                            ymlConfig.load();
-
-                            String name = ymlConfig.put("name").asString();
-                            //if (name==null || name.isEmpty()){ // In this case use the jars name as name
-                            //    name = jar.getName();
-                            //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
-                            YamlSection version = ymlConfig.put("version");
-                            YamlSection authorRaw = ymlConfig.put("author");
-                            YamlSection authorsRaw = ymlConfig.put("authors");
-
-                            String author = null;
-                            if (!authorRaw.getValues().isEmpty())
-                                author = authorRaw.asString();
-                            else
-                                author = authorsRaw.asString(); // Returns only the first author
-
-                            // Why this is done? Because each plugin.yml file stores its authors list differently (Array or List, or numbers idk, or some other stuff...)
-                            // and all we want is just a simple list. This causes errors.
-                            // We get the list as a String, remove all "[]" brackets and " "(spaces) so we get a list of names only separated by commas
-                            // That is then sliced into a list.
-                            // Before: [name1, name2]
-                            // After: name1,name2
-                            if (author != null) author = Arrays.asList(
-                                            author.replaceAll("[\\[\\]]", "")
-                                                    .split(","))
-                                    .get(0);
-
-                            // Also check for ids in the plugin.yml
-                            int spigotId = 0;
-                            int bukkitId = 0;
-                            YamlSection mSpigotId = ymlConfig.get("spigot-id");
-                            YamlSection mBukkitId = ymlConfig.get("bukkit-id");
-                            if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
-                            if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
-
-                            plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
+        for (File jar :
+                plJarFiles) {
+            FileInputStream fis = null;
+            ZipInputStream zis = null;
+            ZipEntry ze = null;
+            try {
+                fis = new FileInputStream(jar);
+                zis = new ZipInputStream(fis);
+                ze = zis.getNextEntry();
+                boolean found = false;
+                while (ze != null) {
+                    String fileName = ze.getName();
+                    if (fileName.equals("plugin.yml") || fileName.equals("bungee.yml")) {
+                        found = true;
+                        // Extract this plugin.yml file
+                        String config = "";
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            config += Arrays.copyOf(buffer, len);
                         }
-                        // Get next file in zip
                         zis.closeEntry();
-                        ze = zis.getNextEntry();
-                    } // Loop end
-                    // Close last ZipEntry
-                    zis.closeEntry();
-                    zis.close();
-                    fis.close();
 
+                        // Load the plugin.yml and get its details
+                        final Yaml ymlConfig = new Yaml(config, null, false);
+                        ymlConfig.load();
+
+                        String name = ymlConfig.put("name").asString();
+                        //if (name==null || name.isEmpty()){ // In this case use the jars name as name
+                        //    name = jar.getName();
+                        //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
+                        YamlSection version = ymlConfig.put("version");
+                        YamlSection authorRaw = ymlConfig.put("author");
+                        YamlSection authorsRaw = ymlConfig.put("authors");
+
+                        String author = null;
+                        if (!authorRaw.getValues().isEmpty())
+                            author = authorRaw.asString();
+                        else
+                            author = authorsRaw.asString(); // Returns only the first author
+
+                        // Why this is done? Because each plugin.yml file stores its authors list differently (Array or List, or numbers idk, or some other stuff...)
+                        // and all we want is just a simple list. This causes errors.
+                        // We get the list as a String, remove all "[]" brackets and " "(spaces) so we get a list of names only separated by commas
+                        // That is then sliced into a list.
+                        // Before: [name1, name2]
+                        // After: name1,name2
+                        if (author != null) author = Arrays.asList(
+                                        author.replaceAll("[\\[\\]]", "")
+                                                .split(","))
+                                .get(0);
+
+                        // Also check for ids in the plugin.yml
+                        int spigotId = 0;
+                        int bukkitId = 0;
+                        YamlSection mSpigotId = ymlConfig.get("spigot-id");
+                        YamlSection mBukkitId = ymlConfig.get("bukkit-id");
+                        if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
+                        if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
+
+                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
+                    }
+                    if (found) break;
+                    // Get next file in zip
+                    zis.closeEntry();
+                    ze = zis.getNextEntry();
+                } // Loop end
+                // Close last ZipEntry
+                zis.closeEntry();
+                zis.close();
+                fis.close();
+
+            } catch (Exception e) {
+                AL.warn("Failed to get plugin information for: " + jar.getName(), e);
+            } finally {
+                try {
+                    if (zis != null && ze != null)
+                        zis.closeEntry();
                 } catch (Exception e) {
-                    AL.warn("Failed to get plugin information for: " + jar.getName(), e);
-                } finally {
-                    try {
-                        if (zis != null && ze != null)
-                            zis.closeEntry();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        if (zis != null)
-                            zis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        if (fis != null) fis.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    e.printStackTrace();
+                }
+                try {
+                    if (zis != null)
+                        zis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (fis != null) fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-
+        }
         return plugins;
     }
 
@@ -178,8 +226,8 @@ public class UtilsMinecraft {
                 boolean found = false;
                 while (ze != null) {
                     String fileName = ze.getName();
-                    if (!found && (fileName.equals("fabric.mod.json") // Support for fabric mods
-                            || fileName.equals("mods.toml")) // Support for forge mods
+                    if (fileName.equals("fabric.mod.json") // Support for fabric mods
+                            || fileName.equals("mods.toml") // Support for forge mods
                     ) {
                         String config = "";
                         found = true;
@@ -241,6 +289,7 @@ public class UtilsMinecraft {
                             mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null));
                         }
                     }
+                    if (found) break;
                     // Get next file in zip
                     zis.closeEntry();
                     ze = zis.getNextEntry();

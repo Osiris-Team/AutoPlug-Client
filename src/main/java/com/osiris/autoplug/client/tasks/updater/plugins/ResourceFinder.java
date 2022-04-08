@@ -9,7 +9,9 @@
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
 
+import com.osiris.autoplug.client.tasks.updater.mods.CurseForgeAPI;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
+import com.osiris.autoplug.client.tasks.updater.mods.ModrinthAPI;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
@@ -50,21 +52,21 @@ public class ResourceFinder {
      * If the modrinth/bukkit id is not given this type of search
      * based on the mods' name and author will be executed.
      */
-    public SearchResult findUnknownMod(MinecraftMod mod) {
+    public SearchResult findUnknownMod(MinecraftMod mod, String mcVersion) {
 
         // Before passing over remove everything except numbers and dots
         mod.version = (mod.version.replaceAll("[^0-9.]", ""));
 
-        // Before passing over remove everything except words and numbers
+        // Before passing over remove everything except chars and numbers
         mod.author = (mod.author.replaceAll("[^\\w]", ""));
 
         // Do spigot search by name
-        SearchResult sr = new ModrinthSearchByName().search(mod);
+        SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
 
         if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
             //Couldn't find author or resource via first search
             //Do alternative search:
-            sr = new ModrinthSearchByAuthor().search(mod);
+            sr = new CurseForgeAPI().searchUpdate(mod, mcVersion);
         }
 
         sr.mod = mod;

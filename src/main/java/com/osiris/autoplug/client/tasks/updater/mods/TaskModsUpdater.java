@@ -10,10 +10,8 @@ package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.network.online.connections.ConModsUpdateResult;
-import com.osiris.autoplug.client.tasks.updater.mods.ModUpdateFinder;
+import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
@@ -100,10 +98,13 @@ public class TaskModsUpdater extends BetterThread {
         YamlSection keep_removed = modsConfig.put(name, "general", "keep-removed").setDefValues("true")
                 .setComments("Keep the mods entry in this file even after its removal/uninstallation?");
 
-        UtilsMinecraft man = new UtilsMinecraft();
+        // First we get the latest mod details from the yml config.
+        // The minimum required information is:
+        // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
+        setStatus("Fetching latest mod data...");
         updaterConfig = new UpdaterConfig();
         userProfile = updaterConfig.mods_updater_profile.asString();
-        this.allMods.addAll(man.getMods(FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString())));
+        this.allMods.addAll(new UtilsMinecraft().getMods(FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString())));
 
         if (!updaterConfig.mods_updater.asBoolean()) {
             skip();
@@ -111,69 +112,68 @@ public class TaskModsUpdater extends BetterThread {
         }
         if (Server.isRunning()) throw new Exception("Cannot perform mods update while server is running!");
 
-        if (!allMods.isEmpty())
-            for (MinecraftMod installedMod :
-                    allMods) {
-                try {
-                    final String plName = installedMod.name;
-                    if (installedMod.name == null || installedMod.name.isEmpty())
-                        throw new Exception("The mods name couldn't be determined for '" + installedMod.installationPath + "'!");
+        for (MinecraftMod installedMod :
+                allMods) {
+            try {
+                final String plName = installedMod.name;
+                if (installedMod.name == null || installedMod.name.isEmpty())
+                    throw new Exception("The mods name couldn't be determined for '" + installedMod.installationPath + "'!");
 
-                    YamlSection exclude = modsConfig.put(name, plName, "exclude").setDefValues("false");
-                    YamlSection version = modsConfig.put(name, plName, "version").setDefValues(installedMod.version);
-                    YamlSection latestVersion = modsConfig.put(name, plName, "latest-version");
-                    YamlSection author = modsConfig.put(name, plName, "author").setDefValues(installedMod.author);
-                    YamlSection modrinthId = modsConfig.put(name, plName, "modrinth-id");
-                    YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
-                    YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
-                    YamlSection customDownloadURL = modsConfig.put(name, plName, "custom-download-url");
-                    YamlSection githubRepoUrl = modsConfig.put(name, plName, "alternatives", "github", "repo-name");
-                    YamlSection githubAssetName = modsConfig.put(name, plName, "alternatives", "github", "asset-name");
-                    YamlSection jenkinsProjectUrl = modsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
-                    YamlSection jenkinsArtifactName = modsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
-                    YamlSection jenkinsBuildId = modsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                YamlSection exclude = modsConfig.put(name, plName, "exclude").setDefValues("false");
+                YamlSection version = modsConfig.put(name, plName, "version").setDefValues(installedMod.version);
+                YamlSection latestVersion = modsConfig.put(name, plName, "latest-version");
+                YamlSection author = modsConfig.put(name, plName, "author").setDefValues(installedMod.author);
+                YamlSection modrinthId = modsConfig.put(name, plName, "modrinth-id");
+                YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
+                YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
+                YamlSection customDownloadURL = modsConfig.put(name, plName, "custom-download-url");
+                YamlSection githubRepoUrl = modsConfig.put(name, plName, "alternatives", "github", "repo-name");
+                YamlSection githubAssetName = modsConfig.put(name, plName, "alternatives", "github", "asset-name");
+                YamlSection jenkinsProjectUrl = modsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
+                YamlSection jenkinsArtifactName = modsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
+                YamlSection jenkinsBuildId = modsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
-                    if (installedMod.modrinthId != null) modrinthId.setValues(installedMod.modrinthId);
-                    if (installedMod.curseforgeId != null) curseforgeId.setValues(installedMod.curseforgeId);
+                if (installedMod.modrinthId != null) modrinthId.setValues(installedMod.modrinthId);
+                if (installedMod.curseforgeId != null) curseforgeId.setValues(installedMod.curseforgeId);
 
-                    // Update the detailed mods in-memory values
-                    installedMod.modrinthId = modrinthId.asString();
-                    installedMod.curseforgeId = (curseforgeId.asString());
-                    installedMod.ignoreContentType = (ignoreContentType.asBoolean());
-                    installedMod.customDownloadURL = (customDownloadURL.asString());
-                    installedMod.githubRepoName = (githubRepoUrl.asString());
-                    installedMod.githubAssetName = (githubAssetName.asString());
-                    installedMod.jenkinsProjectUrl = (jenkinsProjectUrl.asString());
-                    installedMod.jenkinsArtifactName = (jenkinsArtifactName.asString());
-                    installedMod.jenkinsBuildId = (jenkinsBuildId.asInt());
+                // Update the detailed mods in-memory values
+                installedMod.modrinthId = modrinthId.asString();
+                installedMod.curseforgeId = (curseforgeId.asString());
+                installedMod.ignoreContentType = (ignoreContentType.asBoolean());
+                installedMod.customDownloadURL = (customDownloadURL.asString());
+                installedMod.githubRepoName = (githubRepoUrl.asString());
+                installedMod.githubAssetName = (githubAssetName.asString());
+                installedMod.jenkinsProjectUrl = (jenkinsProjectUrl.asString());
+                installedMod.jenkinsArtifactName = (jenkinsArtifactName.asString());
+                installedMod.jenkinsBuildId = (jenkinsBuildId.asInt());
 
-                    // Check for missing author in internal config
-                    if ((installedMod.version == null)
-                            && (modrinthId.asString() == null)
-                            && (curseforgeId.asString() == null)) {
-                        exclude.setValues("true");
-                        this.addWarning("Mod " + installedMod.name + " is missing 'version' in its internal config file and was excluded.");
-                    }
-
-                    // Check for missing version in internal config
-                    if ((installedMod.author == null)
-                            && (modrinthId.asString() == null)
-                            && (curseforgeId.asString() == null)) {
-                        exclude.setValues("true");
-                        this.addWarning("Mod " + installedMod.name + " is missing 'author' or 'authors' in its internal config file and was excluded.");
-                    }
-
-                    if (exclude.asBoolean())
-                        excludedMods.add(installedMod);
-                    else
-                        includedMods.add(installedMod);
-                } catch (DuplicateKeyException e) {
-                    addWarning(new BetterWarning(this, e, "Duplicate mod '" + installedMod.name + "' (or mod name from its internal config) found in your mods directory. " +
-                            "Its recommended to remove it."));
-                } catch (Exception e) {
-                    addWarning(new BetterWarning(this, e));
+                // Check for missing author in internal config
+                if ((installedMod.version == null)
+                        && (modrinthId.asString() == null)
+                        && (curseforgeId.asString() == null)) {
+                    exclude.setValues("true");
+                    this.addWarning("Mod " + installedMod.name + " is missing 'version' in its internal config file and was excluded.");
                 }
+
+                // Check for missing version in internal config
+                if ((installedMod.author == null)
+                        && (modrinthId.asString() == null)
+                        && (curseforgeId.asString() == null)) {
+                    exclude.setValues("true");
+                    this.addWarning("Mod " + installedMod.name + " is missing 'author' or 'authors' in its internal config file and was excluded.");
+                }
+
+                if (exclude.asBoolean())
+                    excludedMods.add(installedMod);
+                else
+                    includedMods.add(installedMod);
+            } catch (DuplicateKeyException e) {
+                addWarning(new BetterWarning(this, e, "Duplicate mod '" + installedMod.name + "' (or mod name from its internal config) found in your mods directory. " +
+                        "Its recommended to remove it."));
+            } catch (Exception e) {
+                addWarning(new BetterWarning(this, e));
             }
+        }
 
         if (keep_removed.asBoolean())
             modsConfig.save();
@@ -191,11 +191,6 @@ public class TaskModsUpdater extends BetterThread {
         }
 
          */
-
-        // First we get the latest mod details from the yml config.
-        // The minimum required information is:
-        // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
-        setStatus("Fetching latest mod data...");
         int includedSize = includedMods.size();
         if (includedSize == 0)
             throw new Exception("No mods found in " + updaterConfig.mods_updater_path.asString() + "! Nothing to check...");
@@ -208,6 +203,8 @@ public class TaskModsUpdater extends BetterThread {
         int sizeBukkitMods = 0;
         int sizeUnknownMods = 0;
 
+
+        String mcVersion = new UtilsMinecraft().getInstalledVersion();
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
             executorService = Executors.newFixedThreadPool(includedSize);
@@ -220,26 +217,22 @@ public class TaskModsUpdater extends BetterThread {
                 setStatus("Initialising update check for  " + pl.name + "...");
                 if (pl.jenkinsProjectUrl != null) { // JENKINS PLUGIN
                     sizeJenkinsMods++;
-                    activeFutures.add(executorService.submit(() -> new ModUpdateFinder().searchByJenkinsUrl(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
                 } else if (pl.githubRepoName != null) { // GITHUB PLUGIN
                     sizeGithubMods++;
-                    activeFutures.add(executorService.submit(() -> new ModUpdateFinder().searchByGithubUrl(pl)));
-                } else if (pl.modrinthId != null) {
-                    sizemodrinthMods++; // modrinth
-                    activeFutures.add(executorService.submit(() -> new ModUpdateFinder().searchBymodrinthId(pl)));
-                } else if (pl.curseforgeId != null) {
-                    sizeBukkitMods++; // BUKKIT PLUGIN
-                    activeFutures.add(executorService.submit(() -> new ModUpdateFinder().searchByBukkitId(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByGithubUrl(pl)));
+                } else if (pl.modrinthId != null || pl.curseforgeId != null) {
+                    sizemodrinthMods++;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(pl, mcVersion)));
                 } else {
                     sizeUnknownMods++; // UNKNOWN PLUGIN
-                    activeFutures.add(executorService.submit(() -> new ModUpdateFinder().unknownSearch(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(pl, mcVersion)));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.name + "' mod!"));
             }
         }
 
-        List<SearchResult> updatablePremiummodrinthMods = new ArrayList<>();
         List<SearchResult> results = new ArrayList<>();
         while (!activeFutures.isEmpty()) {
             Thread.sleep(250);
@@ -256,7 +249,7 @@ public class TaskModsUpdater extends BetterThread {
                 activeFutures.remove(finishedFuture);
                 SearchResult result = finishedFuture.get();
                 results.add(result);
-                MinecraftMod pl = result.getMod();
+                MinecraftMod pl = result.mod;
                 byte code = result.getResultCode();
                 String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
                 String latest = result.getLatestVersion(); // The latest version as String
@@ -265,11 +258,7 @@ public class TaskModsUpdater extends BetterThread {
                 String resultBukkitId = result.getBukkitId();
                 this.setStatus("Checked '" + pl.name + "' mod (" + results.size() + "/" + includedSize + ")");
                 if (code == 0 || code == 1) {
-
-                    if (code == 1 && pl.isPremium())
-                    else
                     doDownloadLogic(pl, result);
-
                 } else if (code == 2)
                     if (result.getException() != null)
                         getWarnings().add(new BetterWarning(this, result.getException(), "There was an api-error for " + pl.name + "!"));
@@ -298,16 +287,6 @@ public class TaskModsUpdater extends BetterThread {
             }
         }
 
-        setStatus("Checking Premium mods...");
-        for (SearchResult result :
-                updatablePremiummodrinthMods) {
-            if (result.isPremium()) {
-                getWarnings().add(new BetterWarning(this,
-                        result.getMod().name + " (" + result.getLatestVersion() + ") is a premium mod and thus not supported by the regular mod updater!"));
-            }
-        }
-        modsConfig.save();
-
         // Wait until all download tasks have finished.
         while (!downloadTasksList.isEmpty()) {
             Thread.sleep(1000);
@@ -325,7 +304,7 @@ public class TaskModsUpdater extends BetterThread {
                 SearchResult matchingResult = null;
                 for (SearchResult result :
                         results) {
-                    if (result.getMod().name.equals(finishedDownloadTask.getPlName())) {
+                    if (result.mod.name.equals(finishedDownloadTask.getPlName())) {
                         matchingResult = result;
                         break;
                     }
@@ -349,6 +328,9 @@ public class TaskModsUpdater extends BetterThread {
             }
         }
 
+        modsConfig.save();
+
+        /* // TODO
         if (new WebConfig().send_mods_updater_results.asBoolean()) {
             setStatus("Sending update check results to AutoPlug-Web...");
             try {
@@ -358,8 +340,8 @@ public class TaskModsUpdater extends BetterThread {
                 addWarning(new BetterWarning(this, e));
             }
         }
+         */
 
-        modsConfig.save();
         if (excludedMods.size() > 0) {
             includedSize += excludedMods.size();
             finish("Checked " + results.size() + "/" + includedSize + " mods. Some mods were excluded.");
@@ -374,9 +356,7 @@ public class TaskModsUpdater extends BetterThread {
         String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
         String latest = result.getLatestVersion(); // The latest version as String
         String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
-        String resultmodrinthId = result.getmodrinthId();
-        String resultBukkitId = result.getBukkitId();
-        if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
+        if (pl.customDownloadURL != null) downloadUrl = pl.customDownloadURL;
 
         if (code == 0) {
             //getSummary().add("Mod " +pl.name+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
@@ -392,26 +372,26 @@ public class TaskModsUpdater extends BetterThread {
             }
 
             if (userProfile.equals(notifyProfile)) {
-                addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
+                addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.version + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what modrinth devs are doing
-                    if (!pl.isPremium()) {
-                        if (userProfile.equals(manualProfile)) {
-                            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.name + "[" + latest + "].jar");
-                            TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name, latest, downloadUrl, pl.getIgnoreContentType(), userProfile, cache_dest);
-                            task.mod = pl;
-                            task.searchResult = result;
-                            downloadTasksList.add(task);
-                            task.start();
-                        } else {
-                            File oldPl = new File(pl.installationPath);
-                            File dest = new File(GD.WORKING_DIR + "/mods/" + pl.name + "-LATEST-" + "[" + latest + "]" + ".jar");
-                            TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name, latest, downloadUrl, pl.getIgnoreContentType(), userProfile, dest, oldPl);
-                            task.mod = pl;
-                            task.searchResult = result;
-                            downloadTasksList.add(task);
-                            task.start();
-                        }
+                    if (userProfile.equals(manualProfile)) {
+                        File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.name + "[" + latest + "].jar");
+                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name,
+                                latest, downloadUrl, pl.ignoreContentType, userProfile, cache_dest);
+                        task.mod = pl;
+                        task.searchResult = result;
+                        downloadTasksList.add(task);
+                        task.start();
+                    } else {
+                        File oldPl = new File(pl.installationPath);
+                        File dest = new File(GD.WORKING_DIR + "/mods/" + pl.name + "-LATEST-" + "[" + latest + "]" + ".jar");
+                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name,
+                                latest, downloadUrl, pl.ignoreContentType, userProfile, dest, oldPl);
+                        task.mod = pl;
+                        task.searchResult = result;
+                        downloadTasksList.add(task);
+                        task.start();
                     }
                 } else
                     getWarnings().add(new BetterWarning(this, new Exception("Failed to download mod update(" + latest + ") for " + pl.name + " because of unsupported type: " + type)));

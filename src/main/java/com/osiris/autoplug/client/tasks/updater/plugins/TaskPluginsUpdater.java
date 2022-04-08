@@ -234,6 +234,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginBySpigotId(pl)));
                 } else if (pl.getBukkitId() != 0) {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
+                    pl.setIgnoreContentType(true); // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginByBukkitId(pl)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
