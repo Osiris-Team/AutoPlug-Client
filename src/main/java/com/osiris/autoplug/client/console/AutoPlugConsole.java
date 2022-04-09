@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetai
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
+import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
@@ -68,6 +69,7 @@ public final class AutoPlugConsole {
                     AL.info(".check java | Checks for Java updates and behaves according to the selected profile (.cj)");
                     AL.info(".check server | Checks for server updates and behaves according to the selected profile (.cs)");
                     AL.info(".check plugins | Checks for plugins updates and behaves according to the selected profile (.cp)");
+                    AL.info(".check mods | Checks for mods updates and behaves according to the selected profile (.cm)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -155,6 +157,11 @@ public final class AutoPlugConsole {
                 } else if (command.equals(".check plugins") || command.equals(".cp")) {
                     MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
                     new TaskPluginsUpdater("PluginsUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    return true;
+                } else if (command.equals(".check mods") || command.equals(".cm")) {
+                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    new TaskModsUpdater("ModsUpdater", myManager.manager).start();
                     new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
                     return true;
                 } else {

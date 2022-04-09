@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.utils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,13 +23,10 @@ import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
 public class UtilsMinecraft {
 
@@ -45,53 +41,28 @@ public class UtilsMinecraft {
      */
     public String getInstalledVersion(File serverJar) {
         String version = null;
-        // Location where each plugin.yml file will be extracted to
-        byte[] buffer = new byte[1024];
-
         if (!serverJar.exists()) return null;
-        FileInputStream fis = null;
-        ZipInputStream zis = null;
-        ZipEntry ze = null;
         try {
-            fis = new FileInputStream(serverJar);
-            zis = new ZipInputStream(fis);
-            ze = zis.getNextEntry();
+            ZipFile zipFile = new ZipFile(serverJar);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
             boolean found = false;
-            while (ze != null) {
-                String fileName = ze.getName();
-                if (fileName.equals("version.json")) {
-                    String config = "";
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String fileName = entry.getName();
+                if (fileName.equals("version.json")) { // Support for regular mc servers
                     found = true;
-                    // Extract this config file
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        config += Arrays.copyOf(buffer, len);
-                    }
-                    zis.closeEntry();
-                    version = JsonParser.parseString(config).getAsJsonObject().get("id").getAsString();
+                    version = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject().get("id").getAsString();
+                } else if (fileName.equals("install.properties")) { // Support for mc paper servers
+                    found = true;
+                    Properties p = new Properties();
+                    p.load(zipFile.getInputStream(entry));
+                    version = p.getProperty("version");
+                    if (version == null) version = p.getProperty("game-version");
                 }
                 if (found) break;
             }
         } catch (Exception e) {
             AL.warn(e);
-        } finally {
-            try {
-                if (zis != null && ze != null)
-                    zis.closeEntry();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                if (zis != null)
-                    zis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (fis != null) fis.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         return version;
     }
@@ -99,39 +70,19 @@ public class UtilsMinecraft {
     @NotNull
     public List<MinecraftPlugin> getPlugins() {
         List<MinecraftPlugin> plugins = new ArrayList<>();
-
-        FileManager fm = new FileManager();
-
-        // Get a list of all jar files in the /plugins dir
-        List<File> plJarFiles = fm.getAllPlugins();
-
-
-        byte[] buffer = new byte[1024];
-
+        List<File> plJarFiles = new FileManager().getAllPlugins();  // Get a list of all jar files in the /plugins dir
         for (File jar :
                 plJarFiles) {
-            FileInputStream fis = null;
-            ZipInputStream zis = null;
-            ZipEntry ze = null;
             try {
-                fis = new FileInputStream(jar);
-                zis = new ZipInputStream(fis);
-                ze = zis.getNextEntry();
+                ZipFile zipFile = new ZipFile(jar);
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 boolean found = false;
-                while (ze != null) {
-                    String fileName = ze.getName();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String fileName = entry.getName();
                     if (fileName.equals("plugin.yml") || fileName.equals("bungee.yml")) {
                         found = true;
-                        // Extract this plugin.yml file
-                        String config = "";
-                        int len;
-                        while ((len = zis.read(buffer)) > 0) {
-                            config += Arrays.copyOf(buffer, len);
-                        }
-                        zis.closeEntry();
-
-                        // Load the plugin.yml and get its details
-                        final Yaml ymlConfig = new Yaml(config, null, false);
+                        final Yaml ymlConfig = new Yaml(zipFile.getInputStream(entry), null);
                         ymlConfig.load();
 
                         String name = ymlConfig.put("name").asString();
@@ -170,16 +121,7 @@ public class UtilsMinecraft {
                         plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
                     } else if (fileName.equals("velocity-plugin.json")) {
                         found = true;
-                        // Extract this plugin.yml file
-                        String config = "";
-                        int len;
-                        while ((len = zis.read(buffer)) > 0) {
-                            config += Arrays.copyOf(buffer, len);
-                        }
-                        zis.closeEntry();
-
-                        // Load the plugin.yml and get its details
-                        JsonObject jsonConfig = JsonParser.parseString(config).getAsJsonObject();
+                        JsonObject jsonConfig = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
 
                         String name = jsonConfig.get("name").getAsString();
                         //if (name==null || name.isEmpty()){ // In this case use the jars name as name
@@ -206,35 +148,9 @@ public class UtilsMinecraft {
                         plugins.add(new MinecraftPlugin(jar.getPath(), name, version, author, spigotId, bukkitId, null));
                     }
                     if (found) break;
-                    // Get next file in zip
-                    zis.closeEntry();
-                    ze = zis.getNextEntry();
-                } // Loop end
-                // Close last ZipEntry
-                zis.closeEntry();
-                zis.close();
-                fis.close();
-
+                }
             } catch (Exception e) {
-                AL.warn("Failed to get plugin information for: " + jar.getName(), e);
-            } finally {
-                try {
-                    if (zis != null && ze != null)
-                        zis.closeEntry();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (zis != null)
-                        zis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (fis != null) fis.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                AL.warn("Failed to get details of " + jar.getName(), e);
             }
         }
         return plugins;
@@ -252,31 +168,20 @@ public class UtilsMinecraft {
                 dir.listFiles()) {
             if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
 
-            FileInputStream fis = null;
-            ZipInputStream zis = null;
-            ZipEntry ze = null;
             try {
-                fis = new FileInputStream(jar);
-                zis = new ZipInputStream(fis);
-                ze = zis.getNextEntry();
+                ZipFile zipFile = new ZipFile(jar);
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 boolean found = false;
-                while (ze != null) {
-                    String fileName = ze.getName();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String fileName = entry.getName();
                     if (fileName.equals("fabric.mod.json") // Support for fabric mods
                             || fileName.equals("mods.toml") // Support for forge mods
                     ) {
-                        String config = "";
-                        found = true;
-                        // Extract this config file
-                        int len;
-                        while ((len = zis.read(buffer)) > 0) {
-                            config += Arrays.copyOf(buffer, len);
-                        }
-                        zis.closeEntry();
-
                         // Load the config and get its details
                         if (fileName.equals("mods.toml")) { // Forge mod
-                            TomlParseResult result = Toml.parse(config);
+                            found = true;
+                            TomlParseResult result = Toml.parse(zipFile.getInputStream(entry));
                             //result.errors().forEach(error -> System.err.println(error.toString())); // Ignore errors
                             TomlTable table = result.getArray("mods").getTable(0);
                             String name = null;
@@ -305,7 +210,8 @@ public class UtilsMinecraft {
                             }
                             mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
                         } else { // Fabric mod
-                            JsonObject obj = new Gson().fromJson(config, JsonObject.class);
+                            found = true;
+                            JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
                             String name = obj.get("name").getAsString();
                             //if (name==null || name.isEmpty()){ // In this case use the jars name as name
                             //    name = jar.getName();
@@ -326,35 +232,9 @@ public class UtilsMinecraft {
                         }
                     }
                     if (found) break;
-                    // Get next file in zip
-                    zis.closeEntry();
-                    ze = zis.getNextEntry();
-                } // Loop end
-                // Close last ZipEntry
-                zis.closeEntry();
-                zis.close();
-                fis.close();
-
+                }
             } catch (Exception e) {
-                AL.warn("Failed to get plugin information for: " + jar.getName(), e);
-            } finally {
-                try {
-                    if (zis != null && ze != null)
-                        zis.closeEntry();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (zis != null)
-                        zis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (fis != null) fis.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                AL.warn("Failed to get details of " + jar.getName(), e);
             }
         }
         return mods;

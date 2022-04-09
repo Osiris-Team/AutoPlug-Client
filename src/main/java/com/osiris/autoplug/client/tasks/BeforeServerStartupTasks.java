@@ -17,6 +17,7 @@ import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
+import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
@@ -100,11 +101,13 @@ public class BeforeServerStartupTasks {
             TaskJavaUpdater taskJavaUpdater = null;
             TaskServerUpdater taskServerUpdater = null;
             TaskPluginsUpdater taskPluginsUpdater = null;
+            TaskModsUpdater taskModsUpdater = null;
 
             if (!isUpdaterCoolDownActive) {
                 taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", manager);
                 taskServerUpdater = new TaskServerUpdater("ServerUpdater", manager);
                 taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", manager);
+                taskModsUpdater = new TaskModsUpdater("ModsUpdater", manager);
             }
 
 
@@ -130,6 +133,7 @@ public class BeforeServerStartupTasks {
                 taskJavaUpdater.start();
                 taskServerUpdater.start();
                 taskPluginsUpdater.start();
+                taskModsUpdater.start();
             }
 
             // Wait until the rest is finished
