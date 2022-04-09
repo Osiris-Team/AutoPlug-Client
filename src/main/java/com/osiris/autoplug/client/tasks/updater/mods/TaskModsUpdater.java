@@ -290,21 +290,21 @@ public class TaskModsUpdater extends BetterThread {
         // Wait until all download tasks have finished.
         while (!downloadTasksList.isEmpty()) {
             Thread.sleep(1000);
-            TaskModDownload finishedDownloadTask = null;
+            TaskModDownload download = null;
             for (TaskModDownload task :
                     downloadTasksList) {
                 if (!task.isAlive()) {
-                    finishedDownloadTask = task;
+                    download = task;
                     break;
                 }
             }
 
-            if (finishedDownloadTask != null) {
-                downloadTasksList.remove(finishedDownloadTask);
+            if (download != null) {
+                downloadTasksList.remove(download);
                 SearchResult matchingResult = null;
                 for (SearchResult result :
                         results) {
-                    if (result.mod.name.equals(finishedDownloadTask.getPlName())) {
+                    if (result.mod.name.equals(download.getPlName())) {
                         matchingResult = result;
                         break;
                     }
@@ -312,17 +312,22 @@ public class TaskModsUpdater extends BetterThread {
                 if (matchingResult == null)
                     throw new Exception("This should not happen! Please report to the devs!");
 
-                if (finishedDownloadTask.isDownloadSuccessful())
+                if (download.mod.modrinthId != null)
+                    modsConfig.put(modsConfigName, download.mod.name, "modrinth-id").setValues(download.mod.modrinthId);
+                if (download.mod.curseforgeId != null)
+                    modsConfig.put(modsConfigName, download.mod.name, "modrinth-id").setValues(download.mod.curseforgeId);
+
+                if (download.isDownloadSuccessful())
                     matchingResult.setResultCode((byte) 5);
 
-                if (finishedDownloadTask.isInstallSuccessful()) {
+                if (download.isInstallSuccessful()) {
                     matchingResult.setResultCode((byte) 6);
                     YamlSection jenkinsBuildId = modsConfig.get(
-                            modsConfigName, finishedDownloadTask.getPlName(), "alternatives", "jenkins", "build-id");
-                    jenkinsBuildId.setValues("" + finishedDownloadTask.searchResult.jenkinsId);
+                            modsConfigName, download.getPlName(), "alternatives", "jenkins", "build-id");
+                    jenkinsBuildId.setValues("" + download.searchResult.jenkinsId);
                     YamlSection version = modsConfig.get(
-                            modsConfigName, finishedDownloadTask.getPlName(), "version");
-                    version.setValues(finishedDownloadTask.searchResult.getLatestVersion());
+                            modsConfigName, download.getPlName(), "version");
+                    version.setValues(download.searchResult.getLatestVersion());
                 }
 
             }

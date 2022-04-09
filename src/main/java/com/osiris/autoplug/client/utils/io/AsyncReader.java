@@ -6,7 +6,7 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.utils;
+package com.osiris.autoplug.client.utils.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;

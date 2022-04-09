@@ -13,7 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.UtilsVersion;
+import com.osiris.autoplug.client.utils.UtilsURL;
+import com.osiris.autoplug.client.utils.sort.QuickSort;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.logger.AL;
 
@@ -26,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 
 public class CurseForgeAPI {
     private final String baseUrl = "https://addons-ecs.forgesvc.net/api/v2/addon";
@@ -46,8 +49,20 @@ public class CurseForgeAPI {
             }
             if (mod.curseforgeId == null) throw new Exception("Curseforge-id is null!");
             url = baseUrl + "/" + mod.curseforgeId + "/files";
+            url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), url);
             JsonArray arr = new JsonTools().getJsonArray(url);
+            // Compares this object with the specified object for order.
+            // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified objec
+            new QuickSort().sortJsonArray(arr, (thisEl, otherEl) -> {
+                int thisId = thisEl.el.getAsJsonObject().get("id").getAsInt();
+                int otherId = otherEl.el.getAsJsonObject().get("id").getAsInt();
+                return Integer.compare(thisId, otherId);
+            });
+            for (JsonElement el :
+                    arr) {
+                System.out.println(el.getAsJsonObject().get("id").getAsString());
+            }
             JsonObject release = null;
             for (int i = arr.size() - 1; i >= 0; i--) {
                 JsonObject tempRelease = arr.get(i).getAsJsonObject();
@@ -68,8 +83,11 @@ public class CurseForgeAPI {
             if (release == null)
                 throw new Exception("[" + mod.name + "] Failed to find a single release of this mod for mc version " + mcVersion);
             latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new UtilsVersion().compare(mod.version, latest))
+            FileTime latestDate = FileTime.from(Instant.parse(release.get("fileDate").getAsString()));
+            FileTime currentDate = FileTime.from(Instant.parse(mod.fileDate));
+            if (latestDate.compareTo(currentDate) > 0) {
                 code = 1;
+            }
             downloadUrl = release.get("downloadUrl").getAsString();
             try {
                 String fileName = release.get("fileName").getAsString();

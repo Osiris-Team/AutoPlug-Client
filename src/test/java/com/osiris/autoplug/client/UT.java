@@ -30,6 +30,11 @@ public class UT {
         return new MyBetterThreadManager(manager, null, customDisplayer);
     }
 
+    public static void init() throws IOException {
+        initDefaults();
+        initLogger();
+    }
+
     public static void initDefaults() throws IOException {
         GD.DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/test/downloads");
         GD.DOWNLOADS_DIR.mkdirs();

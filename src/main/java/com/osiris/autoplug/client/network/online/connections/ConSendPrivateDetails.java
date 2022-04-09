@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
-import com.osiris.autoplug.client.utils.UFDataOut;
+import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.autoplug.core.logger.AL;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
