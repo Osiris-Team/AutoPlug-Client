@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.core.logger.AL;
@@ -23,6 +22,7 @@ import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -68,11 +68,14 @@ public class UtilsMinecraft {
     }
 
     @NotNull
-    public List<MinecraftPlugin> getPlugins() {
+    public List<MinecraftPlugin> getPlugins(File dir) throws FileNotFoundException {
+        Objects.requireNonNull(dir);
+        if (!dir.exists()) throw new FileNotFoundException("Directory does not exist: " + dir);
         List<MinecraftPlugin> plugins = new ArrayList<>();
-        List<File> plJarFiles = new FileManager().getAllPlugins();  // Get a list of all jar files in the /plugins dir
         for (File jar :
-                plJarFiles) {
+                dir.listFiles()) {
+            if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
+
             try {
                 ZipFile zipFile = new ZipFile(jar);
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -132,7 +135,7 @@ public class UtilsMinecraft {
                         JsonElement authorsRaw = jsonConfig.get("authors");
 
                         String author = null;
-                        if (!authorRaw.isJsonNull())
+                        if (authorRaw != null && !authorRaw.isJsonNull())
                             author = authorRaw.getAsString();
                         else
                             author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
@@ -142,8 +145,8 @@ public class UtilsMinecraft {
                         int bukkitId = 0;
                         JsonElement mSpigotId = jsonConfig.get("spigot-id");
                         JsonElement mBukkitId = jsonConfig.get("bukkit-id");
-                        if (!mSpigotId.isJsonNull()) spigotId = mSpigotId.getAsInt();
-                        if (!mBukkitId.isJsonNull()) bukkitId = mBukkitId.getAsInt();
+                        if (mSpigotId != null && !mSpigotId.isJsonNull()) spigotId = mSpigotId.getAsInt();
+                        if (mBukkitId != null && !mBukkitId.isJsonNull()) bukkitId = mBukkitId.getAsInt();
 
                         plugins.add(new MinecraftPlugin(jar.getPath(), name, version, author, spigotId, bukkitId, null));
                     }
@@ -157,13 +160,10 @@ public class UtilsMinecraft {
     }
 
     @NotNull
-    public List<MinecraftMod> getMods(File dir) {
+    public List<MinecraftMod> getMods(File dir) throws FileNotFoundException {
+        Objects.requireNonNull(dir);
+        if (!dir.exists()) throw new FileNotFoundException("Directory does not exist: " + dir);
         List<MinecraftMod> mods = new ArrayList<>();
-
-        // Location where each plugin.yml file will be extracted to
-        byte[] buffer = new byte[1024];
-
-        if (!dir.exists()) return mods;
         for (File jar :
                 dir.listFiles()) {
             if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
@@ -175,61 +175,56 @@ public class UtilsMinecraft {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String fileName = entry.getName();
-                    if (fileName.equals("fabric.mod.json") // Support for fabric mods
-                            || fileName.equals("mods.toml") // Support for forge mods
-                    ) {
-                        // Load the config and get its details
-                        if (fileName.equals("mods.toml")) { // Forge mod
-                            found = true;
-                            TomlParseResult result = Toml.parse(zipFile.getInputStream(entry));
-                            //result.errors().forEach(error -> System.err.println(error.toString())); // Ignore errors
-                            TomlTable table = result.getArray("mods").getTable(0);
-                            String name = null;
-                            try {
-                                name = table.getString("displayName");
-                            } catch (Exception e) {
-                            }
-                            String author = null;
-                            try {
-                                author = table.getString("authors"); // TODO find out how people separate multiple authors here
-                            } catch (Exception e) {
-                            }
-                            if (author == null) try {
-                                author = table.getString("author");
-                            } catch (Exception e) {
-                            }
-                            String version = null;
-                            try {
-                                version = table.getString("version");
-                            } catch (Exception e) {
-                            }
-                            String bukkitId = null;
-                            try {
-                                bukkitId = table.getString("modId");
-                            } catch (Exception e) {
-                            }
-                            mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
-                        } else { // Fabric mod
-                            found = true;
-                            JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
-                            String name = obj.get("name").getAsString();
-                            //if (name==null || name.isEmpty()){ // In this case use the jars name as name
-                            //    name = jar.getName();
-                            //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
-                            String version = obj.get("version").getAsString();
-                            JsonElement authorRaw = obj.get("author");
-                            JsonElement authorsRaw = obj.get("authors");
-
-                            String author = null;
-                            if (!authorRaw.isJsonNull())
-                                author = authorRaw.getAsString();
-                            else
-                                author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
-
-                            // Also check for ids in the config
-                            String modrinthId = obj.get("id").getAsString();
-                            mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null));
+                    if (fileName.equals("mods.toml")) { // Forge mod
+                        found = true;
+                        TomlParseResult result = Toml.parse(zipFile.getInputStream(entry));
+                        //result.errors().forEach(error -> System.err.println(error.toString())); // Ignore errors
+                        TomlTable table = result.getArray("mods").getTable(0);
+                        String name = null;
+                        try {
+                            name = table.getString("displayName");
+                        } catch (Exception e) {
                         }
+                        String author = null;
+                        try {
+                            author = table.getString("authors"); // TODO find out how people separate multiple authors here
+                        } catch (Exception e) {
+                        }
+                        if (author == null) try {
+                            author = table.getString("author");
+                        } catch (Exception e) {
+                        }
+                        String version = null;
+                        try {
+                            version = table.getString("version");
+                        } catch (Exception e) {
+                        }
+                        String bukkitId = null;
+                        try {
+                            bukkitId = table.getString("modId");
+                        } catch (Exception e) {
+                        }
+                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
+                    } else if (fileName.equals("fabric.mod.json")) { // Fabric mod
+                        found = true;
+                        JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
+                        String name = obj.get("name").getAsString();
+                        //if (name==null || name.isEmpty()){ // In this case use the jars name as name
+                        //    name = jar.getName();
+                        //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
+                        String version = obj.get("version").getAsString();
+                        JsonElement authorRaw = obj.get("author");
+                        JsonElement authorsRaw = obj.get("authors");
+
+                        String author = null;
+                        if (authorRaw != null && !authorRaw.isJsonNull())
+                            author = authorRaw.getAsString();
+                        else
+                            author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+
+                        // Also check for ids in the config
+                        String modrinthId = obj.get("id").getAsString();
+                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null));
                     }
                     if (found) break;
                 }

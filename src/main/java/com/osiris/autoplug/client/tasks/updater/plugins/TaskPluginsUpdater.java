@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
@@ -111,75 +112,76 @@ public class TaskPluginsUpdater extends BetterThread {
         if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
 
         UtilsMinecraft man = new UtilsMinecraft();
-        this.allPlugins.addAll(man.getPlugins());
-        if (!allPlugins.isEmpty())
-            for (MinecraftPlugin installedPlugin :
-                    allPlugins) {
-                try {
-                    final String plName = installedPlugin.getName();
-                    if (installedPlugin.getName() == null || installedPlugin.getName().isEmpty())
-                        throw new Exception("The plugins name couldn't be determined for '" + installedPlugin.getInstallationPath() + "'!");
+        this.allPlugins.addAll(man.getPlugins(FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString())));
+        for (MinecraftPlugin installedPlugin :
+                allPlugins) {
+            try {
+                final String plName = installedPlugin.getName();
+                if (installedPlugin.getName() == null || installedPlugin.getName().isEmpty())
+                    throw new Exception("The plugins name couldn't be determined for '" + installedPlugin.getInstallationPath() + "'!");
 
-                    YamlSection exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
-                    YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(installedPlugin.getVersion());
-                    YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
-                    YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
-                    YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
-                    //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
-                    YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
-                    YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
-                    YamlSection customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
-                    YamlSection customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
-                    YamlSection githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
-                    YamlSection githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
-                    YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
-                    YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
-                    YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                YamlSection exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
+                YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(installedPlugin.getVersion());
+                YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
+                YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
+                YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
+                //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
+                YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
+                YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
+                YamlSection customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
+                YamlSection customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
+                YamlSection githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
+                YamlSection githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
+                YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
+                YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
+                YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
-                    // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
-                    if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
-                        spigotId.setValues("" + installedPlugin.getSpigotId());
-                    if (installedPlugin.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
-                        bukkitId.setValues("" + installedPlugin.getBukkitId());
+                // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
+                if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
+                    spigotId.setValues("" + installedPlugin.getSpigotId());
+                if (installedPlugin.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
+                    bukkitId.setValues("" + installedPlugin.getBukkitId());
 
-                    // Update the detailed plugins in-memory values
-                    installedPlugin.setSpigotId(spigotId.asInt());
-                    installedPlugin.setBukkitId(bukkitId.asInt());
-                    installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
-                    installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
-                    installedPlugin.setGithubRepoName(githubRepoUrl.asString());
-                    installedPlugin.setGithubAssetName(githubAssetName.asString());
-                    installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
-                    installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
-                    installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
+                // Update the detailed plugins in-memory values
+                installedPlugin.setSpigotId(spigotId.asInt());
+                installedPlugin.setBukkitId(bukkitId.asInt());
+                installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
+                installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
+                installedPlugin.setGithubRepoName(githubRepoUrl.asString());
+                installedPlugin.setGithubAssetName(githubAssetName.asString());
+                installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
+                installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
+                installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
 
-                    // Check for missing author in plugin.yml
-                    if ((installedPlugin.getVersion() == null || installedPlugin.getVersion().trim().isEmpty())
-                            && (spigotId.asString() == null || spigotId.asInt() == 0)
-                            && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
-                        exclude.setValues("true");
-                        this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
-                    }
-
-                    // Check for missing version in plugin.yml
-                    if ((installedPlugin.getAuthor() == null || installedPlugin.getAuthor().trim().isEmpty())
-                            && (spigotId.asString() == null || spigotId.asInt() == 0)
-                            && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
-                        exclude.setValues("true");
-                        this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
-                    }
-
-                    if (exclude.asBoolean())
-                        excludedPlugins.add(installedPlugin);
-                    else
-                        includedPlugins.add(installedPlugin);
-                } catch (DuplicateKeyException e) {
-                    addWarning(new BetterWarning(this, e, "Duplicate plugin '" + installedPlugin.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
-                            "Its recommended to remove it."));
-                } catch (Exception e) {
-                    addWarning(new BetterWarning(this, e));
+                // Check for missing author in plugin.yml
+                if ((installedPlugin.getVersion() == null || installedPlugin.getVersion().trim().isEmpty())
+                        && (spigotId.asString() == null || spigotId.asInt() == 0)
+                        && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
+                    exclude.setValues("true");
+                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
                 }
+
+                // Check for missing version in plugin.yml
+                if ((installedPlugin.getAuthor() == null || installedPlugin.getAuthor().trim().isEmpty())
+                        && (spigotId.asString() == null || spigotId.asInt() == 0)
+                        && (bukkitId.asString() == null || bukkitId.asInt() == 0)
+                        && jenkinsArtifactName.asString() == null
+                        && githubAssetName.asString() == null) {
+                    exclude.setValues("true");
+                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
+                }
+
+                if (exclude.asBoolean())
+                    excludedPlugins.add(installedPlugin);
+                else
+                    includedPlugins.add(installedPlugin);
+            } catch (DuplicateKeyException e) {
+                addWarning(new BetterWarning(this, e, "Duplicate plugin '" + installedPlugin.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
+                        "Its recommended to remove it."));
+            } catch (Exception e) {
+                addWarning(new BetterWarning(this, e));
             }
+        }
 
         if (keep_removed.asBoolean())
             pluginsConfig.save();

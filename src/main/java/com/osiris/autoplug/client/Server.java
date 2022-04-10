@@ -15,7 +15,6 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.io.AsyncInputStream;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
@@ -31,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -71,7 +69,6 @@ public final class Server {
             new BeforeServerStartupTasks();
 
             // Find server jar
-            new UtilsJar().determineServerJar();
             if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
                 throw new Exception("Failed to find your server jar! " +
                         "Please check your config, you may need to specify the jars name/path! " +
@@ -79,7 +76,7 @@ public final class Server {
 
             AL.info("Note: AutoPlug has some own console commands (enter .help or .h).");
             AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
-            createProcess(GD.SERVER_JAR.toPath().toString());
+            createProcess();
 
         } catch (Exception e) {
             AL.warn(e);
@@ -145,9 +142,9 @@ public final class Server {
         return process != null && process.isAlive();
     }
 
-    private static void createProcess(String path) throws Exception {
+    private static void createProcess() throws Exception {
         GeneralConfig config = new GeneralConfig();
-        List<String> commands = new ArrayList<>();
+        String startCommand = config.server_start_command.asString();
 
         // 1. Which java version should be used
         UpdaterConfig updaterConfig = new UpdaterConfig();
@@ -159,103 +156,69 @@ public final class Server {
             } catch (Exception e) {
                 throw new Exception("Java-Updater is enabled, but Java-Installation was not found! Enter '.check java' to install Java.");
             }
-            FileManager fileManager = new FileManager();
-            File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
-            List<File> folders = fileManager.getFoldersFrom(jreFolder);
-            if (folders.isEmpty())
-                throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");
-            File javaInstallationFolder = folders.get(0);
-            File javaBinFolder = null;
-            for (File folder :
-                    fileManager.getFoldersFrom(javaInstallationFolder)) {// This are the files inside a java installation
+            String path = config.server_start_command.asString();
+            if (path.contains("-jar ")) { // jar file
+                path = path.substring(path.indexOf("-jar "));
+                if (path.codePointAt(5) == '"') {
+                    for (int i = 6; i < path.length(); i++) {
+                        char c = (char) path.codePointAt(i);
+                        if (c == '\"') path = path.substring(6, i);
+                    }
+                    throw new Exception("Server jar path started with \" but didn't finish with another \"!" + path);
+                } else {
+                    path = path.split(" ")[1];
+                }
 
-                if (folder.getName().equalsIgnoreCase("Home")) // For macos support
-                    for (File folder2 :
-                            folder.listFiles()) {
-                        if (folder2.getName().equals("bin")) {
-                            javaBinFolder = folder;
+                FileManager fileManager = new FileManager();
+                File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
+                List<File> folders = fileManager.getFoldersFrom(jreFolder);
+                if (folders.isEmpty())
+                    throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");
+                File javaInstallationFolder = folders.get(0);
+                File javaBinFolder = null;
+                for (File folder :
+                        fileManager.getFoldersFrom(javaInstallationFolder)) {// This are the files inside a java installation
+
+                    if (folder.getName().equalsIgnoreCase("Home")) // For macos support
+                        for (File folder2 :
+                                folder.listFiles()) {
+                            if (folder2.getName().equals("bin")) {
+                                javaBinFolder = folder;
+                                break;
+                            }
+                        }
+
+                    if (folder.getName().equals("bin")) { // Regular java installations
+                        javaBinFolder = folder;
+                        break;
+                    }
+                }
+                if (javaBinFolder == null)
+                    throw new Exception("No Java 'bin' folder found inside of Java installation at path: '" + jreFolder.getAbsolutePath() + "'");
+                File javaFile = null;
+                if (SystemUtils.IS_OS_WINDOWS) {
+                    for (File file :
+                            fileManager.getFilesFrom(javaBinFolder)) {
+                        if (file.getName().equals("java.exe")) {
+                            javaFile = file;
                             break;
                         }
                     }
-
-                if (folder.getName().equals("bin")) { // Regular java installations
-                    javaBinFolder = folder;
-                    break;
-                }
-            }
-            if (javaBinFolder == null)
-                throw new Exception("No Java 'bin' folder found inside of Java installation at path: '" + jreFolder.getAbsolutePath() + "'");
-            File javaFile = null;
-            if (SystemUtils.IS_OS_WINDOWS) {
-                for (File file :
-                        fileManager.getFilesFrom(javaBinFolder)) {
-                    if (file.getName().equals("java.exe")) {
-                        javaFile = file;
-                        break;
+                } else {
+                    for (File file :
+                            fileManager.getFilesFrom(javaBinFolder)) {
+                        if (file.getName().equals("java")) {
+                            javaFile = file;
+                            break;
+                        }
                     }
                 }
-            } else {
-                for (File file :
-                        fileManager.getFilesFrom(javaBinFolder)) {
-                    if (file.getName().equals("java")) {
-                        javaFile = file;
-                        break;
-                    }
-                }
+
+                if (javaFile == null)
+                    throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
+
+                startCommand = startCommand.replaceAll(path, "\"" + javaFile.getAbsolutePath() + "\"");
             }
-
-            if (javaFile == null)
-                throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
-
-            // To ensure that russian and other chars in the file path/name are read correctly
-            // and don't prevent the jar from starting we do the following:
-            commands.add(new String(javaFile.getAbsolutePath().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-
-        } else { // Means that the java updater is disabled or set to NOTIFY
-            if (!config.server_java_path.asString().equals("java")) {
-                // To ensure that russian and other chars in the file path/name are read correctly
-                // and don't prevent the jar from starting we do the following:
-                commands.add(new String(config.server_java_path.asString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            } else {
-                commands.add("java");
-            }
-        }
-
-        // 2. Add all before-flags
-        if (config.server_flags_enabled.asBoolean()) {
-            List<String> list = config.server_flags_list.asStringList();
-            for (String s : list) {
-                commands.add("-" + s);
-            }
-            /* TODO not working:
-            commands.add("-org.jline.terminal.dumb=true");
-            commands.add("-org.jline.terminal.dumb.color=true");
-            commands.add("-org.jline.terminal.type=dumb-color");
-             */
-        }
-
-        // 3. Add the -jar command and server jar path
-        commands.add("-jar");
-        // To ensure that russian and other chars in the file path/name are read correctly
-        // and don't prevent the jar from starting we do the following:
-        commands.add(new String(path.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-
-        // 4. Add all arguments
-        if (config.server_arguments_enabled.asBoolean()) {
-            List<String> list = config.server_arguments_list.asStringList();
-            for (String s : list) {
-                commands.add("" + s);
-            }
-        }
-
-        // 5. Check if the jar has jline installed and enable colors if it has
-        boolean supportsColors = false;
-        try {
-            //TODO supportsColors = hasColorSupport(path);
-            if (supportsColors)
-                commands.add("-Dorg.jline.terminal.dumb.color=true");
-        } catch (Exception e) {
-            AL.warn("Your server jar does not contain the required dependency to enable colors.", e);
         }
 
 
@@ -263,9 +226,9 @@ public final class Server {
         // but messes input up, because there are 2 scanners on the same stream.
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
-        AL.debug(Server.class, "Starting server with commands: " + commands);
+        AL.debug(Server.class, "Starting server with command: " + startCommand);
         //TERMINAL.pause(true);
-        ProcessBuilder processBuilder = new ProcessBuilder(commands); // The commands list contains all we need.
+        ProcessBuilder processBuilder = new ProcessBuilder(startCommand); // The commands list contains all we need.
         processBuilder.redirectErrorStream(true);
         //processBuilder.inheritIO(); // BACK TO PIPED, BECAUSE OF MASSIVE ERRORS LIKE COMMANDS NOT BEEING EXECUTED, which affects the restarter
         processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);

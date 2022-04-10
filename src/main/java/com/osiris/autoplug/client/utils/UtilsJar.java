@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,19 +26,29 @@ public class UtilsJar {
 
     public File determineServerJar() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         GeneralConfig generalConfig = new GeneralConfig();
-        FileManager fileManager = new FileManager();
-        String jar = generalConfig.server_jar.asString();
-        if (!jar.equals("auto-find")) {
-            if (jar.contains("/") || jar.contains("\\")) {
-                if (jar.startsWith("./"))
-                    GD.SERVER_JAR = FileManager.convertRelativeToAbsolutePath(jar);
-                else
-                    GD.SERVER_JAR = new File(jar);
-            } else
-                GD.SERVER_JAR = new File(jar);
-        } else
-            GD.SERVER_JAR = fileManager.serverJar();
-        return GD.SERVER_JAR;
+        String path = generalConfig.server_start_command.asString();
+        if (path.contains("-jar ")) { // jar file
+            path = path.substring(path.indexOf("-jar "));
+            if (path.codePointAt(5) == '"') {
+                for (int i = 6; i < path.length(); i++) {
+                    char c = (char) path.codePointAt(i);
+                    if (c == '\"') return new File(path.substring(6, i));
+                }
+                throw new RuntimeException("Server jar path started with \" but didnt finish with another \"!" + path);
+            } else {
+                return new File(path.split(" ")[1]);
+            }
+        } else { // probably exe file
+            if (path.startsWith("\"")) {
+                for (int i = 1; i < path.length(); i++) {
+                    char c = (char) path.codePointAt(i);
+                    if (c == '\"') return new File(path.substring(1, i));
+                }
+                throw new RuntimeException("Server jar path started with \" but didnt finish with another \"! " + path);
+            } else {
+                return new File(path.split(" ")[0]);
+            }
+        }
     }
 
     /**

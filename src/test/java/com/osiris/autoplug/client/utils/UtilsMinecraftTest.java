@@ -12,8 +12,10 @@ import com.osiris.autoplug.client.UT;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class UtilsMinecraftTest {
     UtilsMinecraft utilsMinecraft = new UtilsMinecraft();
@@ -26,14 +28,16 @@ class UtilsMinecraftTest {
     }
 
     @Test
-    void getPlugins() {
+    void getPlugins() throws FileNotFoundException {
         UT.initLogger();
         File path = new File(System.getProperty("user.dir") + "/test");
+        assertFalse(utilsMinecraft.getPlugins(path).isEmpty());
     }
 
     @Test
-    void getMods() {
+    void getMods() throws FileNotFoundException {
         UT.initLogger();
         File path = new File(System.getProperty("user.dir") + "/test");
+        assertFalse(utilsMinecraft.getMods(path).isEmpty());
     }
 }

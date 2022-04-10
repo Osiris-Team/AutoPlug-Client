@@ -172,7 +172,6 @@ public class Main {
 
 
             AL.info("Checking configurations...");
-            new UtilsJar().determineServerJar();
             UtilsConfig utilsConfig = new UtilsConfig();
 
             List<YamlSection> allModules = new ArrayList<>();

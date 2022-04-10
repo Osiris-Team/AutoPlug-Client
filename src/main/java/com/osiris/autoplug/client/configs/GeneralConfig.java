@@ -8,6 +8,8 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.dyml.SmartString;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
@@ -20,13 +22,8 @@ public class GeneralConfig extends Yaml {
     public YamlSection server_key;
     public YamlSection server_auto_start;
     public YamlSection server_auto_eula;
+    public YamlSection server_start_command;
     public YamlSection server_stop_command;
-    public YamlSection server_java_path;
-    public YamlSection server_jar;
-    public YamlSection server_flags_enabled;
-    public YamlSection server_flags_list;
-    public YamlSection server_arguments_enabled;
-    public YamlSection server_arguments_list;
     public YamlSection server_restart_on_crash;
 
     public YamlSection directory_cleaner;
@@ -66,51 +63,59 @@ public class GeneralConfig extends Yaml {
         server_auto_eula = put(name, "server", "auto-eula").setDefValues("true").setComments(
                 "Creates an eula.txt file if not existing and accepts it.");
 
+        /**
+         * Must be given in {@link com.osiris.autoplug.client.Main} at first start.
+         */
+        server_start_command = put(name, "server", "start-command");
         server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
                 "AutoPlug uses this command to stop your server.");
 
-        server_java_path = put(name, "server", "java-path").setDefValues("java").setComments(
-                "This is the Java version your server will be running on.",
-                "If you plan to use a specific version of Java or you don't have the Java path as a System-PATH variable, enter its path here.",
-                "Otherwise leave it as it is.",
-                "Example for Windows: C:\\Progra~1\\Java\\jdk-14.0.1\\bin\\java.exe",
-                "Note that this value gets ignored if you have the 'java-updater' enabled.");
+        // Convert old config stuff to new one:
+        YamlSection oldJavaPath = get(name, "server", "java-path");
+        if (oldJavaPath != null) {
+            oldJavaPath.setComments("DEPRECATED in favor of 'start-command'.");
+            String startCommand = "";
+            if (oldJavaPath.asString() != null) startCommand += oldJavaPath.asString();
+            else startCommand += "java";
+            startCommand += " ";
 
-        server_jar = put(name, "server", "jar-path").setDefValues("auto-find").setComments(
-                "The auto-find feature will scan through your servers root directory and select the first jar other than the AutoPlug-Client.jar.\n" +
-                        "The auto-find feature could fail or pick the wrong jar if...\n" +
-                        "... you have more than 2 jars in total, in your servers root directory.\n" +
-                        "... your server jar is located in another directory.\n" +
-                        "You can fix these by entering its absolute or relative file path below (Linux and Windows formats are supported).\n" +
-                        "'./' represents AutoPlugs current working directory (the server root). \n" +
-                        "Relative file paths examples: './paper.jar' or './my-server.jar' (AutoPlug translates them to absolute file paths automatically)\n" +
-                        "Absolute file paths examples: Linux: '/user/servers/mc-survival/paper.jar' or Windows: 'D:\\John\\MC-SERVERS\\survival\\my-server.jar' \n");
+            YamlSection oldServerFlagsEnabled = get(name, "server", "flags", "enable");
+            oldServerFlagsEnabled.setComments("DEPRECATED in favor of 'start-command'.");
+            YamlSection oldServerFlags = get(name, "server", "flags", "list");
+            oldServerFlags.setComments("DEPRECATED in favor of 'start-command'.");
+            if (oldServerFlagsEnabled.asBoolean()) {
+                for (SmartString flag :
+                        oldServerFlags.getValues()) {
+                    startCommand += flag.asString() + " ";
+                }
+            }
 
-        server_flags_enabled = put(name, "server", "flags", "enable").setDefValues("true").setComments(
-                "If you were using java startup flags, add them to the list below.",
-                "Java startup flags are passed before the -jar part. Example: 'java <flags> -jar ...'",
-                "The hyphen(-) in the list below is part of the flag. This is how a flag should look like in the list:",
-                "Correct:",
-                " - XX:+UseG1GC",
-                "Wrong:",
-                " - \"- XX:+UseG1GC\"",
-                "If you want to change the timezone add this flag: -Duser.timezone=\"America/New_York\"",
-                "A full list of all timezones: https://garygregory.wordpress.com/2013/06/18/what-are-the-java-timezone-ids/",
-                "More on this topic:",
-                "https://forums.spongepowered.org/t/optimized-startup-flags-for-consistent-garbage-collection/13239",
-                "https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/");
-        server_flags_list = put(name, "server", "flags", "list").setDefValues("Xms2G", "Xmx2G");
+            YamlSection oldServerJar = get(name, "server", "jar-path");
+            oldServerJar.setComments("DEPRECATED in favor of 'start-command'.");
+            if (oldServerJar.asString().equals("auto-find")) startCommand += "-jar " + new FileManager().serverJar();
+            else startCommand += "-jar " + oldServerJar.asString();
+            startCommand += " ";
 
-        server_arguments_enabled = put(name, "server", "arguments", "enable").setDefValues("false").setComments(
-                "If you were using arguments, add them to the list below.\n" +
-                        "Arguments are passed after the '-jar <file-name>.jar' part. Example: '... -jar server.jar <arguments>'\n" +
-                        "They can be specific to the server software you are using.\n" +
-                        "Note that typos/wrong arguments may prevent your server from starting!\n" +
-                        "More on this topic:\n" +
-                        "https://minecraft.fandom.com/wiki/Tutorials/Setting_up_a_server\n" +
-                        "https://bukkit.gamepedia.com/CraftBukkit_Command_Line_Arguments\n" +
-                        "https://www.spigotmc.org/wiki/start-up-parameters");
-        server_arguments_list = put(name, "server", "arguments", "list").setDefValues("--nogui");
+
+            YamlSection oldServerArgsEnabled = get(name, "server", "arguments", "enable");
+            oldServerArgsEnabled.setComments("DEPRECATED in favor of 'start-command'.");
+            YamlSection oldServerArgs = get(name, "server", "arguments", "list");
+            oldServerArgs.setComments("DEPRECATED in favor of 'start-command'.");
+            if (oldServerArgsEnabled.asBoolean()) {
+                for (SmartString flag :
+                        oldServerArgs.getValues()) {
+                    startCommand += flag.asString() + " ";
+                }
+            }
+
+            server_start_command.setValues(startCommand);
+            remove(oldJavaPath);
+            remove(oldServerFlagsEnabled);
+            remove(oldServerFlags);
+            remove(oldServerJar);
+            remove(oldServerArgsEnabled);
+            remove(oldServerArgs);
+        }
 
         server_restart_on_crash = put(name, "server", "restart-on-crash").setDefValues("true");
 

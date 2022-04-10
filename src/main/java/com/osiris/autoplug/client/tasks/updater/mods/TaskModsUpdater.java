@@ -81,8 +81,8 @@ public class TaskModsUpdater extends BetterThread {
                         "The data gets refreshed before performing an update-check. To exclude a mod from the check set exclude=true.\n" +
                         "If a name/author/version is missing, the mod gets excluded automatically.\n" +
                         "If there are mods that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest mod jar).\n" +
-                        //TODO    "modrinth-id:  Can be found directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-mod-updater.78414/\n" +
-                        "bukkit-id: Is the 'Project-ID' and can be found on the mods bukkit site inside of the 'About' box at the right.\n" +
+                        "modrinth-id: Is the 'Project-ID' and can be found on the mods modrinth site inside of the 'About' box, under 'Technical Information' at the bottom left.\n" +
+                        "curseforge-id: Is also called 'Project-ID' and can be found on the mods curseforge site inside of the 'About' box at the right.\n" +
                         "custom-download-url: must be a static url to the mods latest jar file.\n" +
                         "alternatives.github.repo-name: Example: 'EssentialsX/Essentials' (can be found in its url: https://github.com/EssentialsX/Essentials)\n" +
                         "alternatives.github.asset-name: Example: 'EssentialsX' (wrong: 'EssentialsX-1.7.23.jar', we discard the version info).\n" +
@@ -158,7 +158,9 @@ public class TaskModsUpdater extends BetterThread {
                 // Check for missing version in internal config
                 if ((installedMod.author == null)
                         && (modrinthId.asString() == null)
-                        && (curseforgeId.asString() == null)) {
+                        && (curseforgeId.asString() == null)
+                        && jenkinsArtifactName.asString() == null
+                        && githubAssetName.asString() == null) {
                     exclude.setValues("true");
                     this.addWarning("Mod " + installedMod.name + " is missing 'author' or 'authors' in its internal config file and was excluded.");
                 }

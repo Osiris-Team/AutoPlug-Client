@@ -26,7 +26,7 @@ public class GD {
     public static File PLUGINS_DIR;
     public static File DOWNLOADS_DIR;
     @Nullable
-    public static File SERVER_JAR = null; // Gets set in UpdaterConfig
+    public static File SERVER_JAR = null;
 
     static {
         WORKING_DIR = new File(System.getProperty("user.dir"));
@@ -34,6 +34,11 @@ public class GD {
         DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/autoplug/downloads");
         try {
             VERSION = "AutoPlug-Client - " + new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            SERVER_JAR = new UtilsJar().determineServerJar();
         } catch (Exception e) {
             e.printStackTrace();
         }
