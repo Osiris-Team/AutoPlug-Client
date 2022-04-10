@@ -10,6 +10,7 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
@@ -120,6 +121,47 @@ public class Main {
         }
 
         try {
+            if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
+                UtilsLogger uLog = new UtilsLogger();
+                uLog.animatedPrintln("Setup:");
+                uLog.animatedPrintln("Hey! Welcome to AutoPlug. It seems like this is your first run.");
+                uLog.animatedPrintln("Please enter the command used to start your server below and press enter:");
+                uLog.animatedPrintln("(Example: java -jar server.jar)");
+                uLog.animatedPrintln("(Note: Also include the flags/arguments if you have any)");
+                Scanner scanner = new Scanner(System.in);
+                GeneralConfig generalConfig = new GeneralConfig();
+                generalConfig.server_start_command.setValues(scanner.nextLine());
+                generalConfig.save();
+                uLog.animatedPrintln("Setup:");
+                uLog.animatedPrintln("Start your server automatically when you start AutoPlug?");
+                uLog.animatedPrintln("Enter yes/no below and press enter:");
+                String autoStart = uLog.expectInput(scanner, "yes", "no");
+                if (autoStart.equals("yes")) {
+                    generalConfig.server_auto_start.setValues("true");
+                    generalConfig.save();
+                } else {
+                    generalConfig.server_auto_start.setValues("false");
+                    generalConfig.save();
+                }
+                uLog.animatedPrintln("Setup:");
+                uLog.animatedPrintln("AutoPlug also provides a free web-panel at " + GD.OFFICIAL_WEBSITE);
+                uLog.animatedPrintln("that can start/stop/restart your server and show summaries of updates.");
+                uLog.animatedPrintln("If you want to use it enter the server-key below,");
+                uLog.animatedPrintln("otherwise leave it empty and press enter:");
+                String key = scanner.nextLine();
+                if (key.isEmpty()) generalConfig.server_key.setValues("NO_KEY");
+                else generalConfig.server_key.setValues(key);
+                generalConfig.save();
+                AutoPlugConsole.executeCommand(".help");
+                uLog.animatedPrintln("Setup:");
+                uLog.animatedPrintln("Above you can see a list of AutoPlug commands (command: .help).");
+                uLog.animatedPrintln("The .check command for example force-checks for updates and can");
+                uLog.animatedPrintln("be pretty useful since there are update cool-downs.");
+                uLog.animatedPrintln("AutoPlug has a few configs at /autoplug you can configure.");
+                uLog.animatedPrintln("This should be enough to get you started!");
+                uLog.animatedPrintln("Press enter to leave the setup:");
+            }
+
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -130,48 +172,6 @@ public class Main {
             AL.info("Author: " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
             AL.info("| ------------------------------------------- |");
-
-            ConfigPreset preset = ConfigPreset.DEFAULT;
-            if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
-                UtilsLogger uLog = new UtilsLogger();
-                String line = null;
-                uLog.animatedPrintln("Thank you for installing AutoPlug!");
-                uLog.animatedPrintln("It seems like this is your first run,");
-                uLog.animatedPrintln("please select a configuration preset:");
-                uLog.animatedPrintln("1: The 'fast' preset makes sure that all recommended features");
-                uLog.animatedPrintln("are enabled and thus saves you a lot of time configuring AutoPlug.");
-                uLog.animatedPrintln("2: The 'default' preset is for sceptics and a bunch of");
-                uLog.animatedPrintln("features need to be enabled manually. Have fun configuring!");
-                uLog.animatedPrintln("Insert your desired preset below and press enter:");
-                Scanner scanner = new Scanner(System.in);
-                while (true)
-                    try {
-                        line = scanner.nextLine();
-                        try {
-                            int num = Integer.parseInt(line);
-                            if (num == 1) {
-                                preset = ConfigPreset.FAST;
-                                break;
-                            } else if (num == 2) {
-                                preset = ConfigPreset.DEFAULT;
-                                break;
-                            } else
-                                throw new Exception();
-                        } catch (Exception e) {
-                            if (line.equals("fast")) {
-                                preset = ConfigPreset.FAST;
-                                break;
-                            } else if (line.equals("default")) {
-                                preset = ConfigPreset.DEFAULT;
-                                break;
-                            } else
-                                throw new Exception();
-                        }
-                    } catch (Exception e) {
-                        AL.warn("Your input was wrong. Please enter either the presets number (1 or 2) or its name (fast or default).", e);
-                    }
-            }
-
 
             AL.info("Checking configurations...");
             UtilsConfig utilsConfig = new UtilsConfig();
@@ -199,22 +199,22 @@ public class Main {
                 Logger.getLogger("org.quartz.core.SchedulerSignalerImpl").setLevel(Level.OFF);
             }
 
-            WebConfig webConfig = new WebConfig(preset);
+            WebConfig webConfig = new WebConfig();
             utilsConfig.checkForDeprecatedSections(webConfig);
             allModules.addAll(webConfig.getAllInEdit());
 
             //PluginsConfig pluginsConfig = new PluginsConfig(); // Gets loaded anyway before the plugin updater starts
             //allModules.addAll(pluginsConfig.getAllInEdit()); // Do not do this because its A LOT of unneeded log spam
 
-            BackupConfig backupConfig = new BackupConfig(preset);
+            BackupConfig backupConfig = new BackupConfig();
             utilsConfig.checkForDeprecatedSections(backupConfig);
             allModules.addAll(backupConfig.getAllInEdit());
 
-            RestarterConfig restarterConfig = new RestarterConfig(preset);
+            RestarterConfig restarterConfig = new RestarterConfig();
             utilsConfig.checkForDeprecatedSections(restarterConfig);
             allModules.addAll(restarterConfig.getAllInEdit());
 
-            UpdaterConfig updaterConfig = new UpdaterConfig(preset);
+            UpdaterConfig updaterConfig = new UpdaterConfig();
             utilsConfig.checkForDeprecatedSections(updaterConfig);
             allModules.addAll(updaterConfig.getAllInEdit());
 
@@ -241,18 +241,6 @@ public class Main {
 
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
-
-            String key = generalConfig.server_key.asString();
-            if (key == null || key.isEmpty() || key.equals("INSERT_KEY_HERE")) {
-                AL.info("No Server-Key found at " + generalConfig.server_key.getKeys().toString() + ".");
-                AL.info("To get a Server-Key for this server, register yourself at");
-                AL.info(GD.OFFICIAL_WEBSITE + " and add this server. ");
-                AL.info("Insert your Server-Key below and press enter:");
-                AL.info("(Insert NO_KEY if you don't want to make use of the web features.)");
-                Scanner scanner = new Scanner(System.in);
-                generalConfig.server_key.setValues(scanner.nextLine());
-                generalConfig.save();
-            }
 
 
             try {

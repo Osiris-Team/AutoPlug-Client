@@ -37,11 +37,8 @@ public class BackupConfig extends Yaml {
     public YamlSection backup_upload_path;
     public YamlSection backup_upload_rsa;
 
-    public BackupConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
-        this(ConfigPreset.DEFAULT);
-    }
 
-    public BackupConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+    public BackupConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
         lockFile();
         load();

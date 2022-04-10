@@ -54,11 +54,8 @@ public class UpdaterConfig extends Yaml {
     public YamlSection mods_updater_path;
     public YamlSection mods_updater_async;
 
-    public UpdaterConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
-        this(ConfigPreset.DEFAULT);
-    }
 
-    public UpdaterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+    public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/updater-config.yml");
         lockFile();
         load();
@@ -101,7 +98,7 @@ public class UpdaterConfig extends Yaml {
                 "Stable builds are recommended.");
 
         put(name, "java-updater").setCountTopLineBreaks(1);
-        java_updater = put(name, "java-updater", "enable").setDefValues("false");
+        java_updater = put(name, "java-updater", "enable").setDefValues("true");
         java_updater_profile = put(name, "java-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "If you selected the AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
                 "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug/system/jre, which then will be used to run your server."
@@ -118,9 +115,9 @@ public class UpdaterConfig extends Yaml {
 
 
         put(name, "server-updater").setCountTopLineBreaks(1);
-        server_updater = put(name, "server-updater", "enable").setDefValues("false");
+        server_updater = put(name, "server-updater", "enable").setDefValues("true");
 
-        server_updater_profile = put(name, "server-updater", "profile").setDefValues("MANUAL");
+        server_updater_profile = put(name, "server-updater", "profile").setDefValues("AUTOMATIC");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
                         "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric)\n" +
@@ -166,7 +163,7 @@ public class UpdaterConfig extends Yaml {
         plugins_updater = put(name, "plugins-updater", "enable").setDefValues("true").setComments(
                 "Updates your plugins and the results are sent to AutoPlug-Web. You can configure this in the web-config.",
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
-        plugins_updater_profile = put(name, "plugins-updater", "profile").setDefValues("MANUAL");
+        plugins_updater_profile = put(name, "plugins-updater", "profile").setDefValues("AUTOMATIC");
         plugins_updater_path = put(name, "plugins-updater", "path").setDefValues("./plugins");
         plugins_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
@@ -177,20 +174,12 @@ public class UpdaterConfig extends Yaml {
         mods_updater = put(name, "mods-updater", "enable").setDefValues("true").setComments(
                 "Updates your mods and the results are sent to AutoPlug-Web. You can configure this in the web-config.",
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
-        mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("MANUAL");
+        mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
         mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
-
-        if (preset.equals(ConfigPreset.FAST)) {
-            java_updater.setDefValues("true");
-            java_updater_profile.setDefValues("AUTOMATIC");
-            server_updater.setDefValues("true");
-            server_updater_profile.setDefValues("AUTOMATIC");
-            plugins_updater_profile.setDefValues("AUTOMATIC");
-        }
 
         validateOptions();
         save();

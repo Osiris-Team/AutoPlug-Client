@@ -28,11 +28,8 @@ public class WebConfig extends Yaml {
     public YamlSection send_server_status_port;
     public YamlSection file_manager;
 
-    public WebConfig() throws NotLoadedException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
-        this(ConfigPreset.DEFAULT);
-    }
 
-    public WebConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+    public WebConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
         lockFile();
         load();
@@ -51,12 +48,9 @@ public class WebConfig extends Yaml {
                 "#######################################################################################################################",
                 "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
 
-        online_console = put(name, "online-console").setDefValues("false")
+        online_console = put(name, "online-console").setDefValues("true")
                 .setComments("Sends recent log messages (and future messages) to the Online-Console and can receive commands from it.",
                         "To have as little impact on your server as possible, this only happens when you are logged in.");
-        if (preset.equals(ConfigPreset.FAST)) {
-            online_console.setDefValues("true");
-        }
 
         send_plugins_updater_results = put(name, "updater-results", "send-plugins-updaters-results").setDefValues("true")
                 .setComments("Sends the plugins-updaters results to AutoPlug-Web.",

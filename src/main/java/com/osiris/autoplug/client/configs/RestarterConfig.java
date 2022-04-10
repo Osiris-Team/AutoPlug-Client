@@ -34,11 +34,8 @@ public class RestarterConfig extends Yaml {
     public YamlSection c_restarter_cron;
     public YamlSection c_restarter_commands;
 
-    public RestarterConfig() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
-        this(ConfigPreset.DEFAULT);
-    }
 
-    public RestarterConfig(ConfigPreset preset) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+    public RestarterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/restarter-config.yml");
         lockFile();
         load();
@@ -57,11 +54,11 @@ public class RestarterConfig extends Yaml {
                         "#######################################################################################################################");
 
         put(name, "daily-restarter").setCountTopLineBreaks(1);
-        restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("false").setComments(
+        restarter_enabled = put(name, "daily-restarter", "enable").setDefValues("true").setComments(
                 "Enable/Disable the scheduler for restarting your minecraft server on a daily basis.\n" +
                         "Make sure to have the other scheduler disabled.");
 
-        restarter_times_raw = put(name, "daily-restarter", "times").setDefValues("23:00", "11:00").setComments(
+        restarter_times_raw = put(name, "daily-restarter", "times").setDefValues("05:00").setComments(
                 "Restarts your server daily at the times below.\n" +
                         "You can add max 10x times to restart (hours must be within 0-23 and minutes within 0-59).",
                 "Multiple times can be added like this:",
@@ -69,9 +66,6 @@ public class RestarterConfig extends Yaml {
                 "  - 04:00",
                 "  - 12:00",
                 "  - and so on...");
-        if (preset.equals(ConfigPreset.FAST)) {
-            restarter_enabled.setDefValues("true");
-        }
 
         restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
                 "You can execute multiple/single commands at any given second of the countdown.",
