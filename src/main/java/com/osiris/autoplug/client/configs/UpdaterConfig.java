@@ -129,9 +129,11 @@ public class UpdaterConfig extends Yaml {
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                         "Note: Remember that worlds cannot be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-        if (server_version.asString() == null)
-            server_version.setDefValues(new UtilsMinecraft().getInstalledVersion());
-        else
+        if (server_version.asString() == null) {
+            String version = new UtilsMinecraft().getInstalledVersion();
+            if (version != null) server_version.setDefValues(version);
+            else server_version.setDefValues("1.18.2");
+        } else
             server_version.setDefValues("1.18.2");
         server_build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +

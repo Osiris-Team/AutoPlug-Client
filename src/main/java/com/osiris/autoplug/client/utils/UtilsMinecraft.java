@@ -41,7 +41,7 @@ public class UtilsMinecraft {
      */
     public String getInstalledVersion(File serverJar) {
         String version = null;
-        if (!serverJar.exists()) return null;
+        if (serverJar == null || !serverJar.exists()) return null;
         try {
             ZipFile zipFile = new ZipFile(serverJar);
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
