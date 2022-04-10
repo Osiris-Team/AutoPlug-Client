@@ -27,6 +27,7 @@ public class UtilsJar {
     public File determineServerJar() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
         GeneralConfig generalConfig = new GeneralConfig();
         String path = generalConfig.server_start_command.asString();
+        if (path == null) return null;
         if (path.contains("-jar ")) { // jar file
             path = path.substring(path.indexOf("-jar "));
             if (path.codePointAt(5) == '"') {

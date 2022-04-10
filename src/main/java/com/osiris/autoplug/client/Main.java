@@ -121,7 +121,8 @@ public class Main {
         }
 
         try {
-            if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
+            GeneralConfig generalConfig = new GeneralConfig();
+            if (generalConfig.server_start_command.asString() == null) {
                 UtilsLogger uLog = new UtilsLogger();
                 uLog.animatedPrintln("Setup:");
                 uLog.animatedPrintln("Hey! Welcome to AutoPlug. It seems like this is your first run.");
@@ -129,9 +130,10 @@ public class Main {
                 uLog.animatedPrintln("(Example: java -jar server.jar)");
                 uLog.animatedPrintln("(Note: Also include the flags/arguments if you have any)");
                 Scanner scanner = new Scanner(System.in);
-                GeneralConfig generalConfig = new GeneralConfig();
+
                 generalConfig.server_start_command.setValues(scanner.nextLine());
                 generalConfig.save();
+
                 uLog.animatedPrintln("Setup:");
                 uLog.animatedPrintln("Start your server automatically when you start AutoPlug?");
                 uLog.animatedPrintln("Enter yes/no below and press enter:");
@@ -143,6 +145,21 @@ public class Main {
                     generalConfig.server_auto_start.setValues("false");
                     generalConfig.save();
                 }
+
+                uLog.animatedPrintln("Setup:");
+                uLog.animatedPrintln("Auto-update your server?");
+                uLog.animatedPrintln("Enter the server software below");
+                uLog.animatedPrintln("or leave empty to disable and press enter:");
+                uLog.animatedPrintln("Supported Minecraft server software:");
+                uLog.animatedPrintln("(paper, waterfall, travertine, velocity, purpur, fabric)");
+                String software = uLog.expectInput(scanner, "", "paper", "waterfall", "travertine", "velocity", "purpur", "fabric");
+                UpdaterConfig updaterConfig = new UpdaterConfig();
+                if (software.isEmpty())
+                    updaterConfig.server_updater.setValues("false");
+                else
+                    updaterConfig.server_software.setValues(software);
+                updaterConfig.save();
+
                 uLog.animatedPrintln("Setup:");
                 uLog.animatedPrintln("AutoPlug also provides a free web-panel at " + GD.OFFICIAL_WEBSITE);
                 uLog.animatedPrintln("that can start/stop/restart your server and show summaries of updates.");
@@ -152,14 +169,17 @@ public class Main {
                 if (key.isEmpty()) generalConfig.server_key.setValues("NO_KEY");
                 else generalConfig.server_key.setValues(key);
                 generalConfig.save();
+
                 AutoPlugConsole.executeCommand(".help");
                 uLog.animatedPrintln("Setup:");
                 uLog.animatedPrintln("Above you can see a list of AutoPlug commands (command: .help).");
                 uLog.animatedPrintln("The .check command for example force-checks for updates and can");
                 uLog.animatedPrintln("be pretty useful since there are update cool-downs.");
                 uLog.animatedPrintln("AutoPlug has a few configs at /autoplug you can configure.");
+                uLog.animatedPrintln("Everything we setup before (and more) can be changed/enabled/disabled in them.");
                 uLog.animatedPrintln("This should be enough to get you started!");
                 uLog.animatedPrintln("Press enter to leave the setup:");
+                scanner.nextLine();
             }
 
             AL.info("| ------------------------------------------- |");
@@ -171,6 +191,15 @@ public class Main {
             AL.info("Version: " + GD.VERSION);
             AL.info("Author: " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
+            AL.debug(Main.class, " ");
+            AL.debug(Main.class, "DEBUG DETAILS:");
+            AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
+            AL.debug(Main.class, "SYSTEM OS ARCH: " + System.getProperty("os.arch"));
+            AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
+            AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
+            AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
+            AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
+            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
             AL.info("| ------------------------------------------- |");
 
             AL.info("Checking configurations...");
@@ -179,7 +208,6 @@ public class Main {
             List<YamlSection> allModules = new ArrayList<>();
 
             // Loads or creates all needed configuration files
-            GeneralConfig generalConfig = new GeneralConfig();
             utilsConfig.checkForDeprecatedSections(generalConfig);
             allModules.addAll(generalConfig.getAllInEdit());
 
@@ -228,17 +256,6 @@ public class Main {
 
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Configurations checked.");
-
-            AL.debug(Main.class, " ");
-            AL.debug(Main.class, "DEBUG DETAILS:");
-            AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
-            AL.debug(Main.class, "SYSTEM OS ARCH: " + System.getProperty("os.arch"));
-            AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
-            AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
-            AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
-            AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
-            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
-
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
 
