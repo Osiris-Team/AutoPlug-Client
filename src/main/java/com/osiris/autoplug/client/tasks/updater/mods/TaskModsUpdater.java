@@ -381,6 +381,9 @@ public class TaskModsUpdater extends BetterThread {
             if (userProfile.equals(notifyProfile)) {
                 addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.version + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
+                // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
+                pl.name = (pl.name.replaceAll("\\\\", "-").replaceAll("[/]", "-"));
+                latest = latest.replaceAll("\\\\", "-").replaceAll("[/]", "-");
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what modrinth devs are doing
                     if (userProfile.equals(manualProfile)) {
                         File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.name + "[" + latest + "].jar");

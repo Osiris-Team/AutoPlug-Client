@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsString;
 import com.osiris.autoplug.client.utils.io.AsyncInputStream;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
@@ -70,14 +71,12 @@ public final class Server {
 
             // Find server jar
             if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
-                throw new Exception("Failed to find your server jar! " +
-                        "Please check your config, you may need to specify the jars name/path! " +
+                throw new Exception("Failed to find your server executable! " +
+                        "Please check your config, you may need to specify its name/path! " +
                         "Searched dir: '" + GD.WORKING_DIR + "'");
 
-            AL.info("Note: AutoPlug has some own console commands (enter .help or .h).");
-            AL.info("Starting server jar: " + GD.SERVER_JAR.getName());
+            AL.info("Starting server: " + GD.SERVER_JAR.getName());
             createProcess();
-
         } catch (Exception e) {
             AL.warn(e);
         }
@@ -156,18 +155,9 @@ public final class Server {
             } catch (Exception e) {
                 throw new Exception("Java-Updater is enabled, but Java-Installation was not found! Enter '.check java' to install Java.");
             }
-            String path = config.server_start_command.asString();
-            if (path.contains("-jar ")) { // jar file
-                path = path.substring(path.indexOf("-jar "));
-                if (path.codePointAt(5) == '"') {
-                    for (int i = 6; i < path.length(); i++) {
-                        char c = (char) path.codePointAt(i);
-                        if (c == '\"') path = path.substring(6, i);
-                    }
-                    throw new Exception("Server jar path started with \" but didn't finish with another \"!" + path);
-                } else {
-                    path = path.split(" ")[1];
-                }
+            String javaPath = config.server_start_command.asString();
+            if (javaPath.contains(" -jar ")) { // jar file
+                javaPath = new UtilsString().splitBySpacesAndQuotes(javaPath).get(0);
 
                 FileManager fileManager = new FileManager();
                 File jreFolder = new File(GD.WORKING_DIR + "/autoplug/system/jre");
@@ -217,7 +207,7 @@ public final class Server {
                 if (javaFile == null)
                     throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
 
-                startCommand = startCommand.replaceAll(path, "\"" + javaFile.getAbsolutePath() + "\"");
+                startCommand = startCommand.replace(javaPath, "\"" + javaFile.getAbsolutePath() + "\"");
             }
         }
 
@@ -226,9 +216,11 @@ public final class Server {
         // but messes input up, because there are 2 scanners on the same stream.
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
-        AL.debug(Server.class, "Starting server with command: " + startCommand);
+        List<String> commands = new UtilsString().splitBySpacesAndQuotes(startCommand);
+        AL.debug(Server.class, "Starting server with commands: " + commands);
         //TERMINAL.pause(true);
-        ProcessBuilder processBuilder = new ProcessBuilder(startCommand); // The commands list contains all we need.
+        //startCommand = startCommand.replaceAll("\\\\", "/");
+        ProcessBuilder processBuilder = new ProcessBuilder(commands); // The commands list contains all we need.
         processBuilder.redirectErrorStream(true);
         //processBuilder.inheritIO(); // BACK TO PIPED, BECAUSE OF MASSIVE ERRORS LIKE COMMANDS NOT BEEING EXECUTED, which affects the restarter
         processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);

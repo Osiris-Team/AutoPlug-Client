@@ -17,6 +17,7 @@ import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsLogger;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -132,15 +133,16 @@ public class Main {
 
             ConfigPreset preset = ConfigPreset.DEFAULT;
             if (!new File(GD.WORKING_DIR + "/autoplug/general-config.yml").exists()) {
+                UtilsLogger uLog = new UtilsLogger();
                 String line = null;
-                AL.info("Thank you for installing AutoPlug!");
-                AL.info("It seems like this is your first run,");
-                AL.info("please select a configuration preset:");
-                AL.info("1: The 'fast' preset makes sure that all recommended features");
-                AL.info("are enabled and thus saves you a lot of time configuring AutoPlug.");
-                AL.info("2: The 'default' preset is for sceptics and a bunch of");
-                AL.info("features need to be enabled manually. Have fun configuring!");
-                AL.info("Insert your desired preset below and press enter:");
+                uLog.animatedPrintln("Thank you for installing AutoPlug!");
+                uLog.animatedPrintln("It seems like this is your first run,");
+                uLog.animatedPrintln("please select a configuration preset:");
+                uLog.animatedPrintln("1: The 'fast' preset makes sure that all recommended features");
+                uLog.animatedPrintln("are enabled and thus saves you a lot of time configuring AutoPlug.");
+                uLog.animatedPrintln("2: The 'default' preset is for sceptics and a bunch of");
+                uLog.animatedPrintln("features need to be enabled manually. Have fun configuring!");
+                uLog.animatedPrintln("Insert your desired preset below and press enter:");
                 Scanner scanner = new Scanner(System.in);
                 while (true)
                     try {

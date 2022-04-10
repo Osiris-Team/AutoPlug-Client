@@ -79,9 +79,6 @@ public class TaskPluginDownload extends BetterThread {
                               File finalDest, File deleteDest,
                               boolean isPremium) {
         super(name, manager);
-        // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
-        plName = plName.replaceAll("[\\\\]", "-").replaceAll("[/]", "-");
-        plLatestVersion = plLatestVersion.replaceAll("[\\\\]", "-").replaceAll("[/]", "-");
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;

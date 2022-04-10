@@ -66,7 +66,9 @@ public class GeneralConfig extends Yaml {
         /**
          * Must be given in {@link com.osiris.autoplug.client.Main} at first start.
          */
-        server_start_command = put(name, "server", "start-command");
+        server_start_command = put(name, "server", "start-command").setComments("The full command used to start your server.",
+                "Like 'java -jar server.jar' for example. Or './server.exe'.",
+                "The working directory is where the AutoPlug-Client.jar is located in.");
         server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
                 "AutoPlug uses this command to stop your server.");
 
@@ -86,7 +88,7 @@ public class GeneralConfig extends Yaml {
             if (oldServerFlagsEnabled.asBoolean()) {
                 for (SmartString flag :
                         oldServerFlags.getValues()) {
-                    startCommand += flag.asString() + " ";
+                    startCommand += "-" + flag.asString() + " ";
                 }
             }
 
