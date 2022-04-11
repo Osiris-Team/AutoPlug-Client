@@ -207,7 +207,8 @@ public final class Server {
                 if (javaFile == null)
                     throw new Exception("No 'java' file found inside of Java installation at path: '" + javaBinFolder.getAbsolutePath() + "'");
 
-                startCommand = startCommand.replace(javaPath, "\"" + javaFile.getAbsolutePath() + "\"");
+                //startCommand = startCommand.replace(javaPath, "\"" + javaFile.getAbsolutePath() + "\"");
+                startCommand = startCommand.replace(javaPath, javaFile.getAbsolutePath());
             }
         }
 
