@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsString;
 import com.osiris.autoplug.client.utils.io.AsyncInputStream;
 import com.osiris.autoplug.core.logger.AL;
@@ -70,6 +71,7 @@ public final class Server {
             new BeforeServerStartupTasks();
 
             // Find server jar
+            GD.SERVER_JAR = new UtilsJar().determineServerJar();
             if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
                 throw new Exception("Failed to find your server executable! " +
                         "Please check your config, you may need to specify its name/path! " +
@@ -217,6 +219,9 @@ public final class Server {
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
         List<String> commands = new UtilsString().splitBySpacesAndQuotes(startCommand);
+        for (int i = 0; i < commands.size(); i++) {
+            commands.set(i, commands.get(i).replaceAll("\"", "")); // Processbuilder does not support quotes
+        }
         AL.debug(Server.class, "Starting server with commands: " + commands);
         //TERMINAL.pause(true);
         //startCommand = startCommand.replaceAll("\\\\", "/");

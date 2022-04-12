@@ -59,10 +59,6 @@ public class CurseForgeAPI {
                 int otherId = otherEl.el.getAsJsonObject().get("id").getAsInt();
                 return Integer.compare(thisId, otherId);
             });
-            for (JsonElement el :
-                    arr) {
-                System.out.println(el.getAsJsonObject().get("id").getAsString());
-            }
             JsonObject release = null;
             for (int i = arr.size() - 1; i >= 0; i--) {
                 JsonObject tempRelease = arr.get(i).getAsJsonObject();
