@@ -12,13 +12,29 @@ import com.osiris.autoplug.core.logger.AL;
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class UtilsLogger {
 
     public void animatedPrintln(String s) throws InterruptedException {
         System.out.print(" > ");
+        AtomicBoolean skip = new AtomicBoolean(false);
+        Scanner scanner = new Scanner(System.in);
+        Thread t = new Thread(() -> {
+            scanner.nextLine();
+            skip.set(true);
+        });
+        t.start();
+
         for (int i = 0; i < s.length(); i++) {
+            if (skip.get()) {
+                for (int j = i; j < s.length(); j++) {
+                    System.out.print(s.charAt(j));
+                }
+                System.out.flush();
+                break;
+            }
             System.out.print(s.charAt(i));
             System.out.flush();
             Thread.sleep(50);
@@ -26,10 +42,14 @@ public class UtilsLogger {
         System.out.println();
     }
 
-    public String expectInput(Scanner scanner, String... expectedInput) {
+    public String expectInput(String... expectedInput) {
         String line;
+        Scanner scanner = new Scanner(System.in);
         while (true) {
             line = scanner.nextLine();
+            if (expectedInput == null || expectedInput.length == 0) {
+                return line;
+            }
             boolean equals = false;
             for (String s :
                     expectedInput) {
@@ -38,8 +58,9 @@ public class UtilsLogger {
                     break;
                 }
             }
-            if (equals) return line;
-            else AL.warn("Your input was wrong. Please try again. Expected: " + Arrays.toString(expectedInput));
+            if (equals) {
+                return line;
+            } else AL.warn("Your input was wrong. Please try again. Expected: " + Arrays.toString(expectedInput));
         }
     }
 }
