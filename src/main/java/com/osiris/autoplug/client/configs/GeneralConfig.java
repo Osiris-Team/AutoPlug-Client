@@ -19,6 +19,9 @@ import java.io.IOException;
 public class GeneralConfig extends Yaml {
     public YamlSection autoplug_auto_stop;
     public YamlSection autoplug_target_software;
+    public YamlSection autoplug_start_on_boot;
+    public YamlSection autoplug_system_tray;
+    public YamlSection autoplug_system_tray_theme;
 
     public YamlSection server_key;
     public YamlSection server_auto_start;
@@ -52,10 +55,14 @@ public class GeneralConfig extends Yaml {
         put(name, "autoplug").setCountTopLineBreaks(1);
         autoplug_auto_stop = put(name, "autoplug", "auto-stop").setDefValues("false").setComments(
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
+        autoplug_start_on_boot = put(name, "autoplug", "start-on-boot").setDefValues("false").setComments(
+                "Starts AutoPlug automatically right after the system booted up.");
         autoplug_target_software = put(name, "autoplug", "target-software").setDefValues("false").setComments(
                 "Select the target software AutoPlug was installed on.",
                 "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
                 "When changed, requires an AutoPlug restart to take affect.");
+        autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
+        autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light");
 
         put(name, "server").setCountTopLineBreaks(1);
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(

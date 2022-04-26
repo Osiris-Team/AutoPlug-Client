@@ -170,8 +170,10 @@ public class Main {
                     TARGET = Target.OTHER;
                     break;
                 } else {
+                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
+                        AL.info(comment);
+                    }
                     AL.info("The selected target software '" + target + "' is not a valid option.");
-                    AL.info("For further details see: " + generalConfig.autoplug_target_software.getKeys());
                     AL.info("Please enter a valid option and press enter:");
                     target = new Scanner(System.in).nextLine();
                     generalConfig.autoplug_target_software.setValues(target);
