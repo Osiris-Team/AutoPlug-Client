@@ -35,7 +35,7 @@ public class UtilsJar {
                     char c = (char) path.codePointAt(i);
                     if (c == '\"') return new File(path.substring(6, i));
                 }
-                throw new RuntimeException("Server jar path started with \" but didnt finish with another \"!" + path);
+                throw new RuntimeException("Server jar path started with \" but didn't finish with another \"!" + path);
             } else {
                 return new File(path.split(" ")[1]);
             }
@@ -45,7 +45,7 @@ public class UtilsJar {
                     char c = (char) path.codePointAt(i);
                     if (c == '\"') return new File(path.substring(1, i));
                 }
-                throw new RuntimeException("Server jar path started with \" but didnt finish with another \"! " + path);
+                throw new RuntimeException("Server jar path started with \" but didn't finish with another \"! " + path);
             } else {
                 return new File(path.split(" ")[0]);
             }

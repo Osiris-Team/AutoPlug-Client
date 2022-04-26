@@ -10,7 +10,6 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
@@ -18,7 +17,6 @@ import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsLogger;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -35,6 +33,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +43,7 @@ import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON_MAIN = new ConMain();
+    public static Target TARGET = null;
 
     public static void main(String[] args) {
         // Check various things to ensure an fully functioning application.
@@ -120,74 +120,6 @@ public class Main {
         }
 
         try {
-            GeneralConfig generalConfig = new GeneralConfig();
-            if (generalConfig.server_start_command.asString() == null) {
-                UtilsLogger uLog = new UtilsLogger();
-                uLog.animatedPrintln("Setup:\n" +
-                        "Hey! Welcome to AutoPlug. It seems like this is your first run.\n" +
-                        "Please enter the command used to start your server below and press enter:\n" +
-                        "(Example: java -jar server.jar)\n" +
-                        "(Note: Also include the flags/arguments if you have any)");
-
-                generalConfig.server_start_command.setValues(uLog.expectInput());
-                generalConfig.save();
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "Start your server automatically when you start AutoPlug?\n" +
-                        "Enter yes/no below and press enter:");
-                String autoStart = uLog.expectInput("yes", "no");
-                if (autoStart.equals("yes")) {
-                    generalConfig.server_auto_start.setValues("true");
-                    generalConfig.save();
-                } else {
-                    generalConfig.server_auto_start.setValues("false");
-                    generalConfig.save();
-                }
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "Auto-update your server?\n" +
-                        "Enter the server software below\n" +
-                        "or leave empty to disable and press enter:\n" +
-                        "Supported Minecraft server software:\n" +
-                        "(paper, waterfall, travertine, velocity, purpur, fabric)");
-                String software = uLog.expectInput("", "paper", "waterfall", "travertine", "velocity", "purpur", "fabric");
-                UpdaterConfig updaterConfig = new UpdaterConfig();
-                if (software.isEmpty())
-                    updaterConfig.server_updater.setValues("false");
-                else
-                    updaterConfig.server_software.setValues(software);
-                updaterConfig.save();
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "AutoPlug also provides a free web-panel at " + GD.OFFICIAL_WEBSITE + "\n" +
-                        "that can start/stop/restart your server and show summaries of updates.\n" +
-                        "If you want to use it enter the server-key below,\n" +
-                        "otherwise leave it empty and press enter:\n" +
-                        "(Note: Connections can be enabled/disabled in /autoplug/web-config.yml)");
-                String key = uLog.expectInput();
-                if (key.isEmpty()) generalConfig.server_key.setValues("NO_KEY");
-                else {
-                    WebConfig webConfig = new WebConfig();
-                    webConfig.online_console.setValues("true");
-                    webConfig.file_manager.setValues("true");
-                    webConfig.save();
-                    generalConfig.server_key.setValues(key);
-                }
-                generalConfig.save();
-                if (!key.isEmpty())
-
-                    AutoPlugConsole.executeCommand(".help");
-                uLog.animatedPrintln("Setup:\n" +
-                        "Above you can see a list of AutoPlug commands (command: .help).\n" +
-                        "The .check command for example force-checks for updates and can\n" +
-                        "be pretty useful since there are update cool-downs.\n" +
-                        "AutoPlug has a few configs at /autoplug you can configure.\n" +
-                        "Everything we setup before (and more) can be changed/enabled/disabled in them.\n" +
-                        "This should be enough to get you started!\n" +
-                        "Press enter to leave the setup:");
-                uLog.expectInput();
-            }
-
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -214,6 +146,38 @@ public class Main {
             List<YamlSection> allModules = new ArrayList<>();
 
             // Loads or creates all needed configuration files
+            GeneralConfig generalConfig = new GeneralConfig();
+            String target = generalConfig.autoplug_target_software.asString();
+            while (true) {
+                if (target == null) {
+                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
+                        AL.info(comment);
+                    }
+                    AL.info("Please enter a valid option and press enter:");
+                    target = new Scanner(System.in).nextLine();
+                    generalConfig.autoplug_target_software.setValues(target);
+                    generalConfig.save();
+                } else if (target.equals("MINECRAFT_CLIENT")) {
+                    TARGET = Target.MINECRAFT_CLIENT;
+                    break;
+                } else if (target.equals("MINECRAFT_SERVER")) {
+                    TARGET = Target.MINECRAFT_SERVER;
+                    break;
+                } else if (target.equals("MINDUSTRY")) {
+                    TARGET = Target.MINDUSTRY;
+                    break;
+                } else if (target.equals("OTHER")) {
+                    TARGET = Target.OTHER;
+                    break;
+                } else {
+                    AL.info("The selected target software '" + target + "' is not a valid option.");
+                    AL.info("For further details see: " + generalConfig.autoplug_target_software.getKeys());
+                    AL.info("Please enter a valid option and press enter:");
+                    target = new Scanner(System.in).nextLine();
+                    generalConfig.autoplug_target_software.setValues(target);
+                    generalConfig.save();
+                }
+            }
             utilsConfig.checkForDeprecatedSections(generalConfig);
             allModules.addAll(generalConfig.getAllInEdit());
 
@@ -331,11 +295,12 @@ public class Main {
 
             CON_MAIN.start();
 
-            new ConPluginCommandReceive();
+            if (TARGET != Target.MINECRAFT_CLIENT)
+                new ConPluginCommandReceive();
 
             new ThreadUserInput().start();
 
-            if (generalConfig.server_auto_start.asBoolean())
+            if (TARGET != Target.MINECRAFT_CLIENT && generalConfig.server_auto_start.asBoolean())
                 Server.start();
 
             // We have to keep this main Thread running.
