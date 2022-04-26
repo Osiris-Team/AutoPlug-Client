@@ -25,7 +25,7 @@ public class AutoStart {
     void add(File jar) throws IOException, InterruptedException {
         if (OSUtils.IS_WINDOWS) {
             // TODO more research and testing needed
-            File startScript = new File(GD.WORKING_DIR + "/autoplug/AutoPlug.bat");
+            File startScript = new File(GD.WORKING_DIR + "/autoplug/system/AutoPlug.bat");
             if (!startScript.exists()) {
                 startScript.getParentFile().mkdirs();
                 startScript.createNewFile();

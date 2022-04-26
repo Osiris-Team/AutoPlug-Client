@@ -14,7 +14,7 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.ui.ViewMain;
+import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
@@ -115,6 +115,12 @@ public class Main {
         }
 
         try {
+            if (true) {
+                new MainWindow();
+                while (true) {
+                    Thread.sleep(100);
+                }
+            }
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -234,7 +240,7 @@ public class Main {
             }
 
             try {
-                if (generalConfig.autoplug_system_tray.asBoolean()) new ViewMain().initGUI();
+                if (generalConfig.autoplug_system_tray.asBoolean()) new MainWindow();
             } catch (Exception e) {
                 AL.warn(e);
             }

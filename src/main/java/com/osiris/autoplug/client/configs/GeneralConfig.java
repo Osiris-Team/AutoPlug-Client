@@ -57,10 +57,10 @@ public class GeneralConfig extends Yaml {
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
         autoplug_start_on_boot = put(name, "autoplug", "start-on-boot").setDefValues("false").setComments(
                 "Starts AutoPlug automatically right after the system booted up.");
-        autoplug_target_software = put(name, "autoplug", "target-software").setDefValues("false").setComments(
+        autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
                 "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
-                "When changed, requires an AutoPlug restart to take affect.");
+                "When changed, requires an AutoPlug restart to take effect.");
         autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
         autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light");
 
