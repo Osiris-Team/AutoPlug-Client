@@ -26,12 +26,17 @@ public class AutoStart {
         if (OSUtils.IS_WINDOWS) {
             // TODO more research and testing needed
             File startScript = new File(GD.WORKING_DIR + "/autoplug/AutoPlug.bat");
+            if (!startScript.exists()) {
+                startScript.getParentFile().mkdirs();
+                startScript.createNewFile();
+            }
             Files.write(startScript.toPath(), ("" +
                     "javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // javaw to start without terminal
                     "").getBytes(StandardCharsets.UTF_8));
             Process p = new ProcessBuilder().command("REG",
                     "ADD", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
-                    "/V", "AutoPlug", "/t", "REG_SZ", "/F", "/D", startScript.getAbsolutePath()).start();
+                    "/V", "AutoPlug", "/t", "REG_SZ", "/F", "/D", startScript.getAbsolutePath()).start();  // The name AutoPlug doesnt get set on Win10,
+            // but the file name is used, thus we create the AutoPlug.bat
             while (p.isAlive()) {
                 Thread.sleep(100);
                 if (p.exitValue() != 0) {
