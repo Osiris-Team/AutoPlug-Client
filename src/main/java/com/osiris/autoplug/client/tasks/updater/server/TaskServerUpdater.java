@@ -129,7 +129,7 @@ public class TaskServerUpdater extends BetterThread {
             }
         } else {
             setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
-            GD.SERVER_JAR = new FileManager().serverJar();
+            GD.SERVER_JAR = new FileManager().serverExecutable();
             System.out.println(GD.SERVER_JAR);
 
             // Download the file

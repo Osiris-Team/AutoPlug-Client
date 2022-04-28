@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Scanner;
 
 
 public final class Server {
@@ -71,7 +72,37 @@ public final class Server {
             new BeforeServerStartupTasks();
 
             // Find server jar
-            GD.SERVER_JAR = new UtilsJar().determineServerJar();
+            while (true) {
+                GD.SERVER_JAR = new UtilsJar().determineServerJar();
+                if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists()) {
+                    GD.SERVER_JAR = new FileManager().serverExecutable();
+                    if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists()) {
+                        AL.info("Failed to determine the server executable and start-command.");
+                        AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
+                        AL.info("Please enter your start-command and press enter:");
+                        GeneralConfig generalConfig = new GeneralConfig();
+                        generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
+                        generalConfig.save();
+                    } else {
+                        if (GD.SERVER_JAR.getName().endsWith(".jar")) {
+                            GeneralConfig generalConfig = new GeneralConfig();
+                            generalConfig.server_start_command.setValues("java -jar \"" + GD.SERVER_JAR.getAbsolutePath() + "\"");
+                            generalConfig.save();
+                            break;
+                        } else {
+                            AL.info("Determined the server executable but not the start-command.");
+                            AL.info("Executable: " + GD.SERVER_JAR.getAbsolutePath());
+                            AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
+                            AL.info("Please enter your start-command and press enter:");
+                            GeneralConfig generalConfig = new GeneralConfig();
+                            generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
+                            generalConfig.save();
+                        }
+                    }
+                } else break;
+            }
+            new FileManager().serverExecutable();
+
             if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
                 throw new Exception("Failed to find your server executable! " +
                         "Please check your config, you may need to specify its name/path! " +

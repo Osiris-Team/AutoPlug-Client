@@ -100,7 +100,7 @@ public class FileManager {
      * @return server jar file.
      */
     @Nullable
-    public File serverJar(String server_jar_name) {
+    public File serverExecutable(String server_jar_name) {
         String searchPattern = "*" + server_jar_name + "**.jar";
         //Find the file
         findServerJarFileInWorkingDir(searchPattern);
@@ -122,10 +122,12 @@ public class FileManager {
      * @return server jar file.
      */
     @Nullable
-    public File serverJar() {
+    public File serverExecutable() {
         String searchPattern = "*.jar";
         //Find the file
         findServerJarFileInWorkingDir(searchPattern);
+        if (queryFile == null)
+            findServerJarFileInWorkingDir("*.exe");
         //Return the result file
         return queryFile;
     }
@@ -299,6 +301,7 @@ public class FileManager {
     }
 
     private boolean jarContainsAutoPlugProperties(File jar) {
+        if (!jar.getName().endsWith(".jar")) return false;
         FileInputStream fis = null;
         ZipInputStream zis = null;
         ZipEntry ze = null;

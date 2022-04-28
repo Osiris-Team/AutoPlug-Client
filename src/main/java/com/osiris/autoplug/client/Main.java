@@ -10,32 +10,26 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.console.ThreadUserInput;
-import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsLogger;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.watcher.DirWatcher;
-import com.osiris.dyml.watcher.FileEvent;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardWatchEventKinds;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +38,7 @@ import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON_MAIN = new ConMain();
+    public static Target TARGET = null;
 
     public static void main(String[] args) {
         // Check various things to ensure an fully functioning application.
@@ -120,74 +115,12 @@ public class Main {
         }
 
         try {
-            GeneralConfig generalConfig = new GeneralConfig();
-            if (generalConfig.server_start_command.asString() == null) {
-                UtilsLogger uLog = new UtilsLogger();
-                uLog.animatedPrintln("Setup:\n" +
-                        "Hey! Welcome to AutoPlug. It seems like this is your first run.\n" +
-                        "Please enter the command used to start your server below and press enter:\n" +
-                        "(Example: java -jar server.jar)\n" +
-                        "(Note: Also include the flags/arguments if you have any)");
-
-                generalConfig.server_start_command.setValues(uLog.expectInput());
-                generalConfig.save();
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "Start your server automatically when you start AutoPlug?\n" +
-                        "Enter yes/no below and press enter:");
-                String autoStart = uLog.expectInput("yes", "no");
-                if (autoStart.equals("yes")) {
-                    generalConfig.server_auto_start.setValues("true");
-                    generalConfig.save();
-                } else {
-                    generalConfig.server_auto_start.setValues("false");
-                    generalConfig.save();
+            if (true) {
+                new MainWindow();
+                while (true) {
+                    Thread.sleep(100);
                 }
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "Auto-update your server?\n" +
-                        "Enter the server software below\n" +
-                        "or leave empty to disable and press enter:\n" +
-                        "Supported Minecraft server software:\n" +
-                        "(paper, waterfall, travertine, velocity, purpur, fabric)");
-                String software = uLog.expectInput("", "paper", "waterfall", "travertine", "velocity", "purpur", "fabric");
-                UpdaterConfig updaterConfig = new UpdaterConfig();
-                if (software.isEmpty())
-                    updaterConfig.server_updater.setValues("false");
-                else
-                    updaterConfig.server_software.setValues(software);
-                updaterConfig.save();
-
-                uLog.animatedPrintln("Setup:\n" +
-                        "AutoPlug also provides a free web-panel at " + GD.OFFICIAL_WEBSITE + "\n" +
-                        "that can start/stop/restart your server and show summaries of updates.\n" +
-                        "If you want to use it enter the server-key below,\n" +
-                        "otherwise leave it empty and press enter:\n" +
-                        "(Note: Connections can be enabled/disabled in /autoplug/web-config.yml)");
-                String key = uLog.expectInput();
-                if (key.isEmpty()) generalConfig.server_key.setValues("NO_KEY");
-                else {
-                    WebConfig webConfig = new WebConfig();
-                    webConfig.online_console.setValues("true");
-                    webConfig.file_manager.setValues("true");
-                    webConfig.save();
-                    generalConfig.server_key.setValues(key);
-                }
-                generalConfig.save();
-                if (!key.isEmpty())
-
-                    AutoPlugConsole.executeCommand(".help");
-                uLog.animatedPrintln("Setup:\n" +
-                        "Above you can see a list of AutoPlug commands (command: .help).\n" +
-                        "The .check command for example force-checks for updates and can\n" +
-                        "be pretty useful since there are update cool-downs.\n" +
-                        "AutoPlug has a few configs at /autoplug you can configure.\n" +
-                        "Everything we setup before (and more) can be changed/enabled/disabled in them.\n" +
-                        "This should be enough to get you started!\n" +
-                        "Press enter to leave the setup:");
-                uLog.expectInput();
             }
-
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
@@ -214,6 +147,40 @@ public class Main {
             List<YamlSection> allModules = new ArrayList<>();
 
             // Loads or creates all needed configuration files
+            GeneralConfig generalConfig = new GeneralConfig();
+            String target = generalConfig.autoplug_target_software.asString();
+            while (true) {
+                if (target == null) {
+                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
+                        AL.info(comment);
+                    }
+                    AL.info("Please enter a valid option and press enter:");
+                    target = new Scanner(System.in).nextLine();
+                    generalConfig.autoplug_target_software.setValues(target);
+                    generalConfig.save();
+                } else if (target.equals("MINECRAFT_CLIENT")) {
+                    TARGET = Target.MINECRAFT_CLIENT;
+                    break;
+                } else if (target.equals("MINECRAFT_SERVER")) {
+                    TARGET = Target.MINECRAFT_SERVER;
+                    break;
+                } else if (target.equals("MINDUSTRY")) {
+                    TARGET = Target.MINDUSTRY;
+                    break;
+                } else if (target.equals("OTHER")) {
+                    TARGET = Target.OTHER;
+                    break;
+                } else {
+                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
+                        AL.info(comment);
+                    }
+                    AL.info("The selected target software '" + target + "' is not a valid option.");
+                    AL.info("Please enter a valid option and press enter:");
+                    target = new Scanner(System.in).nextLine();
+                    generalConfig.autoplug_target_software.setValues(target);
+                    generalConfig.save();
+                }
+            }
             utilsConfig.checkForDeprecatedSections(generalConfig);
             allModules.addAll(generalConfig.getAllInEdit());
 
@@ -267,75 +234,25 @@ public class Main {
 
 
             try {
-                if (sharedFilesConfig.enable.asBoolean()) {
+                if (sharedFilesConfig.enable.asBoolean()) new SyncFilesManager(sharedFilesConfig);
+            } catch (Exception e) {
+                AL.warn(e);
+            }
 
-                    List<File> foldersToWatch = new ArrayList<>();
-                    for (String pathAsString :
-                            sharedFilesConfig.copy_from.asStringList()) {
-                        if (pathAsString.startsWith("./"))
-                            foldersToWatch.add(FileManager.convertRelativeToAbsolutePath(pathAsString));
-                        else
-                            throw new Exception("Wrongly formatted or absolute path: " + pathAsString);
-                    }
-
-                    List<File> filesToSendTo = new ArrayList<>();
-                    //List<String> ipsToSendTo = new ArrayList<>();
-                    for (String value :
-                            sharedFilesConfig.send_to.asStringList()) {
-                        if (value.startsWith("./"))
-                            filesToSendTo.add(FileManager.convertRelativeToAbsolutePath(value));
-                        else if (value.contains("/") || value.contains("\\"))
-                            filesToSendTo.add(new File(value));
-                            // TODO else if (value.contains("."))
-                            //    ipsToSendTo.add(value);
-                        else
-                            throw new Exception("Failed to determine if '" + value + "' is absolute/relative path address."); //TODO or ipv4/ipv6
-                    }
-
-                    Consumer<FileEvent> onFileChangeEvent = event -> {
-                        // Determine relative path from file to server root
-                        // Example: C:/Users/Server/plugins/AutoPlug.jar -> /plugins/AutoPlug.jar
-                        String relPath = event.file.getAbsolutePath().replace(WORKING_DIR.getAbsolutePath(), "");
-                        if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-                            for (File receivingServerRootDir :
-                                    filesToSendTo) {
-                                new File(receivingServerRootDir + relPath)
-                                        .delete();
-                            }
-                        } else if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)
-                                || event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
-                            for (File receivingServerRootDir :
-                                    filesToSendTo) {
-                                try {
-                                    File f = new File(receivingServerRootDir + relPath);
-                                    if (!f.getParentFile().exists()) f.getParentFile().mkdirs();
-                                    if (!f.exists()) f.createNewFile();
-                                    Files.copy(event.path, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                } catch (Exception e) {
-                                    AL.warn(e);
-                                }
-                            }
-                        } else
-                            AL.warn("Failed to execute 'send-to' for event type '" + event.getWatchEventKind().name() + "' for file '" + event.file + "'!");
-                    };
-
-                    for (File folder :
-                            foldersToWatch) {
-                        DirWatcher.get(folder, true).addListeners(onFileChangeEvent);
-                        AL.debug(Main.class, "Watching 'copy-from' folder and sub-folders from: " + folder);
-                    }
-                }
+            try {
+                if (generalConfig.autoplug_system_tray.asBoolean()) new MainWindow();
             } catch (Exception e) {
                 AL.warn(e);
             }
 
             CON_MAIN.start();
 
-            new ConPluginCommandReceive();
+            if (TARGET != Target.MINECRAFT_CLIENT)
+                new ConPluginCommandReceive();
 
             new ThreadUserInput().start();
 
-            if (generalConfig.server_auto_start.asBoolean())
+            if (TARGET != Target.MINECRAFT_CLIENT && generalConfig.server_auto_start.asBoolean())
                 Server.start();
 
             // We have to keep this main Thread running.

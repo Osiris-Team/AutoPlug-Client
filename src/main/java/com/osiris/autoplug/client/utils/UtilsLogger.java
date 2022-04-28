@@ -40,6 +40,7 @@ public class UtilsLogger {
             Thread.sleep(50);
         }
         System.out.println();
+        t.interrupt();
     }
 
     public String expectInput(String... expectedInput) {

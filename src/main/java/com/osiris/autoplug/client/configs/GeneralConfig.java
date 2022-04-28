@@ -18,6 +18,10 @@ import java.io.IOException;
 
 public class GeneralConfig extends Yaml {
     public YamlSection autoplug_auto_stop;
+    public YamlSection autoplug_target_software;
+    public YamlSection autoplug_start_on_boot;
+    public YamlSection autoplug_system_tray;
+    public YamlSection autoplug_system_tray_theme;
 
     public YamlSection server_key;
     public YamlSection server_auto_start;
@@ -51,6 +55,14 @@ public class GeneralConfig extends Yaml {
         put(name, "autoplug").setCountTopLineBreaks(1);
         autoplug_auto_stop = put(name, "autoplug", "auto-stop").setDefValues("false").setComments(
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
+        autoplug_start_on_boot = put(name, "autoplug", "start-on-boot").setDefValues("false").setComments(
+                "Starts AutoPlug automatically right after the system booted up.");
+        autoplug_target_software = put(name, "autoplug", "target-software").setComments(
+                "Select the target software AutoPlug was installed on.",
+                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
+                "When changed, requires an AutoPlug restart to take effect.");
+        autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
+        autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light");
 
         put(name, "server").setCountTopLineBreaks(1);
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(
@@ -67,8 +79,8 @@ public class GeneralConfig extends Yaml {
          * Must be given in {@link com.osiris.autoplug.client.Main} at first start.
          */
         server_start_command = put(name, "server", "start-command").setComments("The full command used to start your server.",
-                "Like 'java -jar server.jar' for example. Or './server.exe'.",
-                "The working directory is where the AutoPlug-Client.jar is located in.");
+                "Like 'java -jar server.jar' for example, or './server.exe'.",
+                "./ represents the working directory (where the AutoPlug was started from).");
         server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
                 "AutoPlug uses this command to stop your server.");
 
@@ -94,7 +106,8 @@ public class GeneralConfig extends Yaml {
 
             YamlSection oldServerJar = get(name, "server", "jar-path");
             oldServerJar.setComments("DEPRECATED in favor of 'start-command'.");
-            if (oldServerJar.asString().equals("auto-find")) startCommand += "-jar " + new FileManager().serverJar();
+            if (oldServerJar.asString().equals("auto-find"))
+                startCommand += "-jar " + new FileManager().serverExecutable();
             else startCommand += "-jar " + oldServerJar.asString();
             startCommand += " ";
 
