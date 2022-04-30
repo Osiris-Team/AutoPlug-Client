@@ -115,12 +115,6 @@ public class Main {
         }
 
         try {
-            if (true) {
-                new MainWindow();
-                while (true) {
-                    Thread.sleep(100);
-                }
-            }
             AL.info("| ------------------------------------------- |");
             AL.info("     ___       __       ___  __             ");
             AL.info("    / _ |__ __/ /____  / _ \\/ /_ _____ _   ");
