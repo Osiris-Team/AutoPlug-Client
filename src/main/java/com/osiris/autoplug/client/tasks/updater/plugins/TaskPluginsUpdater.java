@@ -16,9 +16,9 @@ import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateRes
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class TaskPluginsUpdater extends BetterThread {
+public class TaskPluginsUpdater extends BThread {
     //private final PluginsUpdateResultConnection con;
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
@@ -56,7 +56,7 @@ public class TaskPluginsUpdater extends BetterThread {
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
 
-    public TaskPluginsUpdater(String name, BetterThreadManager manager) {
+    public TaskPluginsUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -176,10 +176,10 @@ public class TaskPluginsUpdater extends BetterThread {
                 else
                     includedPlugins.add(installedPlugin);
             } catch (DuplicateKeyException e) {
-                addWarning(new BetterWarning(this, e, "Duplicate plugin '" + installedPlugin.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
+                addWarning(new BWarning(this, e, "Duplicate plugin '" + installedPlugin.getName() + "' (or plugin name from its plugin.yml) found in your plugins directory. " +
                         "Its recommended to remove it."));
             } catch (Exception e) {
-                addWarning(new BetterWarning(this, e));
+                addWarning(new BWarning(this, e));
             }
         }
 
@@ -243,7 +243,7 @@ public class TaskPluginsUpdater extends BetterThread {
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownPlugin(pl)));
                 }
             } catch (Exception e) {
-                this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));
+                this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));
             }
         }
 
@@ -281,13 +281,13 @@ public class TaskPluginsUpdater extends BetterThread {
 
                 } else if (code == 2)
                     if (result.getException() != null)
-                        getWarnings().add(new BetterWarning(this, result.getException(), "There was an api-error for " + pl.getName() + "!"));
+                        getWarnings().add(new BWarning(this, result.getException(), "There was an api-error for " + pl.getName() + "!"));
                     else
-                        getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
+                        getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
                 else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the plugins config file.")));
+                    getWarnings().add(new BWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the plugins config file.")));
                 else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                    getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
                 try {
                     YamlSection mSpigotId = pluginsConfig.get(pluginsConfigName, pl.getName(), "spigot-id");
@@ -302,7 +302,7 @@ public class TaskPluginsUpdater extends BetterThread {
 
                     // The config gets saved at the end of the runAtStart method.
                 } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this, e));
+                    getWarnings().add(new BWarning(this, e));
                 }
             }
         }
@@ -311,7 +311,7 @@ public class TaskPluginsUpdater extends BetterThread {
         for (SearchResult result :
                 updatablePremiumSpigotPlugins) {
             if (result.isPremium()) {
-                getWarnings().add(new BetterWarning(this,
+                getWarnings().add(new BWarning(this,
                         result.getPlugin().getName() + " (" + result.getLatestVersion() + ") is a premium plugin and thus not supported by the regular plugin updater!"));
             }
         }
@@ -364,7 +364,7 @@ public class TaskPluginsUpdater extends BetterThread {
                 new ConPluginsUpdateResult(results, excludedPlugins)
                         .open();
             } catch (Exception e) {
-                addWarning(new BetterWarning(this, e));
+                addWarning(new BWarning(this, e));
             }
         }
 
@@ -397,7 +397,7 @@ public class TaskPluginsUpdater extends BetterThread {
                 YamlSection mLatest = pluginsConfig.get(pluginsConfigName, pl.getName(), "latest-version");
                 mLatest.setValues(latest); // Gets saved later
             } catch (Exception e) {
-                getWarnings().add(new BetterWarning(this, e));
+                getWarnings().add(new BWarning(this, e));
             }
 
             if (userProfile.equals(notifyProfile)) {
@@ -426,7 +426,7 @@ public class TaskPluginsUpdater extends BetterThread {
                         }
                     }
                 } else
-                    getWarnings().add(new BetterWarning(this, new Exception("Failed to download plugin update(" + latest + ") for " + pl.getName() + " because of unsupported type: " + type)));
+                    getWarnings().add(new BWarning(this, new Exception("Failed to download plugin update(" + latest + ") for " + pl.getName() + " because of unsupported type: " + type)));
             }
         }
 

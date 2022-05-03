@@ -62,7 +62,8 @@ public class GeneralConfig extends Yaml {
                 "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
                 "When changed, requires an AutoPlug restart to take effect.");
         autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
-        autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light");
+        autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light")
+                .setComments("Select between: light, dark and darcula.");
 
         put(name, "server").setCountTopLineBreaks(1);
         server_key = put(name, "server", "key").setDefValues("INSERT_KEY_HERE").setComments(

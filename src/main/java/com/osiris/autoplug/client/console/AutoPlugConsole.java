@@ -19,9 +19,8 @@ import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
-import com.osiris.autoplug.client.utils.MyBetterThreadManager;
-import com.osiris.autoplug.client.utils.UtilsBetterThread;
-import com.osiris.autoplug.client.utils.UtilsTasks;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
@@ -93,6 +92,7 @@ public final class AutoPlugConsole {
                     Server.kill();
                     AL.info("Killing AutoPlug-Client and Server! Ahhhh!");
                     AL.info("Achievement unlocked: Double kill!");
+                    Thread.sleep(3000);
                     System.exit(0);
                     return true;
                 } else if (command.equals(".run tasks") || command.equals(".rt")) {
@@ -140,29 +140,29 @@ public final class AutoPlugConsole {
                     }
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {
-                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskSelfUpdater("SelfUpdater", myManager.manager).start();
-                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check java") || command.equals(".cj")) {
-                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskJavaUpdater("JavaUpdater", myManager.manager).start();
-                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check server") || command.equals(".cs")) {
-                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskServerUpdater("ServerUpdater", myManager.manager).start();
-                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check plugins") || command.equals(".cp")) {
-                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskPluginsUpdater("PluginsUpdater", myManager.manager).start();
-                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check mods") || command.equals(".cm")) {
-                    MyBetterThreadManager myManager = new UtilsBetterThread().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
-                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager, myManager.displayer);
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");

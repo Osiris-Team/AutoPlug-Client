@@ -21,13 +21,14 @@ import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
-import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.UtilsConfig;
-import com.osiris.autoplug.client.utils.UtilsTasks;
+import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadDisplayer;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BThreadPrinter;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -43,8 +44,8 @@ public class BeforeServerStartupTasks {
     private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
-        BetterThreadManager manager = null;
-        BetterThreadDisplayer displayer = null; // We have our own way of displaying the warnings, that's why its set to false
+        BThreadManager manager = null;
+        BThreadPrinter printer = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
             loggerConfig = new LoggerConfig();
             tasksConfig = new TasksConfig();
@@ -68,22 +69,9 @@ public class BeforeServerStartupTasks {
             }
             // The systemconfig gets updated with the new timestamp when all updater tasks have finished
 
-            manager = new BetterThreadManager();
-            displayer = new BetterThreadDisplayer(
-                    manager,
-                    "[" + loggerConfig.autoplug_label.asString() + "]",
-                    "[TASK]",
-                    null,
-                    tasksConfig.show_warnings.asBoolean(),
-                    tasksConfig.show_detailed_warnings.asBoolean(),
-                    tasksConfig.refresh_interval.asInt());
-
-            if (tasksConfig.live_tasks.asBoolean())
-                displayer.start();
-            else {
-                AL.info("Waiting for before startup tasks to finish...");
-                new CustomDisplayer(manager).start();
-            }
+            MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+            manager = myManager.manager;
+            printer = myManager.printer;
 
             // Create processes
             TaskSelfUpdater selfUpdater = null;
@@ -140,7 +128,7 @@ public class BeforeServerStartupTasks {
             if (tasksConfig.live_tasks.asBoolean()) {
                 // In this case we have to wait until the displayer thread finishes, because
                 // of some stuff related to the System.out and to avoid duplicate printing of the summary
-                while (displayer.isAlive())
+                while (printer.isAlive())
                     Thread.sleep(1000);
             } else {
                 while (!manager.isFinished())
@@ -156,9 +144,9 @@ public class BeforeServerStartupTasks {
 
 
             if (!tasksConfig.live_tasks.asBoolean())
-                displayer.printAll();
+                printer.printAll();
 
-            new UtilsTasks().writeAndPrintFinalResults(manager, displayer);
+            new UtilsTasks().writeAndPrintFinalResults(manager);
 
             // We don't need to do the below, because its already automatically done when the tasks finish
             //displayer.printAndWriteResults(printStream, null);
@@ -167,7 +155,7 @@ public class BeforeServerStartupTasks {
             AL.warn("A severe error occurred while executing the before server startup tasks! Interrupting tasks...");
             try {
                 if (manager != null)
-                    for (BetterThread t :
+                    for (BThread t :
                             manager.getAll()) {
                         try {
                             if (t != null && !t.isInterrupted() && !t.isFinished())
@@ -180,8 +168,8 @@ public class BeforeServerStartupTasks {
                 AL.warn(exception);
             }
             try {
-                if (displayer != null && !displayer.isInterrupted())
-                    displayer.interrupt();
+                if (printer != null && !printer.isInterrupted())
+                    printer.interrupt();
             } catch (Exception exception) {
                 AL.warn(exception);
             }
@@ -191,12 +179,12 @@ public class BeforeServerStartupTasks {
 
     }
 
-    private void writeFinalStatus(List<BetterThread> all) {
+    private void writeFinalStatus(List<BThread> all) {
 
     }
 
-    private void printFinalStatus(@NotNull List<BetterThread> all) {
-        for (BetterThread t :
+    private void printFinalStatus(@NotNull List<BThread> all) {
+        for (BThread t :
                 all) {
             AL.info("[" + t.getName() + "] " + t.getStatus());
         }

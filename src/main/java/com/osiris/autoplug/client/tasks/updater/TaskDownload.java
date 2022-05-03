@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,9 +9,9 @@
 package com.osiris.autoplug.client.tasks.updater;
 
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
-public class TaskDownload extends BetterThread {
+public class TaskDownload extends BThread {
     private String url;
     private File dest;
     private boolean ignoreContentType;
@@ -41,11 +41,11 @@ public class TaskDownload extends BetterThread {
      * @param url     the download-url.
      * @param dest    the downloads final destination.
      */
-    public TaskDownload(String name, BetterThreadManager manager, String url, File dest) {
+    public TaskDownload(String name, BThreadManager manager, String url, File dest) {
         this(name, manager, url, dest, false, (String[]) null);
     }
 
-    public TaskDownload(String name, BetterThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
+    public TaskDownload(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
         this.dest = dest;
@@ -53,7 +53,7 @@ public class TaskDownload extends BetterThread {
         this.allowedSubContentTypes = allowedSubContentTypes;
     }
 
-    private TaskDownload(String name, BetterThreadManager manager) {
+    private TaskDownload(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -147,7 +147,7 @@ public class TaskDownload extends BetterThread {
             AL.debug(this.getClass(), "File-Hash: " + hashResult);
             return hashResult.equals(sha256);
         } catch (Exception e) {
-            getWarnings().add(new BetterWarning(this, e));
+            getWarnings().add(new BWarning(this, e));
             return false;
         }
 

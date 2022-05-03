@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -18,8 +18,8 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -27,17 +27,17 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Properties;
 
-public class TaskSelfUpdater extends BetterThread {
+public class TaskSelfUpdater extends BThread {
     // These URLS are not allowed to change:
     private final String stableUpdateUrl = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Releases/master/stable-builds/update.json";
     private final String betaUpdateUrl = "https://raw.githubusercontent.com/Osiris-Team/AutoPlug-Releases/master/beta-builds/update.json";
     private UpdaterConfig updaterConfig;
 
-    public TaskSelfUpdater(BetterThreadManager manager) {
+    public TaskSelfUpdater(BThreadManager manager) {
         super(manager);
     }
 
-    public TaskSelfUpdater(String name, BetterThreadManager manager) {
+    public TaskSelfUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 

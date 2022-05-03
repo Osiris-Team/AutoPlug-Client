@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -15,8 +15,8 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
@@ -29,10 +29,10 @@ import java.util.Arrays;
 /**
  * Searches for updates and installs them is AUTOMATIC profile is selected.
  */
-public class TaskJavaUpdater extends BetterThread {
+public class TaskJavaUpdater extends BThread {
     private UpdaterConfig updaterConfig;
 
-    public TaskJavaUpdater(String name, BetterThreadManager manager) {
+    public TaskJavaUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 

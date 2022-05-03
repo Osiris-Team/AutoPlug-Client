@@ -15,9 +15,9 @@ import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class TaskModsUpdater extends BetterThread {
+public class TaskModsUpdater extends BThread {
     //private final ModsUpdateResultConnection con;
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
@@ -55,7 +55,7 @@ public class TaskModsUpdater extends BetterThread {
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
 
-    public TaskModsUpdater(String name, BetterThreadManager manager) {
+    public TaskModsUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -170,10 +170,10 @@ public class TaskModsUpdater extends BetterThread {
                 else
                     includedMods.add(installedMod);
             } catch (DuplicateKeyException e) {
-                addWarning(new BetterWarning(this, e, "Duplicate mod '" + installedMod.name + "' (or mod name from its internal config) found in your mods directory. " +
+                addWarning(new BWarning(this, e, "Duplicate mod '" + installedMod.name + "' (or mod name from its internal config) found in your mods directory. " +
                         "Its recommended to remove it."));
             } catch (Exception e) {
-                addWarning(new BetterWarning(this, e));
+                addWarning(new BWarning(this, e));
             }
         }
 
@@ -231,7 +231,7 @@ public class TaskModsUpdater extends BetterThread {
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(pl, mcVersion)));
                 }
             } catch (Exception e) {
-                this.getWarnings().add(new BetterWarning(this, e, "Critical error while searching for update for '" + pl.name + "' mod!"));
+                this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + pl.name + "' mod!"));
             }
         }
 
@@ -263,13 +263,13 @@ public class TaskModsUpdater extends BetterThread {
                     doDownloadLogic(pl, result);
                 } else if (code == 2)
                     if (result.getException() != null)
-                        getWarnings().add(new BetterWarning(this, result.getException(), "There was an api-error for " + pl.name + "!"));
+                        getWarnings().add(new BWarning(this, result.getException(), "There was an api-error for " + pl.name + "!"));
                     else
-                        getWarnings().add(new BetterWarning(this, new Exception("There was an api-error for " + pl.name + "!")));
+                        getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + pl.name + "!")));
                 else if (code == 3)
-                    getWarnings().add(new BetterWarning(this, new Exception("Mod " + pl.name + " was not found by the search-algorithm! Specify an id in the mods config file.")));
+                    getWarnings().add(new BWarning(this, new Exception("Mod " + pl.name + " was not found by the search-algorithm! Specify an id in the mods config file.")));
                 else
-                    getWarnings().add(new BetterWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
+                    getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
                 try {
                     YamlSection mmodrinthId = modsConfig.get(modsConfigName, pl.name, "modrinth-id");
@@ -284,7 +284,7 @@ public class TaskModsUpdater extends BetterThread {
 
                     // The config gets saved at the end of the runAtStart method.
                 } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this, e));
+                    getWarnings().add(new BWarning(this, e));
                 }
             }
         }
@@ -344,7 +344,7 @@ public class TaskModsUpdater extends BetterThread {
                 new ConModsUpdateResult(results, excludedMods)
                         .open();
             } catch (Exception e) {
-                addWarning(new BetterWarning(this, e));
+                addWarning(new BWarning(this, e));
             }
         }
          */
@@ -375,7 +375,7 @@ public class TaskModsUpdater extends BetterThread {
                 YamlSection mLatest = modsConfig.get(modsConfigName, pl.name, "latest-version");
                 mLatest.setValues(latest); // Gets saved later
             } catch (Exception e) {
-                getWarnings().add(new BetterWarning(this, e));
+                getWarnings().add(new BWarning(this, e));
             }
 
             if (userProfile.equals(notifyProfile)) {
@@ -404,7 +404,7 @@ public class TaskModsUpdater extends BetterThread {
                         task.start();
                     }
                 } else
-                    getWarnings().add(new BetterWarning(this, new Exception("Failed to download mod update(" + latest + ") for " + pl.name + " because of unsupported type: " + type)));
+                    getWarnings().add(new BWarning(this, new Exception("Failed to download mod update(" + latest + ") for " + pl.name + " because of unsupported type: " + type)));
             }
         }
 

@@ -11,13 +11,13 @@ package com.osiris.autoplug.client.tasks.backup;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.utils.CoolDownReport;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
+import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ExcludeFileFilter;
 import net.lingala.zip4j.model.ZipParameters;
@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class TaskBackup extends BetterThread {
+public class TaskBackup extends BThread {
 
     private final File autoplug_backups = new File(GD.WORKING_DIR + "/autoplug/backups");
 
@@ -42,7 +42,7 @@ public class TaskBackup extends BetterThread {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm");
     private final String formattedDate = date.format(formatter);
 
-    public TaskBackup(String name, BetterThreadManager manager) {
+    public TaskBackup(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -123,7 +123,7 @@ public class TaskBackup extends BetterThread {
                         else
                             zip.addFile(file, zipParameters);
                     } catch (Exception e) {
-                        getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
+                        getWarnings().add(new BWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                     }
                     step();
                 }
@@ -137,7 +137,7 @@ public class TaskBackup extends BetterThread {
                         else
                             zip.addFile(file);
                     } catch (Exception e) {
-                        getWarnings().add(new BetterWarning(this, e, "Failed to add " + file.getName() + " to zip."));
+                        getWarnings().add(new BWarning(this, e, "Failed to add " + file.getName() + " to zip."));
                     }
                     step();
                 }
@@ -163,7 +163,7 @@ public class TaskBackup extends BetterThread {
                     if (config.backup_upload_delete_on_complete.asBoolean())
                         zip.getFile().delete();
                 } catch (Exception e) {
-                    getWarnings().add(new BetterWarning(this, e, "Failed to upload backup."));
+                    getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
                 }
 
                 if (getWarnings().size() > 0)

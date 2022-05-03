@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -10,9 +10,9 @@ package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -25,11 +25,11 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-public class TaskDailyRestarter extends BetterThread {
+public class TaskDailyRestarter extends BThread {
 
     private static Scheduler scheduler;
 
-    public TaskDailyRestarter(String name, BetterThreadManager manager) {
+    public TaskDailyRestarter(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -109,7 +109,7 @@ public class TaskDailyRestarter extends BetterThread {
 
         } catch (SchedulerException e) {
             setSuccess(false);
-            getWarnings().add(new BetterWarning(this, e));
+            getWarnings().add(new BWarning(this, e));
         }
 
     }

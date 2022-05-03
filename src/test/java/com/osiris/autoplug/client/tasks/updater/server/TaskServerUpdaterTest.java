@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.tasks.updater.server;
 
 import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.utils.MyBetterThreadManager;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class TaskServerUpdaterTest {
     void testPaper() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
         UT.initLogger();
         UT.initDefaults();
-        MyBetterThreadManager maMan = UT.createManagerWithDisplayer();
+        MyBThreadManager maMan = UT.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
         updaterConfig.server_updater.setValues("true");
@@ -36,7 +36,7 @@ class TaskServerUpdaterTest {
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
-        maMan.customDisplayer.join(); // Wait for completion
+        maMan.customBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
     }
 
@@ -44,7 +44,7 @@ class TaskServerUpdaterTest {
     void testFabric() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
         UT.initLogger();
         UT.initDefaults();
-        MyBetterThreadManager maMan = UT.createManagerWithDisplayer();
+        MyBThreadManager maMan = UT.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
         updaterConfig.server_updater.setValues("true");
@@ -55,7 +55,7 @@ class TaskServerUpdaterTest {
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
-        maMan.customDisplayer.join(); // Wait for completion
+        maMan.customBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
     }
 }

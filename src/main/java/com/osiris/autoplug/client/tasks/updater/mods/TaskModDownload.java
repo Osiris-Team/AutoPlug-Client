@@ -11,8 +11,8 @@ package com.osiris.autoplug.client.tasks.updater.mods;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class TaskModDownload extends BetterThread {
+public class TaskModDownload extends BThread {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -40,13 +40,13 @@ public class TaskModDownload extends BetterThread {
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
 
-    public TaskModDownload(String name, BetterThreadManager manager,
+    public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, String profile, File finalDest) {
         this(name, manager, plName, plLatestVersion, url, false, profile, finalDest, null);
     }
 
-    public TaskModDownload(String name, BetterThreadManager manager,
+    public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, boolean ignoreContentType,
                            String profile, File finalDest) {
@@ -66,14 +66,14 @@ public class TaskModDownload extends BetterThread {
      * @param finalDest         the final download destination.
      * @param deleteDest        the file that should be deleted on a successful download. If null nothing gets deleted.
      */
-    public TaskModDownload(String name, BetterThreadManager manager,
+    public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, boolean ignoreContentType, String profile,
                            File finalDest, File deleteDest) {
         this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, deleteDest, false);
     }
 
-    public TaskModDownload(String name, BetterThreadManager manager,
+    public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, boolean ignoreContentType, String profile,
                            File finalDest, File deleteDest,

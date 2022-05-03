@@ -73,7 +73,19 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>12.8</version>
+            <version>13.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Osiris-Team</groupId>
+            <artifactId>Dyml</artifactId>
+            <version>9.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Osiris-Team</groupId>
+            <artifactId>Better-Thread</artifactId>
+            <version>5.0</version>
         </dependency>
 
         <dependency>

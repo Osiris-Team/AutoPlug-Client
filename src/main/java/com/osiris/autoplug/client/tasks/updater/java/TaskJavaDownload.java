@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,9 +9,9 @@
 package com.osiris.autoplug.client.tasks.updater.java;
 
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -30,7 +30,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TaskJavaDownload extends BetterThread {
+public class TaskJavaDownload extends BThread {
     private final String url;
     private final AdoptV3API.OperatingSystemType osType;
     private final File dest;
@@ -47,7 +47,7 @@ public class TaskJavaDownload extends BetterThread {
      * @param dest    the downloads final destination. Note that the file name must end with '.file', because
      *                the actual file type gets set when there is download information available.
      */
-    public TaskJavaDownload(String name, BetterThreadManager manager, String url, File dest, AdoptV3API.OperatingSystemType osType) {
+    public TaskJavaDownload(String name, BThreadManager manager, String url, File dest, AdoptV3API.OperatingSystemType osType) {
         super(name, manager);
         this.url = url;
         this.dest = dest;
@@ -185,7 +185,7 @@ public class TaskJavaDownload extends BetterThread {
             AL.debug(this.getClass(), "File-Hash: " + hashResult);
             return hashResult.equals(sha256);
         } catch (Exception e) {
-            getWarnings().add(new BetterWarning(this, e));
+            getWarnings().add(new BWarning(this, e));
             return false;
         }
 

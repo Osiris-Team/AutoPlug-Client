@@ -11,8 +11,8 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * This is a temporary connection, which gets closed after
  * finishing its tasks.
- * It starts a {@link BetterThread} which is attached to the given {@link BetterThreadManager} (or creates a new Manager if null).
+ * It starts a {@link BThread} which is attached to the given {@link BThreadManager} (or creates a new Manager if null).
  */
 public class ConPluginsUpdateResult extends SecondaryConnection {
     private final List<SearchResult> searchResults;

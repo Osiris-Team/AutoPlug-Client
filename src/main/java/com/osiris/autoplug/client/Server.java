@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public final class Server {
@@ -47,6 +48,7 @@ public final class Server {
     private static Process process;
     private static Thread threadServerAliveChecker;
     private static boolean colorServerLog;
+    private static final AtomicBoolean isKill = new AtomicBoolean(false);
 
     static {
         for (File f :
@@ -148,7 +150,7 @@ public final class Server {
      * Blocks until server was killed.
      */
     public static boolean kill() {
-
+        isKill.set(true);
         AL.info("Killing server!");
         try {
 
@@ -310,11 +312,16 @@ public final class Server {
                             }
 
                             if (process.exitValue() != 0) {
-                                AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
-                                if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
-                                    AL.info("Restart on crash is enabled, thus the server is restarting...");
-                                    Server.start();
+                                if (isKill.get()) {
+                                    isKill.set(false);
+                                } else {
+                                    AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
+                                    if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
+                                        AL.info("Restart on crash is enabled, thus the server is restarting...");
+                                        Server.start();
+                                    }
                                 }
+
                             }
                         }
                         lastIsRunningCheck = currentIsRunningCheck;

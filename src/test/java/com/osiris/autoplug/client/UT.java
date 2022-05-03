@@ -8,11 +8,11 @@
 
 package com.osiris.autoplug.client;
 
-import com.osiris.autoplug.client.tasks.CustomDisplayer;
+import com.osiris.autoplug.client.tasks.CustomBThreadPrinter;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.MyBetterThreadManager;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 
 import java.io.File;
@@ -22,12 +22,12 @@ import java.io.IOException;
  * Utils for tests.
  */
 public class UT {
-    public static MyBetterThreadManager createManagerWithDisplayer() throws JLineLinkException {
-        BetterThreadManager manager = new BetterThreadManager();
-        CustomDisplayer customDisplayer = new CustomDisplayer(manager);
-        customDisplayer.timeoutMs = 1000;
-        customDisplayer.start();
-        return new MyBetterThreadManager(manager, null, customDisplayer);
+    public static MyBThreadManager createManagerWithDisplayer() throws JLineLinkException {
+        BThreadManager manager = new BThreadManager();
+        CustomBThreadPrinter customBThreadPrinter = new CustomBThreadPrinter(manager);
+        customBThreadPrinter.timeoutMs = 1000;
+        customBThreadPrinter.start();
+        return new MyBThreadManager(manager, null, customBThreadPrinter);
     }
 
     public static void init() throws IOException {

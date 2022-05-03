@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -10,8 +10,8 @@ package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
@@ -24,11 +24,11 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-public class TaskCustomRestarter extends BetterThread {
+public class TaskCustomRestarter extends BThread {
 
     private static Scheduler scheduler;
 
-    public TaskCustomRestarter(String name, BetterThreadManager manager) {
+    public TaskCustomRestarter(String name, BThreadManager manager) {
         super(name, manager);
     }
 

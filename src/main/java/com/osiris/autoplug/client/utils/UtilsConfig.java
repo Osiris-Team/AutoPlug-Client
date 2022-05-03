@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;

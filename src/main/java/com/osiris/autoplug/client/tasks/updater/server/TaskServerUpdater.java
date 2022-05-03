@@ -20,8 +20,8 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
@@ -34,14 +34,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class TaskServerUpdater extends BetterThread {
+public class TaskServerUpdater extends BThread {
     public File downloadsDir = GD.DOWNLOADS_DIR;
     private UpdaterConfig updaterConfig;
     private String profile;
     private String serverSoftware;
     private String serverVersion;
 
-    public TaskServerUpdater(String name, BetterThreadManager manager) {
+    public TaskServerUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 

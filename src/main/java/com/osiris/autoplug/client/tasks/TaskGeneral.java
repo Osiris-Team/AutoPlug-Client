@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,18 +11,18 @@ package com.osiris.autoplug.client.tasks;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.betterthread.BetterThread;
-import com.osiris.betterthread.BetterThreadManager;
-import com.osiris.betterthread.BetterWarning;
+import com.osiris.betterthread.BThread;
+import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 
 import java.io.File;
 import java.io.FileWriter;
 
-public class TaskGeneral extends BetterThread {
+public class TaskGeneral extends BThread {
     private GeneralConfig generalConfig;
     private int countDeletedFiles = 0;
 
-    public TaskGeneral(String name, BetterThreadManager manager) {
+    public TaskGeneral(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -70,7 +70,7 @@ public class TaskGeneral extends BetterThread {
                 }
             }
         } catch (Exception e) {
-            addWarning(new BetterWarning(this, e));
+            addWarning(new BWarning(this, e));
         }
         finish("Finished.");
     }
