@@ -36,8 +36,6 @@ public class UpdaterConfig extends Yaml {
     public YamlSection server_software;
     public YamlSection server_version;
     public YamlSection server_build_id;
-    public YamlSection server_fabric_loader;
-    public YamlSection server_fabric_installer;
     public YamlSection server_skip_hash_check;
     public YamlSection server_github_repo_name;
     public YamlSection server_github_asset_name;
@@ -141,10 +139,6 @@ public class UpdaterConfig extends Yaml {
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
                         "Otherwise don't touch this. It will gets updated after every successful update automatically.");
-        server_fabric_loader = put(name, "server-updater", "build-id", "fabric-loader").setDefValues("").setComments(
-                "These fields are only relevent when using Fabric.\n" +
-                "Please don't touch them unless you know what you're doing.");
-        server_fabric_installer = put(name, "server-updater", "build-id", "fabric-installer").setDefValues("");
         server_skip_hash_check = put(name, "server-updater", "skip-hash-check").setDefValues("false").setComments(
                 "Its not recommended to enable this.");
 

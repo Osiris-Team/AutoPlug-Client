@@ -268,26 +268,31 @@ public class TaskServerUpdater extends BetterThread {
 
     private void doFabricUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NoSuchAlgorithmException {
         FabricDownloadsAPI fabricDownloadsAPI = new FabricDownloadsAPI();
-        String[] loaderId = updaterConfig.server_fabric_loader.getValue().asString().split("\\.");
+        String[] buildId = updaterConfig.server_build_id.getValue().asArraySplitByColons();
+        if (buildId.length <= 1) {
+            buildId = new String[]{"0.0.0", "0.0.0"};
+        }
+        String[] loaderId = buildId[0].split("\\.");
         AL.debug(this.getClass(), "Current loader version is:\t" + Arrays.toString(loaderId));
-        int loaderMajorId = Integer.valueOf(loaderId[0]);
-        int loaderMinorId = Integer.valueOf(loaderId[1]);
-        int loaderBuildId = Integer.valueOf(loaderId[2]);
-        String[] installerId = updaterConfig.server_fabric_installer.getValue().asString().split("\\.");
+        int loaderMajorId = Integer.parseInt(loaderId[0]);
+        int loaderMinorId = Integer.parseInt(loaderId[1]);
+        int loaderBuildId = Integer.parseInt(loaderId[2]);
+        String[] installerId = buildId[1].split("\\.");
         AL.debug(this.getClass(), "Current installer version is:\t" + Arrays.toString(installerId));
-        int installerMajorId = Integer.valueOf(installerId[0]);
-        int installerMinorId = Integer.valueOf(installerId[1]);
-        int installerBuildId = Integer.valueOf(installerId[2]);
+        int installerMajorId = Integer.parseInt(installerId[0]);
+        int installerMinorId = Integer.parseInt(installerId[1]);
+        int installerBuildId = Integer.parseInt(installerId[2]);
         JsonObject latestLoader = fabricDownloadsAPI.getLatestLoader();
-        AL.debug(this.getClass(), "Latest loader version is:\t" + latestLoader.get("version").getAsString());
+        AL.debug(this.getClass(), "Latest loader version is:\t" + latestLoader.toString());
         int latestLoaderMajorId = latestLoader.get("majorID").getAsInt();
         int latestLoaderMinorId = latestLoader.get("minorID").getAsInt();
         int latestLoaderBuildId = latestLoader.get("buildID").getAsInt();
         JsonObject latestInstaller = fabricDownloadsAPI.getLatestInstaller(serverVersion);
-        AL.debug(this.getClass(), "Latest installer version is:\t" + latestInstaller.get("version").getAsString());
+        AL.debug(this.getClass(), "Latest installer version is:\t" + latestInstaller.toString());
         int latestInstallerMajorId = latestInstaller.get("majorID").getAsInt();
         int latestInstallerMinorId = latestInstaller.get("minorID").getAsInt();
         int latestInstallerBuildId = latestInstaller.get("buildID").getAsInt();
+        String[] latestBuildId = {latestLoader.get("version").getAsString(), latestInstaller.get("version").getAsString()};
         //String buildHash = latestBuild.get("md5").getAsString();
         String url = fabricDownloadsAPI.getLatestDownloadUrl(serverVersion, latestLoader.get("version").getAsString(), latestInstaller.get("version").getAsString());
 
@@ -306,33 +311,9 @@ public class TaskServerUpdater extends BetterThread {
         }
 
         if (profile.equals("NOTIFY")) {
-            if (
-                latestLoaderMajorId > loaderMajorId ||
-                    latestLoaderMinorId > loaderMinorId ||
-                    latestLoaderBuildId > loaderBuildId
-            ) {
-                setStatus("Loader update found (" + String.join(".", loaderId) + " -> " + latestLoader.get("version").getAsString() + ")!");
-            } else if (
-                latestInstallerMajorId > installerMajorId ||
-                    latestInstallerMinorId > installerMinorId ||
-                    latestInstallerBuildId > installerBuildId
-            ) {
-                setStatus("Installer update found (" + String.join(".", installerId) + " -> " + latestInstaller.get("version").getAsString() + ")!");
-            }
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + ")!");
         } else if (profile.equals("MANUAL")) {
-            if (
-                latestLoaderMajorId > loaderMajorId ||
-                    latestLoaderMinorId > loaderMinorId ||
-                    latestLoaderBuildId > loaderBuildId
-            ) {
-                setStatus("Loader update (" + String.join(",", loaderId) + " -> " + latestLoader.get("version").getAsString() + "), started download!");
-            } else if (
-                latestInstallerMajorId > installerMajorId ||
-                    latestInstallerMinorId > installerMinorId ||
-                    latestInstallerBuildId > installerBuildId
-            ) {
-                setStatus("Installer update found (" + String.join(",", installerId) + " -> " + latestInstaller.get("version").getAsString() + "), started download!");
-            }
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
@@ -363,19 +344,7 @@ public class TaskServerUpdater extends BetterThread {
                 }
             }
         } else {
-            if (
-                latestLoaderMajorId > loaderMajorId ||
-                    latestLoaderMinorId > loaderMinorId ||
-                    latestLoaderBuildId > loaderBuildId
-            ) {
-                setStatus("Loader update found (" + String.join(",", loaderId) + " -> " + latestLoader.get("version").getAsString() + "), started download!");
-            } else if (
-                latestInstallerMajorId > installerMajorId ||
-                    latestInstallerMinorId > installerMinorId ||
-                    latestInstallerBuildId > installerBuildId
-            ) {
-                setStatus("Installer update found (" + String.join(",", installerId) + " -> " + latestInstaller.get("version").getAsString() + "), started download!");
-            }
+            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
@@ -424,21 +393,8 @@ public class TaskServerUpdater extends BetterThread {
                         if (final_dest.exists()) final_dest.delete();
                         final_dest.createNewFile();
                         FileUtils.copyFile(cache_dest, final_dest);
-                        if (
-                            latestLoaderMajorId > loaderMajorId ||
-                                latestLoaderMinorId > loaderMinorId ||
-                                latestLoaderBuildId > loaderBuildId
-                        ) {
-                            setStatus("Server update was installed successfully (" + String.join(",", loaderId) + " -> " + latestLoader.get("version").toString() + ")!");
-                        } else if (
-                            latestInstallerMajorId > installerMajorId ||
-                                latestInstallerMinorId > installerMinorId ||
-                                latestInstallerBuildId > installerBuildId
-                        ) {
-                            setStatus("Server update was installed successfully (" + String.join(",", installerId) + " -> " + latestInstaller.get("version").toString() + ")!");
-                        }
-                        updaterConfig.server_fabric_loader.setValues("" + latestLoader.get("version").toString());
-                        updaterConfig.server_fabric_installer.setValues("" + latestInstaller.get("version").toString());
+                        setStatus("Server update was installed successfully (" + Arrays.toString(buildId) + " -> " + Arrays.toString(latestBuildId) + ")!");
+                        updaterConfig.server_build_id.setValues("" + String.join(",", latestBuildId));
                         updaterConfig.save();
                         setSuccess(true);
 
