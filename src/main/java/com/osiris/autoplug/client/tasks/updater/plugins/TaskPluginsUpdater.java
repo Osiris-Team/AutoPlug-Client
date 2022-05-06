@@ -247,7 +247,6 @@ public class TaskPluginsUpdater extends BThread {
             }
         }
 
-        List<SearchResult> updatablePremiumSpigotPlugins = new ArrayList<>();
         List<SearchResult> results = new ArrayList<>();
         while (!activeFutures.isEmpty()) {
             Thread.sleep(250);
@@ -275,7 +274,8 @@ public class TaskPluginsUpdater extends BThread {
                 if (code == 0 || code == 1) {
 
                     if (code == 1 && pl.isPremium())
-                        updatablePremiumSpigotPlugins.add(result);
+                        getWarnings().add(new BWarning(this,
+                                result.getPlugin().getName() + " (" + result.getLatestVersion() + ") is a premium plugin and thus not supported by the regular plugin updater!"));
                     else
                         doDownloadLogic(pl, result);
 
@@ -307,14 +307,6 @@ public class TaskPluginsUpdater extends BThread {
             }
         }
 
-        setStatus("Checking Premium plugins...");
-        for (SearchResult result :
-                updatablePremiumSpigotPlugins) {
-            if (result.isPremium()) {
-                getWarnings().add(new BWarning(this,
-                        result.getPlugin().getName() + " (" + result.getLatestVersion() + ") is a premium plugin and thus not supported by the regular plugin updater!"));
-            }
-        }
         pluginsConfig.save();
 
         // Wait until all download tasks have finished.

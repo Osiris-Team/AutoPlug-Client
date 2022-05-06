@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.network.protector.NetworkProtector;
 import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
@@ -221,6 +222,10 @@ public class Main {
             utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
+            NetworkProtectorConfig networkProtectorConfig = new NetworkProtectorConfig();
+            utilsConfig.checkForDeprecatedSections(networkProtectorConfig);
+            allModules.addAll(networkProtectorConfig.getAllInEdit());
+
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Configurations checked.");
             AL.info("Initialised successfully.");
@@ -235,6 +240,12 @@ public class Main {
 
             try {
                 if (generalConfig.autoplug_system_tray.asBoolean()) new MainWindow();
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+
+            try {
+                if (networkProtectorConfig.enable.asBoolean()) new NetworkProtector();
             } catch (Exception e) {
                 AL.warn(e);
             }

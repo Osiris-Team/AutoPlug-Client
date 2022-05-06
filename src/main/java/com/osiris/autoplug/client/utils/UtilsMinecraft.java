@@ -76,8 +76,7 @@ public class UtilsMinecraft {
                 dir.listFiles()) {
             if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
 
-            try {
-                ZipFile zipFile = new ZipFile(jar);
+            try (ZipFile zipFile = new ZipFile(jar)) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 boolean found = false;
                 while (entries.hasMoreElements()) {
@@ -168,8 +167,7 @@ public class UtilsMinecraft {
                 dir.listFiles()) {
             if (!jar.getName().endsWith(".jar") || jar.isDirectory()) continue;
 
-            try {
-                ZipFile zipFile = new ZipFile(jar);
+            try (ZipFile zipFile = new ZipFile(jar)) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 boolean found = false;
                 while (entries.hasMoreElements()) {

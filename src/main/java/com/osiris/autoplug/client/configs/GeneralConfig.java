@@ -109,7 +109,7 @@ public class GeneralConfig extends Yaml {
             oldServerJar.setComments("DEPRECATED in favor of 'start-command'.");
             if (oldServerJar.asString().equals("auto-find"))
                 startCommand += "-jar " + new FileManager().serverExecutable();
-            else startCommand += "-jar " + oldServerJar.asString();
+            else startCommand += "-jar \"" + oldServerJar.asString() + "\"";
             startCommand += " ";
 
 
