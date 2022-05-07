@@ -23,7 +23,7 @@ public class TasksConfig extends Yaml {
     public YamlSection show_detailed_warnings;
 
     public TasksConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug/tasks-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/tasks.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

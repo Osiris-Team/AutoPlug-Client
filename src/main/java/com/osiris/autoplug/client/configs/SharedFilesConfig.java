@@ -22,7 +22,7 @@ public class SharedFilesConfig extends Yaml {
 
 
     public SharedFilesConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
-        super(System.getProperty("user.dir") + "/autoplug/shared-files-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/shared-files.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

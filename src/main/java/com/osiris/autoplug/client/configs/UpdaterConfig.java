@@ -56,7 +56,7 @@ public class UpdaterConfig extends Yaml {
 
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
-        super(System.getProperty("user.dir") + "/autoplug/updater-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/updater.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

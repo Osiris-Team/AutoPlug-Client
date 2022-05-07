@@ -30,7 +30,7 @@ public class WebConfig extends Yaml {
 
 
     public WebConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
-        super(System.getProperty("user.dir") + "/autoplug/web-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/web.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

@@ -35,7 +35,7 @@ public class GeneralConfig extends Yaml {
     public YamlSection directory_cleaner_files;
 
     public GeneralConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug/general-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/general.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

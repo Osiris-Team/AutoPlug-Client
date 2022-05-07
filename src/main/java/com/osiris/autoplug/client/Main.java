@@ -23,6 +23,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import org.fusesource.jansi.AnsiConsole;
+import org.jutils.jprocesses.util.OS;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -95,11 +96,11 @@ public class Main {
             //PIPED_IN.actionsOnWriteLineEvent.add(line -> AL.debug(Main.class, line)); // For debugging
 
             // Start the logger
-            Yaml logC = new Yaml(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
+            Yaml logC = new Yaml(System.getProperty("user.dir") + "/autoplug/logger.yml");
             logC.load();
-            YamlSection debug = logC.put("logger-config", "debug").setDefValues("false");
-            YamlSection autoplug_label = logC.put("logger-config", "autoplug-label").setDefValues("AP");
-            YamlSection force_ansi = logC.put("logger-config", "force-ANSI").setDefValues("false");
+            YamlSection debug = logC.put("logger", "debug").setDefValues("false");
+            YamlSection autoplug_label = logC.put("logger", "autoplug-label").setDefValues("AP");
+            YamlSection force_ansi = logC.put("logger", "force-ANSI").setDefValues("false");
             new AL().start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
                     new File(System.getProperty("user.dir") + "/autoplug/logs"),
@@ -138,6 +139,7 @@ public class Main {
 
             AL.info("Checking configurations...");
             UtilsConfig utilsConfig = new UtilsConfig();
+            utilsConfig.convertToNewNames();
 
             List<YamlSection> allModules = new ArrayList<>();
 
@@ -247,7 +249,10 @@ public class Main {
             try {
                 if (networkProtectorConfig.enable.asBoolean()) new NetworkProtector();
             } catch (Exception e) {
-                AL.warn(e);
+                if (OS.isWindows)
+                    AL.warn("Something went wrong during init of network protector. Make sure you have Npcap installed.", e);
+                else
+                    AL.warn("Something went wrong during init of network protector. Make sure you have libpcap installed.", e);
             }
 
             CON_MAIN.start();

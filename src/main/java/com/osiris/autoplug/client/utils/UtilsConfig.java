@@ -20,7 +20,10 @@ import com.osiris.dyml.utils.UtilsYamlSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,4 +94,34 @@ public class UtilsConfig {
         return new CoolDownReport(0, 0);
     }
 
+    /**
+     * Old config names would end with ...config.yml
+     * which now isn't the case anymore.
+     * However, all those configs also would have a parent key named ...-config
+     * which gets renamed with this function.
+     */
+    public void convertToNewNames() throws IOException, YamlReaderException, YamlWriterException, DuplicateKeyException, IllegalListException {
+        File autoplugDir = new File(GD.WORKING_DIR + "/autoplug");
+        if (!autoplugDir.exists()) return;
+        File[] filesRaw = autoplugDir.listFiles();
+        if (filesRaw == null || filesRaw.length == 0) return;
+
+        List<File> files = new ArrayList<>();
+        for (File f : filesRaw) {
+            if (f.getName().endsWith(".yml") && f.getName().contains("-config"))
+                files.add(f);
+        }
+
+        for (File f : files) {
+            File dest = new File(GD.WORKING_DIR + "/autoplug/" + f.getName().replace("-config", ""));
+            if (!dest.exists()) dest.createNewFile();
+            Files.copy(f.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Yaml y = new Yaml(dest).load();
+            for (YamlSection sec : y.getAllLoaded()) {
+                sec.getKeys().set(0, sec.getFirstKey().replace("-config", ""));
+            }
+            y.save();
+            f.delete();
+        }
+    }
 }

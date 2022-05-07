@@ -36,7 +36,7 @@ public class RestarterConfig extends Yaml {
 
 
     public RestarterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug/restarter-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/restarter.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

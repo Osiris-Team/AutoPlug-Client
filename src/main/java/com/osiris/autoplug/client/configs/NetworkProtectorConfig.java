@@ -17,10 +17,11 @@ import java.io.IOException;
 public class NetworkProtectorConfig extends Yaml {
 
     public YamlSection enable;
-    public YamlSection filter;
+    public YamlSection bpf_filter;
+    public YamlSection network_interface;
 
     public NetworkProtectorConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug/network-protector-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/network-protector.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -38,9 +39,17 @@ public class NetworkProtectorConfig extends Yaml {
                         "#######################################################################################################################\n");
 
         enable = put(name, "enable").setDefValues("false").setComments(
-                "Protect your network from DoS/DDoS attacks and prevent it from crashing.");
-        filter = put(name, "filter").setComments(
-                "TODO");
+                "Protect your network from DoS/DDoS attacks and prevent it from crashing.",
+                "IMPORTANT: For this to work you must install either Npcap (if on Windows) or libpcap (if on Unix system, like Linux or MacOS).",
+                "- Npcap: https://npcap.com/#download (CHECK THE '... in WinPCap API-compatible Mode' BOX) ",
+                "- libpcap: (probably already installed on your system) https://www.google.com/search?q=install+libpcap+on");
+        bpf_filter = put(name, "bpf-filter").setDefValues("ip and not net localnet").setComments(
+                "Berkeley Packet Filter, to ignore specific packets from being checked by AutoPlug and thus increase performance drastically.",
+                "Example: 'ip and not net localnet' to select IPv4 traffic neither sourced from nor destined for local hosts (if you gateway to one other net, this stuff should never make it onto your local net).",
+                "This filter gets optimized. More details here:",
+                "https://wikipedia.org/wiki/Berkeley_Packet_Filter",
+                "https://www.tcpdump.org/manpages/pcap-filter.7.html");
+        network_interface = put(name, "network-interface").setDefValues("localhost"); // Comment gets set by network protector
 
         save();
         unlockFile();

@@ -39,7 +39,7 @@ public class BackupConfig extends Yaml {
 
 
     public BackupConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
-        super(System.getProperty("user.dir") + "/autoplug/backup-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/backup.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();

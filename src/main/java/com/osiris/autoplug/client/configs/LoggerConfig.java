@@ -22,7 +22,7 @@ public class LoggerConfig extends Yaml {
     public YamlSection color_server_log;
 
     public LoggerConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
-        super(System.getProperty("user.dir") + "/autoplug/logger-config.yml");
+        super(System.getProperty("user.dir") + "/autoplug/logger.yml");
         lockFile();
         load();
         String name = getFileNameWithoutExt();
