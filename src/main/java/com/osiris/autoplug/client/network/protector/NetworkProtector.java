@@ -18,11 +18,14 @@ import org.pcap4j.core.PcapNetworkInterface.PromiscuousMode;
 import org.pcap4j.util.LinkLayerAddress;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
 public class NetworkProtector {
     public static NetworkProtector GET = null;
+
+
     public final String COUNT_KEY = NetworkProtector.class.getName() + ".count";
     public final int COUNT = Integer.getInteger(COUNT_KEY, -1);
     public final String READ_TIMEOUT_KEY = NetworkProtector.class.getName() + ".readTimeout";
@@ -30,7 +33,7 @@ public class NetworkProtector {
     public final String SNAPLEN_KEY = NetworkProtector.class.getName() + ".snaplen";
     public final int SNAPLEN = Integer.getInteger(SNAPLEN_KEY, 65536); // [bytes]
     public Thread LISTENER_THREAD;
-
+    private final List<User> recentUsers = new ArrayList<>();
     public NetworkProtector() throws PcapNativeException, NotOpenException, IOException, NotLoadedException, YamlReaderException, YamlWriterException, IllegalKeyException, DuplicateKeyException, IllegalListException {
         if (GET == null) GET = this;
         else return;
@@ -60,21 +63,47 @@ public class NetworkProtector {
             for (PcapAddress addr : nif.getAddresses()) {
                 nifListAsString.append("      : address: ").append(addr.getAddress()).append("\n");
             }
+            nifListAsString.append("      : isUp/isRunning/isLocal: ").append(nif.isUp()).append(nif.isRunning()).append(nif.isLocal()).append("\n");
             nifIdx++;
         }
         nifListAsString.append("\n");
-        config.network_interface.setComments("The target network interface to listen traffic/packets from.",
-                "Enter the id/number of the interface below or leave it at localhost.",
-                "If localhost then the last one in the list below will be selected automatically (which is always the loopback/localhost interface).",
+        config.network_interface.setComments(
+                "Do not touch this, unless you really know what you are doing.",
+                "If left empty, localhost/loopback will be used as network interface.",
+                "The target network interface to listen traffic/packets from.",
+                "Enter the id/number of the interface below.",
                 "Available options:",
                 nifListAsString.toString());
         config.save();
 
-        PcapNetworkInterface nif;
-        if (config.network_interface.asString().equals("localhost"))
-            nif = allDevs.get(allDevs.size() - 1); // Last one is always loopback/localhost
-        else
-            nif = allDevs.get(config.network_interface.asInt());
+        // Determine network interface:
+        PcapNetworkInterface nif = null;
+        if (config.network_interface.asString() == null)
+            for (PcapNetworkInterface n :
+                    allDevs) {
+                if (n.isLoopBack()) {
+                    nif = n;
+                    break;
+                }
+            }
+        else nif = allDevs.get(config.network_interface.asInt());
+        if (nif == null) throw new RuntimeException("Failed to find a loopback network interface!");
+
+        // Generate filter, that excludes all packets sent from this network, and
+        // only listens for received packets from outside the network
+        if (filter == null) {
+            filter = "";
+            for (PcapNetworkInterface n :
+                    allDevs) {
+                for (PcapAddress address :
+                        n.getAddresses()) {
+                    filter += "not (src net " + address.getAddress().getHostAddress() + ") and ";
+                }
+            }
+            // Exclude localhost ip4/6 manually, since those addresses usually don't get detected by pcap
+            filter += "not (src net 127.0.0.1) and not (src net ::1)";
+            AL.debug(this.getClass(), "Generated filter: " + filter);
+        }
 
         AL.debug(this.getClass(), "Initialised on: " + nif.getName() + "(" + nif.getDescription() + ")");
         final PcapHandle handle = nif.openLive(SNAPLEN, PromiscuousMode.PROMISCUOUS, READ_TIMEOUT);
@@ -86,6 +115,7 @@ public class NetworkProtector {
             try {
                 try {
                     handle.loop(COUNT, packet -> {
+                        packet.getTimestamp()
                         AL.info(packet.toString());
                     }, Executors.newCachedThreadPool());
                 } catch (InterruptedException e) {
@@ -106,5 +136,12 @@ public class NetworkProtector {
             }
         });
         LISTENER_THREAD.start();
+    }
+
+    private synchronized void addPacket(PcapPacket packet) {
+        for (User u :
+                recentUsers) {
+            if (u.ip.equals(packet.toString()))
+        }
     }
 }
