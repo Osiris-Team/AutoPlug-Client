@@ -11,6 +11,7 @@ package com.osiris.autoplug.client;
 public enum Target {
     MINECRAFT_CLIENT,
     MINECRAFT_SERVER,
-    MINDUSTRY,
+    MINDUSTRY_SERVER,
+    MINDUSTRY_CLIENT,
     OTHER
 }

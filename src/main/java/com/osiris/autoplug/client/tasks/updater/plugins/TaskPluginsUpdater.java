@@ -63,7 +63,7 @@ public class TaskPluginsUpdater extends BThread {
 
     @Override
     public void runAtStart() throws Exception {
-        pluginsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/plugins-config.yml");
+        pluginsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/plugins.yml");
         pluginsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = pluginsConfig.getFileNameWithoutExt();
         pluginsConfig.put(name).setComments(

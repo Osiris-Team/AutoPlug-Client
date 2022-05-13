@@ -62,7 +62,7 @@ public class TaskModsUpdater extends BThread {
 
     @Override
     public void runAtStart() throws Exception {
-        modsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/mods-config.yml");
+        modsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/mods.yml");
         modsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = modsConfig.getFileNameWithoutExt();
         modsConfig.put(name).setComments(

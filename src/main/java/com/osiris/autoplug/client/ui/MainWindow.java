@@ -121,7 +121,7 @@ public class MainWindow extends JFrame {
         titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
         cTitle.add(titleAutoPlug);
 
-        titleTray.setText("| Tray");
+        titleTray.setText(" | Tray");
         titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
         cTitle.add(titleTray);
 
@@ -138,7 +138,10 @@ public class MainWindow extends JFrame {
             MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel();
             tabbedPane.addTab("Plugins", minecraftPluginsPanel);
             tabbedPane.addTab("Mods", minecraftModsPanel);
-        } else if (Main.TARGET == Target.MINDUSTRY) {
+        } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
+            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel();
+            tabbedPane.addTab("Mods", mindustryModsPanel);
+        } else if (Main.TARGET == Target.MINDUSTRY_CLIENT) {
             MindustryModsPanel mindustryModsPanel = new MindustryModsPanel();
             tabbedPane.addTab("Mods", mindustryModsPanel);
         } else { // Target.OTHER

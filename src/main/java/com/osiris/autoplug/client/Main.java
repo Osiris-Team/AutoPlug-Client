@@ -159,8 +159,11 @@ public class Main {
                 } else if (target.equals("MINECRAFT_SERVER")) {
                     TARGET = Target.MINECRAFT_SERVER;
                     break;
-                } else if (target.equals("MINDUSTRY")) {
-                    TARGET = Target.MINDUSTRY;
+                } else if (target.equals("MINDUSTRY_SERVER")) {
+                    TARGET = Target.MINDUSTRY_SERVER;
+                    break;
+                } else if (target.equals("MINDUSTRY_CLIENT")) {
+                    TARGET = Target.MINDUSTRY_CLIENT;
                     break;
                 } else if (target.equals("OTHER")) {
                     TARGET = Target.OTHER;
