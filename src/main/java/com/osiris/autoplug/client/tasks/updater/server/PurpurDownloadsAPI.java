@@ -17,7 +17,7 @@ import com.osiris.autoplug.core.logger.AL;
 import java.io.IOException;
 
 public class PurpurDownloadsAPI {
-    private final String baseUrl = "https://api.pl3x.net/v2";
+    private final String baseUrl = "https://api.purpurmc.org/v2";
 
     public JsonObject getLatestBuild(String serverSoftware, String serverVersion) throws WrongJsonTypeException, IOException, HttpErrorException {
         final String url = baseUrl + "/" + serverSoftware + "/" + serverVersion + "/latest";
