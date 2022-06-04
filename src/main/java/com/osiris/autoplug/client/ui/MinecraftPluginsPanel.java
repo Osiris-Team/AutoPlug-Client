@@ -22,13 +22,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftPluginsPanel extends JPanel {
+public class MinecraftPluginsPanel extends CoolContainer {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 
-    public MinecraftPluginsPanel() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
-        this.add(btnRefreshData);
-        this.add(table);
+    public MinecraftPluginsPanel(Container parent) throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+        super(parent);
+        withFlexLayout(2, 2);
+        setFlexLayoutYFlag(1, FlexLayout.EXPAND);
+        this.add("0,0", btnRefreshData);
+        this.add("0,1,x", table);
         updateData();
         btnRefreshData.addMouseListener(new MouseListener().onClick(click -> {
             try {
@@ -68,7 +71,7 @@ public class MinecraftPluginsPanel extends JPanel {
         // Update UI
         this.remove(table);
         table = new JTable(data, columnNames);
-        this.add(table);
+        this.add("0,1,x", table);
         table.setBackground(new Color(0, true)); // transparent
     }
 }

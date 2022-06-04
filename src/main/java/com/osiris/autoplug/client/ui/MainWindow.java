@@ -114,21 +114,19 @@ public class MainWindow extends JFrame {
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         //this.setContentPane(new ScrollPane()); // Also sets the layout to scroll
 
-        CoolContainer testC = new CoolContainer(this);
-        this.add(testC);
-
 
         // Add stuff to main window
-        CoolContainer cTitle = new CoolContainer(this, false);
+        CoolContainer cTitle = new CoolContainer(this, false)
+                .withFlexLayout(2, 2);
         this.getContentPane().add(cTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
         titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-        cTitle.add(titleAutoPlug);
+        cTitle.add("0,0", titleAutoPlug);
 
         titleTray.setText(" | Tray");
         titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-        cTitle.add(titleTray);
+        cTitle.add("1,0", titleTray);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         this.getContentPane().add(tabbedPane);
@@ -136,11 +134,11 @@ public class MainWindow extends JFrame {
 
         // Tab panels/layouts
         if (Main.TARGET == Target.MINECRAFT_CLIENT) {
-            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel();
+            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
             tabbedPane.addTab("Mods", minecraftMods);
         } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
-            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel();
-            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel();
+            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
+            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
             tabbedPane.addTab("Plugins", minecraftPluginsPanel);
             tabbedPane.addTab("Mods", minecraftModsPanel);
         } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {

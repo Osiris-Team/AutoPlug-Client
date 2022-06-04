@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class CoolContainer extends JPanel {
 
@@ -20,8 +21,6 @@ public class CoolContainer extends JPanel {
      */
     public boolean isVertical;
     public int minWidthPercent, minHeightPercent, maxWidthPercent, maxHeightPercent;
-    public int paddingX, paddingY;
-    public int gapX, gapY;
     public FlexLayout layout;
 
     /**
@@ -77,51 +76,25 @@ public class CoolContainer extends JPanel {
                 parentHeight / 100 * minHeightPercent));
         setMaximumSize(new Dimension(parentWidth / 100 * maxWidthPercent,
                 parentHeight / 100 * maxHeightPercent));
-
-        int compCount = getComponentCount();
-        this.layout = new FlexLayout(compCount, compCount);
-        this.setLayout(layout);
-        this.layout.setXgap(gapX);
-        this.layout.setYgap(gapY);
-        for (int i = 0; i < compCount; i++) {
-            this.layout.setColProp(i, FlexLayout.EXPAND);
-            this.layout.setRowProp(i, FlexLayout.EXPAND);
-        }
     }
 
-    public CoolContainer addComp(String constrains, Component comp) {
-        super.add(constrains, comp);
+    public CoolContainer withFlexLayout(int width, int height) {
+        setFlexLayout(new FlexLayout(width, height));
         return this;
     }
 
-    public CoolContainer withPadding() {
-        withPadding(CoolSpace.S);
+    public CoolContainer setFlexLayoutXFlag(int index, int flag) {
+        Objects.requireNonNull(layout).setColProp(index, flag);
         return this;
     }
 
-    /**
-     * Useful default sizes in {@link CoolSpace}. <br>
-     */
-    public CoolContainer withPadding(int pixel) {
-        this.paddingY = pixel;
-        this.paddingX = pixel;
-        updateLayout();
+    public CoolContainer setFlexLayoutYFlag(int index, int flag) {
+        Objects.requireNonNull(layout).setRowProp(index, flag);
         return this;
     }
 
-    public CoolContainer withGap() {
-        withGap(CoolSpace.S);
-        return this;
+    public void setFlexLayout(FlexLayout ly) {
+        super.setLayout(ly);
+        this.layout = ly;
     }
-
-    /**
-     * Useful default sizes in {@link CoolSpace}. <br>
-     */
-    public CoolContainer withGap(int pixel) {
-        this.gapX = pixel;
-        this.gapY = pixel;
-        updateLayout();
-        return this;
-    }
-
 }

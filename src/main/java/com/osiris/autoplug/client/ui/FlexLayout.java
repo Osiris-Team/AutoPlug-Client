@@ -94,6 +94,7 @@ public class FlexLayout implements LayoutManager {
     private int ygap;
     private int xnullgap = 0; //24
     private int ynullgap = 0; //24
+    //TODO MAKE THIS WORK: public int paddingX = 10, paddingY = 10;
 
     //---------------------------------------------------------------------------
 
@@ -422,8 +423,11 @@ public class FlexLayout implements LayoutManager {
 
                         //--- resize component ---
 
-                        cell.component.setBounds(compX, compY, compW + (cell.xext - 1) * xgap,
-                                compH + (cell.yext - 1) * ygap);
+                        //cell.component.setBounds(compX + paddingX, compY + paddingY,
+                        cell.component.setBounds(compX, compY,
+                                compW + (cell.xext - 1) * xgap,
+                                compH + (cell.yext - 1) * ygap
+                        );
                     }
                     currentX += xpref[x] + xgap;
                 }

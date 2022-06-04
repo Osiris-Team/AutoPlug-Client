@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftModsPanel extends JPanel {
+public class MinecraftModsPanel extends CoolContainer {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 
-    public MinecraftModsPanel() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+    public MinecraftModsPanel(Container parent) throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+        super(parent);
         this.add(btnRefreshData);
         this.add(table);
         updateData();
