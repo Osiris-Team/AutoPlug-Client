@@ -8,27 +8,38 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class MinecraftPluginsPanel extends JPanel {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 
-    public MinecraftPluginsPanel() {
+    public MinecraftPluginsPanel() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         this.add(btnRefreshData);
         this.add(table);
         updateData();
         btnRefreshData.addMouseListener(new MouseListener().onClick(click -> {
-            updateData();
+            try {
+                updateData();
+            } catch (Exception e) {
+                AL.warn(e);
+            }
         }));
     }
 
-    public void updateData() {
+    public void updateData() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         // Fetch data
         int columnsCount = 4;
         String[] columnNames = {"Name", "Version", "Latest", "Author"};
@@ -39,17 +50,18 @@ public class MinecraftPluginsPanel extends JPanel {
                     {"-", "-", "-", "-"}
             };
         } else {
-            Yaml yamlMods = new Yaml(yamlFile);
-            List<YamlSection> sections = yamlMods.get("plugins").getChildModules();
+            Yaml plConfig = new Yaml(yamlFile);
+            plConfig.load();
+            List<YamlSection> sections = Objects.requireNonNull(plConfig.get("plugins")).getChildModules();
             sections.remove(0); // To skip first child, since that's no plugin data
             data = new Object[sections.size()][columnsCount];
             for (int i = 0; i < sections.size(); i++) {
                 YamlSection sec = sections.get(i);
                 String modName = sec.getLastKey();
                 data[i][0] = modName;
-                data[i][1] = yamlMods.get("plugins", modName, "version").asString();
-                data[i][2] = yamlMods.get("plugins", modName, "latest-version").asString();
-                data[i][3] = yamlMods.get("plugins", modName, "author").asString();
+                data[i][1] = plConfig.get("plugins", modName, "version").asString();
+                data[i][2] = plConfig.get("plugins", modName, "latest-version").asString();
+                data[i][3] = plConfig.get("plugins", modName, "author").asString();
             }
         }
 
@@ -57,5 +69,6 @@ public class MinecraftPluginsPanel extends JPanel {
         this.remove(table);
         table = new JTable(data, columnNames);
         this.add(table);
+        table.setBackground(new Color(0, true)); // transparent
     }
 }

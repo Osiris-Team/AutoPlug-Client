@@ -16,6 +16,9 @@ import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,7 +35,7 @@ public class MainWindow extends JFrame {
      */
     public static MainWindow GET = null;
 
-    public MainWindow() throws IOException {
+    public MainWindow() throws Exception {
         if (GET != null) return;
         GET = this;
         try {
@@ -94,12 +97,10 @@ public class MainWindow extends JFrame {
 
             this.setIconImage(image);
             initUI();
-        } else {
-            AL.warn("Failed to create system tray GUI: Not supported on your system.");
-        }
+        } else throw new Exception("Failed to create system tray GUI: Not supported on your system.");
     }
 
-    private void initUI() {
+    private void initUI() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         // TODO dont stop full autoplug when this window is closed
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setName("AutoPlug");
@@ -113,8 +114,12 @@ public class MainWindow extends JFrame {
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         //this.setContentPane(new ScrollPane()); // Also sets the layout to scroll
 
+        CoolContainer testC = new CoolContainer(this);
+        this.add(testC);
+
+
         // Add stuff to main window
-        MyContainer cTitle = new MyContainer(false, 50);
+        CoolContainer cTitle = new CoolContainer(this, false);
         this.getContentPane().add(cTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
@@ -150,5 +155,6 @@ public class MainWindow extends JFrame {
         SettingsPanel settingsPanel = new SettingsPanel();
         tabbedPane.addTab("Settings", settingsPanel);
         //tabbedPane.addChangeListener(e -> selectedTabChanged());
+
     }
 }
