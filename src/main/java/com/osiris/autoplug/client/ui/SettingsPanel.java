@@ -8,10 +8,20 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.core.logger.AL;
+
 import javax.swing.*;
 
 public class SettingsPanel extends JPanel {
     public SettingsPanel() {
-
+        JButton btnOpenUIDebug = new JButton("Open UI-Debug");
+        this.add(btnOpenUIDebug);
+        btnOpenUIDebug.addMouseListener(new MouseListener().onClick(click -> {
+            try {
+                new UIDebugWindow();
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        }));
     }
 }

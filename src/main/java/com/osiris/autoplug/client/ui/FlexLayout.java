@@ -94,7 +94,7 @@ public class FlexLayout implements LayoutManager {
     private int ygap;
     private int xnullgap = 0; //24
     private int ynullgap = 0; //24
-    //TODO MAKE THIS WORK: public int paddingX = 10, paddingY = 10;
+    public int paddingX = 10, paddingY = 10;
 
     //---------------------------------------------------------------------------
 

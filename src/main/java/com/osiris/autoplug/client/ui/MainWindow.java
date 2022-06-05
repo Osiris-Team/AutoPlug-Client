@@ -103,7 +103,8 @@ public class MainWindow extends JFrame {
     private void initUI() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         // TODO dont stop full autoplug when this window is closed
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setName("AutoPlug");
+        this.setName("AutoPlug-Tray");
+        this.setTitle("AutoPlug-Tray");
         this.setUndecorated(true);
         int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width, screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         int width = (int) (screenWidth / 1.5), height = screenHeight / 2;

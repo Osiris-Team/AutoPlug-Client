@@ -71,5 +71,6 @@ public class MinecraftModsPanel extends CoolContainer {
         table = new JTable(data, columnNames);
         this.add(table);
         table.setBackground(new Color(0, true)); // transparent
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
 }
