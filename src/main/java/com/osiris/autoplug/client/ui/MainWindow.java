@@ -14,6 +14,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.DuplicateKeyException;

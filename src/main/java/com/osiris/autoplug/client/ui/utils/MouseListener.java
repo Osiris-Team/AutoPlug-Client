@@ -6,7 +6,7 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.ui;
+package com.osiris.autoplug.client.ui.utils;
 
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;

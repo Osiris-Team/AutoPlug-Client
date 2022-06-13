@@ -87,7 +87,7 @@ public class SecuredConnection {
                 AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticated server successfully!");
                 break;
             case 1:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the general-config.yml. Enter '.con reload' to retry.");
+                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file. Enter '.con reload' to retry.");
             case 2:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
             case 3:

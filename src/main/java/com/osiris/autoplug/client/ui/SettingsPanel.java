@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
 
 import javax.swing.*;
