@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client;
 
+import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.tasks.CustomBThreadPrinter;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
@@ -39,8 +40,22 @@ public class UT {
         GD.DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/test/downloads");
         GD.DOWNLOADS_DIR.mkdirs();
 
-        GD.SERVER_JAR = new File(System.getProperty("user.dir") + "/test/server.jar");
-        if (!GD.SERVER_JAR.exists()) GD.SERVER_JAR.createNewFile();
+        File serverJar = new File(System.getProperty("user.dir") + "/test/server.jar");
+        GeneralConfig config = null;
+        try {
+            config = new GeneralConfig();
+            config.lockFile();
+            config.load();
+            config.server_start_command.setValues("java -jar \"" + serverJar + "\"");
+            config.save();
+        } catch (Exception e) {
+            if (config != null) config.unlockFile();
+            throw new RuntimeException(e);
+        } finally {
+            if (config != null) config.unlockFile();
+        }
+
+        if (!serverJar.exists()) serverJar.createNewFile();
     }
 
     public static void initLogger() {

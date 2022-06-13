@@ -60,6 +60,40 @@ public final class Server {
         }
     }
 
+    public static File getServerExecutable() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        File serverExe = null;
+        while (true) {
+            serverExe = new UtilsJar().determineServerJar();
+            if (serverExe == null || !serverExe.exists()) {
+                serverExe = new FileManager().serverExecutable();
+                if (serverExe == null || !serverExe.exists()) {
+                    AL.info("Failed to determine the server executable and start-command.");
+                    AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
+                    AL.info("Please enter your start-command and press enter:");
+                    GeneralConfig generalConfig = new GeneralConfig();
+                    generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
+                    generalConfig.save();
+                } else {
+                    if (serverExe.getName().endsWith(".jar")) {
+                        GeneralConfig generalConfig = new GeneralConfig();
+                        generalConfig.server_start_command.setValues("java -jar \"" + serverExe.getAbsolutePath() + "\"");
+                        generalConfig.save();
+                        break;
+                    } else {
+                        AL.info("Determined the server executable but not the start-command.");
+                        AL.info("Executable: " + serverExe.getAbsolutePath());
+                        AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
+                        AL.info("Please enter your start-command and press enter:");
+                        GeneralConfig generalConfig = new GeneralConfig();
+                        generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
+                        generalConfig.save();
+                    }
+                }
+            } else break;
+        }
+        return serverExe;
+    }
+
     public static void start() {
         try {
             try {
@@ -74,43 +108,13 @@ public final class Server {
             new BeforeServerStartupTasks();
 
             // Find server jar
-            while (true) {
-                GD.SERVER_JAR = new UtilsJar().determineServerJar();
-                if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists()) {
-                    GD.SERVER_JAR = new FileManager().serverExecutable();
-                    if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists()) {
-                        AL.info("Failed to determine the server executable and start-command.");
-                        AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
-                        AL.info("Please enter your start-command and press enter:");
-                        GeneralConfig generalConfig = new GeneralConfig();
-                        generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
-                        generalConfig.save();
-                    } else {
-                        if (GD.SERVER_JAR.getName().endsWith(".jar")) {
-                            GeneralConfig generalConfig = new GeneralConfig();
-                            generalConfig.server_start_command.setValues("java -jar \"" + GD.SERVER_JAR.getAbsolutePath() + "\"");
-                            generalConfig.save();
-                            break;
-                        } else {
-                            AL.info("Determined the server executable but not the start-command.");
-                            AL.info("Executable: " + GD.SERVER_JAR.getAbsolutePath());
-                            AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
-                            AL.info("Please enter your start-command and press enter:");
-                            GeneralConfig generalConfig = new GeneralConfig();
-                            generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
-                            generalConfig.save();
-                        }
-                    }
-                } else break;
-            }
-            new FileManager().serverExecutable();
-
-            if (GD.SERVER_JAR == null || !GD.SERVER_JAR.exists())
+            File serverExe = getServerExecutable();
+            if (serverExe == null || !serverExe.exists())
                 throw new Exception("Failed to find your server executable! " +
                         "Please check your config, you may need to specify its name/path! " +
                         "Searched dir: '" + GD.WORKING_DIR + "'");
 
-            AL.info("Starting server: " + GD.SERVER_JAR.getName());
+            AL.info("Starting server: " + serverExe.getName());
             createProcess();
         } catch (Exception e) {
             AL.warn(e);

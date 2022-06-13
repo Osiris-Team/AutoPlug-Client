@@ -11,11 +11,13 @@ package com.osiris.autoplug.client.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
@@ -23,6 +25,7 @@ import org.tomlj.TomlTable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -30,8 +33,10 @@ import java.util.zip.ZipFile;
 
 public class UtilsMinecraft {
 
-    public String getInstalledVersion() {
-        return getInstalledVersion(GD.SERVER_JAR);
+    public String getInstalledVersion() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        File serverJar = Server.getServerExecutable();
+        if (!serverJar.getName().endsWith(".jar")) return null;
+        return getInstalledVersion(serverJar);
     }
 
     /**

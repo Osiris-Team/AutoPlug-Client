@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
@@ -22,10 +21,7 @@ import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.YamlReaderException;
-import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.dyml.exceptions.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -36,12 +32,13 @@ import java.util.Locale;
 
 public class TaskServerUpdater extends BThread {
     public File downloadsDir = GD.DOWNLOADS_DIR;
+    public File serverExe = Server.getServerExecutable();
     private UpdaterConfig updaterConfig;
     private String profile;
     private String serverSoftware;
     private String serverVersion;
 
-    public TaskServerUpdater(String name, BThreadManager manager) {
+    public TaskServerUpdater(String name, BThreadManager manager) throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
         super(name, manager);
     }
 
@@ -72,7 +69,7 @@ public class TaskServerUpdater extends BThread {
         finish();
     }
 
-    private void doAlternativeUpdatingLogic() throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException {
+    private void doAlternativeUpdatingLogic() throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
         SearchResult sr = null;
         if (updaterConfig.server_github_repo_name.asString() != null) {
             sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
@@ -102,7 +99,7 @@ public class TaskServerUpdater extends BThread {
         }
     }
 
-    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException {
+    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
         if (profile.equals("NOTIFY")) {
             setStatus("Update found (" + version + " -> " + latestVersion + ")!");
         } else if (profile.equals("MANUAL")) {
@@ -130,8 +127,6 @@ public class TaskServerUpdater extends BThread {
             }
         } else {
             setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
-            GD.SERVER_JAR = new FileManager().serverExecutable();
-            System.out.println(GD.SERVER_JAR);
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
@@ -144,7 +139,7 @@ public class TaskServerUpdater extends BThread {
                 Thread.sleep(500);
                 if (download.isFinished()) {
                     if (download.isSuccess()) {
-                        File final_dest = GD.SERVER_JAR;
+                        File final_dest = serverExe;
                         if (final_dest == null)
                             final_dest = new File(GD.WORKING_DIR + "/" + onlineFileName);
                         if (final_dest.exists()) final_dest.delete();
@@ -227,7 +222,7 @@ public class TaskServerUpdater extends BThread {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
                         if (download.compareWithMD5(buildHash)) {
-                            File final_dest = GD.SERVER_JAR;
+                            File final_dest = serverExe;
                             if (final_dest == null)
                                 final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
                             if (final_dest.exists()) final_dest.delete();
@@ -240,7 +235,7 @@ public class TaskServerUpdater extends BThread {
                         } else {
                             if (updaterConfig.server_skip_hash_check.asBoolean()) {
                                 addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
-                                File final_dest = GD.SERVER_JAR;
+                                File final_dest = serverExe;
                                 if (final_dest == null)
                                     final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
                                 if (final_dest.exists()) final_dest.delete();
@@ -387,7 +382,7 @@ public class TaskServerUpdater extends BThread {
                                 setSuccess(false);
                             }
                         }*/
-                        File final_dest = GD.SERVER_JAR;
+                        File final_dest = serverExe;
                         if (final_dest == null)
                             final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
                         if (final_dest.exists()) final_dest.delete();
@@ -478,7 +473,7 @@ public class TaskServerUpdater extends BThread {
                     if (download.isSuccess()) {
                         setStatus("Server update downloaded. Checking hash...");
                         if (download.compareWithSHA256(build_hash)) {
-                            File final_dest = GD.SERVER_JAR;
+                            File final_dest = serverExe;
                             if (final_dest == null)
                                 final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
                             if (final_dest.exists()) final_dest.delete();
@@ -491,7 +486,7 @@ public class TaskServerUpdater extends BThread {
                         } else {
                             if (updaterConfig.server_skip_hash_check.asBoolean()) {
                                 addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
-                                File final_dest = GD.SERVER_JAR;
+                                File final_dest = serverExe;
                                 if (final_dest == null)
                                     final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
                                 if (final_dest.exists()) final_dest.delete();

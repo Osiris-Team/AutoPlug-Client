@@ -132,7 +132,6 @@ public class Main {
             AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
             AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
             AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
-            AL.debug(Main.class, "SERVER FILE: " + GD.SERVER_JAR);
             AL.info("| ------------------------------------------- |");
 
             AL.info("Checking configurations...");
