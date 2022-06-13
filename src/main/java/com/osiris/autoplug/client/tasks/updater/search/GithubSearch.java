@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -32,6 +32,8 @@ public class GithubSearch {
             JsonObject latestRelease = new JsonTools()
                     .getJsonObject("https://api.github.com/repos/" + githubRepoName + "/releases/latest");
             latestVersion = latestRelease.get("tag_name").getAsString();
+            if (latestVersion != null)
+                latestVersion = latestVersion.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             if (new UtilsVersion().compare(version, latestVersion)) {
                 resultCode = 1;
                 // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.

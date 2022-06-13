@@ -39,6 +39,8 @@ public class BukkitSearchById {
             versions = new JsonTools().getJsonArray(url);
             json = versions.get(versions.size() - 1).getAsJsonObject();
             latest = json.get("name").getAsString();
+            if (latest != null)
+                latest = latest.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             downloadUrl = json.get("downloadUrl").getAsString();
             Matcher m = Pattern.compile("[.][^.]+$")
                     .matcher(json.get("fileName").getAsString());
@@ -51,7 +53,7 @@ public class BukkitSearchById {
             code = 2;
         }
 
-        if (latest != null && new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
+        if (new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + downloadType + " ");
         SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, "" + bukkitId, false);

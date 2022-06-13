@@ -32,6 +32,8 @@ public class SpigotSearchById {
         try {
             // Get the latest version
             latest = new JsonTools().getJsonArray(url).get(0).getAsJsonObject().get("name").getAsString();
+            if (latest != null)
+                latest = latest.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
 
             // Get the file type and downloadUrl
             String url1 = "https://api.spiget.org/v2/resources/" + spigotId;
@@ -44,7 +46,7 @@ public class SpigotSearchById {
             // If not external download over the spiget api
             downloadUrl = "https://api.spiget.org/v2/resources/" + spigotId + "/download";
 
-            if (latest != null && new UtilsVersion().compare(plugin.getVersion(), latest))
+            if (new UtilsVersion().compare(plugin.getVersion(), latest))
                 code = 1;
         } catch (Exception e) {
             exception = e;
