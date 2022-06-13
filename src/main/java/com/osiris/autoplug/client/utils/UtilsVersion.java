@@ -11,6 +11,8 @@ package com.osiris.autoplug.client.utils;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class UtilsVersion {
 
     /**
@@ -24,8 +26,8 @@ public class UtilsVersion {
      */
     public boolean compare(@Nullable String currentVersion, @Nullable String latestVersion) {
         try {
-            if (currentVersion == null) throw new NullPointerException("Null currentVersion!");
-            if (latestVersion == null) throw new NullPointerException("Null latestVersion!");
+            Objects.requireNonNull(currentVersion);
+            Objects.requireNonNull(latestVersion);
 
             // First duplicate the strings so the original ones don't get altered
             String currentVersionDUPLICATE = "" + currentVersion;

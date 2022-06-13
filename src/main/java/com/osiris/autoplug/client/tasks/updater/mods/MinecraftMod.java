@@ -9,7 +9,8 @@
 package com.osiris.autoplug.client.tasks.updater.mods;
 
 public class MinecraftMod {
-    public String installationPath, name, version, author, modrinthId, curseforgeId, customDownloadURL;
+    public String installationPath, name, modrinthId, curseforgeId, customDownloadURL;
+    private String author, version;
     public boolean ignoreContentType;
     public String githubRepoName, githubAssetName;
     public String jenkinsProjectUrl, jenkinsArtifactName;
@@ -20,11 +21,29 @@ public class MinecraftMod {
                         String author, String modrinthId, String curseforgeId,
                         String customDownloadURL) {
         this.installationPath = installationPath;
-        this.name = (name);
-        this.version = version;
-        this.author = author;
+        this.name = name;
+        setAuthor(author);
+        setVersion(version);
         this.modrinthId = modrinthId;
         this.curseforgeId = curseforgeId;
         this.customDownloadURL = customDownloadURL;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        if (version != null)
+            this.version = version.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        if (author != null)
+            this.author = author.replaceAll("[^\\w]", ""); // Before passing over remove everything except chars and numbers
     }
 }

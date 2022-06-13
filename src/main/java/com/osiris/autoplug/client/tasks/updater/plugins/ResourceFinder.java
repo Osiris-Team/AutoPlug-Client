@@ -27,13 +27,6 @@ public class ResourceFinder {
      * based on the plugins' name and author will be executed.
      */
     public SearchResult findUnknownPlugin(MinecraftPlugin plugin) {
-
-        // Before passing over remove everything except numbers and dots
-        plugin.setVersion(plugin.getVersion().replaceAll("[^0-9.]", ""));
-
-        // Before passing over remove everything except words and numbers
-        plugin.setAuthor(plugin.getAuthor().replaceAll("[^\\w]", ""));
-
         // Do spigot search by name
         SearchResult sr = new SpigotSearchByName().search(plugin);
 
@@ -53,13 +46,6 @@ public class ResourceFinder {
      * based on the mods' name and author will be executed.
      */
     public SearchResult findUnknownMod(MinecraftMod mod, String mcVersion) {
-
-        // Before passing over remove everything except numbers and dots
-        mod.version = (mod.version.replaceAll("[^0-9.]", ""));
-
-        // Before passing over remove everything except chars and numbers
-        mod.author = (mod.author.replaceAll("[^\\w]", ""));
-
         // Do spigot search by name
         SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
 
@@ -88,7 +74,7 @@ public class ResourceFinder {
     }
 
     public SearchResult findByGithubUrl(MinecraftMod mod) {
-        SearchResult sr = new GithubSearch().search(mod.githubRepoName, mod.githubAssetName, mod.version);
+        SearchResult sr = new GithubSearch().search(mod.githubRepoName, mod.githubAssetName, mod.getVersion());
         sr.mod = mod;
         return sr;
     }

@@ -120,9 +120,9 @@ public class TaskModsUpdater extends BThread {
                     throw new Exception("The mods name couldn't be determined for '" + installedMod.installationPath + "'!");
 
                 YamlSection exclude = modsConfig.put(name, plName, "exclude").setDefValues("false");
-                YamlSection version = modsConfig.put(name, plName, "version").setDefValues(installedMod.version);
+                YamlSection version = modsConfig.put(name, plName, "version").setDefValues(installedMod.getVersion());
                 YamlSection latestVersion = modsConfig.put(name, plName, "latest-version");
-                YamlSection author = modsConfig.put(name, plName, "author").setDefValues(installedMod.author);
+                YamlSection author = modsConfig.put(name, plName, "author").setDefValues(installedMod.getAuthor());
                 YamlSection modrinthId = modsConfig.put(name, plName, "modrinth-id");
                 YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
                 YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
@@ -148,7 +148,7 @@ public class TaskModsUpdater extends BThread {
                 installedMod.jenkinsBuildId = (jenkinsBuildId.asInt());
 
                 // Check for missing author in internal config
-                if ((installedMod.version == null)
+                if ((installedMod.getVersion() == null)
                         && (modrinthId.asString() == null)
                         && (curseforgeId.asString() == null)) {
                     exclude.setValues("true");
@@ -156,7 +156,7 @@ public class TaskModsUpdater extends BThread {
                 }
 
                 // Check for missing version in internal config
-                if ((installedMod.author == null)
+                if ((installedMod.getAuthor() == null)
                         && (modrinthId.asString() == null)
                         && (curseforgeId.asString() == null)
                         && jenkinsArtifactName.asString() == null
@@ -379,7 +379,7 @@ public class TaskModsUpdater extends BThread {
             }
 
             if (userProfile.equals(notifyProfile)) {
-                addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.version + " -> " + latest + "). Download url: " + downloadUrl);
+                addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
                 pl.name = (pl.name.replaceAll("\\\\", "-").replaceAll("[/]", "-"));

@@ -26,10 +26,10 @@ public class MinecraftPlugin {
     private int jenkinsBuildId;
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
-        this.setInstallationPath(installationPath);
-        this.setName(name);
-        this.version = version;
-        this.author = author;
+        this.installationPath = installationPath;
+        this.name = name;
+        setVersion(version);
+        setAuthor(author);
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customDownloadURL = customDownloadURL;
@@ -121,7 +121,8 @@ public class MinecraftPlugin {
     }
 
     public void setVersion(String version) {
-        this.version = version;
+        if (version != null)
+            this.version = version.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
     }
 
     public String getAuthor() {
@@ -129,7 +130,8 @@ public class MinecraftPlugin {
     }
 
     public void setAuthor(String author) {
-        this.author = author;
+        if (author != null)
+            this.author = author.replaceAll("[^\\w]", ""); // Before passing over remove everything except words and numbers
     }
 
     public int getSpigotId() {
