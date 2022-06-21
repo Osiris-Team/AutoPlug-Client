@@ -15,7 +15,6 @@ import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.autoplug.client.utils.sort.QuickSort;
-import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.BufferedReader;
@@ -31,7 +30,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 public class CurseForgeAPI {
-    private final String baseUrl = "https://addons-ecs.forgesvc.net/api/v2/addon";
+    private final String baseUrl = "https://api.curseforge.com/v1";
 
     public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
         boolean isIdNumber = isInt(mod.curseforgeId);
@@ -44,14 +43,14 @@ public class CurseForgeAPI {
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
                 JsonObject json = JsonParser.parseString(sendCurseforgePost(getCurseforgeMurmurHash(Paths.get(mod.installationPath)))).getAsJsonObject();
-                mod.curseforgeId = json.get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
-                mod.fileDate = json.get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("file").getAsJsonObject().get("fileDate").getAsString();
+                mod.curseforgeId = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
+                mod.fileDate = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("file").getAsJsonObject().get("fileDate").getAsString();
             }
             if (mod.curseforgeId == null) throw new Exception("Curseforge-id is null!");
-            url = baseUrl + "/" + mod.curseforgeId + "/files";
+            url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
             url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), url);
-            JsonArray arr = new JsonTools().getJsonArray(url);
+            JsonArray arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
             // Compares this object with the specified object for order.
             // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified objec
             new QuickSort().sortJsonArray(arr, (thisEl, otherEl) -> {
@@ -64,7 +63,7 @@ public class CurseForgeAPI {
                 JsonObject tempRelease = arr.get(i).getAsJsonObject();
                 boolean isCompatible = false;
                 for (JsonElement el :
-                        tempRelease.get("gameVersion").getAsJsonArray()) {
+                        tempRelease.get("gameVersions").getAsJsonArray()) {
                     if (el.getAsString().equals(mcVersion)) {
                         isCompatible = true;
                         break;
@@ -114,14 +113,18 @@ public class CurseForgeAPI {
     }
 
     private String sendCurseforgePost(String murmurHash) throws Exception {
-        String body = "[" + murmurHash + "]";
+        String body = "{\n" +
+                "  \"fingerprints\": [\n" +
+                "    " + murmurHash + "\n" +
+                "  ]\n" +
+                "}";
 
         HttpURLConnection urlConn;
-        URL mUrl = new URL("https://addons-ecs.forgesvc.net/api/v2/fingerprint");
+        URL mUrl = new URL(baseUrl + "/fingerprints");
         urlConn = (HttpURLConnection) mUrl.openConnection();
         urlConn.setDoOutput(true);
         urlConn.addRequestProperty("Accept", "application/json");
-        urlConn.addRequestProperty("Content-Type", "application/json");
+        urlConn.addRequestProperty("x-api-key", new CurseForgeJson().key);
         urlConn.addRequestProperty("Content-Type", "application/json");
         urlConn.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
 
@@ -134,9 +137,6 @@ public class CurseForgeAPI {
         }
         urlConn.disconnect();
 
-        if (content.toString().contains("\"exactMatches\":[]")) {
-            return null;
-        }
         return content.toString();
     }
 
