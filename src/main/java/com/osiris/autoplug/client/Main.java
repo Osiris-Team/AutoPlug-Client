@@ -133,6 +133,8 @@ public class Main {
             AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
             AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
             AL.info("| ------------------------------------------- |");
+            Server.getServerExecutable(); // Make sure this is called here first and not in a task later
+            // to avoid infinite initialising
 
             AL.info("Checking configurations...");
             UtilsConfig utilsConfig = new UtilsConfig();
