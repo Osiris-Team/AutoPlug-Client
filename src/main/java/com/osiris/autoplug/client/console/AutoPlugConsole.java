@@ -132,6 +132,7 @@ public final class AutoPlugConsole {
                         } else
                             AL.info("Ping result: -");
                         AL.info("Details from " + conPrivate.getClass().getSimpleName() + ":");
+                        AL.info("CPU usage: " + conPrivate.cpuUsage + "%");
                         AL.info("CPU current: " + conPrivate.cpuSpeed + " GHz");
                         AL.info("CPU max: " + conPrivate.cpuMaxSpeed + " GHz");
                         AL.info("MEM free: " + conPrivate.memAvailable + " Gb");

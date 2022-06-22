@@ -72,7 +72,7 @@ public class ConSendPrivateDetails extends SecondaryConnection {
                         if (cpu != null) {
                             dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
                             dos.writeFloat((cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz)));
-                            dos.writeByte((cpuUsage = (byte) Math.round(cpu.getSystemCpuLoad(1000))));
+                            dos.writeByte((cpuUsage = (byte) Math.round(cpu.getSystemCpuLoad(1000) * 100)));
                         } else {
                             dos.writeFloat(0);
                             dos.writeFloat(0);

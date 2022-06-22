@@ -67,7 +67,7 @@ public class ConMain extends Thread {
                     isLoggedIn = dis.readBoolean();
                     if (isLoggedIn) {
                         if (!isLoggedInOld) {
-                            AL.debug(this.getClass(), "User is online.");
+                            AL.debug(this.getClass(), "Owner/Staff is online/active.");
                             // User is online, so open secondary connections if they weren't already
                             if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                             CON_CONSOLE_RECEIVE.open();
@@ -81,7 +81,7 @@ public class ConMain extends Thread {
                         }
                     } else {
                         if (isLoggedInOld) {
-                            AL.debug(this.getClass(), "User is offline.");
+                            AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
                             // Close secondary connections when user is offline/logged out
                             if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                             if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
