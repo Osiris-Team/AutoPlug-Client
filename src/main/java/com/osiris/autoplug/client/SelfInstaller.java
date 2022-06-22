@@ -30,9 +30,9 @@ public class SelfInstaller {
      * Note that the AutoPlug-Client-Copy.jar must already exist. Normally it gets created
      * right after successfully downloading the update to the /autoplug/downloads directory.
      *
-     * @param parentDir the parent directory of the current /autoplug/downloads directory.
+     * @param serverRootDir the server root directory where original AutoPlug-Client.jar is installed/located in.
      */
-    public void installUpdateAndStartIt(@NotNull File parentDir) throws Exception {
+    public void installUpdateAndStartIt(@NotNull File serverRootDir) throws Exception {
 
         class MyVisitor<T> extends SimpleFileVisitor<Path> {
             private final String fileToFindName;
@@ -59,9 +59,9 @@ public class SelfInstaller {
             }
         }
 
-        File oldAutoPlugJar = new FileManager().autoplugJar(parentDir);
+        File oldAutoPlugJar = new FileManager().autoplugJar(serverRootDir);
         if (oldAutoPlugJar == null)
-            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar or a jar with autoplug.properties inside, in " + parentDir.getAbsolutePath());
+            throw new Exception("Self-Update failed! Cause: Couldn't find the old AutoPlug-Client.jar or a jar with autoplug.properties inside, in " + serverRootDir.getAbsolutePath());
 
         // Since we can't copy this jar because its currently running
         // we rely on an already made copy of it.
@@ -75,7 +75,7 @@ public class SelfInstaller {
         // Copy and overwrite the old jar with the update file
         // Note: Deletion of the current jar and the copy jar are done
         // at startup.
-        System.out.println("Installing update for jar file: '" + oldAutoPlugJar.getAbsolutePath() + "'...");
+        System.out.println("Installing update for jar file: '" + oldAutoPlugJar + "'...");
         for (int i = 1; i < 11; i++) {
             try {
                 if (!isFileInUse(oldAutoPlugJar)) {
@@ -97,22 +97,7 @@ public class SelfInstaller {
     }
 
     public boolean isFileInUse(File file) {
-        try {
-            if (file == null || !file.exists())
-                return false;
-
-            File copy = new File(System.getProperty("user.dir") + "/Copy-" + new Random().nextInt(10000) + "-" + file.getName());
-            Files.copy(file.toPath(),
-                    copy.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-
-            file.delete();
-            Files.copy(copy.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            copy.delete();
-            return false;
-        } catch (Exception e) {
-            return true;
-        }
+        return !file.renameTo(file);
     }
 
     /**

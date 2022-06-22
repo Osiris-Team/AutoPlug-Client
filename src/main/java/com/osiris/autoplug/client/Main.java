@@ -50,7 +50,8 @@ public class Main {
             try {
                 File curDir = new File(System.getProperty("user.dir"));
                 if (curDir.getName().equals("downloads")) {
-                    // We are inside /autoplug/downloads
+                    // We are inside ./autoplug/downloads
+                    // but want to go to server root dir at ./
                     new SelfInstaller().installUpdateAndStartIt(curDir.getParentFile().getParentFile());
                     return;
                 }
