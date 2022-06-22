@@ -62,6 +62,13 @@ public class TaskModsUpdater extends BThread {
 
     @Override
     public void runAtStart() throws Exception {
+        updaterConfig = new UpdaterConfig();
+        if (!updaterConfig.mods_updater.asBoolean()) {
+            skip();
+            return;
+        }
+        if (Server.isRunning()) throw new Exception("Cannot perform mods update while server is running!");
+
         modsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/mods.yml");
         modsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = modsConfig.getFileNameWithoutExt();
@@ -102,15 +109,9 @@ public class TaskModsUpdater extends BThread {
         // The minimum required information is:
         // name, version, and author. Otherwise they won't get update-checked by AutoPlug (and are not inside the list below).
         setStatus("Fetching latest mod data...");
-        updaterConfig = new UpdaterConfig();
+
         userProfile = updaterConfig.mods_updater_profile.asString();
         this.allMods.addAll(new UtilsMinecraft().getMods(FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString())));
-
-        if (!updaterConfig.mods_updater.asBoolean()) {
-            skip();
-            return;
-        }
-        if (Server.isRunning()) throw new Exception("Cannot perform mods update while server is running!");
 
         for (MinecraftMod installedMod :
                 allMods) {
