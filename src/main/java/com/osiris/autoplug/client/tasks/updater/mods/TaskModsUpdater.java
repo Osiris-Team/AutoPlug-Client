@@ -214,25 +214,29 @@ public class TaskModsUpdater extends BThread {
         else
             executorService = Executors.newSingleThreadExecutor();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
-        for (MinecraftMod pl :
+        for (MinecraftMod mod :
                 includedMods) {
             try {
-                setStatus("Initialising update check for  " + pl.name + "...");
-                if (pl.jenkinsProjectUrl != null) { // JENKINS PLUGIN
+                setStatus("Initialising update check for  " + mod.name + "...");
+                if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
                     sizeJenkinsMods++;
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
-                } else if (pl.githubRepoName != null) { // GITHUB PLUGIN
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(mod)));
+                } else if (mod.githubRepoName != null) { // GITHUB MOD
                     sizeGithubMods++;
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByGithubUrl(pl)));
-                } else if (pl.modrinthId != null || pl.curseforgeId != null) {
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByGithubUrl(mod)));
+                } else if (mod.modrinthId != null) { // MODRINTH MOD
                     sizemodrinthMods++;
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(pl, mcVersion)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
+                } else if (mod.curseforgeId != null) {
+                    sizeBukkitMods++;
+                    mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
                 } else {
                     sizeUnknownMods++; // UNKNOWN PLUGIN
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(pl, mcVersion)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
                 }
             } catch (Exception e) {
-                this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + pl.name + "' mod!"));
+                this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + mod.name + "' mod!"));
             }
         }
 
