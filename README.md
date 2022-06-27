@@ -22,6 +22,16 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 - [Online Console](online-console.gif)
 - [Online File-Manager](file-manager.gif)
 
+Developers can also AutoPlug in their projects by
+adding it as a dependency via [Maven/Gradle/Sbt/Leinigen](https://jitpack.io/#Osiris-Team/AutoPlug-Client/-SNAPSHOT).
+Some useful classes would be the AutoPlugConsole for example,
+which lets you execute AutoPlug commands programmatically:
+```java
+AutoPlugConsole.executeCommand(".check plugins");
+AutoPlugConsole.executeCommand(".check server");
+// etc...
+```
+
 ## Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
 
 ### Beginners
