@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
+import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
@@ -52,23 +53,28 @@ public final class AutoPlugConsole {
             try {
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
-                    AL.info("All available AutoPlug-Console commands:");
                     AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
+                    AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
+                    AL.info(".con reload | Closes and reconnects all connections (.cr)");
+                    AL.info(".backup | Ignores cool-down and does an backup (.b)");
+                    AL.info("");
+                    AL.info("Server related commands:");
                     AL.info(".start | Starts the server (.s)");
                     AL.info(".restart | Restarts the server (.r)");
                     AL.info(".stop | Stops and saves the server (.st)");
                     AL.info(".stop both | Stops, saves your server and closes AutoPlug safely (.stb)");
                     AL.info(".kill | Kills the server without saving (.k)");
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
-                    AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
-                    AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
-                    AL.info(".con reload | Closes and reconnects all connections (.cr)");
                     AL.info(".server info | Shows details about this server (.si)");
-                    AL.info(".check | Checks for AutoPlug updates and behaves according to the selected profile (.c)");
-                    AL.info(".check java | Checks for Java updates and behaves according to the selected profile (.cj)");
-                    AL.info(".check server | Checks for server updates and behaves according to the selected profile (.cs)");
-                    AL.info(".check plugins | Checks for plugins updates and behaves according to the selected profile (.cp)");
-                    AL.info(".check mods | Checks for mods updates and behaves according to the selected profile (.cm)");
+                    AL.info("");
+                    AL.info("Update checking commands: (note that all the checks below");
+                    AL.info("ignore the cool-down and behave according to the selected profile)");
+                    AL.info(".check | Checks for AutoPlug updates (.c)");
+                    AL.info(".check java | Checks for Java updates (.cj)");
+                    AL.info(".check server | Checks for server updates (.cs)");
+                    AL.info(".check plugins | Checks for plugins updates (.cp)");
+                    AL.info(".check mods | Checks for mods updates (.cm)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -163,6 +169,13 @@ public final class AutoPlugConsole {
                 } else if (command.equals(".check mods") || command.equals(".cm")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
+                    new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
+                    return true;
+                }  else if (command.equals(".backup") || command.equals(".b")) {
+                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    TaskBackup backupTask = new TaskBackup("BackupTask", myManager.manager);
+                    backupTask.ignoreCooldown = true;
+                    backupTask.start();
                     new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
                 } else {

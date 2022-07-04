@@ -36,6 +36,8 @@ import java.util.List;
 
 public class TaskBackup extends BThread {
 
+    public boolean ignoreCooldown;
+
     private final File autoplug_backups = new File(GD.WORKING_DIR + "/autoplug/backups");
 
     private final LocalDateTime date = LocalDateTime.now();
@@ -62,21 +64,22 @@ public class TaskBackup extends BThread {
         systemConfig.lockFile();
         systemConfig.load();
         // Do cool-down check stuff
-        String format = "dd/MM/yyyy HH:mm:ss";
-        CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
-                config.backup_cool_down.asInt(),
-                new SimpleDateFormat(format),
-                systemConfig.timestamp_last_backup.asString()); // Get the report first before saving any new values
-        if (coolDownReport.isInCoolDown()) {
+        if(!ignoreCooldown){
+            String format = "dd/MM/yyyy HH:mm:ss";
+            CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
+                    config.backup_cool_down.asInt(),
+                    new SimpleDateFormat(format),
+                    systemConfig.timestamp_last_backup.asString()); // Get the report first before saving any new values
+            if (coolDownReport.isInCoolDown()) {
+                systemConfig.unlockFile();
+                this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
+                return;
+            }
+            // Update the cool-down with current time
+            systemConfig.timestamp_last_backup.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
+            systemConfig.save(); // Save the current timestamp to file
             systemConfig.unlockFile();
-            this.skip("Skipped. Cool-down still active (" + (((coolDownReport.getMsRemaining() / 1000) / 60)) + " minutes remaining).");
-            return;
         }
-        // Update the cool-down with current time
-        systemConfig.timestamp_last_backup.setValues(LocalDateTime.now().format(DateTimeFormatter.ofPattern(format)));
-        systemConfig.save(); // Save the current timestamp to file
-        systemConfig.unlockFile();
-
 
         String server_backup_dest = autoplug_backups.getAbsolutePath() + "/" + formattedDate + "-BACKUP.zip";
         int max_days_server = config.backup_max_days.asInt();
