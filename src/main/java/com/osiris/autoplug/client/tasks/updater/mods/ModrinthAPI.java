@@ -39,6 +39,10 @@ public class ModrinthAPI {
     }
 
 
+    /**
+     * Requires a modrithId (chars or number), or curseforgeId (no number, but chars).
+     * If the id contains chars its usually the mods slugs.
+     */
     public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
         if (mod.modrinthId == null && !isInt(mod.curseforgeId)) mod.modrinthId = mod.curseforgeId; // Slug
         String url = baseUrl + "/project/" + mod.modrinthId + "/version?loaders=[\"" +

@@ -60,17 +60,29 @@ public class ResourceFinder {
     }
 
     public SearchResult findPluginBySpigotId(MinecraftPlugin plugin) {
-        SearchResult rs = new SpigotSearchById().search(plugin);
-        plugin.setPremium(rs.isPremium);
-        rs.plugin = plugin;
-        return rs;
+        SearchResult sr = new SpigotSearchById().search(plugin);
+        plugin.setPremium(sr.isPremium);
+        sr.plugin = plugin;
+        return sr;
     }
 
     public SearchResult findPluginByBukkitId(MinecraftPlugin plugin) {
-        SearchResult rs = new BukkitSearchById().search(plugin);
-        plugin.setPremium(rs.isPremium);
-        rs.plugin = plugin;
-        return rs;
+        SearchResult sr = new BukkitSearchById().search(plugin);
+        plugin.setPremium(sr.isPremium);
+        sr.plugin = plugin;
+        return sr;
+    }
+
+    public SearchResult findModByModrinthId(MinecraftMod mod, String mcVersion) {
+        SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
+        sr.mod = mod;
+        return sr;
+    }
+
+    public SearchResult findModByCurseforgeId(MinecraftMod mod, String mcVersion) {
+        SearchResult sr = new CurseForgeAPI().searchUpdate(mod, mcVersion);
+        sr.mod = mod;
+        return sr;
     }
 
     public SearchResult findByGithubUrl(MinecraftMod mod) {

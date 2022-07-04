@@ -32,6 +32,9 @@ import java.time.Instant;
 public class CurseForgeAPI {
     private final String baseUrl = "https://api.curseforge.com/v1";
 
+    /**
+     * Requires curseforgeId not null.
+     */
     public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
         boolean isIdNumber = isInt(mod.curseforgeId);
         String url;

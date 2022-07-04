@@ -226,13 +226,14 @@ public class TaskModsUpdater extends BThread {
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByGithubUrl(mod)));
                 } else if (mod.modrinthId != null) { // MODRINTH MOD
                     sizemodrinthMods++;
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findModByModrinthId(mod, mcVersion)));
                 } else if (mod.curseforgeId != null) {
                     sizeBukkitMods++;
                     mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findModByCurseforgeId(mod, mcVersion)));
                 } else {
-                    sizeUnknownMods++; // UNKNOWN PLUGIN
+                    sizeUnknownMods++; // UNKNOWN MOD
+                    mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownMod(mod, mcVersion)));
                 }
             } catch (Exception e) {
