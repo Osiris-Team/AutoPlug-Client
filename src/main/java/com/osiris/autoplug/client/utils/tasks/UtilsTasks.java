@@ -9,8 +9,7 @@
 package com.osiris.autoplug.client.utils.tasks;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
-import com.osiris.autoplug.client.configs.TasksConfig;
-import com.osiris.autoplug.client.tasks.CustomBThreadPrinter;
+import com.osiris.autoplug.client.tasks.MinimalBThreadPrinter;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
 import com.osiris.autoplug.core.logger.Message;
@@ -30,7 +29,6 @@ public class UtilsTasks {
 
     public MyBThreadManager createManagerWithDisplayer() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
         LoggerConfig loggerConfig = new LoggerConfig();
-        TasksConfig tasksConfig = new TasksConfig();
         BThreadManager manager = new BThreadManager();
         BThreadPrinter printer = new BThreadPrinter(manager);
         printer.defaultPrinterModules = new BThreadModulesBuilder()
@@ -41,11 +39,27 @@ public class UtilsTasks {
                 .spinner()
                 .text(Ansi.ansi().a(" > "))
                 .status().build();
-        if (tasksConfig.live_tasks.asBoolean()) {
+        if (loggerConfig.live_tasks.asBoolean()) {
             printer.start();
         } else {
-            new CustomBThreadPrinter(manager).start();
+            new MinimalBThreadPrinter(manager).start();
         }
+        return new MyBThreadManager(manager, printer);
+    }
+
+    public MyBThreadManager createManagerWithMinimalDisplayer() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
+        LoggerConfig loggerConfig = new LoggerConfig();
+        BThreadManager manager = new BThreadManager();
+        BThreadPrinter printer = new BThreadPrinter(manager);
+        printer.defaultPrinterModules = new BThreadModulesBuilder()
+                .custom(new MyDate())
+                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgCyan().a("[" + loggerConfig.autoplug_label.asString() + "]").reset())
+                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgBlack().a("[TASK]").reset())
+                .space()
+                .spinner()
+                .text(Ansi.ansi().a(" > "))
+                .status().build();
+        new MinimalBThreadPrinter(manager).start();
         return new MyBThreadManager(manager, printer);
     }
 

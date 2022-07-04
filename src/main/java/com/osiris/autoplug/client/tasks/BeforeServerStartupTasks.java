@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.tasks;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.configs.TasksConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
@@ -41,14 +40,12 @@ import java.util.List;
  */
 public class BeforeServerStartupTasks {
     private LoggerConfig loggerConfig;
-    private TasksConfig tasksConfig;
 
     public BeforeServerStartupTasks() {
         BThreadManager manager = null;
         BThreadPrinter printer = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
             loggerConfig = new LoggerConfig();
-            tasksConfig = new TasksConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess
             while (!ConMain.isDone)
@@ -125,7 +122,7 @@ public class BeforeServerStartupTasks {
             }
 
             // Wait until the rest is finished
-            if (tasksConfig.live_tasks.asBoolean()) {
+            if (loggerConfig.live_tasks.asBoolean()) {
                 // In this case we have to wait until the displayer thread finishes, because
                 // of some stuff related to the System.out and to avoid duplicate printing of the summary
                 while (printer.isAlive())
@@ -143,7 +140,7 @@ public class BeforeServerStartupTasks {
             systemConfig.unlockFile();// Save the current timestamp to file
 
 
-            if (!tasksConfig.live_tasks.asBoolean())
+            if (!loggerConfig.live_tasks.asBoolean())
                 printer.printAll();
 
             new UtilsTasks().writeAndPrintFinalResults(manager);

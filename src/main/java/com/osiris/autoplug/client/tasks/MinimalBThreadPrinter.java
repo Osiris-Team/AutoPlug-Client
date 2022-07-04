@@ -8,23 +8,22 @@
 
 package com.osiris.autoplug.client.tasks;
 
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.betterthread.modules.BThreadPrinterModule;
-import org.jline.utils.AttributedString;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class CustomBThreadPrinter extends Thread {
+public class MinimalBThreadPrinter extends Thread {
     private final BThreadManager manager;
     private final List<BThreadPrinterModule> defaultPrinterModules;
     public int timeoutMs = 3000;
+    private int i = 0;
     private byte anim;
 
-    public CustomBThreadPrinter(BThreadManager manager) throws JLineLinkException {
+    public MinimalBThreadPrinter(BThreadManager manager) throws JLineLinkException {
         this.manager = manager;
         this.defaultPrinterModules = new BThreadPrinter(manager).defaultPrinterModules;
     }
@@ -41,38 +40,38 @@ public class CustomBThreadPrinter extends Thread {
     }
 
     public boolean printAll() {
-        List<AttributedString> linesToPrint = new ArrayList<>();
-        manager.getAll().forEach(thread -> { // Build a line for each thread.
-            StringBuilder builder = new StringBuilder();
-            if (thread.printerModules == null || thread.printerModules.isEmpty())
-                thread.printerModules = defaultPrinterModules;
-            for (BThreadPrinterModule m : thread.printerModules) {
-                m.append(manager, null, thread, builder);
-            }
-            linesToPrint.add(AttributedString.fromAnsi(builder.toString()));
-        });
 
         if (manager.getAll().isEmpty()) {
-            linesToPrint.add(AttributedString.fromAnsi("No threads! Waiting..."));
+            System.out.print("\r");
+            System.out.flush();
+            System.out.print("No threads! Waiting...");
+            System.out.flush();
+            return true;
         } else {
             // This means we finished and should stop looping
             // We print the last warnings message and stop.
             if (manager.isFinished()) {
-                AL.info(" ");
-                for (AttributedString s :
-                        linesToPrint) {
-                    AL.info(s.toAnsi());
-                } // Update one last time
+                updateLine();
                 return false;
             }
         }
 
-        AL.info(" ");
-        for (AttributedString s :
-                linesToPrint) {
-            AL.info(s.toAnsi());
-        }
+        updateLine();
         return true;
+    }
+
+    private void updateLine() {
+        System.out.print("\r");
+        System.out.flush();
+        if (i >= manager.getActive().size()) i = 0;
+        if (manager.getActive().isEmpty()) {
+            System.out.print("Finished " + manager.getAll().size() + " tasks, with " + manager.getAllWarnings().size() + " warnings.\n");
+        } else {
+            BThread t = manager.getActive().get(i);
+            System.out.print(manager.getActive().size() + " running tasks... (" + t.getName() + ") " + t.getStatus());
+        }
+        System.out.flush();
+        i++;
     }
 
 

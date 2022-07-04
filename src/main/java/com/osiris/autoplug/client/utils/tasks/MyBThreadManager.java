@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.utils.tasks;
 
-import com.osiris.autoplug.client.tasks.CustomBThreadPrinter;
+import com.osiris.autoplug.client.tasks.MinimalBThreadPrinter;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
 
@@ -16,17 +16,17 @@ import com.osiris.betterthread.BThreadPrinter;
 public class MyBThreadManager {
     public BThreadManager manager;
     public BThreadPrinter printer;
-    public CustomBThreadPrinter customBThreadPrinter;
+    public MinimalBThreadPrinter minimalBThreadPrinter;
 
     public MyBThreadManager(BThreadManager manager, BThreadPrinter printer) {
         this.manager = manager;
         this.printer = printer;
     }
 
-    public MyBThreadManager(BThreadManager manager, BThreadPrinter printer, CustomBThreadPrinter customBThreadPrinter) {
+    public MyBThreadManager(BThreadManager manager, BThreadPrinter printer, MinimalBThreadPrinter minimalBThreadPrinter) {
         this.manager = manager;
         this.printer = printer;
-        this.customBThreadPrinter = customBThreadPrinter;
+        this.minimalBThreadPrinter = minimalBThreadPrinter;
     }
 
 }

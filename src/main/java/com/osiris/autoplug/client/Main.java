@@ -219,10 +219,6 @@ public class Main {
             utilsConfig.checkForDeprecatedSections(updaterConfig);
             allModules.addAll(updaterConfig.getAllInEdit());
 
-            TasksConfig tasksConfig = new TasksConfig();
-            utilsConfig.checkForDeprecatedSections(tasksConfig);
-            allModules.addAll(tasksConfig.getAllInEdit());
-
             SharedFilesConfig sharedFilesConfig = new SharedFilesConfig();
             utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());

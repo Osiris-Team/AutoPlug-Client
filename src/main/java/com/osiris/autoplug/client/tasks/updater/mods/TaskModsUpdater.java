@@ -363,12 +363,12 @@ public class TaskModsUpdater extends BThread {
 
     }
 
-    private void doDownloadLogic(@NotNull MinecraftMod pl, SearchResult result) {
+    private void doDownloadLogic(@NotNull MinecraftMod mod, SearchResult result) {
         byte code = result.getResultCode();
         String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
         String latest = result.getLatestVersion(); // The latest version as String
         String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
-        if (pl.customDownloadURL != null) downloadUrl = pl.customDownloadURL;
+        if (mod.customDownloadURL != null) downloadUrl = mod.customDownloadURL;
 
         if (code == 0) {
             //getSummary().add("Mod " +pl.name+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
@@ -377,39 +377,39 @@ public class TaskModsUpdater extends BThread {
 
             try {
                 // Update the in-memory config
-                YamlSection mLatest = modsConfig.get(modsConfigName, pl.name, "latest-version");
+                YamlSection mLatest = modsConfig.get(modsConfigName, mod.name, "latest-version");
                 mLatest.setValues(latest); // Gets saved later
             } catch (Exception e) {
                 getWarnings().add(new BWarning(this, e));
             }
 
             if (userProfile.equals(notifyProfile)) {
-                addInfo("NOTIFY: Mod '" + pl.name + "' has an update available (" + pl.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
+                addInfo("NOTIFY: Mod '" + mod.name + "' has an update available (" + mod.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
-                pl.name = (pl.name.replaceAll("\\\\", "-").replaceAll("[/]", "-"));
+                mod.name = (mod.name.replaceAll("\\\\", "-").replaceAll("[/]", "-"));
                 latest = latest.replaceAll("\\\\", "-").replaceAll("[/]", "-");
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what modrinth devs are doing
                     if (userProfile.equals(manualProfile)) {
-                        File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.name + "[" + latest + "].jar");
-                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name,
-                                latest, downloadUrl, pl.ignoreContentType, userProfile, cache_dest);
-                        task.mod = pl;
+                        File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + mod.name + "[" + latest + "].jar");
+                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), mod.name,
+                                latest, downloadUrl, mod.ignoreContentType, userProfile, cache_dest);
+                        task.mod = mod;
                         task.searchResult = result;
                         downloadTasksList.add(task);
                         task.start();
                     } else {
-                        File oldPl = new File(pl.installationPath);
-                        File dest = new File(GD.WORKING_DIR + "/mods/" + pl.name + "-LATEST-" + "[" + latest + "]" + ".jar");
-                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), pl.name,
-                                latest, downloadUrl, pl.ignoreContentType, userProfile, dest, oldPl);
-                        task.mod = pl;
+                        File oldPl = new File(mod.installationPath);
+                        File dest = new File(GD.WORKING_DIR + "/mods/" + mod.name + "-LATEST-" + "[" + latest + "]" + ".jar");
+                        TaskModDownload task = new TaskModDownload("ModDownloader", getManager(), mod.name,
+                                latest, downloadUrl, mod.ignoreContentType, userProfile, dest, oldPl);
+                        task.mod = mod;
                         task.searchResult = result;
                         downloadTasksList.add(task);
                         task.start();
                     }
                 } else
-                    getWarnings().add(new BWarning(this, new Exception("Failed to download mod update(" + latest + ") for " + pl.name + " because of unsupported type: " + type)));
+                    getWarnings().add(new BWarning(this, new Exception("Failed to download mod update(" + latest + ") for " + mod.name + " because of unsupported type: " + type)));
             }
         }
 

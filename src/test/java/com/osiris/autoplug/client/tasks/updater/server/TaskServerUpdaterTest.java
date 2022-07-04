@@ -36,7 +36,7 @@ class TaskServerUpdaterTest {
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
-        maMan.customBThreadPrinter.join(); // Wait for completion
+        maMan.minimalBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
     }
 
@@ -55,7 +55,7 @@ class TaskServerUpdaterTest {
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
-        maMan.customBThreadPrinter.join(); // Wait for completion
+        maMan.minimalBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
     }
 }

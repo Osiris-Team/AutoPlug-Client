@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.tasks.CustomBThreadPrinter;
+import com.osiris.autoplug.client.tasks.MinimalBThreadPrinter;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.core.logger.AL;
@@ -25,10 +25,10 @@ import java.io.IOException;
 public class UT {
     public static MyBThreadManager createManagerWithDisplayer() throws JLineLinkException {
         BThreadManager manager = new BThreadManager();
-        CustomBThreadPrinter customBThreadPrinter = new CustomBThreadPrinter(manager);
-        customBThreadPrinter.timeoutMs = 1000;
-        customBThreadPrinter.start();
-        return new MyBThreadManager(manager, null, customBThreadPrinter);
+        MinimalBThreadPrinter minimalBThreadPrinter = new MinimalBThreadPrinter(manager);
+        minimalBThreadPrinter.timeoutMs = 1000;
+        minimalBThreadPrinter.start();
+        return new MyBThreadManager(manager, null, minimalBThreadPrinter);
     }
 
     public static void init() throws IOException {
