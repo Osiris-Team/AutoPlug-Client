@@ -8,20 +8,17 @@
 
 package com.osiris.autoplug.client.tasks.updater;
 
+import com.cedarsoftware.util.EncryptionUtilities;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
-import com.osiris.betterthread.BWarning;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
@@ -122,10 +119,11 @@ public class TaskDownload extends BThread {
     }
 
     public boolean compareWithMD5(String expectedMD5) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(Files.readAllBytes(dest.toPath()));
-        byte[] digest = md.digest();
-        return bytesToHex(digest).equalsIgnoreCase(expectedMD5);
+        final String hashResult = EncryptionUtilities.fastMD5(dest);
+        boolean result = hashResult.equals(expectedMD5);
+        AL.debug(this.getClass(), "Comparing hashes (MD5). Result: " +
+                result + " Excepted: " + expectedMD5 + " Actual:" + hashResult);
+        return result;
     }
 
     /**
@@ -136,34 +134,12 @@ public class TaskDownload extends BThread {
      * @param sha256
      * @return true if the hashes match
      */
-    public boolean compareWithSHA256(String sha256) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedhash = digest.digest(
-                    FileUtils.readFileToByteArray(dest));
-            final String hashResult = bytesToHex(encodedhash);
-            AL.debug(this.getClass(), "Comparing hashes (SHA-256):");
-            AL.debug(this.getClass(), "Input-Hash: " + sha256);
-            AL.debug(this.getClass(), "File-Hash: " + hashResult);
-            return hashResult.equals(sha256);
-        } catch (Exception e) {
-            getWarnings().add(new BWarning(this, e));
-            return false;
-        }
-
-    }
-
-    @NotNull
-    private String bytesToHex(@NotNull byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
+    public boolean compareWithSHA256(String sha256) throws IOException {
+        final String hashResult = EncryptionUtilities.calculateSHA256Hash(FileUtils.readFileToByteArray(dest));
+        boolean result = hashResult.equals(sha256);
+        AL.debug(this.getClass(), "Comparing hashes (SHA-256). Result: " +
+                result + " Excepted: " + sha256 + " Actual:" + hashResult);
+        return result;
     }
 
 }

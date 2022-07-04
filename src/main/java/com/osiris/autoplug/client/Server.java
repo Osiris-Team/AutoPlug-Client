@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
 
+    private static final AtomicBoolean isKill = new AtomicBoolean(false);
     /**
      * True if current dir contains the .fabric folder.
      */
@@ -48,7 +49,6 @@ public final class Server {
     private static Process process;
     private static Thread threadServerAliveChecker;
     private static boolean colorServerLog;
-    private static final AtomicBoolean isKill = new AtomicBoolean(false);
 
     static {
         for (File f :

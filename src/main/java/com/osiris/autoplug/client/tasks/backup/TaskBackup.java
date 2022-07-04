@@ -36,13 +36,11 @@ import java.util.List;
 
 public class TaskBackup extends BThread {
 
-    public boolean ignoreCooldown;
-
     private final File autoplug_backups = new File(GD.WORKING_DIR + "/autoplug/backups");
-
     private final LocalDateTime date = LocalDateTime.now();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm");
     private final String formattedDate = date.format(formatter);
+    public boolean ignoreCooldown;
 
     public TaskBackup(String name, BThreadManager manager) {
         super(name, manager);
@@ -64,7 +62,7 @@ public class TaskBackup extends BThread {
         systemConfig.lockFile();
         systemConfig.load();
         // Do cool-down check stuff
-        if(!ignoreCooldown){
+        if (!ignoreCooldown) {
             String format = "dd/MM/yyyy HH:mm:ss";
             CoolDownReport coolDownReport = new UtilsConfig().getCoolDown(
                     config.backup_cool_down.asInt(),

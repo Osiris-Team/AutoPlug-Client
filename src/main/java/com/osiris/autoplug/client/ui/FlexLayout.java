@@ -90,11 +90,11 @@ public class FlexLayout implements LayoutManager {
     //--- flags for rows and columns ---
     private final int[] xpref;
     private final int[] ypref;
+    public int paddingX = 10, paddingY = 10;
     private int xgap;
     private int ygap;
     private int xnullgap = 0; //24
     private int ynullgap = 0; //24
-    public int paddingX = 10, paddingY = 10;
 
     //---------------------------------------------------------------------------
 

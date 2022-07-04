@@ -171,7 +171,7 @@ public final class AutoPlugConsole {
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
                     new UtilsTasks().writeAndPrintFinalResultsWhenDone(myManager.manager);
                     return true;
-                }  else if (command.equals(".backup") || command.equals(".b")) {
+                } else if (command.equals(".backup") || command.equals(".b")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
                     TaskBackup backupTask = new TaskBackup("BackupTask", myManager.manager);
                     backupTask.ignoreCooldown = true;
