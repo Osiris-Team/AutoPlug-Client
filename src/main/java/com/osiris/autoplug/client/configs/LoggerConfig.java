@@ -15,7 +15,6 @@ import com.osiris.dyml.exceptions.*;
 import java.io.IOException;
 
 public class LoggerConfig extends Yaml {
-
     public YamlSection debug;
     public YamlSection autoplug_label;
     public YamlSection force_ansi;
