@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater;
 
-import com.cedarsoftware.util.EncryptionUtilities;
+import com.osiris.autoplug.client.utils.UtilsCrypto;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
@@ -16,7 +16,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -119,7 +118,7 @@ public class TaskDownload extends BThread {
     }
 
     public boolean compareWithMD5(String expectedMD5) throws NoSuchAlgorithmException, IOException {
-        final String hashResult = EncryptionUtilities.fastMD5(dest);
+        final String hashResult = UtilsCrypto.fastMD5(dest);
         boolean result = hashResult.equals(expectedMD5);
         AL.debug(this.getClass(), "Comparing hashes (MD5). Result: " +
                 result + " Excepted: " + expectedMD5 + " Actual:" + hashResult);
@@ -135,7 +134,7 @@ public class TaskDownload extends BThread {
      * @return true if the hashes match
      */
     public boolean compareWithSHA256(String sha256) throws IOException {
-        final String hashResult = EncryptionUtilities.calculateSHA256Hash(FileUtils.readFileToByteArray(dest));
+        final String hashResult = UtilsCrypto.fastSHA256(dest);
         boolean result = hashResult.equals(sha256);
         AL.debug(this.getClass(), "Comparing hashes (SHA-256). Result: " +
                 result + " Excepted: " + sha256 + " Actual:" + hashResult);
