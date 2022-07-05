@@ -159,7 +159,7 @@ public final class Server {
         try {
 
             if (isRunning()) {
-                process.destroy();
+                process.destroyForcibly().waitFor();
             } else {
                 AL.warn("Server is not running!");
             }
