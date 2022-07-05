@@ -49,9 +49,23 @@ public class ModrinthAPI {
                 throw new Exception("Modrinth-id is null!"); // Modrinth id can be slug or actual id
 
             AL.debug(this.getClass(), url);
-            JsonObject release = new JsonTools().getJsonArray(url)
-                    .get(0).getAsJsonObject();
-            latest = release.get("version_number").getAsString();
+            JsonObject release;
+            try {
+                release = new JsonTools().getJsonArray(url)
+                        .get(0).getAsJsonObject();
+            } catch (Exception e) {
+                if (!isInt(mod.modrinthId)) { // Try another url, with slug replaced _ with -
+                    url = baseUrl + "/project/" + mod.modrinthId.replace("_", "-")
+                            + "/version?loaders=[\"" +
+                            (Server.isFabric ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
+                    AL.debug(this.getClass(), url);
+                    release = new JsonTools().getJsonArray(url)
+                            .get(0).getAsJsonObject();
+                } else
+                    throw e;
+            }
+
+            latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             if (new UtilsVersion().compare(mod.getVersion(), latest))
                 code = 1;
             JsonObject releaseDownload = release.getAsJsonArray("files").get(0).getAsJsonObject();

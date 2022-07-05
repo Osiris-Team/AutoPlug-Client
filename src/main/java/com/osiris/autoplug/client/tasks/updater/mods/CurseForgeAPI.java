@@ -51,7 +51,18 @@ public class CurseForgeAPI {
             url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
             url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), url);
-            JsonArray arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
+            JsonArray arr;
+            try {
+                arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
+            } catch (Exception e) {
+                if (!isInt(mod.curseforgeId)) { // Try another url, with slug replaced _ with -
+                    url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files";
+                    url = new UtilsURL().clean(url);
+                    AL.debug(this.getClass(), url);
+                    arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
+                } else
+                    throw e;
+            }
             // Compares this object with the specified object for order.
             // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified objec
             new QuickSort().sortJsonArray(arr, (thisEl, otherEl) -> {
