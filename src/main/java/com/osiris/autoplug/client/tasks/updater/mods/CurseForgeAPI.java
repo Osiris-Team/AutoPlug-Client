@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
+import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.client.utils.sort.QuickSort;
 import com.osiris.autoplug.core.logger.AL;
 
@@ -26,8 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
 
 public class CurseForgeAPI {
     private final String baseUrl = "https://api.curseforge.com/v1";
@@ -47,7 +46,6 @@ public class CurseForgeAPI {
             if (!isIdNumber) { // Determine project id, since we only got slug
                 JsonObject json = JsonParser.parseString(sendCurseforgePost(getCurseforgeMurmurHash(Paths.get(mod.installationPath)))).getAsJsonObject();
                 mod.curseforgeId = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
-                mod.fileDate = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("file").getAsJsonObject().get("fileDate").getAsString();
             }
             if (mod.curseforgeId == null) throw new Exception("Curseforge-id is null!");
             url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
@@ -81,11 +79,8 @@ public class CurseForgeAPI {
             if (release == null)
                 throw new Exception("[" + mod.name + "] Failed to find a single release of this mod for mc version " + mcVersion);
             latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            FileTime latestDate = FileTime.from(Instant.parse(release.get("fileDate").getAsString()));
-            FileTime currentDate = FileTime.from(Instant.parse(mod.fileDate));
-            if (latestDate.compareTo(currentDate) > 0) {
+            if (new UtilsVersion().compare(mod.getVersion(), latest))
                 code = 1;
-            }
             downloadUrl = release.get("downloadUrl").getAsString();
             try {
                 String fileName = release.get("fileName").getAsString();

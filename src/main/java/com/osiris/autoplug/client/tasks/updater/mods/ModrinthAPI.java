@@ -11,14 +11,10 @@ package com.osiris.autoplug.client.tasks.updater.mods;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.UtilsCrypto;
 import com.osiris.autoplug.client.utils.UtilsURL;
+import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.JsonTools;
 import com.osiris.autoplug.core.logger.AL;
-
-import java.io.File;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
 
 
 public class ModrinthAPI {
@@ -51,18 +47,13 @@ public class ModrinthAPI {
         try {
             if (mod.modrinthId == null)
                 throw new Exception("Modrinth-id is null!"); // Modrinth id can be slug or actual id
-            mod.fileDate = new JsonTools().getJsonObject("https://api.modrinth.com/api/v1/version_file/" + UtilsCrypto.fastSHA1(new File(mod.installationPath)) + "?algorithm=sha1")
-                    .get("date_published").getAsString();
 
             AL.debug(this.getClass(), url);
             JsonObject release = new JsonTools().getJsonArray(url)
                     .get(0).getAsJsonObject();
             latest = release.get("version_number").getAsString();
-            FileTime latestDate = FileTime.from(Instant.parse(release.get("date_published").getAsString()));
-            FileTime currentDate = FileTime.from(Instant.parse(mod.fileDate));
-            if (latestDate.compareTo(currentDate) > 0) {
+            if (new UtilsVersion().compare(mod.getVersion(), latest))
                 code = 1;
-            }
             JsonObject releaseDownload = release.getAsJsonArray("files").get(0).getAsJsonObject();
             downloadUrl = releaseDownload.get("url").getAsString();
             try {

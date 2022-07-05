@@ -14,7 +14,6 @@ public class MinecraftMod {
     public String githubRepoName, githubAssetName;
     public String jenkinsProjectUrl, jenkinsArtifactName;
     public int jenkinsBuildId;
-    public String fileDate;
     private String author, version;
 
     public MinecraftMod(String installationPath, String name, String version,
