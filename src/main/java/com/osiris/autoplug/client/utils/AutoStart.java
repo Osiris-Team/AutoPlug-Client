@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Objects;
 
 public class AutoStart {
     /**
@@ -45,16 +44,15 @@ public class AutoStart {
             }
 
         } else { // UNIX STUFF
-            String username = System.getProperty("user.name");
-            Objects.requireNonNull(username);
             File userHomeDir = new File(System.getProperty("user.home"));
 
             // Create and write service file:
-            File serviceFile = new File(userHomeDir + "/.config/systemd/" + username + "/autoplug-boot.service");
+            File serviceFile = new File(userHomeDir + "/.config/systemd/user/autoplug-boot.service");
             serviceFile.getParentFile().mkdirs();
             serviceFile.delete();
             serviceFile.createNewFile();
-            if (serviceFile.exists()) throw new IOException("Failed to create required service file at " + serviceFile);
+            if (!serviceFile.exists())
+                throw new IOException("Failed to create required service file at " + serviceFile);
             Files.write(serviceFile.toPath(), (
                     "[Unit]\n" +
                             "Description=Starts AutoPlug on system boot.\n" +
