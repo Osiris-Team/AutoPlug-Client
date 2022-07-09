@@ -69,8 +69,10 @@ public class AutoStart {
 
             Process checkIfRegistered = new ProcessBuilder().command("systemctl", "--user", "list-unit-files", serviceFile.getName()).start();
             while (checkIfRegistered.isAlive()) Thread.sleep(100); // Wait until finishes
-            if (checkIfRegistered.exitValue() != 0)
-                throw new IOException("Failed to register service file. Error(" + checkIfRegistered.exitValue() + "): " + new Streams().read(checkIfRegistered.getErrorStream()));
+            String out = new Streams().read(checkIfRegistered.getInputStream());
+            if (checkIfRegistered.exitValue() != 0 || !out.contains(serviceFile.getName()))
+                throw new IOException("Failed to register service file. ERROR_STREAM(" + checkIfRegistered.exitValue() + "): " + new Streams().read(checkIfRegistered.getErrorStream())
+                        + " OUTPUT: " + out);
         }
     }
 
