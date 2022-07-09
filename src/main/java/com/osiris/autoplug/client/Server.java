@@ -76,8 +76,16 @@ public final class Server {
                 } else {
                     if (serverExe.getName().endsWith(".jar")) {
                         GeneralConfig generalConfig = new GeneralConfig();
-                        generalConfig.server_start_command.setValues("java -jar \"" + serverExe.getAbsolutePath() + "\"");
-                        generalConfig.save();
+                        try {
+                            generalConfig.lockFile();
+                            generalConfig.server_start_command.setValues("java -jar \"" + serverExe.getAbsolutePath() + "\"");
+                            generalConfig.save();
+                        } catch (Exception e) {
+                            generalConfig.unlockFile();
+                            throw e;
+                        } finally {
+                            generalConfig.unlockFile();
+                        }
                         break;
                     } else {
                         AL.info("Determined the server executable but not the start-command.");
@@ -85,8 +93,16 @@ public final class Server {
                         AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
                         AL.info("Please enter your start-command and press enter:");
                         GeneralConfig generalConfig = new GeneralConfig();
-                        generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
-                        generalConfig.save();
+                        try {
+                            generalConfig.lockFile();
+                            generalConfig.server_start_command.setValues(new Scanner(System.in).nextLine());
+                            generalConfig.save();
+                        } catch (Exception e) {
+                            generalConfig.unlockFile();
+                            throw e;
+                        } finally {
+                            generalConfig.unlockFile();
+                        }
                     }
                 }
             } else break;
