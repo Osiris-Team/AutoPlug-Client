@@ -18,6 +18,9 @@ import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsStart;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -26,6 +29,7 @@ import org.fusesource.jansi.AnsiConsole;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -229,6 +233,42 @@ public class Main {
                     now = System.currentTimeMillis();
                     new MainWindow();
                     AL.info("Started system-tray GUI, took " + (System.currentTimeMillis() - now) + "ms");
+                }
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+
+            try {
+                if (generalConfig.autoplug_start_on_boot.asBoolean())
+                    new UtilsStart().enableStartOnBootIfNeeded(new UtilsJar().getThisJar());
+                else new UtilsStart().disableStartOnBootIfNeeded();
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+
+            try {
+                if (updaterConfig.global_recurring_checks.asBoolean()) {
+                    now = System.currentTimeMillis();
+                    new Thread(() -> {
+                        try {
+                            while (true) {
+                                long last = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+                                        .parse(new SystemConfig().timestamp_last_updater_tasks.asString())
+                                        .getTime();
+                                long now1 = System.currentTimeMillis();
+                                long msSinceLast = now1 - last;
+                                long msLeft = (new UpdaterConfig().global_recurring_checks_intervall.asInt() * 3600000L) // 1h in ms
+                                        - msSinceLast;
+                                if (msLeft > 0) Thread.sleep(msLeft);
+                                AL.info("Running tasks from recurring update-checker thread.");
+                                MyBThreadManager man = new UtilsTasks().createManagerWithDisplayer();
+
+                            }
+                        } catch (Exception e) {
+                            AL.warn(e);
+                        }
+                    }).start();
+                    AL.info("Started update-checker thread with " + updaterConfig.global_recurring_checks_intervall.asString() + "h intervall, took " + (System.currentTimeMillis() - now) + "ms");
                 }
             } catch (Exception e) {
                 AL.warn(e);

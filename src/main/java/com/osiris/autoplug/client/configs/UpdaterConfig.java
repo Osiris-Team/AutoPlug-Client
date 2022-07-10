@@ -19,6 +19,8 @@ import java.io.IOException;
 public class UpdaterConfig extends Yaml {
 
     public YamlSection global_cool_down;
+    public YamlSection global_recurring_checks;
+    public YamlSection global_recurring_checks_intervall;
 
     public YamlSection self_updater;
     public YamlSection self_updater_profile;
@@ -80,11 +82,20 @@ public class UpdaterConfig extends Yaml {
 
         put(name, "global-cool-down").setCountTopLineBreaks(1);
         global_cool_down = put(name, "global-cool-down").setDefValues("60").setComments(
-                "Cool-down time in minutes to the next updater tasks execution.",
+                "Cool-down time in minutes to the next updater tasks execution (any updater).",
                 "Prevents unnecessary spam of updating/update checking tasks and thus shortens the server startup time.",
                 "Useful when testing plugins/configs and having to restart the server often in a short amount of time.",
                 "You can force-check stuff with the '.check' command.",
                 "Set to 0 to disable.");
+        put(name, "global-recurring-checks").setComments("If enabled runs an additional thread that checks for updates regularly.",
+                "Not recommended to enable, unless you are running AutoPlug as a background service.",
+                "When running AutoPlug as a server-wrapper then update checks already are",
+                "done automatically at server-restarts via the daily or custom server-restarter (see restarter.yml for more info).");
+        global_recurring_checks = put(name, "global-recurring-checks", "enable").setDefValues("false");
+        global_recurring_checks_intervall = put(name, "global-recurring-checks", "intervall").setDefValues("12")
+                .setComments("Intervall in hours between each update check.",
+                        "Note that the value cannot be below 12h. This is done to protect the underlying online services from spam.");
+        if (global_recurring_checks_intervall.asInt() < 12) global_recurring_checks_intervall.setValues("12");
 
         put(name, "self-updater").setCountTopLineBreaks(1);
         self_updater = put(name, "self-updater", "enable").setDefValues("true").setComments(

@@ -16,14 +16,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-public class AutoStart {
+public class UtilsStart {
     private final String serviceName = "AutoPlug";
 
-    public void registerIfNeeded(File jar) throws IOException, InterruptedException {
+    public void enableStartOnBootIfNeeded(File jar) throws IOException, InterruptedException {
         if (!isRegistered()) register(jar);
     }
 
-    public void removeIfNeeded() throws IOException, InterruptedException {
+    public void disableStartOnBootIfNeeded() throws IOException, InterruptedException {
         if (isRegistered()) remove();
     }
 
@@ -48,11 +48,12 @@ public class AutoStart {
             startScript.createNewFile();
         }
         Files.write(startScript.toPath(), ("" +
+                "cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
                 "javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // javaw to start without terminal
                 "").getBytes(StandardCharsets.UTF_8));
         if (OSUtils.IS_WINDOWS) {
             Process p = new ProcessBuilder().command("REG",
-                    "ADD", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    "ADD", "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
                     "/V", serviceName, "/t", "REG_SZ", "/F", "/D", ("\"" + startScript.getAbsolutePath() + "\"")).start();
             // The name AutoPlug doesnt get set on Win10,
             // but the file name is used, thus we create the AutoPlug.bat
@@ -109,7 +110,7 @@ public class AutoStart {
     public void remove() throws IOException, InterruptedException {
         if (OSUtils.IS_WINDOWS) {
             Process p = new ProcessBuilder().command("REG",
-                    "DELETE", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    "DELETE", "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
                     "/V", serviceName, "/F").start();
             while (p.isAlive()) Thread.sleep(100);
             if (p.exitValue() != 0) {

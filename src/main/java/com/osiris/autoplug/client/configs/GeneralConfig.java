@@ -61,8 +61,10 @@ public class GeneralConfig extends Yaml {
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
         autoplug_start_on_boot = put(name, "autoplug", "start-on-boot").setDefValues("false").setComments(
                 "Starts AutoPlug automatically right after the system booted up.",
-                "Internally this is done without the need of elevated permissions like admin or root.",
-                "Instead the current user is used to register the start on boot service.");
+                "The current user is used to register the script that is started on system boot.",
+                "The script is located at /autoplug/system and can be modified, but should not be renamed or have its path changed.",
+                "By default the script launches AutoPlug in the background without a terminal, thus its recommended to also enable the system-tray GUI to have access to the output.",
+                "If you have no GUI its recommended to install software like \"screen\" for virtual terminals and edit the script accordingly.");
         autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
                 "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
