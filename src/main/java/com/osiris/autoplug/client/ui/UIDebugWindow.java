@@ -101,7 +101,7 @@ public class UIDebugWindow extends JFrame {
             }
             if (beforeComponent[0] != null) { // Restore before component
                 beforeComponent[0].setBackground(beforeColor[0]);
-                beforeComponent[0].repaint();
+                //beforeComponent[0].repaint();
             }
 
             CompWrapper comp = (CompWrapper) node.getUserObject();
@@ -155,7 +155,7 @@ public class UIDebugWindow extends JFrame {
             txtLocation.setEnabled(false);
             lyRight.add("0,5,x", txtLocation);
 
-            comp.component.repaint();
+            //comp.component.repaint();
             beforeComponent[0] = comp.component;
             beforeColor[0] = oldBackgroundColor;
         });

@@ -42,6 +42,7 @@ public class MainWindow extends JFrame {
         GET = this;
         initTheme();
         start();
+        new UIDebugWindow();
     }
 
     public void initTheme() {
@@ -131,23 +132,24 @@ public class MainWindow extends JFrame {
 
 
         // Add stuff to main window
-        CoolContainer cTitle = new CoolContainer(this, false)
-                .withFlexLayout(2, 2);
+        CoolContainer cTitle = new CoolContainer(this, false, 10);
+        cTitle.withGridBagLayout();
         this.getContentPane().add(cTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
         titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-        cTitle.add("0,0", titleAutoPlug);
+        cTitle.add(titleAutoPlug);
 
         titleTray.setText(" | Tray");
         titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-        cTitle.add("1,0", titleTray);
+        cTitle.add(titleTray);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         this.getContentPane().add(tabbedPane);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
         // Tab panels/layouts
+        tabbedPane.addTab("Home", new HomePanel(tabbedPane));
         if (Main.TARGET == Target.MINECRAFT_CLIENT) {
             MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
             tabbedPane.addTab("Mods", minecraftMods);

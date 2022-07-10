@@ -13,7 +13,6 @@ import java.awt.*;
 import java.util.Objects;
 
 public class CoolContainer extends JPanel {
-
     public Container parent;
     /**
      * If false this container displays components horizontally. <br>
@@ -96,5 +95,18 @@ public class CoolContainer extends JPanel {
     public void setFlexLayout(FlexLayout ly) {
         super.setLayout(ly);
         this.layout = ly;
+    }
+
+    public void withGridBagLayout() {
+        setGridBagLayout(new GridBagLayout());
+    }
+
+    public void setGridBagLayout(GridBagLayout ly) {
+        super.setLayout(ly);
+    }
+
+    public CoolContainer add(Component comp, CStyle... styles) {
+        super.add(comp, styles);
+        return this;
     }
 }
