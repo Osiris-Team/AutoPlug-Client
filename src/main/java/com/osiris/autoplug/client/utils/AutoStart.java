@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class AutoStart {
+    private final String serviceName = "AutoPlug";
+
     /**
      * Registers platform specific stuff
      * to launch the provided jar at system boot,
@@ -23,7 +25,7 @@ public class AutoStart {
      * Windows and UNIX like platforms supported.
      */
     void register(File jar) throws IOException, InterruptedException {
-        File startScript = new File(GD.WORKING_DIR + "/autoplug/system/AutoPlug.bat");
+        File startScript = new File(GD.WORKING_DIR + "/autoplug/system/" + serviceName + (OSUtils.IS_WINDOWS ? ".bat" : ".sh"));
         if (!startScript.exists()) {
             startScript.getParentFile().mkdirs();
             startScript.createNewFile();
@@ -35,7 +37,8 @@ public class AutoStart {
             // TODO more research and testing needed
             Process p = new ProcessBuilder().command("REG",
                     "ADD", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
-                    "/V", "AutoPlug", "/t", "REG_SZ", "/F", "/D", startScript.getAbsolutePath()).start();  // The name AutoPlug doesnt get set on Win10,
+                    "/V", serviceName, "/t", "REG_SZ", "/F", "/D", ("\"" + startScript.getAbsolutePath() + "\"")).start();
+            // The name AutoPlug doesnt get set on Win10,
             // but the file name is used, thus we create the AutoPlug.bat
             while (p.isAlive()) Thread.sleep(100);
             if (p.exitValue() != 0) {
@@ -47,7 +50,7 @@ public class AutoStart {
             File userHomeDir = new File(System.getProperty("user.home"));
 
             // Create and write service file:
-            File serviceFile = new File(userHomeDir + "/.config/systemd/user/autoplug-boot.service");
+            File serviceFile = new File(userHomeDir + "/.config/systemd/user/" + serviceName + ".service");
             serviceFile.getParentFile().mkdirs();
             serviceFile.delete();
             serviceFile.createNewFile();
@@ -76,10 +79,27 @@ public class AutoStart {
         }
     }
 
-    /**
-     * Removes the provided jar from starting at system boot.
-     */
-    void remove(File jar) {
 
+    void remove() throws IOException, InterruptedException {
+        if (OSUtils.IS_WINDOWS) {
+            Process p = new ProcessBuilder().command("REG",
+                    "DELETE", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    "/V", serviceName, "/F").start();
+            while (p.isAlive()) Thread.sleep(100);
+            if (p.exitValue() != 0) {
+                throw new IOException("Failed to unregister AutoPlug start on boot in Windows registry (error code: " + p.exitValue() + ")." +
+                        " Error stream: \n" + new Streams().read(p.getErrorStream()) + " Regular stream: \n" + new Streams().read(p.getInputStream()));
+            }
+
+        } else { // UNIX STUFF
+            File userHomeDir = new File(System.getProperty("user.home"));
+            File serviceFile = new File(userHomeDir + "/.config/systemd/user/" + serviceName + ".service");
+            serviceFile.delete();
+            if (serviceFile.exists())
+                throw new IOException("Failed to delete service file at " + serviceFile);
+
+            Process restartSystemCtl = new ProcessBuilder().command("systemctl", "--user", "daemon-reload").start();
+            while (restartSystemCtl.isAlive()) Thread.sleep(100); // Wait until finishes
+        }
     }
 }
