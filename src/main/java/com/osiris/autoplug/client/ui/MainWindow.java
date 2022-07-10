@@ -35,10 +35,16 @@ public class MainWindow extends JFrame {
      * There should always be only one instance of {@link MainWindow}.
      */
     public static MainWindow GET = null;
+    public TrayIcon trayIcon;
 
     public MainWindow() throws Exception {
         if (GET != null) return;
         GET = this;
+        initTheme();
+        start();
+    }
+
+    public void initTheme() {
         try {
             GeneralConfig generalConfig = new GeneralConfig();
             if (generalConfig.autoplug_system_tray_theme.asString().equals("light")) {
@@ -52,10 +58,17 @@ public class MainWindow extends JFrame {
                 if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
             }
         } catch (Exception e) {
-            AL.warn("Failed to init GUI light theme!", e);
+            AL.warn("Failed to init GUI theme!", e);
         }
+    }
 
-        TrayIcon trayIcon = null;
+    public void close() {
+        if (SystemTray.isSupported())
+            SystemTray.getSystemTray().remove(trayIcon);
+        this.dispose();
+    }
+
+    public void start() throws Exception {
         if (SystemTray.isSupported()) {
             SystemTray tray = SystemTray.getSystemTray();
             File icon = new File(GD.WORKING_DIR + "/autoplug/system/icon.png");

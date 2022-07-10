@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.osiris.autoplug.client.configs.SystemConfig;
 import org.jline.utils.OSUtils;
 
 import java.io.File;
@@ -18,13 +19,29 @@ import java.nio.file.Files;
 public class AutoStart {
     private final String serviceName = "AutoPlug";
 
+    public void registerIfNeeded(File jar) throws IOException, InterruptedException {
+        if (!isRegistered()) register(jar);
+    }
+
+    public void removeIfNeeded() throws IOException, InterruptedException {
+        if (isRegistered()) remove();
+    }
+
+    public boolean isRegistered() {
+        try {
+            return new SystemConfig().is_autostart_registered.asBoolean();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Registers platform specific stuff
      * to launch the provided jar at system boot,
      * once the user is logged in.
      * Windows and UNIX like platforms supported.
      */
-    void register(File jar) throws IOException, InterruptedException {
+    public void register(File jar) throws IOException, InterruptedException {
         File startScript = new File(GD.WORKING_DIR + "/autoplug/system/" + serviceName + (OSUtils.IS_WINDOWS ? ".bat" : ".sh"));
         if (!startScript.exists()) {
             startScript.getParentFile().mkdirs();
@@ -34,7 +51,6 @@ public class AutoStart {
                 "javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // javaw to start without terminal
                 "").getBytes(StandardCharsets.UTF_8));
         if (OSUtils.IS_WINDOWS) {
-            // TODO more research and testing needed
             Process p = new ProcessBuilder().command("REG",
                     "ADD", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
                     "/V", serviceName, "/t", "REG_SZ", "/F", "/D", ("\"" + startScript.getAbsolutePath() + "\"")).start();
@@ -77,10 +93,20 @@ public class AutoStart {
                 throw new IOException("Failed to register service file. ERROR_STREAM(" + checkIfRegistered.exitValue() + "): " + new Streams().read(checkIfRegistered.getErrorStream())
                         + " OUTPUT: " + out);
         }
+
+        try {
+            SystemConfig systemConfig = new SystemConfig();
+            systemConfig.lockFile();
+            systemConfig.is_autostart_registered.setValues("true");
+            systemConfig.save();
+            systemConfig.unlockFile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    void remove() throws IOException, InterruptedException {
+    public void remove() throws IOException, InterruptedException {
         if (OSUtils.IS_WINDOWS) {
             Process p = new ProcessBuilder().command("REG",
                     "DELETE", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
@@ -101,5 +127,16 @@ public class AutoStart {
             Process restartSystemCtl = new ProcessBuilder().command("systemctl", "--user", "daemon-reload").start();
             while (restartSystemCtl.isAlive()) Thread.sleep(100); // Wait until finishes
         }
+        try {
+            SystemConfig systemConfig = new SystemConfig();
+            systemConfig.lockFile();
+            systemConfig.is_autostart_registered.setValues("false");
+            systemConfig.save();
+            systemConfig.unlockFile();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
 }

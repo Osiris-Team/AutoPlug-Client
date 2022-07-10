@@ -42,8 +42,8 @@ public class WebConfig extends Yaml {
                 " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /",
                 "                                /___/ Web-Config",
                 "Thank you for using AutoPlug!",
-                "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/",
-                "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC",
+                "You can find detailed installation instructions here: https://autoplug.one/installer",
+                "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC",
                 " ",
                 "#######################################################################################################################",
                 "Note: Changes to this file probably require you to enter '.con reload' to have affect.");

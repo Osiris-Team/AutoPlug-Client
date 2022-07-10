@@ -18,9 +18,9 @@ import java.io.File;
 public class GD {
     // TODO make all of these not static and deprecate this class
     public static final String OFFICIAL_WEBSITE = "https://autoplug.one/";
-    public static final String AUTHOR = "Osiris Team";
+    public static final String AUTHOR = "Osiris-Team";
     @NotNull
-    public static String VERSION = "AutoPlug-Client - v(ERROR RETRIEVING VERSION)";
+    public static String VERSION = "AutoPlug-Client (ERROR RETRIEVING VERSION)";
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
     public static File DOWNLOADS_DIR;
@@ -30,7 +30,7 @@ public class GD {
         PLUGINS_DIR = new File(System.getProperty("user.dir") + "/plugins");
         DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/autoplug/downloads");
         try {
-            VERSION = "AutoPlug-Client - " + new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
+            VERSION = "AutoPlug-Client " + new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -27,11 +27,20 @@ import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Frequently used code of config stuff.
  */
 public class UtilsConfig {
+
+    /**
+     * Compares values of two sections and returns true if they are the same. <br>
+     * Null-safe equal operation.
+     */
+    public boolean isValEqual(YamlSection sec1, YamlSection sec2) {
+        return Objects.equals(sec1.asString(), sec2.asString());
+    }
 
     /**
      * Adds a deprecation note (comment) for config sections that have been renamed or removed. <br>

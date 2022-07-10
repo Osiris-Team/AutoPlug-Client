@@ -43,6 +43,7 @@ public class Main {
     public static void main(String[] args) {
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
+        long now = System.currentTimeMillis();
         try {
             System.out.println();
             System.out.println("Initialising " + GD.VERSION);
@@ -122,8 +123,7 @@ public class Main {
             AL.info("   / __ / // / __/ _ \\/ ___/ / // / _ `/   ");
             AL.info("  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /");
             AL.info("                                 /___/    ");
-            AL.info("Version: " + GD.VERSION);
-            AL.info("Author: " + GD.AUTHOR);
+            AL.info(GD.VERSION + " by " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
             AL.debug(Main.class, " ");
             AL.debug(Main.class, "DEBUG DETAILS:");
@@ -137,7 +137,8 @@ public class Main {
             Server.getServerExecutable(); // Make sure this is called here first and not in a task later
             // to avoid infinite initialising
 
-            AL.info("Checking configurations...");
+            //AL.info("Checking configurations...");
+            now = System.currentTimeMillis();
             UtilsConfig utilsConfig = new UtilsConfig();
             utilsConfig.convertToNewNames();
 
@@ -155,22 +156,9 @@ public class Main {
                     target = new Scanner(System.in).nextLine();
                     generalConfig.autoplug_target_software.setValues(target);
                     generalConfig.save();
-                } else if (target.equals("MINECRAFT_CLIENT")) {
-                    TARGET = Target.MINECRAFT_CLIENT;
-                    break;
-                } else if (target.equals("MINECRAFT_SERVER")) {
-                    TARGET = Target.MINECRAFT_SERVER;
-                    break;
-                } else if (target.equals("MINDUSTRY_SERVER")) {
-                    TARGET = Target.MINDUSTRY_SERVER;
-                    break;
-                } else if (target.equals("MINDUSTRY_CLIENT")) {
-                    TARGET = Target.MINDUSTRY_CLIENT;
-                    break;
-                } else if (target.equals("OTHER")) {
-                    TARGET = Target.OTHER;
-                    break;
                 } else {
+                    TARGET = Target.fromString(target);
+                    if (TARGET != null) break;
                     for (String comment : generalConfig.autoplug_target_software.getComments()) {
                         AL.info(comment);
                     }
@@ -224,22 +212,30 @@ public class Main {
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
-            AL.info("Configurations checked.");
+            AL.info("Checked configs, took " + (System.currentTimeMillis() - now) + "ms");
+
+            try {
+                if (sharedFilesConfig.enable.asBoolean()) {
+                    now = System.currentTimeMillis();
+                    new SyncFilesManager(sharedFilesConfig);
+                    AL.info("Enabled sync for " + sharedFilesConfig.copy_from.getValues().size() + " directories, took " + (System.currentTimeMillis() - now) + "ms");
+                }
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+
+            try {
+                if (generalConfig.autoplug_system_tray.asBoolean()) {
+                    now = System.currentTimeMillis();
+                    new MainWindow();
+                    AL.info("Started system-tray GUI, took " + (System.currentTimeMillis() - now) + "ms");
+                }
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
-
-
-            try {
-                if (sharedFilesConfig.enable.asBoolean()) new SyncFilesManager(sharedFilesConfig);
-            } catch (Exception e) {
-                AL.warn(e);
-            }
-
-            try {
-                if (generalConfig.autoplug_system_tray.asBoolean()) new MainWindow();
-            } catch (Exception e) {
-                AL.warn(e);
-            }
 
             CON_MAIN.start();
 

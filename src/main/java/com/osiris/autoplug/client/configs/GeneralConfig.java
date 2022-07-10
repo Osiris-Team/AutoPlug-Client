@@ -34,7 +34,11 @@ public class GeneralConfig extends Yaml {
     public YamlSection directory_cleaner_max_days;
     public YamlSection directory_cleaner_files;
 
-    public GeneralConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+    public GeneralConfig() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        this(true);
+    }
+
+    public GeneralConfig(boolean save) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/general.yml");
         lockFile();
         load();
@@ -47,8 +51,8 @@ public class GeneralConfig extends Yaml {
                         " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
                         "                                /___/ General-Config\n" +
                         "Thank you for using AutoPlug!\n" +
-                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                        "You can find detailed installation instructions here: https://autoplug.one/installer\n" +
+                        "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC\n" +
                         "\n" +
                         "#######################################################################################################################");
 
@@ -56,7 +60,9 @@ public class GeneralConfig extends Yaml {
         autoplug_auto_stop = put(name, "autoplug", "auto-stop").setDefValues("false").setComments(
                 "Stops AutoPlug when your server stops. Enabling this feature is not recommended.");
         autoplug_start_on_boot = put(name, "autoplug", "start-on-boot").setDefValues("false").setComments(
-                "Starts AutoPlug automatically right after the system booted up.");
+                "Starts AutoPlug automatically right after the system booted up.",
+                "Internally this is done without the need of elevated permissions like admin or root.",
+                "Instead the current user is used to register the start on boot service.");
         autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
                 "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
@@ -147,7 +153,7 @@ public class GeneralConfig extends Yaml {
                 .setDefValues("true ./autoplug/logs", "./autoplug/downloads");
 
         validateOptions();
-        save();
+        if (save) save();
         unlockFile();
     }
 

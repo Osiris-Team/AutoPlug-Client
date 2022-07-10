@@ -13,5 +13,22 @@ public enum Target {
     MINECRAFT_SERVER,
     MINDUSTRY_SERVER,
     MINDUSTRY_CLIENT,
-    OTHER
+    OTHER;
+
+    public static Target fromString(String s) {
+        switch (s) {
+            case "MINECRAFT_CLIENT":
+                return Target.MINECRAFT_CLIENT;
+            case "MINECRAFT_SERVER":
+                return Target.MINECRAFT_SERVER;
+            case "MINDUSTRY_SERVER":
+                return Target.MINDUSTRY_SERVER;
+            case "MINDUSTRY_CLIENT":
+                return Target.MINDUSTRY_CLIENT;
+            case "OTHER":
+                return Target.OTHER;
+            default:
+                return null;
+        }
+    }
 }

@@ -40,8 +40,8 @@ public class LoggerConfig extends Yaml {
                         " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
                         "                                /___/ Logger-Config\n" +
                         "Thank you for using AutoPlug!\n" +
-                        "You can find detailed installation instructions at our Spigot post: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                        "If there are any questions or you just wanna chat, join our Discord: https://discord.gg/GGNmtCC\n" +
+                        "You can find detailed installation instructions here: https://autoplug.one/installer\n" +
+                        "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC\n" +
                         "\n" +
                         "#######################################################################################################################");
 

@@ -24,6 +24,7 @@ public class SystemConfig extends Yaml {
     public YamlSection autoplug_web_ip;
     public YamlSection autoplug_web_port;
     public YamlSection autoplug_plugin_key;
+    public YamlSection is_autostart_registered;
 
 
     public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -41,7 +42,7 @@ public class SystemConfig extends Yaml {
                         "DO NOT CHANGE ANYTHING IN HERE, UNLESS YOU KNOW WHAT YOU ARE DOING!\n" +
                         "\n" +
                         "#######################################################################################################################");
-
+        is_autostart_registered = put(name, "is-autostart-registered").setDefValues("false");
         timestamp_last_updater_tasks = put(name, "timestamp-last-updater-tasks");
 
         timestamp_last_backup = put(name, "timestamp-last-backup-task");
