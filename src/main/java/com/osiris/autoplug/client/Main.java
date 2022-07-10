@@ -14,6 +14,11 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
+import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
+import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
+import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
@@ -262,7 +267,20 @@ public class Main {
                                 if (msLeft > 0) Thread.sleep(msLeft);
                                 AL.info("Running tasks from recurring update-checker thread.");
                                 MyBThreadManager man = new UtilsTasks().createManagerWithDisplayer();
-
+                                TaskSelfUpdater selfUpdater = new TaskSelfUpdater("SelfUpdater", man.manager);
+                                TaskJavaUpdater taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", man.manager);
+                                TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", man.manager);
+                                TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man.manager);
+                                TaskModsUpdater taskModsUpdater = new TaskModsUpdater("ModsUpdater", man.manager);
+                                selfUpdater.start();
+                                while (!selfUpdater.isFinished()) // Wait until the self updater finishes
+                                    Thread.sleep(1000);
+                                taskJavaUpdater.start();
+                                taskServerUpdater.start();
+                                taskPluginsUpdater.start();
+                                taskModsUpdater.start();
+                                while (!man.manager.isFinished())
+                                    Thread.sleep(1000);
                             }
                         } catch (Exception e) {
                             AL.warn(e);
