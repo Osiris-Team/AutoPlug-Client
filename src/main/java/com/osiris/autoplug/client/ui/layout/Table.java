@@ -147,6 +147,10 @@ public class Table extends JComponent {
 		invalidate();
 	}
 
+	public void removeCell(int index) {
+		layout.removeCell(index);
+	}
+
 	/**
 	 * Returns the cell for the specified widget in this table, or null.
 	 */

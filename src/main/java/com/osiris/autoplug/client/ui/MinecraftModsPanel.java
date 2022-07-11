@@ -30,8 +30,8 @@ public class MinecraftModsPanel extends VL {
 
     public MinecraftModsPanel(Container parent) throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         super(parent);
-        this.add(btnRefreshData);
-        this.add(table);
+        this.addV(btnRefreshData);
+        this.addV(table);
         updateData();
         btnRefreshData.addMouseListener(new MouseListener().onClick(click -> {
             try {
@@ -69,9 +69,9 @@ public class MinecraftModsPanel extends VL {
         }
 
         // Update UI
-        this.remove(table);
+        this._remove(table);
         table = new JTable(data, columnNames);
-        this.add(table);
+        this.addV(table);
         table.setBackground(new Color(0, true)); // transparent
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }

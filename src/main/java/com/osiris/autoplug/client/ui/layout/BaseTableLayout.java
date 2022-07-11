@@ -193,6 +193,14 @@ abstract public class BaseTableLayout<C, T extends C, L extends BaseTableLayout,
 		invalidate();
 	}
 
+	public void removeCell(int index) {
+		Cell cell = cells.get(index);
+		Object widget = cell.widget;
+		if (widget != null) toolkit.removeChild(table, (C) widget);
+		toolkit.freeCell(cell);
+		invalidate();
+	}
+
 	/**
 	 * Returns the cell for the specified widget in this table, or null.
 	 */

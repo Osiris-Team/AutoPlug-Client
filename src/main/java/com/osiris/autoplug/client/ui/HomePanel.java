@@ -22,8 +22,8 @@ public class HomePanel extends VL {
 
     public HomePanel(Container parent) {
         super(parent);
-        this.add(labelConsole);
-        this.add(txtConsole);
+        this.addV(labelConsole);
+        this.addV(txtConsole);
         AL.actionsOnMessageEvent.add(msg -> {
             SwingUtilities.invokeLater(() -> {
                 txtConsole.setText(txtConsole.getText() + MessageFormatter.formatForFile(msg) + "\n");

@@ -30,10 +30,8 @@ public class MinecraftPluginsPanel extends VL {
 
     public MinecraftPluginsPanel(Container parent) throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         super(parent);
-        withFlexLayout(2, 2);
-        setFlexLayoutYFlag(1, FlexLayout.EXPAND);
-        this.add("0,0", btnRefreshData);
-        this.add("0,1,x", table);
+        this.addV(btnRefreshData);
+        this.addV(table);
         updateData();
         btnRefreshData.addMouseListener(new MouseListener().onClick(click -> {
             try {
@@ -71,9 +69,9 @@ public class MinecraftPluginsPanel extends VL {
         }
 
         // Update UI
-        this.remove(table);
+        this._remove(table);
         table = new JTable(data, columnNames);
-        this.add("0,1,x", table);
+        this.addV(table);
         table.setBackground(new Color(0, true)); // transparent
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }

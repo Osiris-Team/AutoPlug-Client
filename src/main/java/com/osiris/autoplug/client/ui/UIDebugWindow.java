@@ -12,6 +12,7 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.ui.layout.BaseTableLayout;
 import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.client.ui.utils.CompWrapper;
 import com.osiris.autoplug.core.logger.AL;
@@ -73,10 +74,9 @@ public class UIDebugWindow extends JFrame {
         tree.setEditable(false);
 
         VL lyRight = new VL(splitPane);
-        lyRight.withFlexLayout(10, 10);
         splitPane.setRightComponent(lyRight);
-        lyRight.add(new JLabel("Double-click an item on the left, to display its details here."));
-        lyRight.setLayout(new BoxLayout(lyRight, BoxLayout.Y_AXIS));
+        lyRight.addV(new JLabel("Double-click an item on the left, to display its details here."))
+                .center();
 
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Inspecting contents of " + MainWindow.class.getSimpleName());
         fillTreeNodes(rootNode, new CompWrapper(MainWindow.GET.getRootPane()));
@@ -103,22 +103,27 @@ public class UIDebugWindow extends JFrame {
             if (beforeComponent[0] != null) { // Restore before component
                 beforeComponent[0].setBackground(beforeColor[0]);
                 beforeComponent[0].revalidate();
+                beforeComponent[0].repaint();
+                if (beforeComponent[0] instanceof VL)
+                    ((VL) beforeComponent[0]).debug(BaseTableLayout.Debug.none);
             }
 
             CompWrapper comp = (CompWrapper) node.getUserObject();
             Color oldBackgroundColor = comp.component.getBackground();
             comp.component.setBackground(new Color(33, 211, 255, 117)); // Mark component, with blueish color
 
-            lyRight.removeAll();
-            lyRight.updateUI(); // to avoid UI bug where leftover UI from before was being shown
+            if (comp.component instanceof VL)
+                ((VL) comp.component).debug();
+
+            lyRight.clear();
             JLabel title = new JLabel(comp.toString());
             title.putClientProperty("FlatLaf.style", "font: 100% $semibold.font");
-            lyRight.add("0,0", title);
+            lyRight.addV(title).fill();
 
             JTextField txtFullClassName = new JTextField(comp.getClass().getName());
             txtFullClassName.setToolTipText("The full class name/path for this object.");
             txtFullClassName.setEnabled(false);
-            lyRight.add("0,1,x", txtFullClassName);
+            lyRight.addV(txtFullClassName).fill();
 
             // EXTENDING/SUPER CLASSES
             Class<?> clazz = comp.component.getClass().getSuperclass();
@@ -131,7 +136,7 @@ public class UIDebugWindow extends JFrame {
             JTextField txtExtendingClasses = new JTextField(extendingClasses);
             txtExtendingClasses.setToolTipText("The super-classes names for this object.");
             txtExtendingClasses.setEnabled(false);
-            lyRight.add("0,2,x", txtExtendingClasses);
+            lyRight.addV(txtExtendingClasses).fill();
 
             // INTERFACES
             Class<?>[] interfaces = comp.component.getClass().getInterfaces();
@@ -142,21 +147,23 @@ public class UIDebugWindow extends JFrame {
             JTextField txtImplInterfaces = new JTextField(implementingInterfaces);
             txtImplInterfaces.setToolTipText("The implemented interfaces names for this object.");
             txtImplInterfaces.setEnabled(false);
-            lyRight.add("0,3,x", txtImplInterfaces);
+            lyRight.addV(txtImplInterfaces).fill();
 
             // DIMENSIONS
             JTextField txtDimensions = new JTextField(comp.component.getWidth() + " x " + comp.component.getHeight() + " pixels");
             txtDimensions.setToolTipText("The width x height for this object.");
             txtDimensions.setEnabled(false);
-            lyRight.add("0,4,x", txtDimensions);
+            lyRight.addV(txtDimensions).fill();
 
             // LOCATION
             JTextField txtLocation = new JTextField("x: " + comp.component.getLocation().x + " y: " + comp.component.getLocation().y + " pixels");
             txtLocation.setToolTipText("The location for this object.");
             txtLocation.setEnabled(false);
-            lyRight.add("0,5,x", txtLocation);
+            lyRight.addV(txtLocation).fill();
 
+            lyRight.updateUI(); // to avoid UI bug where leftover UI from before was being shown
             comp.component.revalidate();
+            comp.component.repaint();
             beforeComponent[0] = comp.component;
             beforeColor[0] = oldBackgroundColor;
         });

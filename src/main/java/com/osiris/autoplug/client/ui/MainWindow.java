@@ -128,22 +128,22 @@ public class MainWindow extends JFrame {
         this.setLocation((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2)); // Position frame in mid of screen
         this.setSize(width, height);
         this.setVisible(false);
+
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         //this.setContentPane(new ScrollPane()); // Also sets the layout to scroll
 
 
         // Add stuff to main window
-        VL cTitle = new VL(this, false, 10);
-        cTitle.withGridBagLayout();
-        this.getContentPane().add(cTitle);
+        VL vlTitle = new VL(this, 10);
+        this.getContentPane().add(vlTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
         titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-        cTitle.add(titleAutoPlug);
+        vlTitle.addH(titleAutoPlug);
 
         titleTray.setText(" | Tray");
         titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-        cTitle.add(titleTray);
+        vlTitle.addH(titleTray);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         this.getContentPane().add(tabbedPane);
@@ -168,7 +168,7 @@ public class MainWindow extends JFrame {
         } else { // Target.OTHER
 
         }
-        SettingsPanel settingsPanel = new SettingsPanel();
+        SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
         tabbedPane.addTab("Settings", settingsPanel);
         //tabbedPane.addChangeListener(e -> selectedTabChanged());
 

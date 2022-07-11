@@ -8,53 +8,41 @@
 
 package com.osiris.autoplug.client.ui.layout;
 
-import com.osiris.autoplug.client.ui.FlexLayout;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.Toolkit;
 import java.awt.*;
+import java.util.Objects;
 
 /**
- * Vertical layout aka container, with horizontal component alignment capability.
+ * Vertical layout aka container, with horizontal component alignment capability,
+ * and many more useful features.
  */
 public class VL extends Table {
     public Container parent;
-    /**
-     * If false this container displays components horizontally. <br>
-     * Call {@link #updateSize()} after changing this value.
-     */
-    public boolean isVertical;
     public int minWidthPercent, minHeightPercent, maxWidthPercent, maxHeightPercent;
-    public FlexLayout layout;
 
     /**
-     * Initialises as vertical layout with 100% height and width.
+     * Initialises with 100% height and 100% width.
      */
     public VL(Container parent) {
-        this(parent, true, 100, 100, 100, 100);
+        this(parent, 100, 100, 100, 100);
     }
 
     /**
-     * Initialises with 100% height and width.
+     * Initialises with provided height and 100% width.
      */
-    public VL(Container parent, boolean isVertical) {
-        this(parent, isVertical, 100, 100, 100, 100);
+    public VL(Container parent, int heightPercent) {
+        this(parent, 100, heightPercent, 100, heightPercent);
     }
 
-    /**
-     * Initialises with 100% width.
-     */
-    public VL(Container parent, boolean isVertical, int heightPercent) {
-        this(parent, isVertical, 100, heightPercent, 100, heightPercent);
+    public VL(Container parent, int widthPercent, int heightPercent) {
+        this(parent, widthPercent, heightPercent, widthPercent, heightPercent);
     }
 
-    public VL(Container parent, boolean isVertical, int widthPercent, int heightPercent) {
-        this(parent, isVertical, widthPercent, heightPercent, widthPercent, heightPercent);
-    }
-
-    public VL(Container parent, boolean isVertical, int minWidthPercent, int minHeightPercent,
+    public VL(Container parent, int minWidthPercent, int minHeightPercent,
               int maxWidthPercent, int maxHeightPercent) {
         this.parent = parent;
-        this.isVertical = isVertical;
         this.minWidthPercent = minWidthPercent;
         this.minHeightPercent = minHeightPercent;
         this.maxWidthPercent = maxWidthPercent;
@@ -79,5 +67,131 @@ public class VL extends Table {
                 parentHeight / 100 * minHeightPercent));
         setMaximumSize(new Dimension(parentWidth / 100 * maxWidthPercent,
                 parentHeight / 100 * maxHeightPercent));
+    }
+
+    /**
+     * Appends the component on the horizontal axis.
+     */
+    public Cell addH(Component c) {
+        return addCell(c);
+    }
+
+    /**
+     * Appends the component on the vertical axis.
+     */
+    public Cell addV(Component c) {
+        return addCell(c).row();
+    }
+
+    /**
+     * Removes the component at the provided index or does nothing if failed to find index.
+     */
+    public void _remove(int index) {
+        try {
+            removeCell(index);
+        } catch (IndexOutOfBoundsException ignored) {
+        }
+    }
+
+    /**
+     * Removes the provided component or does nothing if failed to find.
+     */
+    public void _remove(Component comp) {
+        Cell cellToRemove = null;
+        int i = 0;
+        for (; i < getCells().size(); i++) {
+            Cell cell = getCells().get(i);
+            if (Objects.equals(cell.widget, comp)) // widget is the component
+            {
+                cellToRemove = cell;
+                break;
+            }
+        }
+        if (cellToRemove != null)
+            removeCell(i);
+    }
+
+    public void updateUI() {
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #addV(Component)} or {@link #addH(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public Component add(Component comp) {
+        return super.add(comp);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #addV(Component)} or {@link #addH(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public Component add(String name, Component comp) {
+        return super.add(name, comp);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #addV(Component)} or {@link #addH(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public Component add(Component comp, int index) {
+        return super.add(comp, index);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #addV(Component)} or {@link #addH(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public void add(@NotNull Component comp, Object constraints) {
+        super.add(comp, constraints);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #addV(Component)} or {@link #addH(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public void add(Component comp, Object constraints, int index) {
+        super.add(comp, constraints, index);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #_remove(int)} instead.
+     */
+    @Deprecated
+    public void remove(int index) {
+        super.remove(index);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #_remove(Component)} instead.
+     */
+    @Deprecated
+    @Override
+    public void remove(Component comp) {
+        super.remove(comp);
+    }
+
+    /**
+     * This method will do nothing. <br>
+     * Use {@link #clear()} instead.
+     */
+    @Deprecated
+    @Override
+    public void removeAll() {
+        super.removeAll();
     }
 }
