@@ -14,6 +14,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
@@ -132,7 +133,7 @@ public class MainWindow extends JFrame {
 
 
         // Add stuff to main window
-        CoolContainer cTitle = new CoolContainer(this, false, 10);
+        VL cTitle = new VL(this, false, 10);
         cTitle.withGridBagLayout();
         this.getContentPane().add(cTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();

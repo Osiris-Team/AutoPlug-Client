@@ -6,17 +6,21 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.ui;
+package com.osiris.autoplug.client.ui.layout;
 
-import javax.swing.*;
+import com.osiris.autoplug.client.ui.FlexLayout;
+
+import java.awt.Toolkit;
 import java.awt.*;
-import java.util.Objects;
 
-public class CoolContainer extends JPanel {
+/**
+ * Vertical layout aka container, with horizontal component alignment capability.
+ */
+public class VL extends Table {
     public Container parent;
     /**
      * If false this container displays components horizontally. <br>
-     * Call {@link #updateLayout()} after changing this value.
+     * Call {@link #updateSize()} after changing this value.
      */
     public boolean isVertical;
     public int minWidthPercent, minHeightPercent, maxWidthPercent, maxHeightPercent;
@@ -25,30 +29,30 @@ public class CoolContainer extends JPanel {
     /**
      * Initialises as vertical layout with 100% height and width.
      */
-    public CoolContainer(Container parent) {
+    public VL(Container parent) {
         this(parent, true, 100, 100, 100, 100);
     }
 
     /**
      * Initialises with 100% height and width.
      */
-    public CoolContainer(Container parent, boolean isVertical) {
+    public VL(Container parent, boolean isVertical) {
         this(parent, isVertical, 100, 100, 100, 100);
     }
 
     /**
      * Initialises with 100% width.
      */
-    public CoolContainer(Container parent, boolean isVertical, int heightPercent) {
+    public VL(Container parent, boolean isVertical, int heightPercent) {
         this(parent, isVertical, 100, heightPercent, 100, heightPercent);
     }
 
-    public CoolContainer(Container parent, boolean isVertical, int widthPercent, int heightPercent) {
+    public VL(Container parent, boolean isVertical, int widthPercent, int heightPercent) {
         this(parent, isVertical, widthPercent, heightPercent, widthPercent, heightPercent);
     }
 
-    public CoolContainer(Container parent, boolean isVertical, int minWidthPercent, int minHeightPercent,
-                         int maxWidthPercent, int maxHeightPercent) {
+    public VL(Container parent, boolean isVertical, int minWidthPercent, int minHeightPercent,
+              int maxWidthPercent, int maxHeightPercent) {
         this.parent = parent;
         this.isVertical = isVertical;
         this.minWidthPercent = minWidthPercent;
@@ -56,16 +60,16 @@ public class CoolContainer extends JPanel {
         this.maxWidthPercent = maxWidthPercent;
         this.maxHeightPercent = maxHeightPercent;
         setBackground(new Color(0, true)); // transparent
-        updateLayout();
+        updateSize();
     }
 
-    private void updateLayout() {
+    private void updateSize() {
         int parentWidth, parentHeight;
         if (parent != null) {
             parentWidth = parent.getWidth();
             parentHeight = parent.getHeight();
         } else { // If no parent provided use the screen dimensions
-            parentWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+            parentWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
             parentHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         }
 
@@ -75,38 +79,5 @@ public class CoolContainer extends JPanel {
                 parentHeight / 100 * minHeightPercent));
         setMaximumSize(new Dimension(parentWidth / 100 * maxWidthPercent,
                 parentHeight / 100 * maxHeightPercent));
-    }
-
-    public CoolContainer withFlexLayout(int width, int height) {
-        setFlexLayout(new FlexLayout(width, height));
-        return this;
-    }
-
-    public CoolContainer setFlexLayoutXFlag(int index, int flag) {
-        Objects.requireNonNull(layout).setColProp(index, flag);
-        return this;
-    }
-
-    public CoolContainer setFlexLayoutYFlag(int index, int flag) {
-        Objects.requireNonNull(layout).setRowProp(index, flag);
-        return this;
-    }
-
-    public void setFlexLayout(FlexLayout ly) {
-        super.setLayout(ly);
-        this.layout = ly;
-    }
-
-    public void withGridBagLayout() {
-        setGridBagLayout(new GridBagLayout());
-    }
-
-    public void setGridBagLayout(GridBagLayout ly) {
-        super.setLayout(ly);
-    }
-
-    public CoolContainer add(Component comp, CStyle... styles) {
-        super.add(comp, styles);
-        return this;
     }
 }

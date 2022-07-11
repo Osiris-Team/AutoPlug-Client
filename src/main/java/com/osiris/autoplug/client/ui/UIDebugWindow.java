@@ -12,6 +12,7 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.client.ui.utils.CompWrapper;
 import com.osiris.autoplug.core.logger.AL;
 
@@ -71,7 +72,7 @@ public class UIDebugWindow extends JFrame {
         tree.setShowsRootHandles(true);
         tree.setEditable(false);
 
-        CoolContainer lyRight = new CoolContainer(splitPane);
+        VL lyRight = new VL(splitPane);
         lyRight.withFlexLayout(10, 10);
         splitPane.setRightComponent(lyRight);
         lyRight.add(new JLabel("Double-click an item on the left, to display its details here."));
@@ -101,7 +102,7 @@ public class UIDebugWindow extends JFrame {
             }
             if (beforeComponent[0] != null) { // Restore before component
                 beforeComponent[0].setBackground(beforeColor[0]);
-                //beforeComponent[0].repaint();
+                beforeComponent[0].revalidate();
             }
 
             CompWrapper comp = (CompWrapper) node.getUserObject();
@@ -155,7 +156,7 @@ public class UIDebugWindow extends JFrame {
             txtLocation.setEnabled(false);
             lyRight.add("0,5,x", txtLocation);
 
-            //comp.component.repaint();
+            comp.component.revalidate();
             beforeComponent[0] = comp.component;
             beforeColor[0] = oldBackgroundColor;
         });

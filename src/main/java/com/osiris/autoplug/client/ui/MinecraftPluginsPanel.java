@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftPluginsPanel extends CoolContainer {
+public class MinecraftPluginsPanel extends VL {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 

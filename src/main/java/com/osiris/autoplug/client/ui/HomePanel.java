@@ -8,23 +8,22 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class HomePanel extends CoolContainer {
+public class HomePanel extends VL {
 
     public JLabel labelConsole = new JLabel("Console");
     public JTextArea txtConsole = new JTextArea();
 
     public HomePanel(Container parent) {
         super(parent);
-        withFlexLayout(1, 3);
-        setFlexLayoutYFlag(1, FlexLayout.EXPAND);
-        this.add("0,0", labelConsole);
-        this.add("0,1,x", txtConsole);
+        this.add(labelConsole);
+        this.add(txtConsole);
         AL.actionsOnMessageEvent.add(msg -> {
             SwingUtilities.invokeLater(() -> {
                 txtConsole.setText(txtConsole.getText() + MessageFormatter.formatForFile(msg) + "\n");
