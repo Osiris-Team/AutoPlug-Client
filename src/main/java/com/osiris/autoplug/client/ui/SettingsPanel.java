@@ -22,7 +22,7 @@ public class SettingsPanel extends VL {
         this.addV(btnOpenUIDebug);
         btnOpenUIDebug.addMouseListener(new MouseListener().onClick(click -> {
             try {
-                new UIDebugWindow();
+                new UIDebugWindow(MainWindow.GET);
             } catch (Exception e) {
                 AL.warn(e);
             }

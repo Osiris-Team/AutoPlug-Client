@@ -43,7 +43,7 @@ public class MainWindow extends JFrame {
         GET = this;
         initTheme();
         start();
-        new UIDebugWindow();
+        new UIDebugWindow(this);
     }
 
     public void initTheme() {

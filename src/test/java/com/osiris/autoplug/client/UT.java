@@ -37,6 +37,11 @@ public class UT {
     }
 
     public static void initDefaults() throws IOException {
+        try {
+            GD.VERSION = null;
+        } catch (Exception ignored) {
+        } // Ignore exception of static contructor
+        GD.VERSION = "AutoPlug-Client Test-Version";
         GD.DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/test/downloads");
         GD.DOWNLOADS_DIR.mkdirs();
 

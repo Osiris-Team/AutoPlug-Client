@@ -24,7 +24,14 @@ import java.awt.*;
 import java.util.Objects;
 
 public class UIDebugWindow extends JFrame {
-    public UIDebugWindow() {
+    Component targetComponent;
+
+    /**
+     * @param targetComponent the component to analyse in this debug window.
+     */
+    public UIDebugWindow(Component targetComponent) {
+        Objects.requireNonNull(targetComponent);
+        this.targetComponent = targetComponent;
         try {
             GeneralConfig generalConfig = new GeneralConfig();
             if (generalConfig.autoplug_system_tray_theme.asString().equals("light")) {
@@ -48,7 +55,7 @@ public class UIDebugWindow extends JFrame {
         this.setSize(width, height);
         this.setVisible(true);
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-        loadDataFromMainWindow();
+        loadData();
     }
 
     private void fillTreeNodes(DefaultMutableTreeNode parentNode, CompWrapper comp) {
@@ -62,8 +69,7 @@ public class UIDebugWindow extends JFrame {
         }
     }
 
-    private void loadDataFromMainWindow() {
-        Objects.requireNonNull(MainWindow.GET);
+    private void loadData() {
         JSplitPane splitPane = new JSplitPane();
         splitPane.setResizeWeight(0.7);
         this.add(splitPane);
@@ -78,8 +84,8 @@ public class UIDebugWindow extends JFrame {
         lyRight.addV(new JLabel("Double-click an item on the left, to display its details here."))
                 .center();
 
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Inspecting contents of " + MainWindow.class.getSimpleName());
-        fillTreeNodes(rootNode, new CompWrapper(MainWindow.GET.getRootPane()));
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Inspecting contents of " + targetComponent.getClass().getSimpleName());
+        fillTreeNodes(rootNode, new CompWrapper(targetComponent));
 
         DefaultTreeModel model = new DefaultTreeModel(rootNode);
         tree.setModel(model);

@@ -8,26 +8,53 @@
 
 package com.osiris.autoplug.client.ui;
 
+import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.ui.layout.VL;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class HomePanel extends VL {
 
     public JLabel labelConsole = new JLabel("Console");
-    public JTextArea txtConsole = new JTextArea();
+    public VL txtConsole = new VL(this);
+    public JTextField txtSendCommand = new JTextField();
 
     public HomePanel(Container parent) {
         super(parent);
-        this.addV(labelConsole);
-        this.addV(txtConsole);
+        this.addV(txtConsole).left();
+        this.addV(new JScrollPane(txtConsole, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED))
+                .fill().expand().left();
+        this.addV(txtSendCommand).left();
+
         AL.actionsOnMessageEvent.add(msg -> {
             SwingUtilities.invokeLater(() -> {
-                txtConsole.setText(txtConsole.getText() + MessageFormatter.formatForFile(msg) + "\n");
+                txtConsole.addV(new JLabel(MessageFormatter.formatForFile(msg))).left();
+                txtConsole.updateUI();
+                //txtConsole.setText(txtConsole.getText() +  + "\n");
             });
+        });
+        txtSendCommand.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyChar() == KeyEvent.VK_ENTER)
+                    AutoPlugConsole.executeCommand(txtSendCommand.getText());
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
         });
     }
 }
