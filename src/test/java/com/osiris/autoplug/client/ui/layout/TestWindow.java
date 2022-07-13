@@ -96,15 +96,19 @@ public class TestWindow extends JFrame {
         // Add stuff to main window
         TestContainer vlTitle = new TestContainer();
         this.getContentPane().add(vlTitle);
-        JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
-        titleAutoPlug.setText("AutoPlug");
-        titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-        vlTitle.add(titleAutoPlug);
+        vlTitle.isDebug = true;
+        vlTitle.access(() -> {
+            JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
+            titleAutoPlug.setText("AutoPlug");
+            titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
+            vlTitle.add(titleAutoPlug);
 
-        titleTray.setText(" | Tray");
-        titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-        vlTitle.add(titleTray);
+            titleTray.setText(" | Tray");
+            titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
+            vlTitle.add(titleTray);
 
-        vlTitle.revalidate();
+            vlTitle.addV(new JLabel("aughh"));
+            vlTitle.addV(new JLabel("aughh"));
+        });
     }
 }

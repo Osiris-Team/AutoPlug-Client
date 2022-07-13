@@ -21,24 +21,27 @@ public class Style {
     // ALIGNMENTS
     public static final Style vertical = new Style("align", "vertical");
     public static final Style horizontal = new Style("align", "horizontal");
+
     // POSITIONS
     public static final Style left = new Style("pos", "left");
     public static final Style right = new Style("pos", "right");
     public static final Style top = new Style("pos", "top");
     public static final Style bottom = new Style("pos", "bottom");
     public static final Style center = new Style("pos", "center");
-    // PADDING SIZES
-    public static final Style padding_xs = new Style("padding-px", "4"); // 0.25rem
-    public static final Style padding_s = new Style("padding-px", "8"); // 0.5rem
-    public static final Style padding_m = new Style("padding-px", "16"); // 1rem
-    public static final Style padding_l = new Style("padding-px", "24"); // 1.5rem
-    public static final Style padding_xl = new Style("padding-px", "40"); // 2.5rem
-    public static final Style padding = padding_s;
+
+    // PADDING PX SIZES
+    public static final byte padding_xs = 4; // 0.25rem
+    public static final byte padding_s = 8; // 0.5rem
+    public static final byte padding_m = 16; // 1rem
+    public static final byte padding_l = 24; // 1.5rem
+    public static final byte padding_xl = 40; // 2.5rem
+
     // PADDING POSITIONS
-    public static final Style padding_left = new Style("padding-pos", "left");
-    public static final Style padding_right = new Style("padding-pos", "right");
-    public static final Style padding_top = new Style("padding-pos", "top");
-    public static final Style padding_bottom = new Style("padding-pos", "bottom");
+    public static final Style padding_left = new Style("padding-left", "" + padding_s);
+    public static final Style padding_right = new Style("padding-right", "" + padding_s);
+    public static final Style padding_top = new Style("padding-top", "" + padding_s);
+    public static final Style padding_bottom = new Style("padding-bottom", "" + padding_s);
+
     public final String key;
     public final String value;
 

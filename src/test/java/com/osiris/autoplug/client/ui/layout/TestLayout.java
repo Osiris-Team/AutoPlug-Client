@@ -8,16 +8,16 @@
 
 package com.osiris.autoplug.client.ui.layout;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import java.awt.*;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Note that this class is private to classes outside this package, due to it
- * being specifically designed for {@link TestContainer} and thus not being compatible with other containers. <p>
+ * being specifically designed for {@link TestContainer} and thus not being compatible with other containers.
+ * If used on another container you probably will get {@link ClassCastException}s. <p>
  * <p>
  * Features: <br>
  * - Ensures the container never expands if the components require more space.
@@ -39,104 +39,129 @@ class TestLayout implements LayoutManager {
         vgap = 5;
     }
 
-    /* Required by LayoutManager. */
+    @Override
     public void addLayoutComponent(String name, Component comp) {
         System.out.println("addLayoutComponent " + comp);
     }
 
-    /* Required by LayoutManager. */
+    @Override
     public void removeLayoutComponent(Component comp) {
         System.out.println("removeLayoutComponent " + comp);
     }
 
-    private void setSizes(Container parent) {
-        System.out.println("setSizes " + parent);
-        int nComps = parent.getComponentCount();
-        Dimension d = null;
-
-        //Reset preferred/minimum width and height.
-        preferredWidth = 0;
-        preferredHeight = 0;
-        minWidth = 0;
-        minHeight = 0;
-
-        for (int i = 0; i < nComps; i++) {
-            Component c = parent.getComponent(i);
-            if (c.isVisible()) {
-                d = c.getPreferredSize();
-
-                if (i > 0) {
-                    preferredWidth += d.width / 2;
-                    preferredHeight += vgap;
-                } else {
-                    preferredWidth = d.width;
-                }
-                preferredHeight += d.height;
-
-                minWidth = Math.max(c.getMinimumSize().width,
-                        minWidth);
-                minHeight = preferredHeight;
-            }
-        }
-    }
-
-
-    /* Required by LayoutManager. */
-    public Dimension preferredLayoutSize(Container container) {
-        System.out.println("preferredLayoutSize " + container);
-        container.setMaximumSize(preferredSize);
+    @Override
+    public Dimension preferredLayoutSize(Container _container) {
+        // Not 100% safe this method is always called, thus nothing important being done here.
         return preferredSize;
     }
 
-    /* Required by LayoutManager. */
+    @Override
     public Dimension minimumLayoutSize(Container parent) {
-        System.out.println("minimumLayoutSize " + parent);
+        // Not 100% safe this method is always called, thus nothing important being done here.
         return minimumSize;
     }
 
-    /* Required by LayoutManager. */
-    /*
-     * This is called when the panel is first displayed,
-     * and every time its size changes.
-     * Note: You CAN'T assume preferredLayoutSize or
-     * minimumLayoutSize will be called -- in the case
-     * of applets, at least, they probably won't be.
-     */
-    public void layoutContainer(Container container) {
+    @Override
+    public void layoutContainer(Container _container) {
+        TestContainer container = (TestContainer) _container;
         System.out.println("layoutContainer " + container);
+        container.setMaximumSize(preferredSize); // Make sure maximum is never bigger than preferred.
         Insets insets = container.getInsets();
-        int maxWidth = container.getWidth()
-                - (insets.left + insets.right);
-        int maxHeight = container.getHeight()
-                - (insets.top + insets.bottom);
-        int nComps = container.getComponentCount();
-        int previousWidth = 0, previousHeight = 0;
-        int x = 0, y = insets.top;
-        int rowh = 0, start = 0;
-        int xFudge = 0, yFudge = 0;
-        boolean oneColumn = false;
+        int startX = insets.left;
+        int startY = insets.top;
+        int x = startX;
+        int y = startY;
 
+        int heightTallestCompLastRow = 0;
+        // To avoid memory filling up with leftover (already removed) components
+        // we replace the original compsAndStyles map after being done,
+        // with the map below, that only contains currently added/active components.
+        Map<Component, Styles> newCompsAndStyles = new HashMap<>();
         for (Component comp : container.getComponents()) {
-            if (comp.isVisible()) {
-                // Get styles map stored as json in the component name
-                JsonObject stylesObj = JsonParser.parseString(comp.getName()).getAsJsonObject();
-                Map<String, String> stylesMap = new HashMap<>();
-                for (String key : stylesObj.keySet()) {
-                    stylesMap.put(key, stylesObj.get(key).isJsonNull() ? null : stylesObj.get(key).getAsString());
-                }
-                String alignment = stylesMap.get(Style.vertical.key);
-                String position = stylesMap.get(Style.left.key);
-                String paddingPx = stylesMap.get(Style.padding_xs.key);
-                String paddingPosition = stylesMap.get(Style.padding_left.key);
+            Styles styles = container.compsAndStyles.get(comp);
+            if (styles == null) {
+                styles = new Styles(); // Components added via the regular container add() methods
+                styles.getMap().putAll(container.defaultCompStyles.getMap()); // Add defaults
+            }
+            newCompsAndStyles.put(comp, styles);
 
+            if (comp.isVisible()) {
                 Dimension compSize = comp.getPreferredSize();
                 int totalWidth = compSize.width;
                 int totalHeight = compSize.height;
+                int compX = x; // Actual start pos x of comp with padding
+                int compY = y; // Actual start pos y of comp with padding
+                byte paddingLeft = 0, paddingRight = 0, paddingTop = 0, paddingBottom = 0;
+
+                for (Map.Entry<String, String> entry : styles.getMap().entrySet()) {
+                    String key, value;
+                    try {
+                        key = entry.getKey();
+                        value = entry.getValue();
+                    } catch (IllegalStateException ise) {
+                        // this usually means the entry is no longer in the map.
+                        throw new ConcurrentModificationException(ise);
+                    }
+                    // Calc total height and width
+                    // Calc x and y start postions too
+                    if (Objects.equals(key, Style.padding_left.key)) {
+                        paddingLeft = Byte.parseByte(value);
+                        compX += paddingLeft;
+                        totalWidth += paddingLeft;
+                    } else if (Objects.equals(key, Style.padding_right.key)) {
+                        paddingRight = Byte.parseByte(value);
+                        totalWidth += paddingRight;
+                    } else if (Objects.equals(key, Style.padding_top.key)) {
+                        paddingTop = Byte.parseByte(value);
+                        compY += paddingTop;
+                        totalHeight += paddingTop;
+                    } else if (Objects.equals(key, Style.padding_bottom.key)) {
+                        paddingBottom = Byte.parseByte(value);
+                        totalHeight += paddingBottom;
+                    }
+                }
+
+                // Align the component either vertically or horizontally
+                String alignment = styles.getMap().get(Style.vertical.key);
+                if (alignment == null) alignment = Style.horizontal.value;
+                boolean isHorizontal = Objects.equals(alignment, Style.horizontal.value);
+
+
                 // Set the component's size and position.
-                comp.setBounds(x, y, totalWidth, totalHeight);
-                x += totalWidth;
-                y += totalHeight;
+                comp.setBounds(compX, compY, totalWidth, totalHeight);
+                if (container.isDebug)
+                    styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
+
+                // Set x and y start points for next component.
+                if (isHorizontal) { // horizontal
+                    x += totalWidth;
+                    y = startY;
+                } else { // vertical
+                    y += totalHeight;
+                    x = startX;
+                }
             }
+        }
+        container.compsAndStyles = newCompsAndStyles;
+        if (container.isDebug) drawDebugLines(container); // Must be done after replacing the map
+    }
+
+
+    private void drawDebugLines(TestContainer container) {
+        Graphics2D g = (Graphics2D) container.getGraphics();
+        if (g == null) return;
+        for (Component comp : container.getComponents()) {
+
+            Styles styles = container.compsAndStyles.get(comp);
+            Objects.requireNonNull(styles);
+            int x = comp.getX() - styles.debugInfo.paddingLeft;
+            int y = comp.getY() - styles.debugInfo.paddingTop;
+            int width = comp.getWidth() + styles.debugInfo.paddingLeft + styles.debugInfo.paddingRight;
+            int height = comp.getHeight() + styles.debugInfo.paddingTop + styles.debugInfo.paddingBottom;
+            g.setColor(Color.red);
+            g.drawRect(x, y, width, height);
+            g.setColor(Color.blue);
+            g.drawRect(comp.getX(), comp.getY(), comp.getWidth(), comp.getHeight());
         }
     }
 

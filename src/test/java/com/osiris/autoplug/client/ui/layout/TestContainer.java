@@ -8,10 +8,6 @@
 
 package com.osiris.autoplug.client.ui.layout;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
@@ -19,15 +15,22 @@ import java.util.Map;
 
 /**
  * Magical container that makes layouting
- * as simple as writing basic english.
+ * as simple as writing basic english. <p>
  */
 public class TestContainer extends JPanel {
-    public Map<String, String> childStyleMap = new HashMap<>();
+    /**
+     * Styles for this container.
+     */
+    public Styles styles = new Styles();
+    /**
+     * Default child component styles. <br>
+     */
+    public Styles defaultCompStyles = new Styles().center().padding();
+    public Map<Component, Styles> compsAndStyles = new HashMap<>();
+    public boolean isDebug = false;
 
     public TestContainer() {
-        putChildStyle(Style.center);
-        putChildStyle(Style.padding);
-        setLayout(new TestLayout(new Dimension(1000, 100)));
+        super(new TestLayout(new Dimension(1000, 100)));
     }
 
     // |c1c2c3|
@@ -44,68 +47,64 @@ public class TestContainer extends JPanel {
 
     /**
      * Access this container in a thread-safe way. <br>
-     * Performs {@link #revalidate()} when done running the provided code.
+     * Performs {@link #revalidate()} and {@link #repaint()} when done running the provided code.
      *
      * @param code to be run in this containers' context.
      */
     public synchronized TestContainer access(Runnable code) {
         code.run();
         revalidate();
-        add(null, Style.bottom);
+        repaint();
         return this;
     }
 
     /**
-     * Adds provided style or replaces existing.
+     * Adds this component horizontally and
+     * additionally returns its {@link Styles}. <p>
+     * Its {@link Styles} are pre-filled with
+     * {@link #defaultCompStyles} of this container.
      */
-    public void putChildStyle(Style style) {
-        childStyleMap.put(style.key, style.value);
+    public Styles addH(Component comp) {
+        super.add(comp);
+        Styles styles = new Styles();
+        styles.getMap().putAll(defaultCompStyles.getMap()); // Add defaults
+        styles.horizontal();
+        compsAndStyles.put(comp, styles);
+        return styles;
     }
 
-    public Component add(Component comp, Style style) { // Without this method
-        // the super method somehow gets used
-        return add(comp, new Style[]{style});
+    /**
+     * Adds this component vertically and
+     * additionally returns its {@link Styles}.<p>
+     * Its {@link Styles} are pre-filled with
+     * {@link #defaultCompStyles} of this container.
+     */
+    public Styles addV(Component comp) {
+        super.add(comp);
+        Styles styles = new Styles();
+        styles.getMap().putAll(defaultCompStyles.getMap()); // Add defaults
+        styles.vertical();
+        compsAndStyles.put(comp, styles);
+        return styles;
     }
 
-    public Component add(Component comp, Style... styles) {
-        if (styles != null)
-            for (Style style : styles) {
-                if (style != null) putChildStyle(style);
-            }
-        comp.setName(childStylesMapToJsonString());
-        return super.add(comp);
-    }
-
-    public String childStylesMapToJsonString() {
-        JsonObject obj = new JsonObject();
-        for (String key : childStyleMap.keySet()) {
-            obj.addProperty(key, childStyleMap.get(key));
-        }
-        return new Gson().toJson(obj);
-    }
-
+    /**
+     * @throws IllegalArgumentException when provided layout
+     *                                  not of type {@link TestLayout}.
+     */
     @Override
-    public Component add(Component comp) {
-        return this.add(comp);
+    public void setLayout(LayoutManager mgr) {
+        if (mgr instanceof TestLayout)
+            super.setLayout(mgr);
+        else
+            throw new IllegalArgumentException("Layout must be of type: " + TestLayout.class.getName());
     }
 
-    @Override
-    public Component add(String name, Component comp) {
-        return this.add(comp);
+    /**
+     * Returns the styles for the provided child component.
+     */
+    public Styles getChildStyles(Component comp) {
+        return compsAndStyles.get(comp);
     }
 
-    @Override
-    public Component add(Component comp, int index) {
-        return this.add(comp);
-    }
-
-    @Override
-    public void add(@NotNull Component comp, Object constraints) {
-        this.add(comp);
-    }
-
-    @Override
-    public void add(Component comp, Object constraints, int index) {
-        this.add(comp);
-    }
 }
