@@ -110,11 +110,13 @@ public class Main {
             YamlSection debug = logC.put("logger", "debug").setDefValues("false");
             YamlSection autoplug_label = logC.put("logger", "autoplug-label").setDefValues("AP");
             YamlSection force_ansi = logC.put("logger", "force-ANSI").setDefValues("false");
-            new AL().start(autoplug_label.asString(),
+            AL.start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
-                    new File(System.getProperty("user.dir") + "/autoplug/logs"),
+                    new File(System.getProperty("user.dir") + "/autoplug/logs/latest.log"),
                     force_ansi.asBoolean()
             );
+            AL.mirrorSystemStreams(new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror.log"),
+                    new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror-err.log"));
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");

@@ -73,7 +73,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>AutoPlug-Core</artifactId>
-            <version>13.5</version>
+            <version>14.1</version>
         </dependency>
 
         <dependency>
