@@ -23,7 +23,7 @@ import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsStart;
+import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
@@ -247,8 +247,8 @@ public class Main {
 
             try {
                 if (generalConfig.autoplug_start_on_boot.asBoolean())
-                    new UtilsStart().enableStartOnBootIfNeeded(new UtilsJar().getThisJar());
-                else new UtilsStart().disableStartOnBootIfNeeded();
+                    new UtilsNative().enableStartOnBootIfNeeded(new UtilsJar().getThisJar());
+                else new UtilsNative().disableStartOnBootIfNeeded();
             } catch (Exception e) {
                 AL.warn(e);
             }

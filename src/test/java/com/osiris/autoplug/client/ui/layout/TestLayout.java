@@ -72,7 +72,7 @@ class TestLayout implements LayoutManager {
         int x = startX;
         int y = startY;
 
-        int heightTallestCompLastRow = 0;
+        int totalHeightTallestCompInRow = 0;
         // To avoid memory filling up with leftover (already removed) components
         // we replace the original compsAndStyles map after being done,
         // with the map below, that only contains currently added/active components.
@@ -125,21 +125,25 @@ class TestLayout implements LayoutManager {
                 String alignment = styles.getMap().get(Style.vertical.key);
                 if (alignment == null) alignment = Style.horizontal.value;
                 boolean isHorizontal = Objects.equals(alignment, Style.horizontal.value);
-
-
-                // Set the component's size and position.
-                comp.setBounds(compX, compY, totalWidth, totalHeight);
-                if (container.isDebug)
-                    styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
-
-                // Set x and y start points for next component.
-                if (isHorizontal) { // horizontal
+                if (isHorizontal) {
+                    if (totalHeight > totalHeightTallestCompInRow)
+                        totalHeightTallestCompInRow = totalHeight;
+                    // Set x and y for next component
                     x += totalWidth;
-                    y = startY;
-                } else { // vertical
+                    y = startY; // Reset
+                } else { // vertical is special and gets directly set on the next row
+                    compY += totalHeightTallestCompInRow;
+                    compX = startX;
+                    totalHeightTallestCompInRow = totalHeight; // Directly update variable since we are now in the next row
+                    // Set x and y for next component
                     y += totalHeight;
                     x = startX;
                 }
+
+                // Set the component's size and position.
+                comp.setBounds(compX, compY, compSize.width, compSize.height);
+                if (container.isDebug)
+                    styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
             }
         }
         container.compsAndStyles = newCompsAndStyles;
@@ -151,7 +155,6 @@ class TestLayout implements LayoutManager {
         Graphics2D g = (Graphics2D) container.getGraphics();
         if (g == null) return;
         for (Component comp : container.getComponents()) {
-
             Styles styles = container.compsAndStyles.get(comp);
             Objects.requireNonNull(styles);
             int x = comp.getX() - styles.debugInfo.paddingLeft;
@@ -159,8 +162,8 @@ class TestLayout implements LayoutManager {
             int width = comp.getWidth() + styles.debugInfo.paddingLeft + styles.debugInfo.paddingRight;
             int height = comp.getHeight() + styles.debugInfo.paddingTop + styles.debugInfo.paddingBottom;
             g.setColor(Color.red);
-            g.drawRect(x, y, width, height);
-            g.setColor(Color.blue);
+            g.drawRect(x, y, width, height); // Full width/height with padding included
+            g.setColor(Color.blue); // Actual component width/height
             g.drawRect(comp.getX(), comp.getY(), comp.getWidth(), comp.getHeight());
         }
     }

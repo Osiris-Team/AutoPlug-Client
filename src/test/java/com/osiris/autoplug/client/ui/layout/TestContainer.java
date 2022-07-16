@@ -30,7 +30,7 @@ public class TestContainer extends JPanel {
     public boolean isDebug = false;
 
     public TestContainer() {
-        super(new TestLayout(new Dimension(1000, 100)));
+        super(new TestLayout(new Dimension(1000, 1000)));
     }
 
     // |c1c2c3|

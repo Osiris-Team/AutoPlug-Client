@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-public class UtilsStart {
+public class UtilsNative {
     private final String serviceName = "AutoPlug";
 
     public void enableStartOnBootIfNeeded(File jar) throws IOException, InterruptedException {
@@ -48,6 +48,16 @@ public class UtilsStart {
             startScript.createNewFile();
         }
         Files.write(startScript.toPath(), ("" +
+                "echo " + "     ___       __       ___  __             \n" +
+                "echo " + "    / _ |__ __/ /____  / _ \\/ /_ _____ _   \n" +
+                "echo " + "   / __ / // / __/ _ \\/ ___/ / // / _ `/   \n" +
+                "echo " + "  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
+                "echo " + "                                 /___/      \n" +
+                "echo No need to worry about this window, its just AutoPlug starting automatically in the background.\n" +
+                "echo You should be able to access the terminal over the system-tray.\n" +
+                "echo To abort enter CTRL+C.\n" +
+                "echo This window will disappear in 10 seconds.\n" +
+                (OSUtils.IS_WINDOWS ? "timeout /t 10 /nobreak\n" : "sleep 10\n") +
                 "cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
                 "javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // javaw to start without terminal
                 "").getBytes(StandardCharsets.UTF_8));
