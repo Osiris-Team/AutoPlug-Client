@@ -319,7 +319,8 @@ public class TaskServerUpdater extends BThread {
             updateBuilder.checkOnly(true);
         }
 
-        // Use build-id from the config as the checksum
+        // Use build-id from the config as the checksum.
+        // Note that each software has a different form of checksum, so we just inspect the checksum as a string.
         updateBuilder.checksumSupplier(() -> updaterConfig.server_build_id.asString());
         updateBuilder.checksumConsumer(checksum -> {
             updaterConfig.server_build_id.setValues(checksum);
