@@ -305,7 +305,7 @@ public class TaskServerUpdater extends BThread {
             setStatus("Unsupported profile: " + profile);
             setSuccess(false);
         } else {
-            setStatus("Starting MCServer updater...");
+            setStatus("Starting server updating...");
             File outputFile;
             if (profile.equals("MANUAL")) {
                 outputFile = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
