@@ -26,14 +26,39 @@ public class MyContainer extends JPanel {
      * Default child component styles. <br>
      */
     public Styles defaultCompStyles = new Styles().center().padding();
+    /**
+     * Maps child components to their styles.
+     */
     public Map<Component, Styles> compsAndStyles = new HashMap<>();
+    /**
+     * Call {@link #updateUI()} to see the changes on the UI. <br>
+     * Enables debug lines that display corners and padding of each child component. <br>
+     */
     public boolean isDebug = false;
+    /**
+     * Call {@link #updateUI()} to see the changes on the UI. <br>
+     * Container size gets set to the total child components size. <br>
+     */
+    public boolean isCropToContent = false;
 
     /**
      * Defaults width & height to 100% of the parent.
      */
     public MyContainer() {
         this(100, 100);
+    }
+
+    /**
+     * Crops to the content of the container, aka
+     * the total width & height of all its child components. <br>
+     * If false, defaults width & height to 100% of the parent.
+     *
+     * @see #isCropToContent
+     */
+    public MyContainer(boolean isCropToContent) {
+        this(100, 100);
+        this.isCropToContent = isCropToContent;
+        updateUI();
     }
 
     public MyContainer(int widthPercent, int heightPercent) {

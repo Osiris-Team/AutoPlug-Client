@@ -118,9 +118,7 @@ class MyLayout implements LayoutManager {
                     styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
 
                     // Align the component either vertically or horizontally
-                    String alignment = styles.getMap().get(Style.vertical.key);
-                    if (alignment == null) alignment = Style.horizontal.value;
-                    boolean isHorizontal = Objects.equals(alignment, Style.horizontal.value);
+                    boolean isHorizontal = isHorizontal(styles);
 
                     if (totalHeight > totalHeightTallestCompInRow)
                         totalHeightTallestCompInRow = totalHeight;
@@ -138,9 +136,38 @@ class MyLayout implements LayoutManager {
 
                 }
             }
+            if (container.isCropToContent) {
+                int insideHeight = 0, insideWidth = 0;
+                int widthLastRow = 0;
+                for (Map.Entry<Component, Styles> entry : newCompsAndStyles.entrySet()) {
+                    Component key_comp;
+                    Styles value_styles;
+                    try {
+                        key_comp = entry.getKey();
+                        value_styles = entry.getValue();
+                    } catch (IllegalStateException ise) { // this usually means the entry is no longer in the map.
+                        throw new ConcurrentModificationException(ise);
+                    }
+                    if (key_comp.isVisible()) {
+                        if (isHorizontal(value_styles)) {
+                            widthLastRow += value_styles.debugInfo.totalWidth;
+                        } else {
+                            if (widthLastRow > insideWidth) insideWidth = widthLastRow;
+                            insideHeight += value_styles.debugInfo.totalHeight;
+                        }
+                    }
+                }
+                container.setBounds(x, y, insideWidth, insideHeight);
+            }
             container.compsAndStyles = newCompsAndStyles;
             if (container.isDebug) drawDebugLines(container); // Must be done after replacing the map
         }
+    }
+
+    private boolean isHorizontal(Styles styles) {
+        String alignment = styles.getMap().get(Style.vertical.key);
+        if (alignment == null) alignment = Style.horizontal.value;
+        return Objects.equals(alignment, Style.horizontal.value);
     }
 
 

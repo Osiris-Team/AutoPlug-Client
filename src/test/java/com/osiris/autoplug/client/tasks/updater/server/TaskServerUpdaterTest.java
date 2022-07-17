@@ -11,19 +11,14 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
-import com.osiris.betterthread.exceptions.JLineLinkException;
-import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskServerUpdaterTest {
 
-    @Test
-    void testPaper() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
+    private void defaultTest(String serverSoftware) throws Exception {
         UT.initLogger();
         UT.initDefaults();
         MyBThreadManager maMan = UT.createManagerWithDisplayer();
@@ -31,7 +26,7 @@ class TaskServerUpdaterTest {
         updaterConfig.load();
         updaterConfig.server_updater.setValues("true");
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
-        updaterConfig.server_software.setValues("paper");
+        updaterConfig.server_software.setValues(serverSoftware);
         updaterConfig.server_version.setValues("1.18.2");
         updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
@@ -43,42 +38,69 @@ class TaskServerUpdaterTest {
     }
 
     @Test
-    void testPurpur() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
-        UT.initLogger();
-        UT.initDefaults();
-        MyBThreadManager maMan = UT.createManagerWithDisplayer();
-        UpdaterConfig updaterConfig = new UpdaterConfig();
-        updaterConfig.load();
-        updaterConfig.server_updater.setValues("true");
-        updaterConfig.server_updater_profile.setValues("AUTOMATIC");
-        updaterConfig.server_software.setValues("purpur");
-        updaterConfig.server_version.setValues("1.18.2");
-        updaterConfig.server_build_id.setValues("");
-        updaterConfig.save();
-        new TaskServerUpdater("ServerUpdater", maMan.manager)
-                .start(); // Do not run too often because of rest API limits
-        maMan.minimalBThreadPrinter.join(); // Wait for completion
-        assertEquals(0, maMan.manager.getAllWarnings().size());
-        assertTrue(maMan.manager.getAll().get(0).isSuccess());
+    void testSpigot() throws Exception {
+        defaultTest("spigot");
     }
 
     @Test
-    void testFabric() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
-        UT.initLogger();
-        UT.initDefaults();
-        MyBThreadManager maMan = UT.createManagerWithDisplayer();
-        UpdaterConfig updaterConfig = new UpdaterConfig();
-        updaterConfig.load();
-        updaterConfig.server_updater.setValues("true");
-        updaterConfig.server_updater_profile.setValues("AUTOMATIC");
-        updaterConfig.server_software.setValues("fabric");
-        updaterConfig.server_version.setValues("1.18.2");
-        updaterConfig.server_build_id.setValues("");
-        updaterConfig.save();
-        new TaskServerUpdater("ServerUpdater", maMan.manager)
-                .start(); // Do not run too often because of rest API limits
-        maMan.minimalBThreadPrinter.join(); // Wait for completion
-        assertEquals(0, maMan.manager.getAllWarnings().size());
-        assertTrue(maMan.manager.getAll().get(0).isSuccess());
+    void testWindSpigot() throws Exception {
+        defaultTest("windspigot");
     }
+
+    @Test
+    void testBungeeCord() throws Exception {
+        defaultTest("bungeecord");
+    }
+
+    @Test
+    void testPaper() throws Exception {
+        defaultTest("paper");
+    }
+
+    @Test
+    void testWaterfall() throws Exception {
+        defaultTest("waterfall");
+    }
+
+    @Test
+    void testVelocity() throws Exception {
+        defaultTest("velocity");
+    }
+
+    @Test
+    void testTravertine() throws Exception {
+        defaultTest("travertine");
+    }
+
+    @Test
+    void testPurpur() throws Exception {
+        defaultTest("purpur");
+    }
+
+    @Test
+    void testFabric() throws Exception {
+        defaultTest("fabric");
+    }
+
+    @Test
+    void testPatina() throws Exception {
+        defaultTest("patina");
+    }
+
+    @Test
+    void testPufferfish() throws Exception {
+        defaultTest("pufferfish");
+    }
+
+    @Test
+    void testMirai() throws Exception {
+        defaultTest("mirai");
+    }
+
+    @Test
+    void testPearl() throws Exception {
+        defaultTest("pearl");
+    }
+
+
 }
