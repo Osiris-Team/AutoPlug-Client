@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TaskServerUpdaterTest {
 
     @Test
-    void testPaper() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
+    void testMCServerUpdater() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
         UT.initLogger();
         UT.initDefaults();
         MyBThreadManager maMan = UT.createManagerWithDisplayer();
