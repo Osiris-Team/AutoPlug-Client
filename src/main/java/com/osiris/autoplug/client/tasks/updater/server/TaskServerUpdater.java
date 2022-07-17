@@ -302,8 +302,7 @@ public class TaskServerUpdater extends BThread {
 
     private void doMCServerUpdaterLogic() {
         if (profile.equals("NOTIFY")) {
-            setStatus("Unsupported profile: " + profile);
-            setSuccess(false);
+            setStatus("Update found");
         } else {
             setStatus("Starting server updating...");
             File outputFile;
