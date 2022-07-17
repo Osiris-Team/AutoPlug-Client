@@ -301,29 +301,43 @@ public class TaskServerUpdater extends BThread {
     }
 
     private void doMCServerUpdaterLogic() {
-        if (profile.equals("NOTIFY")) {
-            setStatus("Update found");
+        UpdateBuilder updateBuilder = UpdateBuilder.updateProject(serverSoftware).version(serverVersion);
+
+        File outputFile;
+        if (profile.equals("MANUAL")) {
+            outputFile = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
+        } else if (serverExe == null) {
+            outputFile = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
         } else {
-            setStatus("Starting server updating...");
-            File outputFile;
-            if (profile.equals("MANUAL")) {
-                outputFile = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
-            } else if (serverExe == null) {
-                outputFile = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-            } else {
-                outputFile = serverExe;
-            }
+            outputFile = serverExe;
+        }
+        updateBuilder.outputFile(outputFile);
+
+        if (profile.equals("NOTIFY")) {
+            updateBuilder.checkOnly(true);
+        }
+
+        updateBuilder.checksumSupplier(() -> updaterConfig.server_build_id.asString());
+        updateBuilder.checksumConsumer(checksum -> {
+            updaterConfig.server_build_id.setValues(checksum);
             try {
-                UpdateStatus status = UpdateBuilder.updateProject(serverSoftware)
-                        .version(serverVersion)
-                        .outputFile(outputFile)
-                        .execute();
-                setStatus(status.getMessage());
-                setSuccess(status.isSuccessStatus());
-            } catch (Exception e) {
-                setStatus("Error while updating server: " + e.getMessage());
-                setSuccess(false);
+                updaterConfig.save();
+            } catch (YamlWriterException | YamlReaderException | IllegalListException | DuplicateKeyException e) {
+                throw new IOException(e);
             }
+        });
+
+        try {
+            UpdateStatus status = updateBuilder.execute();
+            if (status == UpdateStatus.OUT_OF_DATE) {
+                setStatus("Update found!");
+            } else {
+                setStatus(status.getMessage());
+            }
+            setSuccess(status.isSuccessStatus());
+        } catch (Exception e) {
+            setStatus("Error while updating server: " + e.getMessage());
+            setSuccess(false);
         }
     }
 }
