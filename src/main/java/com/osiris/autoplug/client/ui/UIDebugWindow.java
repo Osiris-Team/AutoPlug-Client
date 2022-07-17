@@ -167,6 +167,13 @@ public class UIDebugWindow extends JFrame {
             txtLocation.setEnabled(false);
             lyRight.addV(txtLocation).fill();
 
+            // LOCATION
+            JTextField txtDetails = new JTextField("visible: " + comp.component.isVisible() + " enabled: " + comp.component.isEnabled()
+                    + " valid: " + comp.component.isValid());
+            txtDetails.setToolTipText("The location for this object.");
+            txtDetails.setEnabled(false);
+            lyRight.addV(txtDetails).fill();
+
             lyRight.updateUI(); // to avoid UI bug where leftover UI from before was being shown
             comp.component.revalidate();
             comp.component.repaint();

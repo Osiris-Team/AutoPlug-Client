@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskServerUpdaterTest {
 
@@ -38,6 +39,7 @@ class TaskServerUpdaterTest {
                 .start(); // Do not run too often because of rest API limits
         maMan.minimalBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
+        assertTrue(maMan.manager.getAll().get(0).isSuccess());
     }
 
     @Test
@@ -76,5 +78,6 @@ class TaskServerUpdaterTest {
                 .start(); // Do not run too often because of rest API limits
         maMan.minimalBThreadPrinter.join(); // Wait for completion
         assertEquals(0, maMan.manager.getAllWarnings().size());
+        assertTrue(maMan.manager.getAll().get(0).isSuccess());
     }
 }

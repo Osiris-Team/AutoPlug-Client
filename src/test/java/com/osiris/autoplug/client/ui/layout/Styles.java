@@ -139,6 +139,17 @@ public class Styles {
         return this;
     }
 
+    /**
+     * Deletes all the padding.
+     */
+    public Styles delPadding() {
+        map.remove(Style.padding_left.key);
+        map.remove(Style.padding_right.key);
+        map.remove(Style.padding_top.key);
+        map.remove(Style.padding_bottom.key);
+        return this;
+    }
+
 
     public Map<String, String> getMap() {
         return map;

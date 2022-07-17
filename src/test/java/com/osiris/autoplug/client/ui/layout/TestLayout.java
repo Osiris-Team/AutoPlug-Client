@@ -64,90 +64,85 @@ class TestLayout implements LayoutManager {
     @Override
     public void layoutContainer(Container _container) {
         TestContainer container = (TestContainer) _container;
-        System.out.println("layoutContainer " + container);
-        container.setMaximumSize(preferredSize); // Make sure maximum is never bigger than preferred.
-        Insets insets = container.getInsets();
-        int startX = insets.left;
-        int startY = insets.top;
-        int x = startX;
-        int y = startY;
+        synchronized (container.getTreeLock()) {
+            System.out.println("layoutContainer " + container);
+            container.setMaximumSize(preferredSize); // Make sure maximum is never bigger than preferred.
+            Insets insets = container.getInsets();
+            int startX = insets.left;
+            int startY = insets.top;
+            int x = startX;
+            int y = startY;
 
-        int totalHeightTallestCompInRow = 0;
-        // To avoid memory filling up with leftover (already removed) components
-        // we replace the original compsAndStyles map after being done,
-        // with the map below, that only contains currently added/active components.
-        Map<Component, Styles> newCompsAndStyles = new HashMap<>();
-        for (Component comp : container.getComponents()) {
-            Styles styles = container.compsAndStyles.get(comp);
-            if (styles == null) {
-                styles = new Styles(); // Components added via the regular container add() methods
-                styles.getMap().putAll(container.defaultCompStyles.getMap()); // Add defaults
-            }
-            newCompsAndStyles.put(comp, styles);
-
-            if (comp.isVisible()) {
-                Dimension compSize = comp.getPreferredSize();
-                int totalWidth = compSize.width;
-                int totalHeight = compSize.height;
-                int compX = x; // Actual start pos x of comp with padding
-                int compY = y; // Actual start pos y of comp with padding
-                byte paddingLeft = 0, paddingRight = 0, paddingTop = 0, paddingBottom = 0;
-
-                for (Map.Entry<String, String> entry : styles.getMap().entrySet()) {
-                    String key, value;
-                    try {
-                        key = entry.getKey();
-                        value = entry.getValue();
-                    } catch (IllegalStateException ise) {
-                        // this usually means the entry is no longer in the map.
-                        throw new ConcurrentModificationException(ise);
-                    }
-                    // Calc total height and width
-                    // Calc x and y start postions too
-                    if (Objects.equals(key, Style.padding_left.key)) {
-                        paddingLeft = Byte.parseByte(value);
-                        compX += paddingLeft;
-                        totalWidth += paddingLeft;
-                    } else if (Objects.equals(key, Style.padding_right.key)) {
-                        paddingRight = Byte.parseByte(value);
-                        totalWidth += paddingRight;
-                    } else if (Objects.equals(key, Style.padding_top.key)) {
-                        paddingTop = Byte.parseByte(value);
-                        compY += paddingTop;
-                        totalHeight += paddingTop;
-                    } else if (Objects.equals(key, Style.padding_bottom.key)) {
-                        paddingBottom = Byte.parseByte(value);
-                        totalHeight += paddingBottom;
-                    }
+            int totalHeightTallestCompInRow = 0;
+            // To avoid memory filling up with leftover (already removed) components
+            // we replace the original compsAndStyles map after being done,
+            // with the map below, that only contains currently added/active components.
+            Map<Component, Styles> newCompsAndStyles = new HashMap<>();
+            for (Component comp : container.getComponents()) {
+                Styles styles = container.compsAndStyles.get(comp);
+                if (styles == null) {
+                    styles = new Styles(); // Components added via the regular container add() methods
+                    styles.getMap().putAll(container.defaultCompStyles.getMap()); // Add defaults
                 }
+                newCompsAndStyles.put(comp, styles);
 
-                // Align the component either vertically or horizontally
-                String alignment = styles.getMap().get(Style.vertical.key);
-                if (alignment == null) alignment = Style.horizontal.value;
-                boolean isHorizontal = Objects.equals(alignment, Style.horizontal.value);
-                if (isHorizontal) {
+                if (comp.isVisible()) {
+                    Dimension compSize = comp.getPreferredSize();
+                    int totalWidth = compSize.width;
+                    int totalHeight = compSize.height;
+                    byte paddingLeft = 0, paddingRight = 0, paddingTop = 0, paddingBottom = 0;
+
+                    // Calc total width and height
+                    for (Map.Entry<String, String> entry : styles.getMap().entrySet()) {
+                        String key, value;
+                        try {
+                            key = entry.getKey();
+                            value = entry.getValue();
+                        } catch (IllegalStateException ise) {
+                            // this usually means the entry is no longer in the map.
+                            throw new ConcurrentModificationException(ise);
+                        }
+                        // Calc total height and width
+                        if (Objects.equals(key, Style.padding_left.key)) {
+                            paddingLeft = Byte.parseByte(value);
+                            totalWidth += paddingLeft;
+                        } else if (Objects.equals(key, Style.padding_right.key)) {
+                            paddingRight = Byte.parseByte(value);
+                            totalWidth += paddingRight;
+                        } else if (Objects.equals(key, Style.padding_top.key)) {
+                            paddingTop = Byte.parseByte(value);
+                            totalHeight += paddingTop;
+                        } else if (Objects.equals(key, Style.padding_bottom.key)) {
+                            paddingBottom = Byte.parseByte(value);
+                            totalHeight += paddingBottom;
+                        }
+                    }
+                    styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
+
+                    // Align the component either vertically or horizontally
+                    String alignment = styles.getMap().get(Style.vertical.key);
+                    if (alignment == null) alignment = Style.horizontal.value;
+                    boolean isHorizontal = Objects.equals(alignment, Style.horizontal.value);
+
                     if (totalHeight > totalHeightTallestCompInRow)
                         totalHeightTallestCompInRow = totalHeight;
-                    // Set x and y for next component
-                    x += totalWidth;
-                    y = startY; // Reset
-                } else { // vertical is special and gets directly set on the next row
-                    compY += totalHeightTallestCompInRow;
-                    compX = startX;
-                    totalHeightTallestCompInRow = totalHeight; // Directly update variable since we are now in the next row
-                    // Set x and y for next component
-                    y += totalHeight;
-                    x = startX;
-                }
 
-                // Set the component's size and position.
-                comp.setBounds(compX, compY, compSize.width, compSize.height);
-                if (container.isDebug)
-                    styles.debugInfo = new DebugInfo(totalWidth, totalHeight, paddingLeft, paddingRight, paddingTop, paddingBottom);
+                    if (!isHorizontal) {
+                        x = startX; // Move comp to the left (start)
+                        y += totalHeightTallestCompInRow; // Move comp to the next line
+                        totalHeightTallestCompInRow = totalHeight; // Directly update variable since we are now in the next row
+                    }
+
+                    // Set the component's size and position.
+                    comp.setBounds(x + paddingLeft, y + paddingTop, compSize.width, compSize.height);
+                    // Set the next components start positions.
+                    x += totalWidth;
+
+                }
             }
+            container.compsAndStyles = newCompsAndStyles;
+            if (container.isDebug) drawDebugLines(container); // Must be done after replacing the map
         }
-        container.compsAndStyles = newCompsAndStyles;
-        if (container.isDebug) drawDebugLines(container); // Must be done after replacing the map
     }
 
 
