@@ -14,6 +14,5 @@ class UITest {
     @Test
     void test() throws Exception {
         new TestWindow();
-        while (true) Thread.sleep(100);
     }
 }
