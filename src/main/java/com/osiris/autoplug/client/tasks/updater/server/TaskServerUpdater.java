@@ -22,13 +22,14 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.dyml.exceptions.*;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
+import me.hsgamer.mcserverupdater.UpdateStatus;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Locale;
 
 public class TaskServerUpdater extends BThread {
     public File downloadsDir = GD.DOWNLOADS_DIR;
@@ -61,10 +62,8 @@ public class TaskServerUpdater extends BThread {
             doAlternativeUpdatingLogic();
         } else if (serverSoftware.equalsIgnoreCase("fabric")) {
             doFabricUpdatingLogic();
-        } else if (serverSoftware.equalsIgnoreCase("purpur")) {
-            doPurpurUpdatingLogic();
         } else {
-            doPaperUpdatingLogic();
+            doMCServerUpdaterLogic();
         }
         finish();
     }
@@ -149,108 +148,6 @@ public class TaskServerUpdater extends BThread {
                         updaterConfig.server_jenkins_build_id.setValues("" + latestVersion);
                         updaterConfig.save();
                         setSuccess(true);
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    private void doPurpurUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NoSuchAlgorithmException {
-        PurpurDownloadsAPI purpurDownloadsAPI = new PurpurDownloadsAPI();
-        int buildId = updaterConfig.server_build_id.asInt();
-        JsonObject latestBuild = purpurDownloadsAPI.getLatestBuild(serverSoftware.toLowerCase(Locale.ROOT), serverVersion);
-        int latestBuildId = latestBuild.get("build").getAsInt();
-        String buildHash = latestBuild.get("md5").getAsString();
-        String url = purpurDownloadsAPI.getLatestDownloadUrl(serverSoftware.toLowerCase(Locale.ROOT), serverVersion);
-
-        // Check if the latest build-id is bigger than our current one.
-        if (latestBuildId <= buildId) {
-            setStatus("Your server is on the latest version!");
-            setSuccess(true);
-            return;
-        }
-
-        if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + buildId + " -> " + latestBuildId + ")!");
-        } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
-
-            // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest, true);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500); // Wait until download is finished
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithMD5(buildHash)) {
-                            setStatus("Server update downloaded successfully.");
-                            setSuccess(true);
-                        } else {
-                            setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
-                            setSuccess(false);
-                        }
-
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
-            }
-        } else {
-            setStatus("Update found (" + buildId + " -> " + latestBuildId + "), started download!");
-
-            // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), url, cache_dest, true);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500);
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithMD5(buildHash)) {
-                            File final_dest = serverExe;
-                            if (final_dest == null)
-                                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-                            if (final_dest.exists()) final_dest.delete();
-                            final_dest.createNewFile();
-                            FileUtils.copyFile(cache_dest, final_dest);
-                            setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
-                            updaterConfig.server_build_id.setValues("" + latestBuildId);
-                            updaterConfig.save();
-                            setSuccess(true);
-                        } else {
-                            if (updaterConfig.server_skip_hash_check.asBoolean()) {
-                                addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
-                                File final_dest = serverExe;
-                                if (final_dest == null)
-                                    final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-                                if (final_dest.exists()) final_dest.delete();
-                                final_dest.createNewFile();
-                                FileUtils.copyFile(cache_dest, final_dest);
-                                setStatus("Server update was installed successfully (" + buildId + " -> " + latestBuildId + ")!");
-                                updaterConfig.server_build_id.setValues("" + latestBuildId);
-                                updaterConfig.save();
-                                setSuccess(true);
-                            } else {
-                                setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
-                                setSuccess(false);
-                            }
-                        }
-
                     } else {
                         setStatus("Server update failed!");
                         setSuccess(false);
@@ -403,114 +300,49 @@ public class TaskServerUpdater extends BThread {
         }
     }
 
-    private void doPaperUpdatingLogic() throws WrongJsonTypeException, IOException, HttpErrorException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException {
+    private void doMCServerUpdaterLogic() {
+        UpdateBuilder updateBuilder = UpdateBuilder.updateProject(serverSoftware).version(serverVersion);
 
-        PaperDownloadsAPI paperDownloadsAPI = new PaperDownloadsAPI();
-        int build_id = updaterConfig.server_build_id.asInt();
-        int latest_build_id = paperDownloadsAPI.getLatestBuildId(serverSoftware, serverVersion);
+        // Change the output file based on the profile.
+        File outputFile;
+        if (profile.equals("MANUAL")) {
+            outputFile = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
+        } else if (serverExe == null) {
+            outputFile = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
+        } else {
+            outputFile = serverExe;
+        }
+        updateBuilder.outputFile(outputFile);
 
-        // Check if the latest build-id is bigger than our current one.
-        if (latest_build_id <= build_id) {
-            setStatus("Your server is on the latest version!");
-            setSuccess(true);
-            return;
+        // If it's NOTIFY profile, we don't need to download anything, only check if the server is up-to-date.
+        if (profile.equals("NOTIFY")) {
+            updateBuilder.checkOnly(true);
         }
 
-        if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + ")!");
-        } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
-
-            // Download the file
-            String build_hash = paperDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
-            String build_name = paperDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(),
-                    paperDownloadsAPI.getDownloadUrl(serverSoftware, serverVersion, latest_build_id, build_name),
-                    cache_dest);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500); // Wait until download is finished
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(build_hash)) {
-                            setStatus("Server update downloaded successfully.");
-                            setSuccess(true);
-                        } else {
-                            setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
-                            setSuccess(false);
-                        }
-
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
+        // Use build-id from the config as the checksum.
+        // Note that each software has a different form of checksum, so we just inspect the checksum as a string.
+        updateBuilder.checksumSupplier(() -> updaterConfig.server_build_id.asString());
+        updateBuilder.checksumConsumer(checksum -> {
+            updaterConfig.server_build_id.setValues(checksum);
+            try {
+                updaterConfig.save();
+            } catch (YamlWriterException | YamlReaderException | IllegalListException | DuplicateKeyException e) {
+                throw new IOException(e);
             }
-        } else {
-            setStatus("Update found (" + build_id + " -> " + latest_build_id + "), started download!");
+        });
 
-            // Download the file
-            String build_hash = paperDownloadsAPI.getLatestBuildHash(serverSoftware, serverVersion, latest_build_id);
-            String build_name = paperDownloadsAPI.getLatestBuildFileName(serverSoftware, serverVersion, latest_build_id);
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(),
-                    paperDownloadsAPI.getDownloadUrl(serverSoftware, serverVersion, latest_build_id, build_name),
-                    cache_dest);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500);
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Server update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(build_hash)) {
-                            File final_dest = serverExe;
-                            if (final_dest == null)
-                                final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-                            if (final_dest.exists()) final_dest.delete();
-                            final_dest.createNewFile();
-                            FileUtils.copyFile(cache_dest, final_dest);
-                            setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                            updaterConfig.server_build_id.setValues("" + latest_build_id);
-                            updaterConfig.save();
-                            setSuccess(true);
-                        } else {
-                            if (updaterConfig.server_skip_hash_check.asBoolean()) {
-                                addWarning("Note that the hash check failed for this download, but installing anyways because skip-hash-check is enabled!");
-                                File final_dest = serverExe;
-                                if (final_dest == null)
-                                    final_dest = new File(GD.WORKING_DIR + "/" + serverSoftware + "-latest.jar");
-                                if (final_dest.exists()) final_dest.delete();
-                                final_dest.createNewFile();
-                                FileUtils.copyFile(cache_dest, final_dest);
-                                setStatus("Server update was installed successfully (" + build_id + " -> " + latest_build_id + ")!");
-                                updaterConfig.server_build_id.setValues("" + latest_build_id);
-                                updaterConfig.save();
-                                setSuccess(true);
-                            } else {
-                                setStatus("Downloaded server update is broken (hash check failed). Nothing changed!");
-                                setSuccess(false);
-                            }
-                        }
-
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
+        // Do the update
+        try {
+            UpdateStatus status = updateBuilder.execute();
+            if (status == UpdateStatus.OUT_OF_DATE) {
+                setStatus("Update found!");
+            } else {
+                setStatus(status.getMessage());
             }
+            setSuccess(status.isSuccessStatus());
+        } catch (Exception e) {
+            setStatus("Error while updating server: " + e.getMessage());
+            setSuccess(false);
         }
     }
-
-
 }

@@ -43,6 +43,26 @@ class TaskServerUpdaterTest {
     }
 
     @Test
+    void testPurpur() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
+        UT.initLogger();
+        UT.initDefaults();
+        MyBThreadManager maMan = UT.createManagerWithDisplayer();
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        updaterConfig.load();
+        updaterConfig.server_updater.setValues("true");
+        updaterConfig.server_updater_profile.setValues("AUTOMATIC");
+        updaterConfig.server_software.setValues("purpur");
+        updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_build_id.setValues("");
+        updaterConfig.save();
+        new TaskServerUpdater("ServerUpdater", maMan.manager)
+                .start(); // Do not run too often because of rest API limits
+        maMan.minimalBThreadPrinter.join(); // Wait for completion
+        assertEquals(0, maMan.manager.getAllWarnings().size());
+        assertTrue(maMan.manager.getAll().get(0).isSuccess());
+    }
+
+    @Test
     void testFabric() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException, InterruptedException {
         UT.initLogger();
         UT.initDefaults();
