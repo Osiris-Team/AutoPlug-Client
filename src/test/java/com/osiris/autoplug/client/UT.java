@@ -37,15 +37,13 @@ public class UT {
     }
 
     public static void initDefaults() throws IOException {
-        try {
-            GD.VERSION = null;
-        } catch (Exception ignored) {
-        } // Ignore exception of static contructor
         GD.VERSION = "AutoPlug-Client Test-Version";
-        GD.DOWNLOADS_DIR = new File(System.getProperty("user.dir") + "/test/downloads");
+        GD.WORKING_DIR = new File(System.getProperty("user.dir") + "/test");
+        System.setProperty("user.dir", GD.WORKING_DIR.getAbsolutePath());
+        GD.DOWNLOADS_DIR = new File(GD.WORKING_DIR + "/downloads");
         GD.DOWNLOADS_DIR.mkdirs();
 
-        File serverJar = new File(System.getProperty("user.dir") + "/test/server.jar");
+        File serverJar = new File(GD.WORKING_DIR + "/server.jar");
         GeneralConfig config = null;
         try {
             config = new GeneralConfig();
@@ -64,6 +62,6 @@ public class UT {
     }
 
     public static void initLogger() {
-        new AL().start("AL", true, new File(System.getProperty("user.dir") + "/test/ap-logs"), false);
+        new AL().start("AL", true, new File(System.getProperty("user.dir") + "/test/ap-logs/latest.log"), false);
     }
 }

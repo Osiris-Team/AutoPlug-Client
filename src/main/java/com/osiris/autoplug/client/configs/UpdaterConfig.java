@@ -131,7 +131,8 @@ public class UpdaterConfig extends Yaml {
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("AUTOMATIC");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
-                        "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric)\n" +
+                        "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric," +
+                        "spigot, bungeecord, patina, pufferfish, mirai, pearl, windspigot)\n" +
                         "-> Learn more about them here: https://papermc.io/ | https://github.com/PaperMC/Waterfall | https://github.com/PaperMC/Travertine | https://github.com/PaperMC/Velocity | https://purpur.pl3x.net/ | https://fabricmc.net/\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_version = put(name, "server-updater", "version").setComments(

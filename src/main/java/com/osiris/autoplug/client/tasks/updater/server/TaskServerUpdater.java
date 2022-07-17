@@ -300,7 +300,7 @@ public class TaskServerUpdater extends BThread {
         }
     }
 
-    private void doMCServerUpdaterLogic() {
+    private void doMCServerUpdaterLogic() throws Exception {
         UpdateBuilder updateBuilder = UpdateBuilder.updateProject(serverSoftware).version(serverVersion);
 
         // Change the output file based on the profile.
@@ -312,6 +312,7 @@ public class TaskServerUpdater extends BThread {
         } else {
             outputFile = serverExe;
         }
+        if (!outputFile.exists()) outputFile.createNewFile();
         updateBuilder.outputFile(outputFile);
 
         // If it's NOTIFY profile, we don't need to download anything, only check if the server is up-to-date.
@@ -332,17 +333,12 @@ public class TaskServerUpdater extends BThread {
         });
 
         // Do the update
-        try {
-            UpdateStatus status = updateBuilder.execute();
-            if (status == UpdateStatus.OUT_OF_DATE) {
-                setStatus("Update found!");
-            } else {
-                setStatus(status.getMessage());
-            }
-            setSuccess(status.isSuccessStatus());
-        } catch (Exception e) {
-            setStatus("Error while updating server: " + e.getMessage());
-            setSuccess(false);
+        UpdateStatus status = updateBuilder.execute();
+        if (status == UpdateStatus.OUT_OF_DATE) {
+            setStatus("Update found!");
+        } else {
+            setStatus(status.getMessage());
         }
+        setSuccess(status.isSuccessStatus());
     }
 }

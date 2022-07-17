@@ -32,6 +32,8 @@ public class GD {
         try {
             VERSION = "AutoPlug-Client " + new UtilsJar().getThisJarsAutoPlugProperties().getProperty("version");
         } catch (Exception e) {
+            System.err.println("Failed to determine AutoPlug-Client version. More details below. Keep in mind that" +
+                    " the exception is ignored and does not further affect the application.");
             e.printStackTrace();
         }
     }

@@ -11,7 +11,11 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterthread.BWarning;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TaskServerUpdaterTest {
 
     private void defaultTest(String serverSoftware) throws Exception {
+        defaultTest(serverSoftware, null);
+    }
+
+    private void defaultTest(String serverSoftware, String version) throws Exception {
+        if (version == null) version = "1.18.2";
         UT.initLogger();
         UT.initDefaults();
         MyBThreadManager maMan = UT.createManagerWithDisplayer();
@@ -27,13 +36,17 @@ class TaskServerUpdaterTest {
         updaterConfig.server_updater.setValues("true");
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
         updaterConfig.server_software.setValues(serverSoftware);
-        updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_version.setValues(version);
         updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
         maMan.minimalBThreadPrinter.join(); // Wait for completion
-        assertEquals(0, maMan.manager.getAllWarnings().size());
+        List<BWarning> warnings = maMan.manager.getAllWarnings();
+        for (BWarning warning : warnings) {
+            AL.warn(warning.getExtraInfo(), warning.getException());
+        }
+        assertEquals(0, warnings.size());
         assertTrue(maMan.manager.getAll().get(0).isSuccess());
     }
 
@@ -64,12 +77,12 @@ class TaskServerUpdaterTest {
 
     @Test
     void testVelocity() throws Exception {
-        defaultTest("velocity");
+        defaultTest("velocity", "3.1.1");
     }
 
     @Test
     void testTravertine() throws Exception {
-        defaultTest("travertine");
+        defaultTest("travertine", "1.7");
     }
 
     @Test
