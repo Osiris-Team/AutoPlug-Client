@@ -9,27 +9,24 @@
 package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.console.AutoPlugConsole;
-import com.osiris.autoplug.client.ui.layout.VL;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class HomePanel extends VL {
+public class HomePanel extends MyContainer {
 
     public JLabel labelConsole = new JLabel("Console");
-    public VL txtConsole = new VL(this);
+    public MyContainer txtConsole = new MyContainer();
     public JTextField txtSendCommand = new JTextField();
 
-    public HomePanel(Container parent) {
-        super(parent);
+    public HomePanel() {
         this.addV(txtConsole).left();
         this.addV(new JScrollPane(txtConsole, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED))
-                .fill().expand().left();
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)).left();
         this.addV(txtSendCommand).left();
 
         AL.actionsOnMessageEvent.add(msg -> {

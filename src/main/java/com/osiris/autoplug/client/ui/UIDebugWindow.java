@@ -12,8 +12,7 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.ui.layout.BaseTableLayout;
-import com.osiris.autoplug.client.ui.layout.VL;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.CompWrapper;
 import com.osiris.autoplug.core.logger.AL;
 
@@ -79,7 +78,7 @@ public class UIDebugWindow extends JFrame {
         tree.setShowsRootHandles(true);
         tree.setEditable(false);
 
-        VL lyRight = new VL(splitPane);
+        MyContainer lyRight = new MyContainer();
         splitPane.setRightComponent(lyRight);
         lyRight.addV(new JLabel("Double-click an item on the left, to display its details here."))
                 .center();
@@ -110,26 +109,26 @@ public class UIDebugWindow extends JFrame {
                 beforeComponent[0].setBackground(beforeColor[0]);
                 beforeComponent[0].revalidate();
                 beforeComponent[0].repaint();
-                if (beforeComponent[0] instanceof VL)
-                    ((VL) beforeComponent[0]).debug(BaseTableLayout.Debug.none);
+                if (beforeComponent[0] instanceof MyContainer)
+                    ((MyContainer) beforeComponent[0]).isDebug = false;
             }
 
             CompWrapper comp = (CompWrapper) node.getUserObject();
             Color oldBackgroundColor = comp.component.getBackground();
             comp.component.setBackground(new Color(33, 211, 255, 117)); // Mark component, with blueish color
 
-            if (comp.component instanceof VL)
-                ((VL) comp.component).debug();
+            if (comp.component instanceof MyContainer)
+                ((MyContainer) comp.component).isDebug = true;
 
-            lyRight.clear();
+            lyRight.removeAll();
             JLabel title = new JLabel(comp.toString());
             title.putClientProperty("FlatLaf.style", "font: 100% $semibold.font");
-            lyRight.addV(title).fill();
+            lyRight.addV(title);
 
             JTextField txtFullClassName = new JTextField(comp.getClass().getName());
             txtFullClassName.setToolTipText("The full class name/path for this object.");
             txtFullClassName.setEnabled(false);
-            lyRight.addV(txtFullClassName).fill();
+            lyRight.addV(txtFullClassName);
 
             // EXTENDING/SUPER CLASSES
             Class<?> clazz = comp.component.getClass().getSuperclass();
@@ -142,7 +141,7 @@ public class UIDebugWindow extends JFrame {
             JTextField txtExtendingClasses = new JTextField(extendingClasses);
             txtExtendingClasses.setToolTipText("The super-classes names for this object.");
             txtExtendingClasses.setEnabled(false);
-            lyRight.addV(txtExtendingClasses).fill();
+            lyRight.addV(txtExtendingClasses);
 
             // INTERFACES
             Class<?>[] interfaces = comp.component.getClass().getInterfaces();
@@ -153,26 +152,26 @@ public class UIDebugWindow extends JFrame {
             JTextField txtImplInterfaces = new JTextField(implementingInterfaces);
             txtImplInterfaces.setToolTipText("The implemented interfaces names for this object.");
             txtImplInterfaces.setEnabled(false);
-            lyRight.addV(txtImplInterfaces).fill();
+            lyRight.addV(txtImplInterfaces);
 
             // DIMENSIONS
             JTextField txtDimensions = new JTextField(comp.component.getWidth() + " x " + comp.component.getHeight() + " pixels");
             txtDimensions.setToolTipText("The width x height for this object.");
             txtDimensions.setEnabled(false);
-            lyRight.addV(txtDimensions).fill();
+            lyRight.addV(txtDimensions);
 
             // LOCATION
             JTextField txtLocation = new JTextField("x: " + comp.component.getLocation().x + " y: " + comp.component.getLocation().y + " pixels");
             txtLocation.setToolTipText("The location for this object.");
             txtLocation.setEnabled(false);
-            lyRight.addV(txtLocation).fill();
+            lyRight.addV(txtLocation);
 
             // LOCATION
             JTextField txtDetails = new JTextField("visible: " + comp.component.isVisible() + " enabled: " + comp.component.isEnabled()
                     + " valid: " + comp.component.isValid());
             txtDetails.setToolTipText("The location for this object.");
             txtDetails.setEnabled(false);
-            lyRight.addV(txtDetails).fill();
+            lyRight.addV(txtDetails);
 
             lyRight.updateUI(); // to avoid UI bug where leftover UI from before was being shown
             comp.component.revalidate();

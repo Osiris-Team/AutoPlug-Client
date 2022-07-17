@@ -17,7 +17,7 @@ import java.util.Map;
  * Magical container that makes layouting
  * as simple as writing basic english. <p>
  */
-public class TestContainer extends JPanel {
+public class MyContainer extends JPanel {
     /**
      * Styles for this container.
      */
@@ -29,32 +29,55 @@ public class TestContainer extends JPanel {
     public Map<Component, Styles> compsAndStyles = new HashMap<>();
     public boolean isDebug = false;
 
-    public TestContainer() {
-        super(new TestLayout(new Dimension(1000, 1000)));
+    /**
+     * Defaults width & height to 100% of the parent.
+     */
+    public MyContainer() {
+        this(100, 100);
     }
 
-    // |c1c2c3|
-    // components can be packed together like above
-    // |c1 c2 c3|
-    // components can have gaps between each other
-    // solve by adding component paddings in px for: right, left, top, bottom
-    // |c1 c2          c3|
-    // can have absolute postions like in this case at the end.
-    // solve by adding component positions for: right, left, top, bottom, center
-    // default setting for layout: center
-    // |c1 +C2+ c3|
-    // can be vertically bigger or smaller than others
+    public MyContainer(int widthPercent, int heightPercent) {
+        super(new MyLayout(new Dimension(0, 0)));
+        setBackground(new Color(0, true)); // transparent
+        updateSize(widthPercent, heightPercent);
+    }
+
+    public void updateSize(int widthPercent, int heightPercent) {
+        int parentWidth, parentHeight;
+        Container parent = this.getParent();
+        if (parent != null) {
+            parentWidth = parent.getWidth();
+            parentHeight = parent.getHeight();
+        } else { // If no parent provided use the screen dimensions
+            parentWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+            parentHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+        }
+
+        Dimension size = new Dimension(parentWidth / 100 * widthPercent,
+                parentHeight / 100 * heightPercent);
+        ((MyLayout) getLayout()).minimumSize = size;
+        ((MyLayout) getLayout()).preferredSize = size;
+        setSize(size);
+        setPreferredSize(size);
+        setMinimumSize(size);
+        setMaximumSize(size);
+        updateUI();
+    }
+
+    public void updateUI() {
+        revalidate();
+        repaint();
+    }
 
     /**
      * Access this container in a thread-safe way. <br>
-     * Performs {@link #revalidate()} and {@link #repaint()} when done running the provided code.
+     * Performs {@link #updateUI()} when done running the provided code.
      *
      * @param code to be run in this containers' context.
      */
-    public synchronized TestContainer access(Runnable code) {
+    public synchronized MyContainer access(Runnable code) {
         code.run();
-        revalidate();
-        repaint();
+        updateUI();
         return this;
     }
 
@@ -90,14 +113,14 @@ public class TestContainer extends JPanel {
 
     /**
      * @throws IllegalArgumentException when provided layout
-     *                                  not of type {@link TestLayout}.
+     *                                  not of type {@link MyLayout}.
      */
     @Override
     public void setLayout(LayoutManager mgr) {
-        if (mgr instanceof TestLayout)
+        if (mgr instanceof MyLayout)
             super.setLayout(mgr);
         else
-            throw new IllegalArgumentException("Layout must be of type: " + TestLayout.class.getName());
+            throw new IllegalArgumentException("Layout must be of type: " + MyLayout.class.getName());
     }
 
     /**

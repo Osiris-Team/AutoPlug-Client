@@ -11,5 +11,7 @@ package com.osiris.autoplug.client.ui.layout;
 class UITest {
     public static void main(String[] args) throws Exception {
         new TestWindow();
+        while (true)
+            Thread.sleep(1000);
     }
 }

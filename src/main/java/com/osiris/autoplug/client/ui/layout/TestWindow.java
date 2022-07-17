@@ -16,7 +16,7 @@ import com.osiris.autoplug.client.ui.UIDebugWindow;
 import com.osiris.autoplug.core.logger.AL;
 
 import javax.swing.*;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.RoundRectangle2D;
@@ -94,7 +94,7 @@ public class TestWindow extends JFrame {
 
 
         // Add stuff to main window
-        TestContainer vlTitle = new TestContainer();
+        MyContainer vlTitle = new MyContainer();
         this.getContentPane().add(vlTitle);
         vlTitle.isDebug = true;
         vlTitle.access(() -> {

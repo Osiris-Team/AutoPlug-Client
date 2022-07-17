@@ -8,16 +8,14 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.layout.VL;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class SettingsPanel extends VL {
-    public SettingsPanel(Container parent) {
-        super(parent);
+public class SettingsPanel extends MyContainer {
+    public SettingsPanel() {
         JButton btnOpenUIDebug = new JButton("Open UI-Debug");
         this.addV(btnOpenUIDebug);
         btnOpenUIDebug.addMouseListener(new MouseListener().onClick(click -> {

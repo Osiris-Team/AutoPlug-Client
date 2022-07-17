@@ -16,27 +16,25 @@ import java.util.Objects;
 
 /**
  * Note that this class is private to classes outside this package, due to it
- * being specifically designed for {@link TestContainer} and thus not being compatible with other containers.
+ * being specifically designed for {@link MyContainer} and thus not being compatible with other containers.
  * If used on another container you probably will get {@link ClassCastException}s. <p>
  * <p>
  * Features: <br>
  * - Ensures the container never expands if the components require more space.
  * This is done by overriding the container max size at {@link #preferredLayoutSize(Container)}. <br>
  */
-class TestLayout implements LayoutManager {
-    private final int vgap;
+class MyLayout implements LayoutManager {
     public int minWidth = 0, minHeight = 0;
     public int preferredWidth = 0, preferredHeight = 0;
     public Dimension minimumSize, preferredSize;
 
-    public TestLayout(Dimension size) {
+    public MyLayout(Dimension size) {
         this(size, size);
     }
 
-    public TestLayout(Dimension minimumSize, Dimension preferredSize) {
+    public MyLayout(Dimension minimumSize, Dimension preferredSize) {
         this.minimumSize = minimumSize;
         this.preferredSize = preferredSize;
-        vgap = 5;
     }
 
     @Override
@@ -63,7 +61,7 @@ class TestLayout implements LayoutManager {
 
     @Override
     public void layoutContainer(Container _container) {
-        TestContainer container = (TestContainer) _container;
+        MyContainer container = (MyContainer) _container;
         synchronized (container.getTreeLock()) {
             System.out.println("layoutContainer " + container);
             container.setMaximumSize(preferredSize); // Make sure maximum is never bigger than preferred.
@@ -146,7 +144,7 @@ class TestLayout implements LayoutManager {
     }
 
 
-    private void drawDebugLines(TestContainer container) {
+    private void drawDebugLines(MyContainer container) {
         Graphics2D g = (Graphics2D) container.getGraphics();
         if (g == null) return;
         for (Component comp : container.getComponents()) {
@@ -161,11 +159,5 @@ class TestLayout implements LayoutManager {
             g.setColor(Color.blue); // Actual component width/height
             g.drawRect(comp.getX(), comp.getY(), comp.getWidth(), comp.getHeight());
         }
-    }
-
-    public String toString() {
-        System.out.println("toString");
-        String str = "";
-        return getClass().getName() + "[vgap=" + vgap + str + "]";
     }
 }

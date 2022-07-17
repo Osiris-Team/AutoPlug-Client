@@ -14,7 +14,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.ui.layout.VL;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
@@ -134,7 +134,7 @@ public class MainWindow extends JFrame {
 
 
         // Add stuff to main window
-        VL vlTitle = new VL(this, 10);
+        MyContainer vlTitle = new MyContainer(100, 10);
         this.getContentPane().add(vlTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
@@ -150,13 +150,13 @@ public class MainWindow extends JFrame {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
         // Tab panels/layouts
-        tabbedPane.addTab("Home", new HomePanel(tabbedPane));
+        tabbedPane.addTab("Home", new HomePanel());
         if (Main.TARGET == Target.MINECRAFT_CLIENT) {
-            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
+            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel();
             tabbedPane.addTab("Mods", minecraftMods);
         } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
-            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
-            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
+            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel();
+            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel();
             tabbedPane.addTab("Plugins", minecraftPluginsPanel);
             tabbedPane.addTab("Mods", minecraftModsPanel);
         } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
@@ -168,7 +168,7 @@ public class MainWindow extends JFrame {
         } else { // Target.OTHER
 
         }
-        SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
+        SettingsPanel settingsPanel = new SettingsPanel();
         tabbedPane.addTab("Settings", settingsPanel);
         //tabbedPane.addChangeListener(e -> selectedTabChanged());
 

@@ -27,7 +27,7 @@ public class Styles {
      * layouts and components.
      * Usually gets updated/set inside the layout class.
      *
-     * @see TestLayout
+     * @see MyLayout
      */
     public DebugInfo debugInfo;
 

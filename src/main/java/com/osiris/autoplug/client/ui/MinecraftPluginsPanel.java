@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.layout.VL;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
@@ -24,12 +24,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftPluginsPanel extends VL {
+public class MinecraftPluginsPanel extends MyContainer {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 
-    public MinecraftPluginsPanel(Container parent) throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
-        super(parent);
+    public MinecraftPluginsPanel() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         this.addV(btnRefreshData);
         this.addV(table);
         updateData();
@@ -69,7 +68,7 @@ public class MinecraftPluginsPanel extends VL {
         }
 
         // Update UI
-        this._remove(table);
+        this.remove(table);
         table = new JTable(data, columnNames);
         this.addV(table);
         table.setBackground(new Color(0, true)); // transparent
