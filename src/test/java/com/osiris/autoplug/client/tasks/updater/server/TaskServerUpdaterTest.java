@@ -33,6 +33,7 @@ class TaskServerUpdaterTest {
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
         updaterConfig.server_software.setValues("paper");
         updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
@@ -52,6 +53,7 @@ class TaskServerUpdaterTest {
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
         updaterConfig.server_software.setValues("purpur");
         updaterConfig.server_version.setValues("1.18.2");
+        updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
