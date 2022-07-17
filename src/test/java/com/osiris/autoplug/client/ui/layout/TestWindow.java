@@ -108,7 +108,11 @@ public class TestWindow extends JFrame {
             vlTitle.add(titleTray);
 
             vlTitle.addV(new JLabel("aughh"));
+            vlTitle.addH(new JLabel("LETS GOOO"));
+            vlTitle.addH(new JLabel("LETS GOOO"));
+            vlTitle.addH(new JLabel("LETS GOOO"));
             vlTitle.addV(new JLabel("aughh"));
+            vlTitle.addH(new JLabel("LETS GOOO"));
         });
     }
 }
