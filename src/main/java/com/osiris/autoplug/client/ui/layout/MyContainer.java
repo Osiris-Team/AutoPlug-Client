@@ -18,6 +18,7 @@ import java.util.Map;
  * as simple as writing basic english. <p>
  */
 public class MyContainer extends JPanel {
+    private final Container parent;
     /**
      * Styles for this container.
      */
@@ -42,34 +43,41 @@ public class MyContainer extends JPanel {
     public boolean isCropToContent = false;
 
     /**
-     * Defaults width & height to 100% of the parent.
+     * Defaults width & height to 100% of the WINDOW.
      */
     public MyContainer() {
-        this(100, 100);
+        this(null);
+    }
+
+    /**
+     * Defaults width & height to 100% of the PARENT.
+     */
+    public MyContainer(Container parent) {
+        this(parent, 100, 100);
     }
 
     /**
      * Crops to the content of the container, aka
      * the total width & height of all its child components. <br>
-     * If false, defaults width & height to 100% of the parent.
+     * If false, defaults width & height to 100% of the WINDOW.
      *
      * @see #isCropToContent
      */
     public MyContainer(boolean isCropToContent) {
-        this(100, 100);
+        this(null, 100, 100);
         this.isCropToContent = isCropToContent;
         updateUI();
     }
 
-    public MyContainer(int widthPercent, int heightPercent) {
+    public MyContainer(Container parent, int widthPercent, int heightPercent) {
         super(new MyLayout(new Dimension(0, 0)));
+        this.parent = parent;
         setBackground(new Color(0, true)); // transparent
         updateSize(widthPercent, heightPercent);
     }
 
     public void updateSize(int widthPercent, int heightPercent) {
         int parentWidth, parentHeight;
-        Container parent = this.getParent();
         if (parent != null) {
             parentWidth = parent.getWidth();
             parentHeight = parent.getHeight();
@@ -80,12 +88,17 @@ public class MyContainer extends JPanel {
 
         Dimension size = new Dimension(parentWidth / 100 * widthPercent,
                 parentHeight / 100 * heightPercent);
+
+        // Update layout sizes
         ((MyLayout) getLayout()).minimumSize = size;
         ((MyLayout) getLayout()).preferredSize = size;
+
+        // Update container sizes
         setSize(size);
         setPreferredSize(size);
         setMinimumSize(size);
         setMaximumSize(size);
+
         updateUI();
     }
 

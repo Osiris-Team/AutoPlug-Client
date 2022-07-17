@@ -14,6 +14,7 @@ import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -23,7 +24,8 @@ public class HomePanel extends MyContainer {
     public MyContainer txtConsole = new MyContainer();
     public JTextField txtSendCommand = new JTextField();
 
-    public HomePanel() {
+    public HomePanel(Container parent) throws Exception {
+        super(parent);
         this.addV(txtConsole).left();
         this.addV(new JScrollPane(txtConsole, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)).left();

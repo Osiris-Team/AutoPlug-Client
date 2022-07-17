@@ -13,9 +13,11 @@ import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class SettingsPanel extends MyContainer {
-    public SettingsPanel() {
+    public SettingsPanel(Container parent) throws Exception {
+        super(parent);
         JButton btnOpenUIDebug = new JButton("Open UI-Debug");
         this.addV(btnOpenUIDebug);
         btnOpenUIDebug.addMouseListener(new MouseListener().onClick(click -> {

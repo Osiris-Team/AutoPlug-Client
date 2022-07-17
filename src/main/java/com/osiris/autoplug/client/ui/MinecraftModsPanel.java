@@ -28,7 +28,8 @@ public class MinecraftModsPanel extends MyContainer {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 
-    public MinecraftModsPanel() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+    public MinecraftModsPanel(Container parent) throws Exception {
+        super(parent);
         this.addV(btnRefreshData);
         this.addV(table);
         updateData();

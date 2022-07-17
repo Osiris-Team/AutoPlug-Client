@@ -8,10 +8,12 @@
 
 package com.osiris.autoplug.client.ui;
 
-import javax.swing.*;
+import com.osiris.autoplug.client.ui.layout.MyContainer;
 
-public class MindustryModsPanel extends JPanel {
-    public MindustryModsPanel() {
+import java.awt.*;
 
+public class MindustryModsPanel extends MyContainer {
+    public MindustryModsPanel(Container parent) {
+        super(parent);
     }
 }

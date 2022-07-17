@@ -18,16 +18,11 @@ import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.YamlReaderException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
@@ -80,15 +75,11 @@ public class MainWindow extends JFrame {
                 InputStream link = (getClass().getResourceAsStream("/autoplug-icon.png"));
                 Files.copy(link, icon.toPath());
             }
-            ActionListener listener = e -> {
-                System.out.println("command: " + e.getActionCommand() + " param:" + e.paramString() + " modifiers:" + e.getModifiers());
-            };
             Image image = Toolkit.getDefaultToolkit().getImage(icon.getAbsolutePath());
             trayIcon = new TrayIcon(image, "AutoPlug", null);
             trayIcon.addMouseListener(new MouseListener().onClick(event -> {
                 this.setVisible(true);
             }));
-            trayIcon.addActionListener(listener);
             trayIcon.setImageAutoSize(true);
             try {
                 tray.add(trayIcon);
@@ -116,7 +107,7 @@ public class MainWindow extends JFrame {
         } else throw new Exception("Failed to create system tray GUI: Not supported on your system.");
     }
 
-    private void initUI() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+    private void initUI() throws Exception {
         // TODO dont stop full autoplug when this window is closed
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setName("AutoPlug-Tray");
@@ -134,7 +125,7 @@ public class MainWindow extends JFrame {
 
 
         // Add stuff to main window
-        MyContainer vlTitle = new MyContainer(100, 10);
+        MyContainer vlTitle = new MyContainer(true);
         this.getContentPane().add(vlTitle);
         JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
         titleAutoPlug.setText("AutoPlug");
@@ -150,25 +141,25 @@ public class MainWindow extends JFrame {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
         // Tab panels/layouts
-        tabbedPane.addTab("Home", new HomePanel());
+        tabbedPane.addTab("Home", new HomePanel(tabbedPane));
         if (Main.TARGET == Target.MINECRAFT_CLIENT) {
-            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel();
+            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
             tabbedPane.addTab("Mods", minecraftMods);
         } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
-            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel();
-            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel();
+            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
+            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
             tabbedPane.addTab("Plugins", minecraftPluginsPanel);
             tabbedPane.addTab("Mods", minecraftModsPanel);
         } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
-            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel();
+            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
             tabbedPane.addTab("Mods", mindustryModsPanel);
         } else if (Main.TARGET == Target.MINDUSTRY_CLIENT) {
-            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel();
+            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
             tabbedPane.addTab("Mods", mindustryModsPanel);
         } else { // Target.OTHER
 
         }
-        SettingsPanel settingsPanel = new SettingsPanel();
+        SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
         tabbedPane.addTab("Settings", settingsPanel);
         //tabbedPane.addChangeListener(e -> selectedTabChanged());
 
