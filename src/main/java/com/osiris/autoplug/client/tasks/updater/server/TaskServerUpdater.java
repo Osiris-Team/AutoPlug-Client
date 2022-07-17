@@ -303,6 +303,7 @@ public class TaskServerUpdater extends BThread {
     private void doMCServerUpdaterLogic() {
         UpdateBuilder updateBuilder = UpdateBuilder.updateProject(serverSoftware).version(serverVersion);
 
+        // Change the output file based on the profile.
         File outputFile;
         if (profile.equals("MANUAL")) {
             outputFile = new File(downloadsDir.getAbsolutePath() + "/" + serverSoftware + "-latest.jar");
@@ -313,10 +314,12 @@ public class TaskServerUpdater extends BThread {
         }
         updateBuilder.outputFile(outputFile);
 
+        // If it's NOTIFY profile, we don't need to download anything, only check if the server is up-to-date.
         if (profile.equals("NOTIFY")) {
             updateBuilder.checkOnly(true);
         }
 
+        // Use build-id from the config as the checksum
         updateBuilder.checksumSupplier(() -> updaterConfig.server_build_id.asString());
         updateBuilder.checksumConsumer(checksum -> {
             updaterConfig.server_build_id.setValues(checksum);
@@ -327,6 +330,7 @@ public class TaskServerUpdater extends BThread {
             }
         });
 
+        // Do the update
         try {
             UpdateStatus status = updateBuilder.execute();
             if (status == UpdateStatus.OUT_OF_DATE) {
