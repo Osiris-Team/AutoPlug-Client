@@ -8,11 +8,8 @@
 
 package com.osiris.autoplug.client.ui.layout;
 
-import org.junit.jupiter.api.Test;
-
 class UITest {
-    @Test
-    void test() throws Exception {
+    public static void main(String[] args) throws Exception {
         new TestWindow();
     }
 }
