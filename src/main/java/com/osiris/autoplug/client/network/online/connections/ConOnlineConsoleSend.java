@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.events.MessageEvent;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.Message;
@@ -76,19 +77,10 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
 
             // Sending recent server log
             try {
-                File latestLog = null;
-                for (File f :
-                        new File(System.getProperty("user.dir") + "/logs").listFiles()) {
-                    if (!f.isDirectory() && f.getName().contains("latest")) {
-                        latestLog = f;
-                        AL.debug(this.getClass(), "Found latest log at: " + f.getAbsolutePath());
-                        break;
-                    }
-                }
-                if (latestLog == null)
+                if (!GD.LOG_FILE.exists())
                     AL.warn("Failed to find latest server log file. Not sending recent server log to console.");
                 else {
-                    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(latestLog))) {
+                    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(GD.FILE_OUT))) {
                         String line;
                         while ((line = bufferedReader.readLine()) != null) {
                             send(line);
