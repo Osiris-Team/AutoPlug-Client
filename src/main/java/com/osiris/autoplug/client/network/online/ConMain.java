@@ -34,6 +34,7 @@ public class ConMain extends Thread {
     public static boolean isLoggedInOld = false; // Local variable that holds the auth boolean before the current one
     public SecuredConnection con;
     public DataInputStream dis;
+    public int msUntilRetry = 30000;
 
     @Override
     public void run() {
@@ -50,7 +51,6 @@ public class ConMain extends Thread {
             isDone = true;
             return;
         }
-        int msUntilRetry = 30000;
         while (true) {
             try {
                 if (con == null || !con.isAlive()) {

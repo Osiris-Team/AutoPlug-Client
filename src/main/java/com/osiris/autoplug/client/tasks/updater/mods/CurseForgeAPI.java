@@ -15,8 +15,8 @@ import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.autoplug.client.utils.UtilsVersion;
-import com.osiris.autoplug.client.utils.sort.QuickSort;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.autoplug.core.sort.QuickSort;
 
 import java.io.BufferedReader;
 import java.io.IOException;

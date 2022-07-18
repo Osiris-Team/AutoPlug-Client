@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.search;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.core.json.JsonTools;
+import com.osiris.autoplug.core.json.Json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,15 +28,14 @@ public class JenkinsSearch {
         int latest_build_id = 0;
         String fileName = null;
         try {
-            JsonTools json_tools = new JsonTools();
-            JsonObject json_project = json_tools.getJsonObject(project_url + "/api/json");
+            JsonObject json_project = Json.fromUrlAsObject(project_url + "/api/json");
             JsonObject json_last_successful_build = json_project.get("lastSuccessfulBuild").getAsJsonObject();
             latest_build_id = json_last_successful_build.get("number").getAsInt();
             latestVersion = "" + latest_build_id;
             if (latest_build_id > build_id) {
                 resultCode = 1;
                 String buildUrl = json_last_successful_build.get("url").getAsString() + "/api/json";
-                JsonArray arrayArtifacts = json_tools.getJsonObject(buildUrl).getAsJsonArray("artifacts");
+                JsonArray arrayArtifacts = Json.fromUrlAsObject(buildUrl).getAsJsonArray("artifacts");
 
                 // Contains JsonObjects sorted by their artifact names lengths, from smallest to longest.
                 // The following does that sorting.

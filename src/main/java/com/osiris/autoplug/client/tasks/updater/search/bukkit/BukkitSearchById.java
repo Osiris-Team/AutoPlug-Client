@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsVersion;
-import com.osiris.autoplug.core.json.JsonTools;
+import com.osiris.autoplug.core.json.Json;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.util.regex.Matcher;
@@ -36,7 +36,7 @@ public class BukkitSearchById {
         String downloadType = "unknown";
         byte code = 0;
         try {
-            versions = new JsonTools().getJsonArray(url);
+            versions = Json.fromUrlAsJsonArray(url);
             json = versions.get(versions.size() - 1).getAsJsonObject();
             latest = json.get("name").getAsString();
             if (latest != null)

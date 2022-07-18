@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.tasks.updater.search.spigot;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.core.json.JsonTools;
+import com.osiris.autoplug.core.json.Json;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class SpigetAPI {
      */
     public JsonArray getPlugins(String queryPlName) throws Exception {
         try {
-            return new JsonTools().getJsonArray(LINK_SEARCH_RESOURCES + queryPlName);
+            return Json.fromUrlAsJsonArray(LINK_SEARCH_RESOURCES + queryPlName);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;
@@ -58,7 +58,7 @@ public class SpigetAPI {
      */
     public JsonArray getAuthors(String queryAuthorName) throws Exception {
         try {
-            return new JsonTools().getJsonArray(LINK_SEARCH_AUTHORS + queryAuthorName);
+            return Json.fromUrlAsJsonArray(LINK_SEARCH_AUTHORS + queryAuthorName);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;
@@ -76,7 +76,7 @@ public class SpigetAPI {
             throw new Exception("AuthorID is either null or equals '0'!"); // TODO ISSUE OPEN HERE: https://github.com/SpiGetOrg/Spiget/issues/32
 
         try {
-            return new JsonTools().getJsonObject(LINK_AUTHORS + authorId);
+            return Json.fromUrlAsObject(LINK_AUTHORS + authorId);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;
@@ -91,7 +91,7 @@ public class SpigetAPI {
      */
     public JsonArray getAuthorResources(String authorId) throws Exception {
         try {
-            return new JsonTools().getJsonArray(LINK_AUTHORS + authorId + "/resources?size=100&sort=-downloads");
+            return Json.fromUrlAsJsonArray(LINK_AUTHORS + authorId + "/resources?size=100&sort=-downloads");
             // Limit the max size to 100 and sort by most downloads to increase the chance of a match.
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
@@ -104,7 +104,7 @@ public class SpigetAPI {
 
     public JsonObject getVersionDetails(String pluginId, String versionId) throws Exception {
         try {
-            return new JsonTools().getJsonObject(LINK_API + "resources/" + pluginId + "/versions/" + versionId);
+            return Json.fromUrlAsObject(LINK_API + "resources/" + pluginId + "/versions/" + versionId);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;
@@ -118,7 +118,7 @@ public class SpigetAPI {
      * Get the latest version from this spigot plugin id.
      */
     public String getLatestVersion(String spigotId) throws Exception {
-        return new JsonTools().getJsonArray("https://api.spiget.org/v2/resources/" + spigotId +
+        return Json.fromUrlAsJsonArray("https://api.spiget.org/v2/resources/" + spigotId +
                 "/versions?size=1&sort=-releaseDate").get(0).getAsJsonObject().get("name").getAsString();
     }
 
@@ -134,7 +134,7 @@ public class SpigetAPI {
         List<JsonObject> objectList = new ArrayList<>();
         JsonArray ja = null;
         try {
-            ja = new JsonTools().getJsonArray(url);
+            ja = Json.fromUrlAsJsonArray(url);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;

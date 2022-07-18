@@ -113,13 +113,11 @@ public final class AutoPlugConsole {
                     AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
                     return true;
                 } else if (command.equals(".con reload") || command.equals(".cr")) {
-                    AL.info("It takes around 30 seconds to reconnect. Please be patient.");
-                    if (!Main.CON_MAIN.isAlive() || Main.CON_MAIN.isInterrupted()) {
-                        Main.CON_MAIN = new ConMain();
-                        Main.CON_MAIN.start();
-                        return true;
-                    }
+                    Main.CON_MAIN.msUntilRetry = 1000;
                     Main.CON_MAIN.closeAll();
+                    Main.CON_MAIN.interrupt();
+                    Main.CON_MAIN = new ConMain();
+                    Main.CON_MAIN.start();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
                     ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;

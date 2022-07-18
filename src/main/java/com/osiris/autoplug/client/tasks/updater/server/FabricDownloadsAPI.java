@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.core.json.JsonTools;
+import com.osiris.autoplug.core.json.Json;
 import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
 import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
 import com.osiris.autoplug.core.logger.AL;
@@ -25,7 +25,7 @@ public class FabricDownloadsAPI {
         final String url = baseUrl + "/loader?limit=1";
         AL.debug(this.getClass(), url);
         JsonObject latest = new JsonObject();
-        JsonArray array = new JsonTools().getJsonArray(url);
+        JsonArray array = Json.fromUrlAsJsonArray(url);
         AL.debug(this.getClass(), "Got from URL:\t" + array.toString());
         for (JsonElement element : array) {
             JsonObject obj = element.getAsJsonObject();
@@ -45,7 +45,7 @@ public class FabricDownloadsAPI {
         final String url = baseUrl + "/installer?limit=1";
         AL.debug(this.getClass(), url);
         JsonObject latest = new JsonObject();
-        JsonArray array = new JsonTools().getJsonArray(url);
+        JsonArray array = Json.fromUrlAsJsonArray(url);
         AL.debug(this.getClass(), "Got from URL:\t" + array.toString());
         for (JsonElement element : array) {
             JsonObject obj = element.getAsJsonObject();
