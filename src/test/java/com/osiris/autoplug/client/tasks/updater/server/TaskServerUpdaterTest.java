@@ -72,7 +72,7 @@ class TaskServerUpdaterTest {
 
     @Test
     void testWaterfall() throws Exception {
-        defaultTest("waterfall");
+        defaultTest("waterfall", "1.18");
     }
 
     @Test
@@ -82,7 +82,7 @@ class TaskServerUpdaterTest {
 
     @Test
     void testTravertine() throws Exception {
-        defaultTest("travertine", "1.7");
+        defaultTest("travertine", "1.16");
     }
 
     @Test
@@ -102,7 +102,7 @@ class TaskServerUpdaterTest {
 
     @Test
     void testSpongeForge() throws Exception {
-        defaultTest("spongeforge");
+        defaultTest("spongeforge", "1.16.5");
     }
 
     @Test
