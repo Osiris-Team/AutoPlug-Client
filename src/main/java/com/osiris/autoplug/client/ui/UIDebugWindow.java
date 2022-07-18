@@ -46,8 +46,8 @@ public class UIDebugWindow extends JFrame {
         } catch (Exception e) {
             AL.warn("Failed to init GUI light theme!", e);
         }
-        this.setName("AutoPlug-Tray/UI-Debug");
-        this.setTitle("AutoPlug-Tray/UI-Debug");
+        this.setName("Debug " + targetComponent.getClass().getSimpleName());
+        this.setName("Debug " + targetComponent.getClass().getSimpleName());
         int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width, screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         int width = (screenWidth / 2), height = screenHeight / 2;
         this.setLocation((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2)); // Position frame in mid of screen
@@ -78,7 +78,7 @@ public class UIDebugWindow extends JFrame {
         tree.setShowsRootHandles(true);
         tree.setEditable(false);
 
-        MyContainer lyRight = new MyContainer();
+        MyContainer lyRight = new MyContainer(splitPane);
         splitPane.setRightComponent(lyRight);
         lyRight.addV(new JLabel("Double-click an item on the left, to display its details here."))
                 .center();

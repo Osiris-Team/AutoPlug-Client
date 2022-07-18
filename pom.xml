@@ -232,6 +232,13 @@
         <finalName>${project.name}</finalName>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
+            <!-- Responsible for running all tests before building. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
