@@ -96,6 +96,16 @@ class TaskServerUpdaterTest {
     }
 
     @Test
+    void testSpongeVanilla() throws Exception {
+        defaultTest("spongevanilla");
+    }
+
+    @Test
+    void testSpongeForge() throws Exception {
+        defaultTest("spongeforge");
+    }
+
+    @Test
     void testPatina() throws Exception {
         defaultTest("patina");
     }
