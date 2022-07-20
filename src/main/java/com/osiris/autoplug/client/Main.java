@@ -27,6 +27,7 @@ import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import org.fusesource.jansi.AnsiConsole;
@@ -110,6 +111,7 @@ public class Main {
             YamlSection debug = logC.put("logger", "debug").setDefValues("false");
             YamlSection autoplug_label = logC.put("logger", "autoplug-label").setDefValues("AP");
             YamlSection force_ansi = logC.put("logger", "force-ANSI").setDefValues("false");
+            MessageFormatter.dtf_small = MessageFormatter.dtf_long;
             AL.start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
                     GD.LOG_FILE,

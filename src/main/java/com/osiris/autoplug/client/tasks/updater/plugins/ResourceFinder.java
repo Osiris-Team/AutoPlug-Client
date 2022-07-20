@@ -45,7 +45,7 @@ public class ResourceFinder {
      * If the modrinth/bukkit id is not given this type of search
      * based on the mods' name and author will be executed.
      */
-    public SearchResult findUnknownMod(MinecraftMod mod, String mcVersion) {
+    public SearchResult findByModrinthOrCurseforge(MinecraftMod mod, String mcVersion) {
         // Do spigot search by name
         SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
 
