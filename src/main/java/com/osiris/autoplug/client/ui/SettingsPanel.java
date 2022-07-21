@@ -8,14 +8,15 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterlayout.BLayout;
+import com.osiris.betterlayout.utils.UIDebugWindow;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SettingsPanel extends MyContainer {
+public class SettingsPanel extends BLayout {
     public SettingsPanel(Container parent) throws Exception {
         super(parent);
         JButton btnOpenUIDebug = new JButton("Open UI-Debug");

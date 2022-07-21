@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterlayout.BLayout;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftPluginsPanel extends MyContainer {
+public class MinecraftPluginsPanel extends BLayout {
     public JButton btnRefreshData = new JButton("Refresh");
     public JTable table = new JTable();
 

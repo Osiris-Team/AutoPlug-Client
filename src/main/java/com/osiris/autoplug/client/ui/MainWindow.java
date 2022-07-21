@@ -14,13 +14,16 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.client.ui.utils.MouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
+import com.osiris.betterlayout.BLayout;
+import com.osiris.betterlayout.utils.UIDebugWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.InputStream;
@@ -38,7 +41,22 @@ public class MainWindow extends JFrame {
         GET = this;
         initTheme();
         start();
-        new UIDebugWindow(this);
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_F12)
+                    new UIDebugWindow(GET);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+        new UIDebugWindow(GET);
     }
 
     public void initTheme() {
@@ -120,48 +138,51 @@ public class MainWindow extends JFrame {
         this.setSize(width, height);
         this.setVisible(false);
 
-        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-        //this.setContentPane(new ScrollPane()); // Also sets the layout to scroll
+        BLayout thisLy = new BLayout(this);
+        this.setContentPane(thisLy);
+        thisLy.access(() -> {
+            // Add stuff to main window
+            BLayout vlTitle = new BLayout(this, true);
+            thisLy.addV(vlTitle);
+            JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
+            titleAutoPlug.setText("AutoPlug");
+            titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
+            vlTitle.addH(titleAutoPlug);
 
+            titleTray.setText(" | Tray");
+            titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
+            vlTitle.addH(titleTray);
 
-        // Add stuff to main window
-        MyContainer vlTitle = new MyContainer(true);
-        this.getContentPane().add(vlTitle);
-        JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
-        titleAutoPlug.setText("AutoPlug");
-        titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-        vlTitle.addH(titleAutoPlug);
+            JTabbedPane tabbedPane = new JTabbedPane();
+            thisLy.addV(tabbedPane);
+            tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-        titleTray.setText(" | Tray");
-        titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-        vlTitle.addH(titleTray);
+            // Tab panels/layouts
+            try {
+                tabbedPane.addTab("Home", new HomePanel(tabbedPane));
+                if (Main.TARGET == Target.MINECRAFT_CLIENT) {
+                    MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
+                    tabbedPane.addTab("Mods", minecraftMods);
+                } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
+                    MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
+                    MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
+                    tabbedPane.addTab("Plugins", minecraftPluginsPanel);
+                    tabbedPane.addTab("Mods", minecraftModsPanel);
+                } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
+                    MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
+                    tabbedPane.addTab("Mods", mindustryModsPanel);
+                } else if (Main.TARGET == Target.MINDUSTRY_CLIENT) {
+                    MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
+                    tabbedPane.addTab("Mods", mindustryModsPanel);
+                } else { // Target.OTHER
 
-        JTabbedPane tabbedPane = new JTabbedPane();
-        this.getContentPane().add(tabbedPane);
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-        // Tab panels/layouts
-        tabbedPane.addTab("Home", new HomePanel(tabbedPane));
-        if (Main.TARGET == Target.MINECRAFT_CLIENT) {
-            MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
-            tabbedPane.addTab("Mods", minecraftMods);
-        } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
-            MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
-            MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
-            tabbedPane.addTab("Plugins", minecraftPluginsPanel);
-            tabbedPane.addTab("Mods", minecraftModsPanel);
-        } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
-            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
-            tabbedPane.addTab("Mods", mindustryModsPanel);
-        } else if (Main.TARGET == Target.MINDUSTRY_CLIENT) {
-            MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
-            tabbedPane.addTab("Mods", mindustryModsPanel);
-        } else { // Target.OTHER
-
-        }
-        SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
-        tabbedPane.addTab("Settings", settingsPanel);
-        //tabbedPane.addChangeListener(e -> selectedTabChanged());
-
+                }
+                SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
+                tabbedPane.addTab("Settings", settingsPanel);
+                //tabbedPane.addChangeListener(e -> selectedTabChanged());
+            } catch (Exception e) {
+                AL.warn(e);
+            }
+        });
     }
 }

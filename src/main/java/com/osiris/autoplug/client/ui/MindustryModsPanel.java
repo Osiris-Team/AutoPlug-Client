@@ -8,11 +8,11 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.layout.MyContainer;
+import com.osiris.betterlayout.BLayout;
 
 import java.awt.*;
 
-public class MindustryModsPanel extends MyContainer {
+public class MindustryModsPanel extends BLayout {
     public MindustryModsPanel(Container parent) {
         super(parent);
     }

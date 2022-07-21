@@ -9,22 +9,22 @@
 package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.console.AutoPlugConsole;
-import com.osiris.autoplug.client.ui.layout.MyContainer;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
+import com.osiris.betterlayout.BLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class HomePanel extends MyContainer {
+public class HomePanel extends BLayout {
 
     public JLabel labelConsole = new JLabel("Console");
-    public MyContainer txtConsole = new MyContainer();
+    public BLayout txtConsole = new BLayout();
     public JTextField txtSendCommand = new JTextField();
 
-    public HomePanel(Container parent) throws Exception {
+    public HomePanel(Container parent) {
         super(parent);
         this.addV(txtConsole).left();
         this.addV(new JScrollPane(txtConsole, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -34,7 +34,6 @@ public class HomePanel extends MyContainer {
         AL.actionsOnMessageEvent.add(msg -> {
             SwingUtilities.invokeLater(() -> {
                 txtConsole.addV(new JLabel(MessageFormatter.formatForFile(msg))).left();
-                txtConsole.updateUI();
                 //txtConsole.setText(txtConsole.getText() +  + "\n");
             });
         });
