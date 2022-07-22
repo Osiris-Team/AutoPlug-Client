@@ -34,7 +34,9 @@ public class JenkinsSearch {
             latestVersion = "" + latest_build_id;
             if (latest_build_id > build_id) {
                 resultCode = 1;
-                String buildUrl = json_last_successful_build.get("url").getAsString() + "/api/json";
+                String buildUrl = json_last_successful_build.get("url").getAsString();
+                if (!buildUrl.endsWith("api/json"))
+                    buildUrl = buildUrl + (buildUrl.endsWith("/") ? "" : "/") + "api/json";
                 JsonArray arrayArtifacts = Json.fromUrlAsObject(buildUrl).getAsJsonArray("artifacts");
 
                 // Contains JsonObjects sorted by their artifact names lengths, from smallest to longest.
