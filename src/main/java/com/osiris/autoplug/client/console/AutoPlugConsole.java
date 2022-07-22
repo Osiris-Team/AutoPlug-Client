@@ -120,6 +120,7 @@ public final class AutoPlugConsole {
                     Main.CON_MAIN.start();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
+                    AL.info("AutoPlug-Version: " + Server.isRunning());
                     ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
                     ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());

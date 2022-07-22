@@ -56,7 +56,6 @@ public class MainWindow extends JFrame {
             public void keyReleased(KeyEvent e) {
             }
         });
-        new UIDebugWindow(GET);
     }
 
     public void initTheme() {
