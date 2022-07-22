@@ -142,19 +142,17 @@ public class MainWindow extends JFrame {
         this.setContentPane(thisLy);
         thisLy.access(() -> {
             // Add stuff to main window
-            BLayout vlTitle = new BLayout(this, true);
-            thisLy.addV(vlTitle);
             JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
             titleAutoPlug.setText("AutoPlug");
             titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-            vlTitle.addH(titleAutoPlug);
+            thisLy.addH(titleAutoPlug);
 
             titleTray.setText(" | Tray");
             titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-            vlTitle.addH(titleTray);
+            thisLy.addH(titleTray).delPadding().paddingTop();
 
             JTabbedPane tabbedPane = new JTabbedPane();
-            thisLy.addV(tabbedPane);
+            thisLy.addV(tabbedPane).height(80).widthFull();
             tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
             // Tab panels/layouts

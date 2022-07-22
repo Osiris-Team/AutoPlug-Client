@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.ui.utils.HintTextField;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterlayout.BLayout;
@@ -17,31 +18,43 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class HomePanel extends BLayout {
 
     public JLabel labelConsole = new JLabel("Console");
-    public BLayout txtConsole = new BLayout();
-    public JTextField txtSendCommand = new JTextField();
+    public BLayout txtConsole;
+    public HintTextField txtSendCommand = new HintTextField("Send command...");
 
     public HomePanel(Container parent) {
         super(parent);
-        this.addV(txtConsole).left();
-        this.addV(new JScrollPane(txtConsole, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)).left();
-        this.addV(txtSendCommand).left();
+        txtConsole = new BLayout(this, 100, 80);
+        txtConsole.defaultCompStyles.delPadding();
+        txtConsole.makeScrollable();
+
+        this.addV(txtSendCommand);
 
         AL.actionsOnMessageEvent.add(msg -> {
-            SwingUtilities.invokeLater(() -> {
-                txtConsole.addV(new JLabel(MessageFormatter.formatForFile(msg))).left();
+            txtConsole.access(() -> {
+                for (JLabel jLabel : toLabel(MessageFormatter.formatForFile(msg))) {
+                    txtConsole.addV(jLabel);
+                }
                 //txtConsole.setText(txtConsole.getText() +  + "\n");
             });
+            txtConsole.scrollToEndV();
         });
         txtSendCommand.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == KeyEvent.VK_ENTER)
+                if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                    txtConsole.access(() -> {
+                        txtConsole.addV(new JLabel(txtSendCommand.getText()));
+                    });
+                    txtConsole.scrollToEndV();
+                    AL.info("Received System-Tray command: '" + txtSendCommand + "'");
                     AutoPlugConsole.executeCommand(txtSendCommand.getText());
+                    txtSendCommand.setText("");
+                }
             }
 
             @Override
@@ -54,5 +67,15 @@ public class HomePanel extends BLayout {
 
             }
         });
+    }
+
+    private java.util.List<JLabel> toLabel(String ansi) {
+        // TODO convert ansi colors to awt
+        String[] lines = ansi.split("\n");
+        java.util.List<JLabel> list = new ArrayList<>();
+        for (String line : lines) {
+            list.add(new JLabel(line));
+        }
+        return list;
     }
 }

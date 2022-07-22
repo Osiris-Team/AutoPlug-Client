@@ -69,10 +69,13 @@ public class MinecraftPluginsPanel extends BLayout {
         }
 
         // Update UI
-        this.remove(table);
-        table = new JTable(data, columnNames);
-        this.addV(table);
-        table.setBackground(new Color(0, true)); // transparent
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        Object[][] finalData = data;
+        this.access(() -> {
+            this.remove(table);
+            table = new JTable(finalData, columnNames);
+            this.addV(table);
+            table.setBackground(new Color(0, true)); // transparent
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        });
     }
 }
