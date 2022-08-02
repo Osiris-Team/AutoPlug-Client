@@ -207,7 +207,7 @@ public class UtilsMinecraft {
                             bukkitId = table.getString("modId");
                         } catch (Exception e) {
                         }
-                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
+                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null, false));
                     } else if (fileName.equals("fabric.mod.json")) { // Fabric mod
                         found = true;
                         JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
@@ -227,7 +227,7 @@ public class UtilsMinecraft {
 
                         // Also check for ids in the config
                         String modrinthId = obj.get("id").getAsString();
-                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null));
+                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, modrinthId, null, null, true));
                     }
                     if (found) break;
                 }

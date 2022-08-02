@@ -37,7 +37,7 @@ class ModrinthAPITest {
         Server.isFabric = true;
         File path = new File(System.getProperty("user.dir") + "/test/FallingTree-1.18.2-3.3.0.jar");
         MinecraftMod mod = new MinecraftMod(path.getAbsolutePath(), "FallingTree", "3.3.0", "RakSrinaNa",
-                "fallingtree", null, null);
+                "fallingtree", null, null, true);
         SearchResult result = api.searchUpdate(mod, "1.18.2");
         if (result.exception != null) {
             if (result.exception instanceof HttpErrorException)

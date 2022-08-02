@@ -17,6 +17,7 @@ import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.sort.QuickSort;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,16 +74,43 @@ public class CurseForgeAPI {
             JsonObject release = null;
             for (int i = arr.size() - 1; i >= 0; i--) {
                 JsonObject tempRelease = arr.get(i).getAsJsonObject();
-                boolean isCompatible = false;
-                for (JsonElement el :
-                        tempRelease.get("gameVersions").getAsJsonArray()) {
+                boolean isVersionCompatible = false, isModLoaderCompatible = false;
+                for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) {
                     if (el.getAsString().equals(mcVersion)) {
-                        isCompatible = true;
+                        isVersionCompatible = true;
                         break;
                     }
                 }
 
-                if (isCompatible) {
+                if (mod.isFabric) { // FABRIC
+                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain fabric
+                        if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
+                            isModLoaderCompatible = true;
+                            break;
+                        }
+                    }
+                    if (!isModLoaderCompatible) // check if name contains fabric
+                        if (StringUtils.containsIgnoreCase(
+                                tempRelease.get("fileName").getAsString(),
+                                "fabric")) {
+                            isModLoaderCompatible = true;
+                        }
+                } else { // FORGE
+                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain forge
+                        if (!StringUtils.containsIgnoreCase(el.getAsString(), "forge")) {
+                            isModLoaderCompatible = true;
+                            break;
+                        }
+                    }
+                    if (!isModLoaderCompatible) // check if name contains forge
+                        if (!StringUtils.containsIgnoreCase(
+                                tempRelease.get("fileName").getAsString(),
+                                "forge")) {
+                            isModLoaderCompatible = true;
+                        }
+                }
+
+                if (isVersionCompatible && isModLoaderCompatible) {
                     release = tempRelease;
                     break;
                 }
