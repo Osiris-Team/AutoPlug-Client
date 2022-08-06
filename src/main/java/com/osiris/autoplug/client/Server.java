@@ -64,7 +64,7 @@ public final class Server {
         File serverExe = null;
         while (true) {
             serverExe = new UtilsJar().determineServerJar();
-            if (serverExe == null || !serverExe.exists()) {
+            if (serverExe == null) {
                 serverExe = new FileManager().serverExecutable();
                 if (serverExe == null || !serverExe.exists()) {
                     AL.info("Failed to determine the server executable and start-command.");
@@ -105,7 +105,11 @@ public final class Server {
                         }
                     }
                 }
-            } else break;
+            } else {
+                if (!serverExe.exists())
+                    AL.warn("Note that the provided file doesn't seem to exist, this may cause troubles later.");
+                break;
+            }
         }
         return serverExe;
     }
