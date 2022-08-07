@@ -71,7 +71,8 @@ public class ConSendPrivateDetails extends SecondaryConnection {
 
                         if (cpu != null) {
                             dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
-                            dos.writeFloat((cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz)));
+                            cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz);
+                            dos.writeFloat(Math.max(cpuMaxSpeed, cpuSpeed)); // Support for overclocking
                             dos.writeByte((cpuUsage = (byte) Math.round(cpu.getSystemCpuLoad(1000) * 100)));
                         } else {
                             dos.writeFloat(0);
