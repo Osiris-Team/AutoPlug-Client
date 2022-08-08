@@ -20,6 +20,7 @@ import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
@@ -120,7 +121,7 @@ public final class AutoPlugConsole {
                     Main.CON_MAIN.start();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
-                    AL.info("AutoPlug-Version: " + Server.isRunning());
+                    AL.info("AutoPlug-Version: " + GD.VERSION);
                     ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
                     ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());
