@@ -86,8 +86,8 @@ public class UtilsMinecraft {
                 boolean found = false;
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-                    String fileName = entry.getName();
-                    if (fileName.equals("plugin.yml") || fileName.equals("bungee.yml")) {
+                    String filePath = entry.getName();
+                    if (filePath.endsWith("plugin.yml") || filePath.endsWith("bungee.yml")) {
                         found = true;
                         final Yaml ymlConfig = new Yaml(zipFile.getInputStream(entry), null);
                         ymlConfig.load();
@@ -126,7 +126,7 @@ public class UtilsMinecraft {
                         if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
                         plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
-                    } else if (fileName.equals("velocity-plugin.json")) {
+                    } else if (filePath.endsWith("velocity-plugin.json")) {
                         found = true;
                         JsonObject jsonConfig = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
 
@@ -177,8 +177,8 @@ public class UtilsMinecraft {
                 boolean found = false;
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-                    String fileName = entry.getName();
-                    if (fileName.equals("mods.toml")) { // Forge mod
+                    String filePath = entry.getName();
+                    if (filePath.endsWith("mods.toml")) { // Forge mod
                         found = true;
                         TomlParseResult result = Toml.parse(zipFile.getInputStream(entry));
                         //result.errors().forEach(error -> System.err.println(error.toString())); // Ignore errors
@@ -208,7 +208,7 @@ public class UtilsMinecraft {
                         } catch (Exception e) {
                         }
                         mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null, false));
-                    } else if (fileName.equals("fabric.mod.json")) { // Fabric mod
+                    } else if (filePath.endsWith("fabric.mod.json")) { // Fabric mod
                         found = true;
                         JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
                         String name = obj.get("name").getAsString();
