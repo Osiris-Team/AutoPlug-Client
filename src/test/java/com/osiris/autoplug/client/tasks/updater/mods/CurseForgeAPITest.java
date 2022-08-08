@@ -28,7 +28,7 @@ class CurseForgeAPITest {
         File path = new File(System.getProperty("user.dir") + "/test/MouseTweaks-forge-mc1.18-2.21.jar");
         File pathLatest = new File(System.getProperty("user.dir") + "/test/MouseTweaks-forge-LATEST.jar");
         MinecraftMod mod = new MinecraftMod(path.getAbsolutePath(), "MouseTweaks", "2.21", "Ivan Molodetskikh (YaLTeR)",
-                null, "mousetweaks", null, true);
+                null, "mousetweaks", null);
         SearchResult result = api.searchUpdate(mod, "1.18.2");
         if (result.exception != null) {
             if (result.exception instanceof HttpErrorException)

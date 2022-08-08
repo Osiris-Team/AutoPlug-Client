@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.autoplug.client.utils.UtilsVersion;
@@ -82,7 +83,7 @@ public class CurseForgeAPI {
                     }
                 }
 
-                if (mod.isFabric) { // FABRIC
+                if (Server.isFabric) { // FABRIC
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain fabric
                         if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
                             isModLoaderCompatible = true;

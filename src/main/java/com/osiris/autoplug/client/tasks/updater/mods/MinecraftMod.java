@@ -15,11 +15,10 @@ public class MinecraftMod {
     public String jenkinsProjectUrl, jenkinsArtifactName;
     public int jenkinsBuildId;
     private String author, version;
-    public boolean isFabric;
 
     public MinecraftMod(String installationPath, String name, String version,
                         String author, String modrinthId, String curseforgeId,
-                        String customDownloadURL, boolean isFabric) {
+                        String customDownloadURL) {
         this.installationPath = installationPath;
         this.name = name;
         setAuthor(author);
@@ -27,7 +26,6 @@ public class MinecraftMod {
         this.modrinthId = modrinthId;
         this.curseforgeId = curseforgeId;
         this.customDownloadURL = customDownloadURL;
-        this.isFabric = isFabric;
     }
 
     public String getVersion() {
