@@ -44,6 +44,7 @@ public class CurseForgeAPI {
         String type = ".jar";
         String downloadUrl = null;
         byte code = 0;
+        String modInfo = mod.name + "/" + (Server.isFabric ? "fabric" : "forge");
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
                 try {
@@ -54,9 +55,10 @@ public class CurseForgeAPI {
                 }
             }
             if (mod.curseforgeId == null) throw new Exception("Failed to determine curseforge-id!");
+            modInfo += "/" + mod.curseforgeId;
             url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
             url = new UtilsURL().clean(url);
-            AL.debug(this.getClass(), url);
+            AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
             JsonArray arr;
             try {
                 arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
@@ -64,7 +66,7 @@ public class CurseForgeAPI {
                 if (!isInt(mod.curseforgeId)) { // Try another url, with slug replaced _ with -
                     url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files";
                     url = new UtilsURL().clean(url);
-                    AL.debug(this.getClass(), url);
+                    AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
                     arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
                 } else
                     throw e;
@@ -109,11 +111,11 @@ public class CurseForgeAPI {
                 }
             }
             if (release == null)
-                throw new Exception("[" + mod.name + "] Failed to find a single release of this mod for mc version " + mcVersion + " " + url);
+                throw new Exception("Failed to find a single release of this mod for mc version " + mcVersion);
             try {
                 latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             } catch (Exception e) {
-                throw new Exception("Failed to determine latest mod version! " + url, e);
+                throw new Exception("Failed to determine latest mod version!", e);
             }
             if (new UtilsVersion().compare(mod.getVersion(), latest))
                 code = 1;
