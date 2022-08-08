@@ -94,12 +94,6 @@ public class CurseForgeAPI {
                             break;
                         }
                     }
-                    if (!isModLoaderCompatible) // check if name contains fabric
-                        if (StringUtils.containsIgnoreCase(
-                                tempRelease.get("fileName").getAsString(),
-                                "fabric")) {
-                            isModLoaderCompatible = true;
-                        }
                 } else { // FORGE
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain forge
                         if (!StringUtils.containsIgnoreCase(el.getAsString(), "forge")) {
@@ -107,12 +101,6 @@ public class CurseForgeAPI {
                             break;
                         }
                     }
-                    if (!isModLoaderCompatible) // check if name contains forge
-                        if (!StringUtils.containsIgnoreCase(
-                                tempRelease.get("fileName").getAsString(),
-                                "forge")) {
-                            isModLoaderCompatible = true;
-                        }
                 }
 
                 if (isVersionCompatible && isModLoaderCompatible) {
