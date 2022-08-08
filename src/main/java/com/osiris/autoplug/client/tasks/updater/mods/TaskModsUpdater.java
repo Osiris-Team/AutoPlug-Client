@@ -208,6 +208,7 @@ public class TaskModsUpdater extends BThread {
 
 
         String mcVersion = new UtilsMinecraft().getInstalledVersion();
+        if (mcVersion == null) throw new NullPointerException("Failed to determine minecraft server version.");
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
             executorService = Executors.newFixedThreadPool(includedSize);

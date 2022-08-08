@@ -35,6 +35,7 @@ public class UtilsMinecraft {
 
     public String getInstalledVersion() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
         File serverJar = Server.getServerExecutable();
+        AL.debug(this.getClass(), serverJar.getAbsolutePath());
         if (!serverJar.getName().endsWith(".jar")) return null;
         return getInstalledVersion(serverJar);
     }
@@ -69,6 +70,7 @@ public class UtilsMinecraft {
         } catch (Exception e) {
             AL.warn(e);
         }
+        AL.debug(this.getClass(), version);
         return version;
     }
 
