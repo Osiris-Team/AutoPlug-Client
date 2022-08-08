@@ -45,14 +45,14 @@ public class ResourceFinder {
      * If the modrinth/bukkit id is not given this type of search
      * based on the mods' name and author will be executed.
      */
-    public SearchResult findByModrinthOrCurseforge(MinecraftMod mod, String mcVersion) {
+    public SearchResult findByModrinthOrCurseforge(MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
         // Do spigot search by name
         SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
 
         if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
             //Couldn't find author or resource via first search
             //Do alternative search:
-            sr = new CurseForgeAPI().searchUpdate(mod, mcVersion);
+            sr = new CurseForgeAPI().searchUpdate(mod, mcVersion, checkNameForModLoader);
         }
 
         sr.mod = mod;
@@ -79,8 +79,8 @@ public class ResourceFinder {
         return sr;
     }
 
-    public SearchResult findModByCurseforgeId(MinecraftMod mod, String mcVersion) {
-        SearchResult sr = new CurseForgeAPI().searchUpdate(mod, mcVersion);
+    public SearchResult findModByCurseforgeId(MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
+        SearchResult sr = new CurseForgeAPI().searchUpdate(mod, mcVersion, checkNameForModLoader);
         sr.mod = mod;
         return sr;
     }

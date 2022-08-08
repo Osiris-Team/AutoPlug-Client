@@ -228,7 +228,7 @@ public class TaskModsUpdater extends BThread {
                 } else {
                     sizeUnknownMods++; // MODRINTH OR CURSEFORGE MOD
                     mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(mod, mcVersion)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(mod, mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean())));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + mod.name + "' mod!"));

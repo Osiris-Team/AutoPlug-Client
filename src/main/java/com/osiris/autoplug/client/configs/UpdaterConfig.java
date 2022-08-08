@@ -55,6 +55,7 @@ public class UpdaterConfig extends Yaml {
     public YamlSection mods_updater_profile;
     public YamlSection mods_updater_path;
     public YamlSection mods_updater_async;
+    public YamlSection mods_update_check_name_for_mod_loader;
 
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -194,6 +195,9 @@ public class UpdaterConfig extends Yaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
+        mods_update_check_name_for_mod_loader = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("true").setComments(
+                "Only relevant for determining if a curseforge mod release is forge or fabric.",
+                "If enabled additionally to the release supported versions, the mod name gets checked to see if it contains fabric or forge.");
 
         validateOptions();
         save();
