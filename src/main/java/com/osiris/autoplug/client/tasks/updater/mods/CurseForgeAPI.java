@@ -46,10 +46,14 @@ public class CurseForgeAPI {
         byte code = 0;
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
-                JsonObject json = JsonParser.parseString(sendCurseforgePost(getCurseforgeMurmurHash(Paths.get(mod.installationPath)))).getAsJsonObject();
-                mod.curseforgeId = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
+                try {
+                    JsonObject json = JsonParser.parseString(sendCurseforgePost(getCurseforgeMurmurHash(Paths.get(mod.installationPath)))).getAsJsonObject();
+                    mod.curseforgeId = json.getAsJsonObject("data").get("exactMatches").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
+                } catch (Exception e) {
+                    throw new Exception("Failed to determine curseforge-id!", e);
+                }
             }
-            if (mod.curseforgeId == null) throw new Exception("Curseforge-id is null!");
+            if (mod.curseforgeId == null) throw new Exception("Failed to determine curseforge-id!");
             url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
             url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), url);
@@ -117,8 +121,12 @@ public class CurseForgeAPI {
                 }
             }
             if (release == null)
-                throw new Exception("[" + mod.name + "] Failed to find a single release of this mod for mc version " + mcVersion);
-            latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
+                throw new Exception("[" + mod.name + "] Failed to find a single release of this mod for mc version " + mcVersion + " " + url);
+            try {
+                latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
+            } catch (Exception e) {
+                throw new Exception("Failed to determine latest mod version! " + url, e);
+            }
             if (new UtilsVersion().compare(mod.getVersion(), latest))
                 code = 1;
             downloadUrl = release.get("downloadUrl").getAsString();
