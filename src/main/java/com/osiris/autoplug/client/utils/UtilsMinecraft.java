@@ -54,11 +54,11 @@ public class UtilsMinecraft {
             boolean found = false;
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                String fileName = entry.getName();
-                if (fileName.equals("version.json")) { // Support for regular mc servers
+                String filePath = entry.getName();
+                if (filePath.endsWith("version.json")) { // Support for regular mc servers
                     found = true;
                     version = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject().get("id").getAsString();
-                } else if (fileName.equals("install.properties")) { // Support for mc paper servers
+                } else if (filePath.endsWith("install.properties") || filePath.endsWith("patch.properties")) { // Support for mc paper servers
                     found = true;
                     Properties p = new Properties();
                     p.load(zipFile.getInputStream(entry));
