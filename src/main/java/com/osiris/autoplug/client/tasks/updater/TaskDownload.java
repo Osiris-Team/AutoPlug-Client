@@ -135,7 +135,7 @@ public class TaskDownload extends BThread {
      */
     public boolean compareWithSHA256(String sha256) throws IOException {
         final String hashResult = UtilsCrypto.fastSHA256(dest);
-        boolean result = hashResult.equals(sha256);
+        boolean result = hashResult.equalsIgnoreCase(sha256);
         AL.debug(this.getClass(), "Comparing hashes (SHA-256). Result: " +
                 result + " Excepted: " + sha256 + " Actual:" + hashResult);
         return result;

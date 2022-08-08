@@ -183,7 +183,7 @@ public class TaskJavaDownload extends BThread {
             AL.debug(this.getClass(), "Comparing hashes (SHA-256):");
             AL.debug(this.getClass(), "Input-Hash: " + sha256);
             AL.debug(this.getClass(), "File-Hash: " + hashResult);
-            return hashResult.equals(sha256);
+            return hashResult.equalsIgnoreCase(sha256);
         } catch (Exception e) {
             getWarnings().add(new BWarning(this, e));
             return false;

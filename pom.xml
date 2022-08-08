@@ -14,7 +14,7 @@
 
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>6.0.13</version>
+    <version>6.0.14</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
