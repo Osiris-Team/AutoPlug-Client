@@ -96,7 +96,7 @@ public class CurseForgeAPI {
                     }
                 } else { // FORGE
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain forge
-                        if (!StringUtils.containsIgnoreCase(el.getAsString(), "forge")) {
+                        if (StringUtils.containsIgnoreCase(el.getAsString(), "forge")) {
                             isModLoaderCompatible = true;
                             break;
                         }
