@@ -19,13 +19,12 @@ public class GD {
     // TODO make all of these not static and deprecate this class
     public static final String OFFICIAL_WEBSITE = "https://autoplug.one/";
     public static final String AUTHOR = "Osiris-Team";
-
+    public static final File FILE_ERR_OUT = new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror-err.log");
     @NotNull
     public static String VERSION = "AutoPlug-Client (ERROR RETRIEVING VERSION)";
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
     public static File DOWNLOADS_DIR;
-    public static final File FILE_ERR_OUT = new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror-err.log");
     public static File LOG_FILE = new File(System.getProperty("user.dir") + "/autoplug/logs/latest.log");
     public static File FILE_OUT = new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror.log");
 

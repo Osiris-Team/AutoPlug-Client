@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater;
 
+import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.core.logger.AL;
@@ -22,7 +23,7 @@ class TaskPluginDownloadTest {
 
     @Test
     void pluginDownloadTest() throws Exception {
-        new AL().start();
+        UT.init();
         BThreadManager man = new BThreadManager();
         BThreadPrinter printer = new BThreadPrinter(man);
         printer.start();

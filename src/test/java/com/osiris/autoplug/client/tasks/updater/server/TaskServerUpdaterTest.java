@@ -28,8 +28,7 @@ class TaskServerUpdaterTest {
 
     private void defaultTest(String serverSoftware, String version) throws Exception {
         if (version == null) version = "1.18.2";
-        UT.initLogger();
-        UT.initDefaults();
+        UT.init();
         MyBThreadManager maMan = UT.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
