@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
@@ -398,8 +399,9 @@ public class TaskPluginsUpdater extends BThread {
             } else {
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what spigot devs are doing
                     // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
-                    pl.setName(pl.getName().replaceAll("\\\\", "-").replaceAll("[/]", "-"));
-                    latest = latest.replaceAll("\\\\", "-").replaceAll("[/]", "-");
+                    UtilsFile utilsFile = new UtilsFile();
+                    pl.setName(utilsFile.getValidFileName(pl.getName()));
+                    latest = utilsFile.getValidFileName(latest);
                     if (!pl.isPremium()) {
                         if (userProfile.equals(manualProfile)) {
                             File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");

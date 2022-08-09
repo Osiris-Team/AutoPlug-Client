@@ -14,6 +14,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
@@ -382,8 +383,9 @@ public class TaskModsUpdater extends BThread {
                 addInfo("NOTIFY: Mod '" + mod.name + "' has an update available (" + mod.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 // Make sure that plName and plLatestVersion do not contain any slashes (/ or \) that could break the file name
-                mod.name = (mod.name.replaceAll("\\\\", "-").replaceAll("[/]", "-"));
-                latest = latest.replaceAll("\\\\", "-").replaceAll("[/]", "-");
+                UtilsFile utilsFile = new UtilsFile();
+                mod.name = utilsFile.getValidFileName(mod.name);
+                latest = utilsFile.getValidFileName(latest);
                 if (type.equals(".jar") || type.equals("external")) { // Note that "external" support is kind off random and strongly dependent on what modrinth devs are doing
                     if (userProfile.equals(manualProfile)) {
                         File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + mod.name + "[" + latest + "].jar");
