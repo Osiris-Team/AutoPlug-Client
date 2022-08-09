@@ -44,6 +44,7 @@ public final class AutoPlugConsole {
         String first = "";
         try {
             Objects.requireNonNull(command);
+            command = command.trim();
             first = Character.toString(command.charAt(0));
         } catch (Exception e) {
             AL.warn("Failed to read command '" + command + "'! Enter .help for all available commands!", e);

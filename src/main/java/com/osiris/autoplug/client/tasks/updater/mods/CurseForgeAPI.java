@@ -89,6 +89,7 @@ public class CurseForgeAPI {
                     }
                 }
 
+                // If the release has no fabric or forge tag, then we expect only forge support.
                 if (Server.isFabric) { // FABRIC
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain fabric
                         if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
@@ -103,18 +104,14 @@ public class CurseForgeAPI {
                             isModLoaderCompatible = true;
                         }
                 } else { // FORGE
-                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain forge
-                        if (StringUtils.containsIgnoreCase(el.getAsString(), "forge")) {
-                            isModLoaderCompatible = true;
+                    isModLoaderCompatible = true; // since no fabric/forge tag == forge is supported,
+                    // we only need to check if it has no fabric tag
+                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) {
+                        if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
+                            isModLoaderCompatible = false;
                             break;
                         }
                     }
-                    if (checkNameForModLoader && !isModLoaderCompatible) // check if name contains forge
-                        if (StringUtils.containsIgnoreCase(
-                                tempRelease.get("fileName").getAsString(),
-                                "forge")) {
-                            isModLoaderCompatible = true;
-                        }
                 }
 
                 if (isVersionCompatible && isModLoaderCompatible) {
