@@ -57,7 +57,7 @@ public class CurseForgeAPI {
             }
             if (mod.curseforgeId == null) throw new Exception("Failed to determine curseforge-id!");
             modInfo += "/" + mod.curseforgeId;
-            url = baseUrl + "/mods/" + mod.curseforgeId + "/files";
+            url = baseUrl + "/mods/" + mod.curseforgeId + "/files?gameVersion=" + mcVersion;
             url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
             JsonArray arr;
@@ -65,7 +65,7 @@ public class CurseForgeAPI {
                 arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
             } catch (Exception e) {
                 if (!isInt(mod.curseforgeId)) { // Try another url, with slug replaced _ with -
-                    url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files";
+                    url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files?gameVersion=" + mcVersion;
                     url = new UtilsURL().clean(url);
                     AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
                     arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();

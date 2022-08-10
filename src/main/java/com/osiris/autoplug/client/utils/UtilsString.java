@@ -62,4 +62,22 @@ public class UtilsString {
         return list;
     }
 
+    /**
+     * Checks each char from the source (left to right)
+     * string with the provided query char. <br>
+     * If there is a match exits the loop and returns it. <br>
+     * If loopCount is bigger than one continues until the last char of the string.
+     */
+    public int indexOf(String source, char query, int loopCount) {
+        int lastMatch = 0;
+        for (int j = 0; j < loopCount; j++) {
+            for (int i = lastMatch; i < source.length(); i++) {
+                if (source.charAt(i) == query) {
+                    lastMatch = i;
+                    break;
+                }
+            }
+        }
+        return lastMatch;
+    }
 }
