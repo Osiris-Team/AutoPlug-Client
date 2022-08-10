@@ -139,11 +139,12 @@ public class BeforeServerStartupTasks {
             systemConfig.save();
             systemConfig.unlockFile();// Save the current timestamp to file
 
-
-            if (!loggerConfig.live_tasks.asBoolean())
+            if (!loggerConfig.live_tasks.asBoolean()) {
                 printer.printAll();
-
-            new UtilsTasks().writeAndPrintFinalResults(manager);
+                new UtilsTasks().printResultsLiveTask(manager);
+            } else {
+                new UtilsTasks().printResults(manager);
+            }
 
             // We don't need to do the below, because its already automatically done when the tasks finish
             //displayer.printAndWriteResults(printStream, null);
