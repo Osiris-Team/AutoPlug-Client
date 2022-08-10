@@ -12,9 +12,11 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.json.Json;
 import com.osiris.autoplug.core.logger.AL;
+
+import java.io.File;
+import java.time.Instant;
 
 
 public class ModrinthAPI {
@@ -66,7 +68,7 @@ public class ModrinthAPI {
             }
 
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new UtilsVersion().compare(mod.getVersion(), latest))
+            if (new File(mod.installationPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
                 code = 1;
             JsonObject releaseDownload = release.getAsJsonArray("files").get(0).getAsJsonObject();
             downloadUrl = releaseDownload.get("url").getAsString();

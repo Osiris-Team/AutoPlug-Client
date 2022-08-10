@@ -15,12 +15,12 @@ import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.sort.QuickSort;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 
 public class CurseForgeAPI {
     private final String baseUrl = "https://api.curseforge.com/v1";
@@ -126,7 +127,7 @@ public class CurseForgeAPI {
             } catch (Exception e) {
                 throw new Exception("Failed to determine latest mod version!", e);
             }
-            if (new UtilsVersion().compare(mod.getVersion(), latest))
+            if (new File(mod.installationPath).lastModified() < fileDateToMs(release.get("fileDate").getAsString()))
                 code = 1;
             downloadUrl = release.get("downloadUrl").getAsString();
             try {
@@ -142,6 +143,10 @@ public class CurseForgeAPI {
         result.mod = mod;
         result.setException(exception);
         return result;
+    }
+
+    private long fileDateToMs(String fileDate) {
+        return Instant.parse(fileDate).toEpochMilli();
     }
 
 
