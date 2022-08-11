@@ -208,7 +208,8 @@ public class TaskModsUpdater extends BThread {
         int sizeUnknownMods = 0;
 
 
-        String mcVersion = new UtilsMinecraft().getInstalledVersion();
+        String mcVersion = updaterConfig.mods_updater_version.asString();
+        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
         if (mcVersion == null) throw new NullPointerException("Failed to determine minecraft server version.");
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
@@ -229,7 +230,8 @@ public class TaskModsUpdater extends BThread {
                 } else {
                     sizeUnknownMods++; // MODRINTH OR CURSEFORGE MOD
                     mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(mod, mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean())));
+                    String finalMcVersion = mcVersion;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(mod, finalMcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean())));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + mod.name + "' mod!"));

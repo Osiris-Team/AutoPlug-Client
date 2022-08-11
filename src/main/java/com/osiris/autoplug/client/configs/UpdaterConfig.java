@@ -54,6 +54,7 @@ public class UpdaterConfig extends Yaml {
     public YamlSection mods_updater;
     public YamlSection mods_updater_profile;
     public YamlSection mods_updater_path;
+    public YamlSection mods_updater_version;
     public YamlSection mods_updater_async;
     public YamlSection mods_update_check_name_for_mod_loader;
 
@@ -191,6 +192,8 @@ public class UpdaterConfig extends Yaml {
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
         mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
         mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
+        mods_updater_version = put(name, "mods-updater", "version").setComments("The Minecraft version to check and download mods for.",
+                "If left empty, will be determined via the installed server jar.");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
