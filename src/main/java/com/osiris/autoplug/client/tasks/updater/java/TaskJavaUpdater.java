@@ -120,7 +120,7 @@ public class TaskJavaUpdater extends BThread {
                 true,
                 true, // Changing this to false makes the api return even fewer versions, which is pretty weird.
                 osType,
-                50,
+                20,
                 AdoptV3API.VendorProjectType.JDK,
                 AdoptV3API.ReleaseType.GENERAL_AVAILABILITY
         );
@@ -155,7 +155,7 @@ public class TaskJavaUpdater extends BThread {
                 true,
                 true,
                 osType,
-                50,
+                20,
                 AdoptV3API.VendorProjectType.JDK,
                 AdoptV3API.ReleaseType.GENERAL_AVAILABILITY);
 
