@@ -33,7 +33,7 @@ AutoPlugConsole.executeCommand(".check server");
 ```
 
 ## Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
-Thank you for considering to contribute, the community 💙 that! Just keep these things in mind:
+### Thank you for considering to contribute, the community 💙 that! Just keep these things in mind:
 - Create an issue first if you want to do big changes, so we can discuss it.
 - Remember that big changes also require you to write tests.
 - You can pick and work on any open issue. Let us know that you are working on it.
