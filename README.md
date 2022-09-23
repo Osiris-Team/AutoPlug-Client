@@ -55,8 +55,7 @@ By commiting to an issue with the bounty tag you agree to these terms.
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `AutoPlug-Client.jar` 
-- `AutoPlug-Client.jar` gets exported to the `AP-TEST-SERVER` folder, for further testing
+- Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
 
 ## Libraries
 Note that this list may be outdated. Check the [pom.xml](/pom.xml) file for our current dependencies.
