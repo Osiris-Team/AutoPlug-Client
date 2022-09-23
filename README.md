@@ -33,6 +33,10 @@ AutoPlugConsole.executeCommand(".check server");
 ```
 
 ## Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
+Thank you for considering to contribute, the community 💙 that! Just keep these things in mind:
+- Create an issue first if you want to do big changes, so we can discuss it.
+- Remember that big changes also require you to write tests.
+- You can pick and work on any open issue. Let us know that you are working on it.
 
 ### Beginners
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
@@ -47,12 +51,7 @@ By commiting to an issue with the bounty tag you agree to these terms.
 - [List of 5€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%205%E2%82%AC)
 - [List of 10€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2010%E2%82%AC)
 
-### Important
-- Create an issue first, if you want to do big changes.
-- You can pick and work on any open issue. 
-- Please comment on the issue you picked, that you are working on it.
-
-Details:
+### Details
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
