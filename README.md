@@ -43,13 +43,11 @@ AutoPlugConsole.executeCommand(".check server");
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ### Bounties
-Some open issues are marked with a tag/label like this: `bounty: 10€`, which means that the first person
+Some open issues are marked with a tag/label like this: `bounty: 15€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2015%E2%82%AC)), which means that the first person
 creating a pull request for fixing that issue will receive the bounty (10€). Note that your code must have
 at least one test demonstrating that the implemented fix/feature is working. Also note that payments are only made via PayPal, so make sure
 that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
 By commiting to an issue with the bounty tag you agree to these terms.
-- [List of 5€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%205%E2%82%AC)
-- [List of 10€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2010%E2%82%AC)
 
 ### Details
 - Written in [Java](https://java.com/),
