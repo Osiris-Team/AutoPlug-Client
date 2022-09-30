@@ -44,7 +44,7 @@ AutoPlugConsole.executeCommand(".check server");
 
 ### Bounties
 Some open issues are marked with a tag/label like this: `bounty: 15€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2015%E2%82%AC)), which means that the first person
-creating a pull request for fixing that issue will receive the bounty (15€). Note that your code must have
+creating a pull request for fixing/closing that issue will receive the bounty (15€). Note that your code must have
 at least one test demonstrating that the implemented fix/feature is working. Also note that payments are only made via PayPal, so make sure
 that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
 By commiting to an issue with the bounty tag you agree to these terms.
