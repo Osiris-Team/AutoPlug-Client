@@ -3,8 +3,7 @@
 </div>
   
 ## Links
-- Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
-- For beta versions, visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
+- Download stable/beta versions at the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
 - Support, chat, updates and news over at [Discord](https://discord.com/invite/GGNmtCC)
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
