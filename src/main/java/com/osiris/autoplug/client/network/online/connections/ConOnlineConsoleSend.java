@@ -34,6 +34,15 @@ import java.util.List;
  */
 public class ConOnlineConsoleSend extends SecondaryConnection {
     private static final boolean isDebug;
+
+    static {
+        try {
+            isDebug = new LoggerConfig().debug.asBoolean();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Nullable
     private static BufferedWriter out;
     public static final MessageEvent<Message> onMessageEvent = message -> {
@@ -51,13 +60,6 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
         }
     };
 
-    static {
-        try {
-            isDebug = new LoggerConfig().debug.asBoolean();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public ConOnlineConsoleSend() {
         super((byte) 2);  // Each connection has its own auth_id.
