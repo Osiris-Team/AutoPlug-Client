@@ -3,8 +3,7 @@
 </div>
   
 ## Links
-- Download AutoPlug from [Spigot](https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/).
-- For beta versions, visit the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
+- Download stable/beta versions at the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
 - Support, chat, updates and news over at [Discord](https://discord.com/invite/GGNmtCC)
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
@@ -33,31 +32,27 @@ AutoPlugConsole.executeCommand(".check server");
 ```
 
 ## Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
+### Thank you for considering to contribute, the community 💙 that! Just keep these things in mind:
+- Create an issue first if you want to do big changes, so we can discuss it.
+- Remember that big changes also require you to write tests.
+- You can pick and work on any open issue. Let us know that you are working on it.
 
 ### Beginners
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
 ### Bounties
-Some open issues are marked with a tag/label like this: `bounty: 10€`, which means that the first person
-creating a pull request for fixing that issue will receive the bounty (10€). Note that your code must have
+Some open issues are marked with a tag/label like this: `bounty: 15€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2015%E2%82%AC)), which means that the first person
+creating a pull request for fixing/closing that issue will receive the bounty (15€). Note that your code must have
 at least one test demonstrating that the implemented fix/feature is working. Also note that payments are only made via PayPal, so make sure
 that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
 By commiting to an issue with the bounty tag you agree to these terms.
-- [List of 5€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%205%E2%82%AC)
-- [List of 10€ bounties](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2010%E2%82%AC)
 
-### Important
-- Create an issue first, if you want to do big changes.
-- You can pick and work on any open issue. 
-- Please comment on the issue you picked, that you are working on it.
-
-Details:
+### Details
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `AutoPlug-Client.jar` 
-- `AutoPlug-Client.jar` gets exported to the `AP-TEST-SERVER` folder, for further testing
+- Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
 
 ## Libraries
 Note that this list may be outdated. Check the [pom.xml](/pom.xml) file for our current dependencies.
