@@ -108,11 +108,11 @@ public final class AutoPlugConsole {
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
                     AL.info("Main connection: connected=" + Main.CON_MAIN.isConnected() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user-auth=" + ConMain.isLoggedIn);
-                    AL.info(ConMain.CON_PUBLIC_DETAILS.getClass().getName() + " connected=" + ConMain.CON_PUBLIC_DETAILS.isConnected());
-                    AL.info(ConMain.CON_PRIVATE_DETAILS.getClass().getName() + " connected=" + ConMain.CON_PRIVATE_DETAILS.isConnected());
-                    AL.info(ConMain.CON_CONSOLE_SEND.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_SEND.isConnected());
-                    AL.info(ConMain.CON_CONSOLE_RECEIVE.getClass().getName() + " connected=" + ConMain.CON_CONSOLE_RECEIVE.isConnected());
-                    AL.info(ConMain.CON_FILE_MANAGER.getClass().getName() + " connected=" + ConMain.CON_FILE_MANAGER.isConnected());
+                    AL.info(ConMain.CON_PUBLIC_DETAILS.toString());
+                    AL.info(ConMain.CON_PRIVATE_DETAILS.toString());
+                    AL.info(ConMain.CON_CONSOLE_SEND.toString());
+                    AL.info(ConMain.CON_CONSOLE_RECEIVE.toString());
+                    AL.info(ConMain.CON_FILE_MANAGER.toString());
                     return true;
                 } else if (command.equals(".con reload") || command.equals(".cr")) {
                     Main.CON_MAIN.msUntilRetry = 1000;

@@ -57,6 +57,14 @@ public class SearchResult {
         this.isPremium = isPremium;
     }
 
+    public boolean isUpdateAvailable() {
+        return resultCode == 1;
+    }
+
+    public boolean isError() {
+        return resultCode == 2;
+    }
+
     public boolean isPremium() {
         return isPremium;
     }

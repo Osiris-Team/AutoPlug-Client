@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -72,5 +72,13 @@ public class SecondaryConnection {
 
     public DataOutputStream getDataOut() {
         return dataOut;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + "{" +
+                "auth_id=" + auth_id +
+                ", connected=" + isConnected() +
+                '}';
     }
 }

@@ -31,13 +31,13 @@ import java.net.Socket;
  * Must be extended by each connection.
  */
 public class SecuredConnection {
-    private final byte conType;
+    public final byte conType;
     public byte errorCode = 0;
-    private Socket socket;
-    private InputStream input;
-    private OutputStream output;
-    private DataInputStream dataIn;
-    private DataOutputStream dataOut;
+    public Socket socket;
+    public InputStream input;
+    public OutputStream output;
+    public DataInputStream dataIn;
+    public DataOutputStream dataOut;
 
 
     /**
@@ -133,7 +133,7 @@ public class SecuredConnection {
 
         ((SSLSocket) socket).startHandshake();
 
-        socket.setSoTimeout(30000);
+        socket.setSoTimeout(5000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
         dataIn = new DataInputStream(input);
@@ -142,7 +142,7 @@ public class SecuredConnection {
 
     public void createInsecureConnection(String host, int port) throws Exception {
         socket = new Socket(host, port);
-        socket.setSoTimeout(30000);
+        socket.setSoTimeout(5000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
         dataIn = new DataInputStream(input);

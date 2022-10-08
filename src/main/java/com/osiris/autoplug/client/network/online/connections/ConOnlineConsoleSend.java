@@ -19,7 +19,12 @@ import com.osiris.autoplug.core.logger.MessageFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.util.List;
 
 
 /**
@@ -28,11 +33,11 @@ import java.io.*;
  * Note that
  */
 public class ConOnlineConsoleSend extends SecondaryConnection {
+    private static final boolean isDebug;
     @Nullable
-    private static BufferedWriter bw;
-    public static final MessageEvent<Message> actionOnAutoPlugMessageEvent = message -> {
+    private static BufferedWriter out;
+    public static final MessageEvent<Message> onMessageEvent = message -> {
         try {
-            boolean isDebug = new LoggerConfig().debug.asBoolean();
             switch (message.getType()) {
                 case DEBUG:
                     if (isDebug)
@@ -41,26 +46,33 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
                 default:
                     send(MessageFormatter.formatForAnsiConsole(message));
             }
-
         } catch (Exception e) {
             AL.warn("Failed to send message to online console!", e);
         }
     };
 
+    static {
+        try {
+            isDebug = new LoggerConfig().debug.asBoolean();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ConOnlineConsoleSend() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
-    public static synchronized void send(@NotNull String message) {
+    public static void send(@NotNull String message) {
         try {
-            if (bw != null) {
+            if (out != null) {
                 if (!message.contains(System.lineSeparator())) {
-                    bw.write(message + System.lineSeparator());
+                    out.write(message + "\n");
                 } else {
-                    bw.write(message);
+                    out.write(message);
                 }
-                bw.flush();
             }
+            out.flush();
         } catch (Exception e) { // Do not use AL.warn because that would cause an infinite loop
         }
     }
@@ -70,26 +82,31 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
         if (new WebConfig().online_console.asBoolean()) {
             super.open();
             getSocket().setSoTimeout(0);
-            bw = new BufferedWriter(new OutputStreamWriter(getOut()));
+            out = new BufferedWriter(new OutputStreamWriter(getOut()));
 
-            if (!AL.actionsOnMessageEvent.contains(actionOnAutoPlugMessageEvent))
-                AL.actionsOnMessageEvent.add(actionOnAutoPlugMessageEvent);
+
 
             // Sending recent server log
             try {
                 if (!GD.LOG_FILE.exists())
-                    AL.warn("Failed to find latest server log file. Not sending recent server log to console.");
-                else {
-                    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(GD.FILE_OUT))) {
-                        String line;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            send(line);
-                        }
-                    }
+                    throw new FileNotFoundException("Latest log does not exist, not sending it to online-console: " + GD.LOG_FILE);
+
+                List<String> lines = Files.readAllLines(GD.FILE_OUT.toPath());
+                if (lines.size() > 500) {
+                    lines = lines.subList(lines.size() - 499, lines.size());
+                }
+                if (!AL.actionsOnMessageEvent.contains(onMessageEvent))
+                    AL.actionsOnMessageEvent.add(onMessageEvent);
+                for (String line : lines) {
+                    send(line);
                 }
             } catch (Exception e) {
                 AL.warn(e, "Error during recent log sending.");
             }
+
+            if (!AL.actionsOnMessageEvent.contains(onMessageEvent))
+                AL.actionsOnMessageEvent.add(onMessageEvent);
+
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
@@ -102,7 +119,7 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
     public void close() throws IOException {
 
         try {
-            AL.actionsOnMessageEvent.remove(actionOnAutoPlugMessageEvent);
+            AL.actionsOnMessageEvent.remove(onMessageEvent);
         } catch (Exception ignored) {
         }
 

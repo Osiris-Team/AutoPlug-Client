@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.network.online;
 import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.autoplug.core.logger.AL;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 /**
@@ -33,7 +32,6 @@ public class ConMain extends Thread {
     public static boolean isLoggedIn = false;
     public static boolean isLoggedInOld = false; // Local variable that holds the auth boolean before the current one
     public SecuredConnection con;
-    public DataInputStream dis;
     public int msUntilRetry = 30000;
 
     @Override
@@ -43,7 +41,6 @@ public class ConMain extends Thread {
             AL.info("Authenticating server...");
             con = new SecuredConnection((byte) 0);
             AL.info("Authentication success!");
-            dis = new DataInputStream(con.getInput());
             CON_PUBLIC_DETAILS.open();
             isDone = true;
         } catch (Exception e) {
@@ -57,14 +54,15 @@ public class ConMain extends Thread {
                     AL.info("Authenticating server...");
                     con = new SecuredConnection((byte) 0);
                     AL.info("Authentication success!");
-                    dis = new DataInputStream(con.getInput());
                     CON_PUBLIC_DETAILS.open();
                     msUntilRetry = 30000;
                 }
 
                 isDone = true;
                 while (true) {
-                    isLoggedIn = dis.readBoolean();
+                    isLoggedIn = con.dataIn.readBoolean(); // Ping
+                    con.dataOut.writeBoolean(true); // Pong true/false doesn't matter
+
                     if (isLoggedIn) {
                         if (!isLoggedInOld) {
                             AL.debug(this.getClass(), "Owner/Staff is online/active.");
@@ -91,7 +89,7 @@ public class ConMain extends Thread {
                         }
                     }
                     isLoggedInOld = isLoggedIn;
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 }
             } catch (Exception e) {
                 isDone = true;
