@@ -15,9 +15,9 @@ import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSen
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
-import org.jetbrains.annotations.NotNull;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.DataInputStream;
@@ -30,7 +30,7 @@ import java.net.Socket;
  * Authenticates this client to the AutoPlug-Web server.
  * Must be extended by each connection.
  */
-public class SecuredConnection {
+public class SecuredConnection implements AutoCloseable {
     public final byte conType;
     public byte errorCode = 0;
     public Socket socket;
@@ -74,14 +74,11 @@ public class SecuredConnection {
             Thread.sleep(punishment + 250); // + 250ms, just to be safe
         }
 
-        DataInputStream dis = new DataInputStream(input);
-        DataOutputStream dos = new DataOutputStream(output);
-
         AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticating server with Server-Key...");
-        dos.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
-        dos.writeByte(con_type); // Send connection type
+        dataOut.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
+        dataOut.writeByte(con_type); // Send connection type
 
-        errorCode = dis.readByte(); // Get response
+        errorCode = dataIn.readByte(); // Get response
         switch (errorCode) {
             case 0:
                 AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticated server successfully!");
@@ -97,9 +94,9 @@ public class SecuredConnection {
             case 5:
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
             case 6:
-                String ip = dis.readUTF();
-                String hostname = dis.readUTF();
-                int port = dis.readInt();
+                String ip = dataIn.readUTF();
+                String hostname = dataIn.readUTF();
+                int port = dataIn.readInt();
                 throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "):" +
                         " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
@@ -129,11 +126,17 @@ public class SecuredConnection {
                 new String[]{"TLSv1.2"});
         ((SSLSocket) socket).getSSLParameters().setEndpointIdentificationAlgorithm("HTTPS");
 
-        registerHandshakeCallback(socket);
+        SSLSession session = ((SSLSocket) socket).getSession();
+        if (!session.isValid())
+            throw new Exception("SSLSession is not valid!");
 
-        ((SSLSocket) socket).startHandshake();
+        AL.debug(SecuredConnection.class, "Valid SSL session created for con_type " + conType + ". Details: ");
+        AL.debug(SecuredConnection.class, "- Object: " + session.getClass().getName() + "@" + Integer.toHexString(session.hashCode()));
+        AL.debug(SecuredConnection.class, "- Protocol: " + session.getProtocol());
+        AL.debug(SecuredConnection.class, "- CipherSuite: " + session.getCipherSuite());
+        AL.debug(SecuredConnection.class, "- Timeout-Seconds: " + session.getSessionContext().getSessionTimeout());
+        AL.debug(SecuredConnection.class, "- PeerHost: " + session.getPeerHost());
 
-        socket.setSoTimeout(5000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
         dataIn = new DataInputStream(input);
@@ -141,24 +144,13 @@ public class SecuredConnection {
     }
 
     public void createInsecureConnection(String host, int port) throws Exception {
+        AL.warn("Creating unencrypted connection, transmitted data can be read by a third-party.");
         socket = new Socket(host, port);
-        socket.setSoTimeout(5000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
         dataIn = new DataInputStream(input);
         dataOut = new DataOutputStream(output);
     }
-
-    private void registerHandshakeCallback(@NotNull Socket socket) {
-        ((SSLSocket) socket).addHandshakeCompletedListener(event -> {
-                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] Handshake finished!");
-                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] CipherSuite:" + event.getCipherSuite());
-                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] SessionId " + event.getSession());
-                    AL.debug(SecuredConnection.class, "[CON_TYPE: " + conType + "] PeerHost " + event.getSession().getPeerHost());
-                }
-        );
-    }
-
     public boolean isAlive() {
         return socket != null && !socket.isClosed() && socket.isConnected();
     }
@@ -181,5 +173,12 @@ public class SecuredConnection {
 
     public DataOutputStream getDataOut() {
         return dataOut;
+    }
+
+    @Override
+    public void close() throws Exception {
+        dataIn.close();
+        dataOut.close();
+        socket.close();
     }
 }

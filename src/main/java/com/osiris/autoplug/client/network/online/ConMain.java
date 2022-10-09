@@ -118,16 +118,16 @@ public class ConMain extends Thread {
     }
 
     public boolean isConnected() {
-        return con != null && con.getSocket() != null && !con.getSocket().isClosed() && con.getSocket().isConnected();
+        return con != null && con.getSocket() != null && !con.getSocket().isClosed();
     }
 
     public void closeAll() {
         // Make sure socket is really closed
         try {
-            if (con != null && con.getSocket() != null && !con.getSocket().isClosed())
-                con.getSocket().close();
-        } catch (IOException ioException) {
-            AL.warn(ioException);
+            if (con != null && con.getSocket() != null)
+                con.close();
+        } catch (Exception e) {
+            AL.warn(e);
         }
 
         // Close child connections

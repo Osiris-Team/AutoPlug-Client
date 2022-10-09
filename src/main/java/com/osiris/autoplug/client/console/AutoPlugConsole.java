@@ -26,6 +26,10 @@ import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -126,6 +130,14 @@ public final class AutoPlugConsole {
                     ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
                     ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());
+                    String ip;
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream()))) {
+                        ip = in.readLine();
+                    } catch (Exception e) {
+                        ip = "- (failed to reach http://checkip.amazonaws.com)";
+                    }
+                    AL.info("Public-IP: " + ip);
+                    AL.info("Device-/Local-IP: " + InetAddress.getLocalHost().getHostAddress());
                     if (!conPublic.isConnected()) {
                         AL.info(conPublic.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
                     } else {
