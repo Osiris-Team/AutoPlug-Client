@@ -52,11 +52,21 @@ public class SecuredConnection implements AutoCloseable {
      */
     public SecuredConnection(byte con_type) throws Exception {
         this.conType = con_type;
+        connect();
+        if (errorCode == 2) { // Retry in 10 seconds because it might be
+            // that we just reconnected (there is a timeout of 5 seconds for the old connection until it gets closed)
+            Thread.sleep(10000); // at least 5 seconds
+            connect();
+        }
+        throwError();
+    }
+
+    private int connect() throws Exception {
         while (true) {
             SystemConfig systemConfig = new SystemConfig();
             String ip = systemConfig.autoplug_web_ip.asString();
             int port = systemConfig.autoplug_web_port.asInt();
-            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
+            AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
             if (systemConfig.autoplug_web_ssl.asBoolean())
                 createSSLConnection(ip, port);
             else {
@@ -66,45 +76,49 @@ public class SecuredConnection implements AutoCloseable {
             // DDOS protection
             int punishment = dataIn.readInt();
             if (punishment == 0) {
-                AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connected to AutoPlug-Web successfully!");
+                AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connected to AutoPlug-Web successfully!");
                 break;
             }
 
-            AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
+            AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
             Thread.sleep(punishment + 250); // + 250ms, just to be safe
         }
 
-        AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticating server with Server-Key...");
+        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
         dataOut.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
-        dataOut.writeByte(con_type); // Send connection type
+        dataOut.writeByte(conType); // Send connection type
 
-        errorCode = dataIn.readByte(); // Get response
+        this.errorCode = dataIn.readByte(); // Get response
+        return errorCode;
+    }
+
+    private void throwError() throws Exception {
         switch (errorCode) {
             case 0:
-                AL.debug(this.getClass(), "[CON_TYPE: " + con_type + "] Authenticated server successfully!");
+                AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticated server successfully!");
                 break;
             case 1:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file. Enter '.con reload' to retry.");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file. Enter '.con reload' to retry.");
             case 2:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
             case 3:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Make sure that the primary connection is established before all the secondary connections!");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Make sure that the primary connection is established before all the secondary connections!");
             case 4:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
             case 5:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
             case 6:
                 String ip = dataIn.readUTF();
                 String hostname = dataIn.readUTF();
                 int port = dataIn.readInt();
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "):" +
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "):" +
                         " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
             case 7:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "):" +
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "):" +
                         " A severe error occurred at AutoPlug-Web. Please notify the developers!");
             default:
-                throw new Exception("[CON_TYPE: " + con_type + "] Authentication failed (code:" + errorCode + "): Unknown error code " + errorCode + ". Make sure that AutoPlug is up-to-date!");
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Unknown error code " + errorCode + ". Make sure that AutoPlug is up-to-date!");
         }
     }
 
