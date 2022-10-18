@@ -47,20 +47,32 @@ public class UtilsNative {
             startScript.getParentFile().mkdirs();
             startScript.createNewFile();
         }
-        Files.write(startScript.toPath(), ("" +
-                "echo " + "     ___       __       ___  __             \n" +
-                "echo " + "    / _ |__ __/ /____  / _ \\/ /_ _____ _   \n" +
-                "echo " + "   / __ / // / __/ _ \\/ ___/ / // / _ `/   \n" +
-                "echo " + "  /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                "echo " + "                                 /___/      \n" +
+        String scriptContent = "" +
+                (OSUtils.IS_WINDOWS ? "@echo off\n" : "") +
+                "echo Starting AutoPlug-Client in \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
                 "echo No need to worry about this window, its just AutoPlug starting automatically in the background.\n" +
-                "echo You should be able to access the terminal over the system-tray.\n" +
-                "echo To abort enter CTRL+C.\n" +
-                "echo This window will disappear in 10 seconds.\n" +
-                (OSUtils.IS_WINDOWS ? "timeout /t 10 /nobreak\n" : "sleep 10\n") +
-                "cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
-                "javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // javaw to start without terminal
-                "").getBytes(StandardCharsets.UTF_8));
+                "echo It will disappear in 10 seconds, then you should be able to access the terminal over the system-tray.\n" +
+                "echo To abort enter CTRL and C.\n";
+        if (OSUtils.IS_WINDOWS) {
+            scriptContent += "" +
+                    "timeout /t 10 /nobreak\n" +
+                    "call :cdWorkingDir\n" +
+                    "start \"\" javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // "javaw" to start without terminal, "start" to exit the terminal
+                    ":cdWorkingDir \n" +
+                    "cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
+                    "goto :eof\n";
+        } else {
+            scriptContent += "" +
+                    "sleep 10\n" +
+                    "cdWorkingDir () {\n" + // cd executed in a function to avoid sub-shell creation and have correct cd command execution
+                    "  cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
+                    "}\n" +
+                    "cdWorkingDir\n" +
+                    "javaw -jar \"" + jar.getAbsolutePath() + "\"\n"; // javaw to start without terminal
+        }
+
+        Files.write(startScript.toPath(), scriptContent.getBytes(StandardCharsets.UTF_8));
+
         if (OSUtils.IS_WINDOWS) {
             Process p = new ProcessBuilder().command("REG",
                     "ADD", "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
