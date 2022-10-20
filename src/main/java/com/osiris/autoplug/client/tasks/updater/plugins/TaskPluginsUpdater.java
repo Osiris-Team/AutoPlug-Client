@@ -80,23 +80,28 @@ public class TaskPluginsUpdater extends BThread {
                         "\n" +
                         "#######################################################################################################################\n" +
                         "This file contains detailed information about your installed plugins. It is fetched from each plugins 'plugin.yml' file (located inside their jars).\n" +
-                        "The data gets refreshed before performing an update-check. To exclude a plugin from the check set exclude=true.\n" +
-                        "If a name/author/version is missing, the plugin gets excluded automatically.\n" +
-                        "If there are plugins that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest plugin jar).\n" +
-                        "spigot-id: Can be found directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n" +
-                        "bukkit-id: Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n" +
-                        "custom-check-url (FEATURE NOT WORKING YET): must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
-                        "custom-download-url: must be a static url to the plugins latest jar file.\n" +
-                        "alternatives.github.repo-name: Example: 'EssentialsX/Essentials' (can be found in its url: https://github.com/EssentialsX/Essentials)\n" +
-                        "alternatives.github.asset-name: Example: 'EssentialsX' (wrong: 'EssentialsX-1.7.23.jar', we discard the version info).\n" +
-                        "alternatives.jenkins.project-url: Example: 'https://ci.ender.zone/job/EssentialsX/'\n" +
-                        "alternatives.jenkins.artifact-name: Example: 'EssentialsX' (wrong: 'EssentialsX-1.7.23.jar', we discard the version info).\n" +
-                        "alternatives.jenkins.build-id: The currently installed build identifier. Don't touch this.\n" +
-                        "If a spigot-id is not given, AutoPlug will try and find the matching id by using its unique search-algorithm (if it succeeds the spigot-id gets set, else it stays 0).\n" +
-                        "If both (bukkit and spigot) ids are provided, the spigot-id will be used.\n" +
+                        "Example configuration for the EssentialsX plugin with each setting explained:\n" +
+                        "  Essentials: \n" +
+                        "    exclude: false #### If a name/author/version is missing, the plugin gets excluded automatically\n " +
+                        "    version: 1434 #### Gets fetched from 'plugin.yml' and refreshed after each check\n " +
+                        "    latest-version: 1434 #### Gets refreshed after each check\n " +
+                        "    author: Zenexer #### Gets fetched from 'plugin.yml' and refreshed after each check #### If multiple names are provided, only the first author will be used.\n" +
+                        "    #### Note that only one id is necessary, provided both for demonstration purposes.\n" +
+                        "    spigot-id: 871 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### You can find it directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n " +
+                        "    bukkit-id: 93271 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n " +
+                        "    custom-author: 93271 #### Can be set by you and is used instead of the author value from above #### Useful when the author name on the website differs too much from our author name.\n" +
+                        "    custom-check-url: #### (FEATURE NOT WORKING YET) Must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
+                        "    custom-download-url: #### Must be a static url to the plugins latest jar file.\n" +
+                        "    ignore-content-type: false #### When downloading a file the file host is asked for the file-type which must be .jar, when true this check is not performed.\n" +
+                        "    alternatives: #### below both alternatives are used for demonstration purposes, make sure to use only one)\n" +
+                        "      github: \n" +
+                        "        repo-name: EssentialsX/Essentials #### Provided by you #### Can be found in its url: https://github.com/EssentialsX/Essentials\n" +
+                        "        asset-name: EssentialsX #### Provided by you #### Wrong: 'EssentialsX-1.7.23.jar', we discard the version information.\n" +
+                        "      jenkins: \n" +
+                        "        project-url: https://ci.ender.zone/job/EssentialsX/ #### Provided by you ### Note that each plugins jenkins url looks different.\n" +
+                        "        artifact-name: EssentialsX #### Provided by you #### Wrong: 'EssentialsX-1.7.23.jar', we discard the version information.\n" +
+                        "        build-id: 1434\n #### The currently installed build identifier. Don't touch this." +
                         "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
-                        "If multiple authors are provided, only the first author will be used by the search-algorithm.\n" +
-                        "Note: Remember, that the values for exclude, version and author get overwritten if new data is available.\n" +
                         "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2\n");
 
         YamlSection keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
