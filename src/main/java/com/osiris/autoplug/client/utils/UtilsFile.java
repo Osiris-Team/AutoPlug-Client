@@ -8,6 +8,10 @@
 
 package com.osiris.autoplug.client.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 public class UtilsFile {
 
     /**
@@ -18,5 +22,14 @@ public class UtilsFile {
     public String getValidFileName(String fileName) {
         return fileName.replaceAll("\\p{Cc}", "") // First remove control/not-printable chars
                 .replaceAll("[/\\\\<>:\"'|*?]", ""); // Then remove invalid printable chars
+    }
+
+    public void copyDirectoryContent(File sourceDir, File targetDir) throws IOException {
+        targetDir.mkdirs();
+        for (File sourceFile : sourceDir.listFiles()) {
+            File targetFile = new File(targetDir + "/" + sourceFile.getName());
+            targetFile.createNewFile();
+            Files.copy(sourceFile.toPath(), targetFile.toPath());
+        }
     }
 }
