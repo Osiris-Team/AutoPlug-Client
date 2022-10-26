@@ -269,7 +269,7 @@ public class Main {
                                         - msSinceLast;
                                 if (msLeft > 0) Thread.sleep(msLeft);
                                 AL.info("Running tasks from recurring update-checker thread.");
-                                MyBThreadManager man = new UtilsTasks().createManagerWithDisplayer();
+                                MyBThreadManager man = new UtilsTasks().createManagerAndPrinter();
                                 TaskSelfUpdater selfUpdater = new TaskSelfUpdater("SelfUpdater", man.manager);
                                 TaskJavaUpdater taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", man.manager);
                                 TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", man.manager);

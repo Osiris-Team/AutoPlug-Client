@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>Better-Thread</artifactId>
-            <version>5.0</version>
+            <version>5.1.1</version>
         </dependency>
 
         <dependency>

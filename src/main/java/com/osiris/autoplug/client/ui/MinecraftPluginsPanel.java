@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.utils.MouseListener;
+import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.dyml.Yaml;
@@ -33,7 +33,7 @@ public class MinecraftPluginsPanel extends BLayout {
         this.addV(btnRefreshData);
         this.addV(table);
         updateData();
-        btnRefreshData.addMouseListener(new MouseListener().onClick(click -> {
+        btnRefreshData.addMouseListener(new MyMouseListener().onClick(click -> {
             try {
                 updateData();
             } catch (Exception e) {

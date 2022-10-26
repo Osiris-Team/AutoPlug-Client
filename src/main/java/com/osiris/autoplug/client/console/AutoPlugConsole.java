@@ -160,32 +160,32 @@ public final class AutoPlugConsole {
                     }
                     return true;
                 } else if (command.equals(".check") || command.equals(".c")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskSelfUpdater("SelfUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check java") || command.equals(".cj")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskJavaUpdater("JavaUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check server") || command.equals(".cs")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskServerUpdater("ServerUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check plugins") || command.equals(".cp")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskPluginsUpdater("PluginsUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".check mods") || command.equals(".cm")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".backup") || command.equals(".b")) {
-                    MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     TaskBackup backupTask = new TaskBackup("BackupTask", myManager.manager);
                     backupTask.ignoreCooldown = true;
                     backupTask.start();

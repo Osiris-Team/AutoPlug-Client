@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.utils.tasks;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
-import com.osiris.autoplug.client.tasks.MinimalBThreadPrinter;
+import com.osiris.autoplug.client.tasks.SerialBThreadPrinter;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.LogFileWriter;
 import com.osiris.autoplug.core.logger.Message;
@@ -27,39 +27,31 @@ import java.io.IOException;
 
 public class UtilsTasks {
 
-    public MyBThreadManager createManagerWithDisplayer() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
+    public MyBThreadManager createManagerAndPrinter() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
         LoggerConfig loggerConfig = new LoggerConfig();
         BThreadManager manager = new BThreadManager();
-        BThreadPrinter printer = new BThreadPrinter(manager);
-        printer.defaultPrinterModules = new BThreadModulesBuilder()
-                .custom(new MyDate())
-                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgCyan().a("[" + loggerConfig.autoplug_label.asString() + "]").reset())
-                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgBlack().a("[TASK]").reset())
-                .space()
-                .spinner()
-                .text(Ansi.ansi().a(" > "))
-                .status().build();
+        BThreadPrinter printer;
         if (loggerConfig.live_tasks.asBoolean()) {
-            printer.start();
+            printer = new BThreadPrinter(manager);
+            printer.defaultPrinterModules = new BThreadModulesBuilder()
+                    .custom(new MyDate())
+                    .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgCyan().a("[" + loggerConfig.autoplug_label.asString() + "]").reset())
+                    .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgBlack().a("[TASK]").reset())
+                    .space()
+                    .spinner()
+                    .text(Ansi.ansi().a(" > "))
+                    .status().build();
         } else {
-            new MinimalBThreadPrinter(manager).start();
+            printer = new SerialBThreadPrinter(manager);
+            printer.defaultPrinterModules = new BThreadModulesBuilder()
+                    .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgBlack().a("[TASK]").reset())
+                    .space()
+                    .spinner()
+                    .text(Ansi.ansi().a(" > "))
+                    .status().build();
         }
-        return new MyBThreadManager(manager, printer);
-    }
 
-    public MyBThreadManager createManagerWithMinimalDisplayer() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
-        LoggerConfig loggerConfig = new LoggerConfig();
-        BThreadManager manager = new BThreadManager();
-        BThreadPrinter printer = new BThreadPrinter(manager);
-        printer.defaultPrinterModules = new BThreadModulesBuilder()
-                .custom(new MyDate())
-                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgCyan().a("[" + loggerConfig.autoplug_label.asString() + "]").reset())
-                .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgBlack().a("[TASK]").reset())
-                .space()
-                .spinner()
-                .text(Ansi.ansi().a(" > "))
-                .status().build();
-        new MinimalBThreadPrinter(manager).start();
+        printer.start();
         return new MyBThreadManager(manager, printer);
     }
 

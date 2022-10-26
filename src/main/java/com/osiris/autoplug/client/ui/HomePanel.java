@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.ui.utils.HintTextField;
+import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterlayout.BLayout;
@@ -28,9 +29,13 @@ public class HomePanel extends BLayout {
 
     public HomePanel(Container parent) {
         super(parent);
+
+        //TODO this.addV(getBtnMinecraftLaunch());
+
         txtConsole = new BLayout(this, 100, 80);
         txtConsole.defaultCompStyles.delPadding();
         txtConsole.makeScrollable();
+        //TODO txtConsole.getScrollPane().getVerticalScrollBar().setUnitIncrement(16);
 
         this.addV(txtSendCommand);
 
@@ -67,6 +72,14 @@ public class HomePanel extends BLayout {
 
             }
         });
+    }
+
+    private JButton getBtnMinecraftLaunch() {
+        JButton btn = new JButton("Launch Minecraft");
+        btn.addMouseListener(new MyMouseListener().onClick(event -> {
+
+        }));
+        return btn;
     }
 
     private java.util.List<JLabel> toLabel(String ansi) {

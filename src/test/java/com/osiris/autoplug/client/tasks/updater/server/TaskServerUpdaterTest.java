@@ -40,7 +40,7 @@ class TaskServerUpdaterTest {
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)
                 .start(); // Do not run too often because of rest API limits
-        maMan.minimalBThreadPrinter.join(); // Wait for completion
+        maMan.printer.join(); // Wait for completion
         List<BWarning> warnings = maMan.manager.getAllWarnings();
         for (BWarning warning : warnings) {
             AL.warn(warning.getExtraInfo(), warning.getException());

@@ -66,7 +66,7 @@ public class BeforeServerStartupTasks {
             }
             // The systemconfig gets updated with the new timestamp when all updater tasks have finished
 
-            MyBThreadManager myManager = new UtilsTasks().createManagerWithDisplayer();
+            MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
             manager = myManager.manager;
             printer = myManager.printer;
 

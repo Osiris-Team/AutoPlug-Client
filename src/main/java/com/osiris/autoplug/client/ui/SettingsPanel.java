@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.ui.utils.MouseListener;
+import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.betterlayout.utils.UIDebugWindow;
@@ -21,7 +21,7 @@ public class SettingsPanel extends BLayout {
         super(parent);
         JButton btnOpenUIDebug = new JButton("Open UI-Debug");
         this.addV(btnOpenUIDebug);
-        btnOpenUIDebug.addMouseListener(new MouseListener().onClick(click -> {
+        btnOpenUIDebug.addMouseListener(new MyMouseListener().onClick(click -> {
             try {
                 new UIDebugWindow(MainWindow.GET);
             } catch (Exception e) {

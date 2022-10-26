@@ -16,10 +16,10 @@ import java.util.function.Consumer;
  * which provides Java 8 style listener and results
  * in cleaner/less code.
  */
-public class MouseListener implements java.awt.event.MouseListener {
+public class MyMouseListener implements java.awt.event.MouseListener {
     private Consumer<MouseEvent> onClick, onPressed, onReleased, onEntered, onExited;
 
-    public MouseListener onClick(Consumer<MouseEvent> event) {
+    public MyMouseListener onClick(Consumer<MouseEvent> event) {
         this.onClick = event;
         return this;
     }
@@ -30,7 +30,7 @@ public class MouseListener implements java.awt.event.MouseListener {
     }
 
 
-    public MouseListener onPress(Consumer<MouseEvent> event) {
+    public MyMouseListener onPress(Consumer<MouseEvent> event) {
         this.onPressed = event;
         return this;
     }
@@ -41,7 +41,7 @@ public class MouseListener implements java.awt.event.MouseListener {
     }
 
 
-    public MouseListener onRelease(Consumer<MouseEvent> event) {
+    public MyMouseListener onRelease(Consumer<MouseEvent> event) {
         this.onReleased = event;
         return this;
     }
@@ -52,7 +52,7 @@ public class MouseListener implements java.awt.event.MouseListener {
     }
 
 
-    public MouseListener onEnter(Consumer<MouseEvent> event) {
+    public MyMouseListener onEnter(Consumer<MouseEvent> event) {
         this.onEntered = event;
         return this;
     }
@@ -63,7 +63,7 @@ public class MouseListener implements java.awt.event.MouseListener {
     }
 
 
-    public MouseListener onExit(Consumer<MouseEvent> event) {
+    public MyMouseListener onExit(Consumer<MouseEvent> event) {
         this.onExited = event;
         return this;
     }

@@ -9,12 +9,12 @@
 package com.osiris.autoplug.client;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.tasks.MinimalBThreadPrinter;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.autoplug.core.logger.AL;
-import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.exceptions.JLineLinkException;
+import com.osiris.dyml.exceptions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +23,8 @@ import java.io.IOException;
  * Utils for tests.
  */
 public class UT {
-    public static MyBThreadManager createManagerWithDisplayer() throws JLineLinkException {
-        BThreadManager manager = new BThreadManager();
-        MinimalBThreadPrinter minimalBThreadPrinter = new MinimalBThreadPrinter(manager);
-        minimalBThreadPrinter.timeoutMs = 1000;
-        minimalBThreadPrinter.start();
-        return new MyBThreadManager(manager, null, minimalBThreadPrinter);
+    public static MyBThreadManager createManagerWithDisplayer() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        return new UtilsTasks().createManagerAndPrinter();
     }
 
     public static void init() throws IOException {

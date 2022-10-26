@@ -36,6 +36,7 @@ AutoPlugConsole.executeCommand(".check server");
 - Create an issue first if you want to do big changes, so we can discuss it.
 - Remember that big changes also require you to write tests.
 - You can pick and work on any open issue. Let us know that you are working on it.
+- Avoid using and writing static methods/fields/classes to ensure minimal memory usage.
 
 ### Beginners
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)

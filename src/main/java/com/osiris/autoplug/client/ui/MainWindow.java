@@ -14,7 +14,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.ui.utils.MouseListener;
+import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
@@ -94,7 +94,7 @@ public class MainWindow extends JFrame {
             }
             Image image = Toolkit.getDefaultToolkit().getImage(icon.getAbsolutePath());
             trayIcon = new TrayIcon(image, "AutoPlug", null);
-            trayIcon.addMouseListener(new MouseListener().onClick(event -> {
+            trayIcon.addMouseListener(new MyMouseListener().onClick(event -> {
                 this.setVisible(true);
             }));
             trayIcon.setImageAutoSize(true);
