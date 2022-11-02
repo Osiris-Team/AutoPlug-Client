@@ -12,6 +12,7 @@ import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.autoplug.core.logger.AL;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This is the main connection to AutoPlugs online server/website.
@@ -29,9 +30,9 @@ public class ConMain extends Thread {
     public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
     public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
-    public static boolean isLoggedIn = false;
-    public static boolean isLoggedInOld = false; // Local variable that holds the auth boolean before the current one
-    public SecuredConnection con;
+    public static AtomicBoolean isUserActive = new AtomicBoolean(false);
+    public static boolean isUserActiveOld = false; // Local variable that holds the auth boolean before the current one
+    public DefaultConnection con;
     public int msUntilRetry = 30000;
 
     @Override
@@ -39,7 +40,7 @@ public class ConMain extends Thread {
         super.run();
         try {
             AL.info("Authenticating server...");
-            con = new SecuredConnection((byte) 0);
+            con = new DefaultConnection((byte) 0);
             AL.info("Authentication success!");
             CON_PUBLIC_DETAILS.open();
             isDone = true;
@@ -52,7 +53,7 @@ public class ConMain extends Thread {
             try {
                 if (con == null || !con.isAlive()) {
                     AL.info("Authenticating server...");
-                    con = new SecuredConnection((byte) 0);
+                    con = new DefaultConnection((byte) 0);
                     AL.info("Authentication success!");
                     CON_PUBLIC_DETAILS.open();
                     msUntilRetry = 30000;
@@ -60,11 +61,11 @@ public class ConMain extends Thread {
 
                 isDone = true;
                 while (true) {
-                    isLoggedIn = con.dataIn.readBoolean(); // Ping
+                    isUserActive.set(con.dataIn.readBoolean()); // Ping
                     con.dataOut.writeBoolean(true); // Pong true/false doesn't matter
 
-                    if (isLoggedIn) {
-                        if (!isLoggedInOld) {
+                    if (isUserActive.get()) {
+                        if (!isUserActiveOld) {
                             AL.debug(this.getClass(), "Owner/Staff is online/active.");
                             // User is online, so open secondary connections if they weren't already
                             if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
@@ -78,7 +79,7 @@ public class ConMain extends Thread {
                             //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         }
                     } else {
-                        if (isLoggedInOld) {
+                        if (isUserActiveOld) {
                             AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
                             // Close secondary connections when user is offline/logged out
                             if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
@@ -88,7 +89,7 @@ public class ConMain extends Thread {
                             //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                         }
                     }
-                    isLoggedInOld = isLoggedIn;
+                    isUserActiveOld = isUserActive.get();
                     Thread.sleep(3000);
                 }
             } catch (Exception e) {
@@ -96,8 +97,8 @@ public class ConMain extends Thread {
                 AL.warn(e);
 
                 // Reset booleans
-                isLoggedInOld = false;
-                isLoggedIn = false;
+                isUserActiveOld = false;
+                isUserActive.set(false);
                 closeAll();
                 if (con == null || con.errorCode == 0) {
                     AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");

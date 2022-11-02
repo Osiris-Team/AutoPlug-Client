@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.core.logger.AL;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +55,7 @@ public class ConOnlineConsoleReceive extends SecondaryConnection {
                         }
                     }
                 } catch (Exception e) {
+                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
                     AL.warn(this.getClass(), e);
                 }
 

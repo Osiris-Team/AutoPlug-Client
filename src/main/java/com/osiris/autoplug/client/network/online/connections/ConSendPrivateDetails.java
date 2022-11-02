@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.autoplug.core.logger.AL;
@@ -94,6 +95,7 @@ public class ConSendPrivateDetails extends SecondaryConnection {
                         Thread.sleep(5000);
                     }
                 } catch (Exception e) {
+                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
                     AL.warn(e);
                 }
             });

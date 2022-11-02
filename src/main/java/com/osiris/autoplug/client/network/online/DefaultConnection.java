@@ -30,7 +30,7 @@ import java.net.Socket;
  * Authenticates this client to the AutoPlug-Web server.
  * Must be extended by each connection.
  */
-public class SecuredConnection implements AutoCloseable {
+public class DefaultConnection implements AutoCloseable {
     public final byte conType;
     public byte errorCode = 0;
     public Socket socket;
@@ -50,7 +50,7 @@ public class SecuredConnection implements AutoCloseable {
      *                 3 = {@link ConPluginsUpdateResult}; <br>
      * @throws Exception if authentication fails. Details are in the message.
      */
-    public SecuredConnection(byte con_type) throws Exception {
+    public DefaultConnection(byte con_type) throws Exception {
         this.conType = con_type;
         connect();
         if (errorCode == 2) { // Retry in 10 seconds because it might be
@@ -144,12 +144,7 @@ public class SecuredConnection implements AutoCloseable {
         if (!session.isValid())
             throw new Exception("SSLSession is not valid!");
 
-        AL.debug(SecuredConnection.class, "Valid SSL session created for con_type " + conType + ". Details: ");
-        AL.debug(SecuredConnection.class, "- Object: " + session.getClass().getName() + "@" + Integer.toHexString(session.hashCode()));
-        AL.debug(SecuredConnection.class, "- Protocol: " + session.getProtocol());
-        AL.debug(SecuredConnection.class, "- CipherSuite: " + session.getCipherSuite());
-        AL.debug(SecuredConnection.class, "- Timeout-Seconds: " + session.getSessionContext().getSessionTimeout());
-        AL.debug(SecuredConnection.class, "- PeerHost: " + session.getPeerHost());
+        AL.debug(DefaultConnection.class, "Valid SSL session created for con_type " + conType + ". Details: " + session);
 
         input = socket.getInputStream();
         output = socket.getOutputStream();
@@ -194,5 +189,14 @@ public class SecuredConnection implements AutoCloseable {
         dataIn.close();
         dataOut.close();
         socket.close();
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultConnection{" +
+                "ssl=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
+                ", errorCode=" + errorCode +
+                ", socket=" + socket +
+                '}';
     }
 }

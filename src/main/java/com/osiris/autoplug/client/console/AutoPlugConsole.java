@@ -111,7 +111,7 @@ public final class AutoPlugConsole {
                     new BeforeServerStartupTasks();
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
-                    AL.info("Main connection: connected=" + Main.CON_MAIN.isConnected() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user-auth=" + ConMain.isLoggedIn);
+                    AL.info("Main connection: connected=" + Main.CON_MAIN.isConnected() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user/staff active=" + ConMain.isUserActive);
                     AL.info(ConMain.CON_PUBLIC_DETAILS.toString());
                     AL.info(ConMain.CON_PRIVATE_DETAILS.toString());
                     AL.info(ConMain.CON_CONSOLE_SEND.toString());

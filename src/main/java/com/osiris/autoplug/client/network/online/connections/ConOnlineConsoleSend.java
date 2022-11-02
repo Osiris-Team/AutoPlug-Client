@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.core.events.MessageEvent;
@@ -103,6 +104,7 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
                     send(line);
                 }
             } catch (Exception e) {
+                if (!ConMain.isUserActive.get()) return false; // Ignore after logout
                 AL.warn(e, "Error during recent log sending.");
             }
 

@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.WebConfig;
+import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.io.UFDataIn;
@@ -71,7 +72,15 @@ public class ConFileManager extends SecondaryConnection {
                         getSocket().setSoTimeout(0);
                     }
                 } catch (Exception e) {
-                    AL.warn("File-Manager connection closed due to error.", e);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(3000); // Otherwise it gets always shown
+                            if (!ConMain.isUserActive.get()) return; // Ignore after logout
+                            AL.warn("File-Manager connection closed due to error.", e);
+                        } catch (Exception exception) {
+                            AL.warn(exception);
+                        }
+                    });
                 }
             });
             thread.start();

@@ -19,24 +19,25 @@ import java.net.Socket;
  * Active when the user is logged in on the website.
  */
 public class SecondaryConnection {
-    private final byte auth_id; // Very important to identify the connection
+    private final byte type; // Very important to identify the connection
     private Socket socket;
     private InputStream in;
     private OutputStream out;
     private DataInputStream dataIn;
     private DataOutputStream dataOut;
+    private DefaultConnection con;
 
-    public SecondaryConnection(byte auth_id) {
-        this.auth_id = auth_id;
+    public SecondaryConnection(byte type) {
+        this.type = type;
     }
 
     public boolean open() throws Exception {
-        SecuredConnection auth = new SecuredConnection(auth_id);
-        socket = auth.getSocket();
-        in = auth.getInput();
-        out = auth.getOutput();
-        dataIn = auth.getDataIn();
-        dataOut = auth.getDataOut();
+        this.con = new DefaultConnection(type);
+        socket = con.getSocket();
+        in = con.getInput();
+        out = con.getOutput();
+        dataIn = con.getDataIn();
+        dataOut = con.getDataOut();
         return true;
     }
 
@@ -51,7 +52,7 @@ public class SecondaryConnection {
     }
 
     public byte getAuthId() {
-        return auth_id;
+        return type;
     }
 
     public Socket getSocket() {
@@ -77,8 +78,8 @@ public class SecondaryConnection {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + "{" +
-                "auth_id=" + auth_id +
+                "type=" + type +
                 ", connected=" + isConnected() +
-                '}';
+                "} with " + con;
     }
 }

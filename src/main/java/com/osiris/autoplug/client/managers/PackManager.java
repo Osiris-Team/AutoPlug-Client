@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PackManager {
-    public File systemPacksDir = new File(GD.WORKING_DIR + "/system/packs");
+    public File systemPacksDir = new File(GD.WORKING_DIR + "/autoplug/system/packs");
     public List<Pack> installedPacks = new ArrayList<>();
 
     public PackManager() {
