@@ -78,7 +78,7 @@
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>jlib</artifactId>
-            <version>16.0</version>
+            <version>16.2</version>
         </dependency>
 
         <dependency>

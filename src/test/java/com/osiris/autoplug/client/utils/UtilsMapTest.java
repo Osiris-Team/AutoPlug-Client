@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 class UtilsMapTest {
-
     @Test
     void sortByValue() {
         UtilsMap utilsMap = new UtilsMap();

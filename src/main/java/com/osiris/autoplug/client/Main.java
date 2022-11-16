@@ -36,10 +36,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,10 +115,31 @@ public class Main {
                     force_ansi.asBoolean()
             );
             AL.mirrorSystemStreams(GD.FILE_OUT, GD.FILE_ERR_OUT);
+
+            try {
+                for (String arg : args) {
+                    if (Objects.equals(arg, "test")) {
+                        GD.IS_TEST_MODE = true;
+                        GD.OFFICIAL_WEBSITE = "http://localhost/";
+                        AL.warn("RUNNING IN TEST-MODE!");
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                AL.warn(e, "Failed to determine test-mode.");
+            }
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
-            AL.debug(Main.class, "Running autoplug from: " + new UtilsJar().getThisJar());
+            AL.debug(Main.class, "JAR: " + new UtilsJar().getThisJar());
+            AL.debug(Main.class, "ARGS: " + (args != null ? Arrays.toString(args) : ""));
+            AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
+            AL.debug(Main.class, "SYSTEM OS ARCH: " + System.getProperty("os.arch"));
+            AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
+            AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
+            AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
+            AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
+            AL.debug(Main.class, "TEST-MODE: " + GD.IS_TEST_MODE);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("There was a critical error that prevented AutoPlug from starting!");
@@ -137,14 +155,6 @@ public class Main {
             AL.info("                                 /___/    ");
             AL.info(GD.VERSION + " by " + GD.AUTHOR);
             AL.info("Web-Panel: " + GD.OFFICIAL_WEBSITE);
-            AL.debug(Main.class, " ");
-            AL.debug(Main.class, "DEBUG DETAILS:");
-            AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
-            AL.debug(Main.class, "SYSTEM OS ARCH: " + System.getProperty("os.arch"));
-            AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
-            AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
-            AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
-            AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
             AL.info("| ------------------------------------------- |");
             Server.getServerExecutable(); // Make sure this is called here first and not in a task later
             // to avoid infinite initialising

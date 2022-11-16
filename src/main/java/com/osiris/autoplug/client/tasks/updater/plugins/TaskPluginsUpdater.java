@@ -19,7 +19,10 @@ import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.*;
+import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsFile;
+import com.osiris.autoplug.client.utils.UtilsLists;
+import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
@@ -28,6 +31,7 @@ import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.json.exceptions.HttpErrorException;
+import com.osiris.jlib.sort.QuickSort;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -36,8 +40,8 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,10 +70,6 @@ public class TaskPluginsUpdater extends BThread {
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
     private GeneralConfig generalConfig;
-
-    public TaskPluginsUpdater(String name, BThreadManager manager) {
-        super(name, manager);
-    }
 
     @Override
     public void runAtStart() throws Exception {
@@ -142,7 +142,10 @@ public class TaskPluginsUpdater extends BThread {
                             " thus failed to fill in missing plugin details via the AutoPlug-Web database. Disable " +
                             new UtilsLists().toString(updaterConfig.plugins_updater_web_database.getKeys())
                             + " in the config to hide this warning."));
-                else
+                else if (e.getHttpErrorCode() == 404) {
+                    // We expect this error code since PluginName and PluginAuthor should not exist in the database
+                    isPremiumServer = true;
+                } else
                     getWarnings().add(new BWarning(this, e));
             } catch (Exception e) {
                 getWarnings().add(new BWarning(this, e));
@@ -183,50 +186,51 @@ public class TaskPluginsUpdater extends BThread {
                 // Fetch missing details from the AutoPlug-Web database
                 if (isPremiumServer) {
                     try {
-                        JsonObject request = new JsonObject();
-                        request.addProperty("serverKey", generalConfig.server_key.asString());
-                        request.addProperty("name", plName);
-                        request.addProperty("author", author.asString());
-                        JsonObject result = Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", request).getAsJsonObject();
-                        Type typeOfHashMap = new TypeToken<Map<String, Integer>>() {
-                        }.getType();
-                        Map.Entry<String, Integer> webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                        Map.Entry<String, Integer> webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                        Map.Entry<String, Integer> webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                        Map.Entry<String, Integer> webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                        Map.Entry<String, Integer> webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                        Map.Entry<String, Integer> webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        if (plName != null && author.asString() != null && !author.asString().trim().isEmpty()) {
+                            JsonObject request = new JsonObject();
+                            request.addProperty("serverKey", generalConfig.server_key.asString());
+                            request.addProperty("name", plName);
+                            request.addProperty("author", author.asString());
+                            JsonObject result = Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", request).getAsJsonObject();
+                            Type typeOfSet = new TypeToken<HashSet<Entry>>() {
+                            }.getType();
+                            Entry webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
 
-                        // Fill missing id information
-                        if (webSpigotId != null && (spigotId.asString() == null || spigotId.asInt() == 0))
-                            spigotId.setValues(webSpigotId.getKey());
-                        if (webBukkitId != null && (bukkitId.asString() == null || bukkitId.asInt() == 0))
-                            bukkitId.setValues(webBukkitId.getKey());
+                            // Fill missing id information
+                            if (webSpigotId != null && (spigotId.asString() == null || spigotId.asInt() == 0))
+                                spigotId.setValues(webSpigotId.key);
+                            if (webBukkitId != null && (bukkitId.asString() == null || bukkitId.asInt() == 0))
+                                bukkitId.setValues(webBukkitId.key);
 
-                        // Fill missing alternative information, only if it has more usages than the ids
-                        if (webGithubRepoName != null && webGithubAssetName != null
-                                && (webSpigotId != null && webSpigotId.getValue() < webGithubRepoName.getValue())
-                                && (webBukkitId != null && webBukkitId.getValue() < webGithubRepoName.getValue())) {
-                            spigotId.setValues("0");
-                            bukkitId.setValues("0");
-                            githubRepoName.setValues(webGithubRepoName.getKey());
-                            githubAssetName.setValues(webGithubAssetName.getKey());
+                            // Fill missing alternative information, only if it has more usages than the ids
+                            if (webGithubRepoName != null && webGithubAssetName != null
+                                    && (webSpigotId != null && webSpigotId.usage < webGithubRepoName.usage)
+                                    && (webBukkitId != null && webBukkitId.usage < webGithubRepoName.usage)) {
+                                spigotId.setValues("0");
+                                bukkitId.setValues("0");
+                                githubRepoName.setValues(webGithubRepoName.key);
+                                githubAssetName.setValues(webGithubAssetName.key);
+                            }
+                            if (webJenkinsProjectUrl != null && webJenkinsArtifactName != null
+                                    && (webSpigotId != null && webSpigotId.usage < webJenkinsProjectUrl.usage)
+                                    && (webBukkitId != null && webBukkitId.usage < webJenkinsProjectUrl.usage)) {
+                                spigotId.setValues("0");
+                                bukkitId.setValues("0");
+                                jenkinsProjectUrl.setValues(webJenkinsProjectUrl.key);
+                                jenkinsArtifactName.setValues(webJenkinsArtifactName.key);
+                            }
                         }
-                        if (webJenkinsProjectUrl != null && webJenkinsArtifactName != null
-                                && (webSpigotId != null && webSpigotId.getValue() < webJenkinsProjectUrl.getValue())
-                                && (webBukkitId != null && webBukkitId.getValue() < webJenkinsProjectUrl.getValue())) {
-                            spigotId.setValues("0");
-                            bukkitId.setValues("0");
-                            jenkinsProjectUrl.setValues(webJenkinsProjectUrl.getKey());
-                            jenkinsArtifactName.setValues(webJenkinsArtifactName.getKey());
-                        }
-
                     } catch (HttpErrorException e) {
                         // Ignore 404 because it means that name,author combination doesn't exist in the database yet
                         if (e.getHttpErrorCode() != 404)
-                            addWarning(new BWarning(this, e));
+                            addWarning(new BWarning(this, e, "Issues for " + plName));
                     } catch (Exception e) {
-                        addWarning(new BWarning(this, e));
+                        addWarning(new BWarning(this, e, "Issues for " + plName));
                     }
                 }
 
@@ -259,9 +263,8 @@ public class TaskPluginsUpdater extends BThread {
                     this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded." +
                             " Provide additional information in /autoplug/plugins.yml.");
                 } else {
-                    exclude.setValues("true");
-                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing information in its plugin.yml file and was excluded." +
-                            " Provide additional information in /autoplug/plugins.yml.");
+                    // Probably first time using this plugin, thus no information available yet
+                    exclude.setValues("false");
                 }
 
                 if (exclude.asBoolean())
@@ -464,21 +467,39 @@ public class TaskPluginsUpdater extends BThread {
 
     }
 
+    public TaskPluginsUpdater(String name, BThreadManager manager) {
+        super(name, manager);
+    }
+
     /**
      * @return null if all keys of this map have usages below the minimum and
      * the keys are "null" or "0".
      */
-    private Map.Entry<String, Integer> getValidEntryWithMostUsages(Map<String, Integer> _map, int minUsages) {
-        List<Map.Entry<String, Integer>> entries = new UtilsMap().getEntriesListSortedByValue(_map);
-        for (int i = entries.size() - 1; i >= 0; i--) {
-            int usages = entries.get(i).getValue();
+    private Entry getValidEntryWithMostUsages(HashSet<Entry> _set, int minUsages) {
+        Entry[] entries = new QuickSort().sort(_set.toArray(new Entry[0]), (thisEl, otherEl) -> {
+            int thisUsage = ((Entry) thisEl.obj).usage;
+            int otherUsage = ((Entry) otherEl.obj).usage;
+            return Integer.compare(thisUsage, otherUsage);
+        });
+        for (int i = entries.length - 1; i >= 0; i--) {
+            int usages = entries[i].usage;
             // If the entry with most usages doesn't exceed the minimum we can directly return null
             if (usages < minUsages) return null;
-            String key = entries.get(i).getKey();
+            String key = entries[i].key;
             if (!Objects.equals(key, "null") && !Objects.equals(key, "0"))
-                return entries.get(i);
+                return entries[i];
         }
         return null;
+    }
+
+    static class Entry {
+        public String key;
+        public int usage;
+
+        public Entry(String key, int usage) {
+            this.key = key;
+            this.usage = usage;
+        }
     }
 
     private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {
