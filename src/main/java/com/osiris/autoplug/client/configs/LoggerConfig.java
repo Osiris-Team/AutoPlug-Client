@@ -59,6 +59,9 @@ public class LoggerConfig extends Yaml {
         );
 
         put(name, "tasks").setCountTopLineBreaks(1);
+        //TODO printer_serial = put(name, "tasks", "serial-printer", "enable").setDefValues("true");
+        //TODO printer_minimal = put(name, "tasks", "minimal-printer", "enable").setDefValues("false");
+        //TODO printer_live = put(name, "tasks", "live-printer", "enable").setDefValues("false");
         live_tasks = put(name, "tasks", "live-tasks", "enable").setDefValues("false").setComments(
                 "Enable this to view the detailed progress of a task. Supported platforms: Windows, Linux, OS X, Solaris and FreeBSD.\n" +
                         "Enabling this on unsupported platform will result in console spam.");

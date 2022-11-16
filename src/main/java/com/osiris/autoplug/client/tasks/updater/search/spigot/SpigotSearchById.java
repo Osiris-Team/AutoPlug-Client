@@ -12,8 +12,8 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsVersion;
-import com.osiris.autoplug.core.json.Json;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.json.Json;
+import com.osiris.jlib.logger.AL;
 
 public class SpigotSearchById {
 
@@ -31,15 +31,15 @@ public class SpigotSearchById {
         boolean isPremium = false;
         try {
             // Get the latest version
-            latest = Json.fromUrlAsJsonArray(url).get(0).getAsJsonObject().get("name").getAsString();
+            latest = Json.getAsJsonArray(url).get(0).getAsJsonObject().get("name").getAsString();
             if (latest != null)
                 latest = latest.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
 
             // Get the file type and downloadUrl
             String url1 = "https://api.spiget.org/v2/resources/" + spigotId;
             AL.debug(this.getClass(), "[" + plugin.getName() + "] Fetching resource details... (" + url1 + ")");
-            JsonObject json = Json.fromUrlAsObject(url1).getAsJsonObject("file");
-            isPremium = Boolean.parseBoolean(Json.fromUrlAsObject(url1).get("premium").getAsString());
+            JsonObject json = Json.getAsObject(url1).getAsJsonObject("file");
+            isPremium = Boolean.parseBoolean(Json.getAsObject(url1).get("premium").getAsString());
             type = json.get("type").getAsString();
             downloadUrl = "https://www.spigotmc.org/" + json.get("url").getAsString();
 

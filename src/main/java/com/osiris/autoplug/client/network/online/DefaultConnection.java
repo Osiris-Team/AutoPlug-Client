@@ -14,7 +14,7 @@ import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleRec
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSession;

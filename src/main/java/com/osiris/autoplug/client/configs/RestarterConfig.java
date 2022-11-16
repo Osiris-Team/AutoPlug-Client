@@ -8,11 +8,11 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.dyml.utils.UtilsYamlSection;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

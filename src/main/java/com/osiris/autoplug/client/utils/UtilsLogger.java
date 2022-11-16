@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.utils;
 
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import java.util.Arrays;
 import java.util.Scanner;

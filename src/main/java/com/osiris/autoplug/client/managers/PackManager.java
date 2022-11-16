@@ -13,7 +13,7 @@ import com.google.gson.GsonBuilder;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import java.io.File;
 import java.io.IOException;

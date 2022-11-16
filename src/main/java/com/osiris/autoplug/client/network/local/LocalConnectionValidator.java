@@ -9,8 +9,8 @@
 package com.osiris.autoplug.client.network.local;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;

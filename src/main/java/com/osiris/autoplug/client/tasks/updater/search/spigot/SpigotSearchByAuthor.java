@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.StringComparator;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 public class SpigotSearchByAuthor {
 

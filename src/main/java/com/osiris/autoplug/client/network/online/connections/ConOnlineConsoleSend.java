@@ -13,10 +13,10 @@ import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.events.MessageEvent;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.Message;
-import com.osiris.autoplug.core.logger.MessageFormatter;
+import com.osiris.jlib.events.MessageEvent;
+import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.logger.Message;
+import com.osiris.jlib.logger.MessageFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

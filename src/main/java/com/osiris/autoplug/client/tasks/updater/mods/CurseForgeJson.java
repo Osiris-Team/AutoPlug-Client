@@ -13,8 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
-import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
+import com.osiris.jlib.json.exceptions.HttpErrorException;
+import com.osiris.jlib.json.exceptions.WrongJsonTypeException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

@@ -10,9 +10,9 @@ package com.osiris.autoplug.client.managers;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.SharedFilesConfig;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.dyml.watcher.DirWatcher;
 import com.osiris.dyml.watcher.FileEvent;
+import com.osiris.jlib.logger.AL;
 
 import java.io.File;
 import java.nio.file.Files;

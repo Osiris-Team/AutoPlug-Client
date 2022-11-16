@@ -13,7 +13,7 @@ import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.SecondaryConnection;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;

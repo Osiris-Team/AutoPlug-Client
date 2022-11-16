@@ -10,10 +10,6 @@ package com.osiris.autoplug.client.utils.tasks;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.tasks.SerialBThreadPrinter;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.LogFileWriter;
-import com.osiris.autoplug.core.logger.Message;
-import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
@@ -21,6 +17,10 @@ import com.osiris.betterthread.BWarning;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.betterthread.modules.BThreadModulesBuilder;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.logger.LogFileWriter;
+import com.osiris.jlib.logger.Message;
+import com.osiris.jlib.logger.MessageFormatter;
 import org.fusesource.jansi.Ansi;
 
 import java.io.IOException;

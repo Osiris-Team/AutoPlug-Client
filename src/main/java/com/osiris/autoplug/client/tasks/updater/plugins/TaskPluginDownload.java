@@ -10,9 +10,9 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
+import com.osiris.jlib.logger.AL;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

@@ -77,8 +77,8 @@
         <!-- https://github.com/Osiris-Team/AutoPlug-Core -->
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
-            <artifactId>AutoPlug-Core</artifactId>
-            <version>15.1</version>
+            <artifactId>jlib</artifactId>
+            <version>16.0</version>
         </dependency>
 
         <dependency>

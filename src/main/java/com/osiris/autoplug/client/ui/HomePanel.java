@@ -11,9 +11,9 @@ package com.osiris.autoplug.client.ui;
 import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.ui.utils.HintTextField;
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.betterlayout.BLayout;
+import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.logger.MessageFormatter;
 
 import javax.swing.*;
 import java.awt.*;

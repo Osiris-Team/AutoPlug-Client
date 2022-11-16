@@ -14,7 +14,7 @@ import com.osiris.autoplug.client.network.online.SecondaryConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.io.UFDataIn;
 import com.osiris.autoplug.client.utils.io.UFDataOut;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 

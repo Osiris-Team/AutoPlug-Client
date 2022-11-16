@@ -10,9 +10,9 @@ package com.osiris.autoplug.client.tasks.updater.java;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.core.json.Json;
-import com.osiris.autoplug.core.json.exceptions.HttpErrorException;
-import com.osiris.autoplug.core.json.exceptions.WrongJsonTypeException;
+import com.osiris.jlib.json.Json;
+import com.osiris.jlib.json.exceptions.HttpErrorException;
+import com.osiris.jlib.json.exceptions.WrongJsonTypeException;
 
 import java.io.IOException;
 
@@ -59,7 +59,7 @@ public class AdoptV3API {
     public JsonArray getVersionInformation(String releaseVersionName, OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
                                            boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
                                            VendorProjectType vendorProject, ReleaseType releaseType) throws WrongJsonTypeException, IOException, HttpErrorException {
-        return Json.fromUrlAsJsonArray(getVersionInformationUrl(
+        return Json.getAsJsonArray(getVersionInformationUrl(
                 releaseVersionName, osArchitectureType, isLargeHeapSize, imageType, isHotspotImpl,
                 isOnlyLTS, osType, maxItems, vendorProject, releaseType
         ));
@@ -98,7 +98,7 @@ public class AdoptV3API {
     public JsonObject getReleases(OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
                                   boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
                                   VendorProjectType vendorProject, ReleaseType releaseType) throws WrongJsonTypeException, IOException, HttpErrorException {
-        return Json.fromUrlAsObject(getReleasesUrl(osArchitectureType, isLargeHeapSize, imageType,
+        return Json.getAsObject(getReleasesUrl(osArchitectureType, isLargeHeapSize, imageType,
                 isHotspotImpl, isOnlyLTS, osType, maxItems, vendorProject, releaseType));
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2021-2022 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,8 +11,8 @@ package com.osiris.autoplug.client.console;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.LogFileWriter;
+import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.logger.LogFileWriter;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;

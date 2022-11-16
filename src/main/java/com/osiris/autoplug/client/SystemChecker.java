@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client;
 
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import java.io.*;
 import java.net.HttpURLConnection;

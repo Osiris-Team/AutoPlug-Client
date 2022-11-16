@@ -11,10 +11,10 @@ package com.osiris.autoplug.client.tasks.updater;
 import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
 import com.osiris.dyml.utils.UtilsTimeStopper;
+import com.osiris.jlib.logger.AL;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

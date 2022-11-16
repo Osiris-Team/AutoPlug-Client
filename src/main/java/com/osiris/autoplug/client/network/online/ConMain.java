@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.network.online.connections.*;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;

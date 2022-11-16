@@ -24,10 +24,10 @@ import com.osiris.autoplug.client.utils.UtilsConfig;
 import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -45,6 +45,7 @@ public class BeforeServerStartupTasks {
         BThreadManager manager = null;
         BThreadPrinter printer = null; // We have our own way of displaying the warnings, that's why its set to false
         try {
+            AL.info("Running pre-startup tasks, please be patient...");
             loggerConfig = new LoggerConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess

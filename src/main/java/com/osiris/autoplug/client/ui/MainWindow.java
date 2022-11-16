@@ -16,9 +16,9 @@ import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.betterlayout.utils.UIDebugWindow;
+import com.osiris.jlib.logger.AL;
 
 import javax.swing.*;
 import java.awt.*;

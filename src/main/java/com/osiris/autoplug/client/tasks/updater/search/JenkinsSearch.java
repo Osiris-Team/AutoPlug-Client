@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.search;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.core.json.Json;
+import com.osiris.jlib.json.Json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class JenkinsSearch {
         int latest_build_id = 0;
         String fileName = null;
         try {
-            JsonObject json_project = Json.fromUrlAsObject(project_url + "/api/json");
+            JsonObject json_project = Json.getAsObject(project_url + "/api/json");
             JsonObject json_last_successful_build = json_project.get("lastSuccessfulBuild").getAsJsonObject();
             latest_build_id = json_last_successful_build.get("number").getAsInt();
             latestVersion = "" + latest_build_id;
@@ -37,7 +37,7 @@ public class JenkinsSearch {
                 String buildUrl = json_last_successful_build.get("url").getAsString();
                 if (!buildUrl.endsWith("api/json"))
                     buildUrl = buildUrl + (buildUrl.endsWith("/") ? "" : "/") + "api/json";
-                JsonArray arrayArtifacts = Json.fromUrlAsObject(buildUrl).getAsJsonArray("artifacts");
+                JsonArray arrayArtifacts = Json.getAsObject(buildUrl).getAsJsonArray("artifacts");
 
                 // Contains JsonObjects sorted by their artifact names lengths, from smallest to longest.
                 // The following does that sorting.

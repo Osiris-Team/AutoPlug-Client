@@ -11,8 +11,8 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.osiris.autoplug.client.UT;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BWarning;
+import com.osiris.jlib.logger.AL;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

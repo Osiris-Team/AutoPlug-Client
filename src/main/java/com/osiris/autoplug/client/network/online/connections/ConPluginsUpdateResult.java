@@ -103,6 +103,26 @@ public class ConPluginsUpdateResult extends SecondaryConnection {
                 dos.writeUTF("0");
             else
                 dos.writeUTF(result.getBukkitId());
+
+            if (result.plugin.getGithubRepoName() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.plugin.getGithubRepoName());
+
+            if (result.plugin.getGithubAssetName() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.plugin.getGithubAssetName());
+
+            if (result.plugin.getJenkinsProjectUrl() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.plugin.getJenkinsProjectUrl());
+
+            if (result.plugin.getJenkinsArtifactName() == null)
+                dos.writeUTF("null");
+            else
+                dos.writeUTF(result.plugin.getJenkinsArtifactName());
         }
 
         dos.writeInt(excludedPlugins.size());

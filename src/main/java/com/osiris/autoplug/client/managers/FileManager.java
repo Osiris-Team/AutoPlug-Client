@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.managers;
 
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

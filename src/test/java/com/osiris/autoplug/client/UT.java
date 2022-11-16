@@ -12,9 +12,9 @@ import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 
 import java.io.File;
 import java.io.IOException;

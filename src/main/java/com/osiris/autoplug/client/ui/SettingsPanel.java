@@ -9,9 +9,9 @@
 package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.betterlayout.utils.UIDebugWindow;
+import com.osiris.jlib.logger.AL;
 
 import javax.swing.*;
 import java.awt.*;

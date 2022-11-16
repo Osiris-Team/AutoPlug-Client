@@ -23,7 +23,7 @@ import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;

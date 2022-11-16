@@ -17,9 +17,9 @@ import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsVersion;
-import com.osiris.autoplug.core.json.Json;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
+import com.osiris.jlib.json.Json;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -61,7 +61,7 @@ public class TaskSelfUpdater extends BThread {
     private void doUpdating(String url) throws Exception {
         // This url contains a JsonArray with JsonObjects, each representing a java application.
         // In this case we are only interested in the AutoPlug-Client.jar with id 0.
-        List<JsonObject> apps = Json.fromUrlAsList(url);
+        List<JsonObject> apps = Json.getAsList(url);
         JsonObject jsonLatestJar = null;
         for (JsonObject o :
                 apps) {

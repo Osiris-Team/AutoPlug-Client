@@ -9,10 +9,10 @@
 package com.osiris.autoplug.client.tasks.scheduler;
 
 import com.osiris.autoplug.client.configs.RestarterConfig;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
+import com.osiris.jlib.logger.AL;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

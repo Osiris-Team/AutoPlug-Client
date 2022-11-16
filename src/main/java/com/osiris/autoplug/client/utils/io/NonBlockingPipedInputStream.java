@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.utils.io;
 
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;

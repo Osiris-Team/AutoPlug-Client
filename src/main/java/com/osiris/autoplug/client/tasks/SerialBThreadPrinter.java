@@ -8,11 +8,11 @@
 
 package com.osiris.autoplug.client.tasks;
 
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
 import com.osiris.betterthread.exceptions.JLineLinkException;
 import com.osiris.betterthread.modules.BThreadPrinterModule;
+import com.osiris.jlib.logger.AL;
 import org.jline.utils.AttributedString;
 
 import java.util.ArrayList;

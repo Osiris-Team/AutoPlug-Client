@@ -9,13 +9,13 @@
 package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
-import com.osiris.autoplug.core.logger.AL;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
+import com.osiris.jlib.logger.AL;
 
 import javax.swing.*;
 import java.awt.*;

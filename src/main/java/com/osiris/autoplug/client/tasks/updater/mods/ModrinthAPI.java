@@ -12,8 +12,8 @@ import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
-import com.osiris.autoplug.core.json.Json;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.json.Json;
+import com.osiris.jlib.logger.AL;
 
 import java.io.File;
 import java.time.Instant;
@@ -53,7 +53,7 @@ public class ModrinthAPI {
             AL.debug(this.getClass(), url);
             JsonObject release;
             try {
-                release = Json.fromUrlAsJsonArray(url)
+                release = Json.getAsJsonArray(url)
                         .get(0).getAsJsonObject();
             } catch (Exception e) {
                 if (!isInt(mod.modrinthId)) { // Try another url, with slug replaced _ with -
@@ -61,7 +61,7 @@ public class ModrinthAPI {
                             + "/version?loaders=[\"" +
                             (Server.isFabric ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
                     AL.debug(this.getClass(), url);
-                    release = Json.fromUrlAsJsonArray(url)
+                    release = Json.getAsJsonArray(url)
                             .get(0).getAsJsonObject();
                 } else
                     throw e;

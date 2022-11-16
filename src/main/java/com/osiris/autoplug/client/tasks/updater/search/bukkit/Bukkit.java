@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.autoplug.client.utils.UtilsVersion;
-import com.osiris.autoplug.core.logger.AL;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 import java.io.InputStream;

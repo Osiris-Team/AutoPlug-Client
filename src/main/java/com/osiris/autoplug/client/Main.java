@@ -26,10 +26,10 @@ import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
-import com.osiris.autoplug.core.logger.AL;
-import com.osiris.autoplug.core.logger.MessageFormatter;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
+import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.logger.MessageFormatter;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
