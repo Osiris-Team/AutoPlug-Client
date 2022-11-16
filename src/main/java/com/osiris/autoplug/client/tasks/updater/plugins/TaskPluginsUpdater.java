@@ -8,29 +8,37 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsFile;
-import com.osiris.autoplug.client.utils.UtilsMinecraft;
+import com.osiris.autoplug.client.utils.*;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.jlib.json.Json;
+import com.osiris.jlib.json.exceptions.HttpErrorException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -49,6 +57,7 @@ public class TaskPluginsUpdater extends BThread {
     @NotNull
     private final List<MinecraftPlugin> excludedPlugins = new ArrayList<>();
     Yaml pluginsConfig;
+    private final Gson gson = new GsonBuilder().create();
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private String pluginsConfigName;
@@ -56,11 +65,11 @@ public class TaskPluginsUpdater extends BThread {
     private DataInputStream online_dis;
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
+    private GeneralConfig generalConfig;
 
     public TaskPluginsUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
-
 
     @Override
     public void runAtStart() throws Exception {
@@ -89,7 +98,6 @@ public class TaskPluginsUpdater extends BThread {
                         "    #### Note that only one id is necessary, provided both for demonstration purposes.\n" +
                         "    spigot-id: 871 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### You can find it directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n " +
                         "    bukkit-id: 93271 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n " +
-                        "    custom-author: 93271 #### Can be set by you and is used instead of the author value from above #### Useful when the author name on the website differs too much from our author name.\n" +
                         "    custom-check-url: #### (FEATURE NOT WORKING YET) Must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
                         "    custom-download-url: #### Must be a static url to the plugins latest jar file.\n" +
                         "    ignore-content-type: false #### When downloading a file the file host is asked for the file-type which must be .jar, when true this check is not performed.\n" +
@@ -108,6 +116,7 @@ public class TaskPluginsUpdater extends BThread {
                 .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
         pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
+        generalConfig = new GeneralConfig();
         updaterConfig = new UpdaterConfig();
         userProfile = updaterConfig.plugins_updater_profile.asString();
 
@@ -116,6 +125,29 @@ public class TaskPluginsUpdater extends BThread {
             return;
         }
         if (Server.isRunning()) throw new Exception("Cannot perform plugins update while server is running!");
+
+        boolean isPremiumServer = false;
+        if (updaterConfig.plugins_updater_web_database.asBoolean()) {
+            try {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("serverKey", generalConfig.server_key.asString());
+                obj.addProperty("name", "PluginName");
+                obj.addProperty("author", "PluginAuthor");
+                Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", obj);
+                // Status code 403 if not registered server or not premium server
+                isPremiumServer = true;
+            } catch (HttpErrorException e) {
+                if (e.getHttpErrorCode() == 403)
+                    getWarnings().add(new BWarning(this, "This server is either not registered or not premium," +
+                            " thus failed to fill in missing plugin details via the AutoPlug-Web database. Disable " +
+                            new UtilsLists().toString(updaterConfig.plugins_updater_web_database.getKeys())
+                            + " in the config to hide this warning."));
+                else
+                    getWarnings().add(new BWarning(this, e));
+            } catch (Exception e) {
+                getWarnings().add(new BWarning(this, e));
+            }
+        }
 
         UtilsMinecraft man = new UtilsMinecraft();
         this.allPlugins.addAll(man.getPlugins(FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString())));
@@ -136,7 +168,7 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                 YamlSection customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                 YamlSection customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
-                YamlSection githubRepoUrl = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
+                YamlSection githubRepoName = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
                 YamlSection githubAssetName = pluginsConfig.put(name, plName, "alternatives", "github", "asset-name");
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
@@ -148,33 +180,88 @@ public class TaskPluginsUpdater extends BThread {
                 if (installedPlugin.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
                     bukkitId.setValues("" + installedPlugin.getBukkitId());
 
+                // Fetch missing details from the AutoPlug-Web database
+                if (isPremiumServer) {
+                    try {
+                        JsonObject request = new JsonObject();
+                        request.addProperty("serverKey", generalConfig.server_key.asString());
+                        request.addProperty("name", plName);
+                        request.addProperty("author", author.asString());
+                        JsonObject result = Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", request).getAsJsonObject();
+                        Type typeOfHashMap = new TypeToken<Map<String, Integer>>() {
+                        }.getType();
+                        Map.Entry<String, Integer> webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        Map.Entry<String, Integer> webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        Map.Entry<String, Integer> webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        Map.Entry<String, Integer> webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        Map.Entry<String, Integer> webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                        Map.Entry<String, Integer> webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfHashMap), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+
+                        // Fill missing id information
+                        if (webSpigotId != null && (spigotId.asString() == null || spigotId.asInt() == 0))
+                            spigotId.setValues(webSpigotId.getKey());
+                        if (webBukkitId != null && (bukkitId.asString() == null || bukkitId.asInt() == 0))
+                            bukkitId.setValues(webBukkitId.getKey());
+
+                        // Fill missing alternative information, only if it has more usages than the ids
+                        if (webGithubRepoName != null && webGithubAssetName != null
+                                && (webSpigotId != null && webSpigotId.getValue() < webGithubRepoName.getValue())
+                                && (webBukkitId != null && webBukkitId.getValue() < webGithubRepoName.getValue())) {
+                            spigotId.setValues("0");
+                            bukkitId.setValues("0");
+                            githubRepoName.setValues(webGithubRepoName.getKey());
+                            githubAssetName.setValues(webGithubAssetName.getKey());
+                        }
+                        if (webJenkinsProjectUrl != null && webJenkinsArtifactName != null
+                                && (webSpigotId != null && webSpigotId.getValue() < webJenkinsProjectUrl.getValue())
+                                && (webBukkitId != null && webBukkitId.getValue() < webJenkinsProjectUrl.getValue())) {
+                            spigotId.setValues("0");
+                            bukkitId.setValues("0");
+                            jenkinsProjectUrl.setValues(webJenkinsProjectUrl.getKey());
+                            jenkinsArtifactName.setValues(webJenkinsArtifactName.getKey());
+                        }
+
+                    } catch (HttpErrorException e) {
+                        // Ignore 404 because it means that name,author combination doesn't exist in the database yet
+                        if (e.getHttpErrorCode() != 404)
+                            addWarning(new BWarning(this, e));
+                    } catch (Exception e) {
+                        addWarning(new BWarning(this, e));
+                    }
+                }
+
                 // Update the detailed plugins in-memory values
                 installedPlugin.setSpigotId(spigotId.asInt());
                 installedPlugin.setBukkitId(bukkitId.asInt());
                 installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
                 installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
-                installedPlugin.setGithubRepoName(githubRepoUrl.asString());
+                installedPlugin.setGithubRepoName(githubRepoName.asString());
                 installedPlugin.setGithubAssetName(githubAssetName.asString());
                 installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
 
-                // Check for missing author in plugin.yml
-                if ((installedPlugin.getVersion() == null || installedPlugin.getVersion().trim().isEmpty())
-                        && (spigotId.asString() == null || spigotId.asInt() == 0)
-                        && (bukkitId.asString() == null || bukkitId.asInt() == 0)) {
+                // Check for missing plugin details in plugin.yml
+                if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
+                    exclude.setValues("false");
+                else if (githubAssetName.asString() != null && githubRepoName.asString() != null)
+                    exclude.setValues("false");
+                else if (spigotId.asString() != null && spigotId.asInt() != 0)
+                    exclude.setValues("false");
+                else if (bukkitId.asString() != null && bukkitId.asInt() != 0)
+                    exclude.setValues("false");
+                else if (installedPlugin.getVersion() == null || installedPlugin.getVersion().trim().isEmpty()) {
                     exclude.setValues("true");
-                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'version' in its plugin.yml file and was excluded.");
-                }
-
-                // Check for missing version in plugin.yml
-                if ((installedPlugin.getAuthor() == null || installedPlugin.getAuthor().trim().isEmpty())
-                        && (spigotId.asString() == null || spigotId.asInt() == 0)
-                        && (bukkitId.asString() == null || bukkitId.asInt() == 0)
-                        && jenkinsArtifactName.asString() == null
-                        && githubAssetName.asString() == null) {
+                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'version' in its plugin.yml file and was excluded." +
+                            " Provide additional information in /autoplug/plugins.yml.");
+                } else if (installedPlugin.getAuthor() == null || installedPlugin.getAuthor().trim().isEmpty()) {
                     exclude.setValues("true");
-                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded.");
+                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing 'author' or 'authors' in its plugin.yml file and was excluded." +
+                            " Provide additional information in /autoplug/plugins.yml.");
+                } else {
+                    exclude.setValues("true");
+                    this.addWarning("Plugin " + installedPlugin.getName() + " is missing information in its plugin.yml file and was excluded." +
+                            " Provide additional information in /autoplug/plugins.yml.");
                 }
 
                 if (exclude.asBoolean())
@@ -375,6 +462,23 @@ public class TaskPluginsUpdater extends BThread {
             finish("Checked " + results.size() + "/" + includedSize + " plugins.");
         }
 
+    }
+
+    /**
+     * @return null if all keys of this map have usages below the minimum and
+     * the keys are "null" or "0".
+     */
+    private Map.Entry<String, Integer> getValidEntryWithMostUsages(Map<String, Integer> _map, int minUsages) {
+        List<Map.Entry<String, Integer>> entries = new UtilsMap().getEntriesListSortedByValue(_map);
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            int usages = entries.get(i).getValue();
+            // If the entry with most usages doesn't exceed the minimum we can directly return null
+            if (usages < minUsages) return null;
+            String key = entries.get(i).getKey();
+            if (!Objects.equals(key, "null") && !Objects.equals(key, "0"))
+                return entries.get(i);
+        }
+        return null;
     }
 
     private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {

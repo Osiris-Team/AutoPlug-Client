@@ -50,6 +50,8 @@ public class UpdaterConfig extends Yaml {
     public YamlSection plugins_updater_profile;
     public YamlSection plugins_updater_path;
     public YamlSection plugins_updater_async;
+    public YamlSection plugins_updater_web_database;
+    public YamlSection plugins_updater_web_database_min_usages;
 
     public YamlSection mods_updater;
     public YamlSection mods_updater_profile;
@@ -187,6 +189,12 @@ public class UpdaterConfig extends Yaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
+        plugins_updater_web_database = put(name, "plugins-updater", "web-database", "enable").setDefValues("true").setComments(
+                "Uses the AutoPlug-Web database to fill in missing plugin information.",
+                "This option is only available for premium servers.",
+                "Note that a server-key must be provided for this to work.");
+        plugins_updater_web_database_min_usages = put(name, "plugins-updater", "web-database", "min-usages").setDefValues("50").setComments(
+                "The minimum amount of usages in servers a piece of information has to have to be used and deemed reliable.");
 
         put(name, "mods-updater").setCountTopLineBreaks(1);
         mods_updater = put(name, "mods-updater", "enable").setDefValues("true").setComments(
