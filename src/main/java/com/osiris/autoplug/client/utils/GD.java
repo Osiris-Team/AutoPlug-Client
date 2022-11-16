@@ -16,10 +16,10 @@ import java.io.File;
  * GlobalData, which is always static and used frequently in this project
  */
 public class GD {
-    // TODO make all of these not static and deprecate this class
-    public static String OFFICIAL_WEBSITE = "https://autoplug.one/";
     public static final String AUTHOR = "Osiris-Team";
     public static final File FILE_ERR_OUT = new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror-err.log");
+    // TODO make all of these not static and deprecate this class
+    public static String OFFICIAL_WEBSITE = "https://autoplug.one/";
     public static boolean IS_TEST_MODE = false;
     @NotNull
     public static String VERSION = "AutoPlug-Client (ERROR RETRIEVING VERSION)";

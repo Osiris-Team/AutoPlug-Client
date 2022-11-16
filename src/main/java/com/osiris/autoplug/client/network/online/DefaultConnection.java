@@ -160,6 +160,7 @@ public class DefaultConnection implements AutoCloseable {
         dataIn = new DataInputStream(input);
         dataOut = new DataOutputStream(output);
     }
+
     public boolean isAlive() {
         return socket != null && !socket.isClosed() && socket.isConnected();
     }

@@ -60,8 +60,8 @@ public class TaskPluginsUpdater extends BThread {
     private final List<MinecraftPlugin> allPlugins = new ArrayList<>();
     @NotNull
     private final List<MinecraftPlugin> excludedPlugins = new ArrayList<>();
-    Yaml pluginsConfig;
     private final Gson gson = new GsonBuilder().create();
+    Yaml pluginsConfig;
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private String pluginsConfigName;
@@ -70,6 +70,10 @@ public class TaskPluginsUpdater extends BThread {
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
     private GeneralConfig generalConfig;
+
+    public TaskPluginsUpdater(String name, BThreadManager manager) {
+        super(name, manager);
+    }
 
     @Override
     public void runAtStart() throws Exception {
@@ -208,7 +212,8 @@ public class TaskPluginsUpdater extends BThread {
                                 bukkitId.setValues(webBukkitId.key);
 
                             // Fill missing alternative information, only if it has more usages than the ids
-                            if (webGithubRepoName != null && webGithubAssetName != null
+                            if (githubRepoName.asString() == null && githubAssetName.asString() == null
+                                    && webGithubRepoName != null && webGithubAssetName != null
                                     && (webSpigotId != null && webSpigotId.usage < webGithubRepoName.usage)
                                     && (webBukkitId != null && webBukkitId.usage < webGithubRepoName.usage)) {
                                 spigotId.setValues("0");
@@ -216,7 +221,8 @@ public class TaskPluginsUpdater extends BThread {
                                 githubRepoName.setValues(webGithubRepoName.key);
                                 githubAssetName.setValues(webGithubAssetName.key);
                             }
-                            if (webJenkinsProjectUrl != null && webJenkinsArtifactName != null
+                            if (jenkinsProjectUrl.asString() == null && jenkinsArtifactName.asString() == null
+                                    && webJenkinsProjectUrl != null && webJenkinsArtifactName != null
                                     && (webSpigotId != null && webSpigotId.usage < webJenkinsProjectUrl.usage)
                                     && (webBukkitId != null && webBukkitId.usage < webJenkinsProjectUrl.usage)) {
                                 spigotId.setValues("0");
@@ -467,10 +473,6 @@ public class TaskPluginsUpdater extends BThread {
 
     }
 
-    public TaskPluginsUpdater(String name, BThreadManager manager) {
-        super(name, manager);
-    }
-
     /**
      * @return null if all keys of this map have usages below the minimum and
      * the keys are "null" or "0".
@@ -490,16 +492,6 @@ public class TaskPluginsUpdater extends BThread {
                 return entries[i];
         }
         return null;
-    }
-
-    static class Entry {
-        public String key;
-        public int usage;
-
-        public Entry(String key, int usage) {
-            this.key = key;
-            this.usage = usage;
-        }
     }
 
     private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {
@@ -577,6 +569,16 @@ public class TaskPluginsUpdater extends BThread {
     @NotNull
     public List<MinecraftPlugin> getAllPlugins() {
         return allPlugins;
+    }
+
+    static class Entry {
+        public String key;
+        public int usage;
+
+        public Entry(String key, int usage) {
+            this.key = key;
+            this.usage = usage;
+        }
     }
 
 }
