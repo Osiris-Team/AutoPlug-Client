@@ -14,6 +14,10 @@ import java.nio.file.Files;
 
 public class UtilsFile {
 
+    public String getFileName(String s) {
+        return new File(s).getName();
+    }
+
     /**
      * Removes unsupported chars like control chars
      * and specific printable chars like \ or / from the provided string and returns it. <br>

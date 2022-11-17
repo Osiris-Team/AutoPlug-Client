@@ -21,6 +21,7 @@ import com.osiris.jlib.logger.AL;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ExcludeFileFilter;
 import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.progress.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.lang.time.DateUtils;
@@ -103,6 +104,17 @@ public class TaskBackup extends BThread {
         if (config.backup.asBoolean()) {
             setStatus("Creating backup zip...");
             ZipFile zip = new ZipFile(server_backup_dest);
+            ProgressMonitor progress = zip.getProgressMonitor();
+            new Thread(() -> {
+                try {
+                    while (this.isAlive()) { // Parent thread
+                        setStatus("Backing up " + new File(progress.getFileName()).getName() + " " + progress.getPercentDone() + "% - " + progress.getCurrentTask());
+                        Thread.sleep(100);
+                    }
+                } catch (Exception e) {
+                    addWarning(new BWarning(this, e));
+                }
+            }).start();
             List<File> filesToBackup = new ArrayList<>();
 
             if (config.backup_include.asBoolean()) filesToBackup.addAll(config.getIncludedFiles());
@@ -115,7 +127,6 @@ public class TaskBackup extends BThread {
                 ExcludeFileFilter excludeFileFilter = excludedFiles::contains;
                 setMax(filesToBackup.size());
                 for (File file : filesToBackup) { //Add each file to the zip
-                    setStatus("Backing up files... " + file.getName());
                     try {
                         ZipParameters zipParameters = new ZipParameters();
                         zipParameters.setExcludeFileFilter(excludeFileFilter);
@@ -131,7 +142,6 @@ public class TaskBackup extends BThread {
             } else {
                 setMax(filesToBackup.size());
                 for (File file : filesToBackup) { //Add each file to the zip
-                    setStatus("Backing up files... " + file.getName());
                     try {
                         if (file.isDirectory())
                             zip.addFolder(file);
