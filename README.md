@@ -21,24 +21,32 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 - [Online Console](online-console.gif)
 - [Online File-Manager](file-manager.gif)
 
-Developers can also use AutoPlug in their projects by
-adding it as a dependency via [Maven/Gradle/Sbt/Leinigen](https://jitpack.io/#Osiris-Team/AutoPlug-Client/-SNAPSHOT).
-Some useful classes would be the AutoPlugConsole for example,
-which lets you execute AutoPlug commands programmatically:
+Developers can also use AutoPlug in their projects by adding it as a dependency
+via [Maven/Gradle/Sbt/Leinigen](https://jitpack.io/#Osiris-Team/AutoPlug-Client/-SNAPSHOT). Some useful classes would be
+the AutoPlugConsole for example, which lets you execute AutoPlug commands programmatically:
+
 ```java
 AutoPlugConsole.executeCommand(".check plugins");
 AutoPlugConsole.executeCommand(".check server");
 // etc...
 ```
 
+## Issues or questions?
+
+Checkout the [FAQ](/docs/FAQ.md) and/or join our [Discord](https://discord.com/invite/GGNmtCC), for live chat/voice
+support.
+
 ## Contribute ![Build test](https://github.com/Osiris-Team/AutoPlug-Client/workflows/build/badge.svg)
+
 ### Thank you for considering to contribute, the community 💙 that! Just keep these things in mind:
+
 - Create an issue first if you want to do big changes, so we can discuss it.
 - Remember that big changes also require you to write tests.
 - You can pick and work on any open issue. Let us know that you are working on it.
 - Avoid using and writing static methods/fields/classes to ensure minimal memory usage.
 
 ### Beginners
+
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
