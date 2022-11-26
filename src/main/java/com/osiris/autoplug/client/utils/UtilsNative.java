@@ -49,18 +49,17 @@ public class UtilsNative {
         }
         String scriptContent = "" +
                 (OSUtils.IS_WINDOWS ? "@echo off\n" : "") +
-                "echo Starting AutoPlug-Client in \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
+                "echo Starting AutoPlug-Client..." +
                 "echo No need to worry about this window, its just AutoPlug starting automatically in the background.\n" +
                 "echo It will disappear in 10 seconds, then you should be able to access the terminal over the system-tray.\n" +
-                "echo To abort enter CTRL and C.\n";
+                "echo To abort enter CTRL+C or close this window.\n";
         if (OSUtils.IS_WINDOWS) {
             scriptContent += "" +
+                    "cd /d \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
+                    "cd\n" +
                     "timeout /t 10 /nobreak\n" +
-                    "call :cdWorkingDir\n" +
-                    "start \"\" javaw -jar \"" + jar.getAbsolutePath() + "\"\n" + // "javaw" to start without terminal, "start" to exit the terminal
-                    ":cdWorkingDir \n" +
-                    "cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
-                    "goto :eof\n";
+                    "start \"\" javaw -jar \"" + jar.getAbsolutePath() + "\"\n" // "javaw" to start without terminal, "start" to start async and be able to exit this terminal
+            ;
         } else {
             scriptContent += "" +
                     "sleep 10\n" +

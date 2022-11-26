@@ -56,7 +56,7 @@ public class HomePanel extends BLayout {
                         txtConsole.addV(new JLabel(txtSendCommand.getText()));
                     });
                     txtConsole.scrollToEndV();
-                    AL.info("Received System-Tray command: '" + txtSendCommand + "'");
+                    AL.info("Received System-Tray command: '" + txtSendCommand.getText() + "'");
                     AutoPlugConsole.executeCommand(txtSendCommand.getText());
                     txtSendCommand.setText("");
                 }
