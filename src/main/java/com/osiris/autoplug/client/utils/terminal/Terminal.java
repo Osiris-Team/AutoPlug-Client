@@ -6,25 +6,20 @@
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
 
-package com.osiris.autoplug.client.utils.io;
+package com.osiris.autoplug.client.utils.terminal;
 
 import org.jline.utils.OSUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
-public class AsyncTerminal {
+public class Terminal {
     public Process process;
-    public AsyncReader readerLines;
-    public AsyncReader readerErrLines;
-    public OutputStream out;
 
-    public AsyncTerminal(File workingDir, Consumer<String> onLineReceived,
-                         Consumer<String> onErrorLineReceived, String... commands) throws IOException {
+    public Terminal(File workingDir, String... commands) throws IOException {
+        if (workingDir == null) workingDir = new File(System.getProperty("user.dir"));
         Process p;
         if (OSUtils.IS_WINDOWS) {
             try {  // Try powershell first, use cmd as fallback
@@ -42,15 +37,7 @@ public class AsyncTerminal {
             }
         }
         this.process = p;
-        InputStream in = process.getInputStream();
-        InputStream inErr = process.getErrorStream();
-        this.out = process.getOutputStream();
-        this.readerLines = new AsyncReader(in, onLineReceived);
-        this.readerErrLines = new AsyncReader(inErr, onErrorLineReceived);
-        sendCommands(commands);
-    }
-
-    public void sendCommands(String... commands) throws IOException {
+        OutputStream out = process.getOutputStream();
         if (commands != null && commands.length != 0)
             for (String command :
                     commands) {

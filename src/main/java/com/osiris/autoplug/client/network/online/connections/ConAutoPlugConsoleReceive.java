@@ -27,11 +27,11 @@ import java.net.Socket;
  * For that we got this connection, which listens for the user
  * input at the online console and executes it.
  */
-public class ConOnlineConsoleReceive extends SecondaryConnection {
+public class ConAutoPlugConsoleReceive extends SecondaryConnection {
     @Nullable
     private static Thread thread;
 
-    public ConOnlineConsoleReceive() {
+    public ConAutoPlugConsoleReceive() {
         super((byte) 1);
     }
 
@@ -49,7 +49,7 @@ public class ConOnlineConsoleReceive extends SecondaryConnection {
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                         String line;
                         while (!socket.isClosed() && (line = reader.readLine()) != null) {
-                            AL.info("Received Web-Command: " + line);
+                            AL.info("Received Web-Command for Console: " + line);
                             if (!AutoPlugConsole.executeCommand(line))
                                 Server.submitCommand(line);
                         }

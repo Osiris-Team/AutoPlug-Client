@@ -17,6 +17,7 @@ import java.io.IOException;
 public class WebConfig extends Yaml {
 
     public YamlSection online_console;
+    public YamlSection online_system_console;
 
     public YamlSection send_plugins_updater_results;
     public YamlSection send_server_updater_results;
@@ -50,6 +51,11 @@ public class WebConfig extends Yaml {
 
         online_console = put(name, "online-console").setDefValues("true")
                 .setComments("Sends recent log messages (and future messages) to the Online-Console and can receive commands from it.",
+                        "To have as little impact on your server as possible, this only happens when you are logged in.");
+
+        online_system_console = put(name, "online-system-console").setDefValues("true")
+                .setComments("Opens the standard system-specific terminal (powershell on Windows, bash/sh on Linux) in the current working directory.",
+                        "Makes it possible to interact with it from AutoPlug-Web.",
                         "To have as little impact on your server as possible, this only happens when you are logged in.");
 
         send_plugins_updater_results = put(name, "updater-results", "send-plugins-updaters-results").setDefValues("true")

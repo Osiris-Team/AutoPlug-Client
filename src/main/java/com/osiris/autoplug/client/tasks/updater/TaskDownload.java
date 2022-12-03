@@ -117,6 +117,13 @@ public class TaskDownload extends BThread {
         }
     }
 
+    /**
+     * Only use this method after finishing the download.
+     * It will get the hash for the newly downloaded file and
+     * compare it with the given hash.
+     *
+     * @return true if the hashes match
+     */
     public boolean compareWithMD5(String expectedMD5) throws NoSuchAlgorithmException, IOException {
         final String hashResult = UtilsCrypto.fastMD5(dest);
         boolean result = hashResult.equals(expectedMD5);
@@ -129,8 +136,6 @@ public class TaskDownload extends BThread {
      * Only use this method after finishing the download.
      * It will get the hash for the newly downloaded file and
      * compare it with the given hash.
-     *
-     * @param sha256
      * @return true if the hashes match
      */
     public boolean compareWithSHA256(String sha256) throws IOException {

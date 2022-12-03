@@ -25,8 +25,10 @@ public class ConMain extends Thread {
     public static final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
 
     // Secondary connections:
-    public static final ConOnlineConsoleReceive CON_CONSOLE_RECEIVE = new ConOnlineConsoleReceive();
-    public static final ConOnlineConsoleSend CON_CONSOLE_SEND = new ConOnlineConsoleSend();
+    public static final ConAutoPlugConsoleReceive CON_CONSOLE_RECEIVE = new ConAutoPlugConsoleReceive();
+    public static final ConAutoPlugConsoleSend CON_CONSOLE_SEND = new ConAutoPlugConsoleSend();
+    public static final ConSystemConsoleSend CON_SYSTEM_CONSOLE_SEND = new ConSystemConsoleSend();
+    public static final ConSystemConsoleReceive CON_SYSTEM_CONSOLE_RECEIVE = new ConSystemConsoleReceive();
     public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
     public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
     public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
@@ -72,6 +74,10 @@ public class ConMain extends Thread {
                             CON_CONSOLE_RECEIVE.open();
                             if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                             CON_CONSOLE_SEND.open();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            CON_SYSTEM_CONSOLE_RECEIVE.open();
+                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
+                            CON_SYSTEM_CONSOLE_SEND.open();
                             if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
                             CON_FILE_MANAGER.open();
                             if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
@@ -84,6 +90,8 @@ public class ConMain extends Thread {
                             // Close secondary connections when user is offline/logged out
                             if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                             if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
                             if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
                             if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
                             //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!

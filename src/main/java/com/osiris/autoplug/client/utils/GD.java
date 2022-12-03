@@ -26,7 +26,8 @@ public class GD {
     public static File WORKING_DIR;
     public static File PLUGINS_DIR;
     public static File DOWNLOADS_DIR;
-    public static File LOG_FILE = new File(System.getProperty("user.dir") + "/autoplug/logs/latest.log");
+    public static File AP_LATEST_LOG = new File(System.getProperty("user.dir") + "/autoplug/logs/latest.log");
+    public static File SYSTEM_LATEST_LOG = new File(System.getProperty("user.dir") + "/autoplug/logs/system-latest.log");
     public static File FILE_OUT = new File(System.getProperty("user.dir") + "/autoplug/logs/console-mirror.log");
 
     static {

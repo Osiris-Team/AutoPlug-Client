@@ -12,7 +12,7 @@ import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
@@ -311,7 +311,7 @@ public final class Server {
                     ansi.a(line).reset();
                 }
                 System.out.println(ansi);
-                ConOnlineConsoleSend.send("" + ansi);
+                ConAutoPlugConsoleSend.send("" + ansi);
             } catch (Exception e) {
                 AL.warn(e);
             }

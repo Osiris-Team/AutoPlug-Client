@@ -111,7 +111,7 @@ public class Main {
             MessageFormatter.dtf_small = MessageFormatter.dtf_long;
             AL.start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
-                    GD.LOG_FILE,
+                    GD.AP_LATEST_LOG,
                     force_ansi.asBoolean()
             );
             AL.mirrorSystemStreams(GD.FILE_OUT, GD.FILE_ERR_OUT);

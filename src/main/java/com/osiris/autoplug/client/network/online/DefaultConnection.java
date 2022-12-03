@@ -10,8 +10,8 @@ package com.osiris.autoplug.client.network.online;
 
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleReceive;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleReceive;
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.jlib.logger.AL;
@@ -45,8 +45,8 @@ public class DefaultConnection implements AutoCloseable {
      * Needs a connection type.
      *
      * @param con_type 0 = {@link ConMain}; <br>
-     *                 1 = {@link ConOnlineConsoleReceive}; <br>
-     *                 2 = {@link ConOnlineConsoleSend}; <br>
+     *                 1 = {@link ConAutoPlugConsoleReceive}; <br>
+     *                 2 = {@link ConAutoPlugConsoleSend}; <br>
      *                 3 = {@link ConPluginsUpdateResult}; <br>
      * @throws Exception if authentication fails. Details are in the message.
      */

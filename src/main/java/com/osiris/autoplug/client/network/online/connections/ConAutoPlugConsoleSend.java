@@ -17,15 +17,14 @@ import com.osiris.jlib.events.MessageEvent;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.Message;
 import com.osiris.jlib.logger.MessageFormatter;
+import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -33,7 +32,7 @@ import java.util.List;
  * send it to the AutoPlug server when the user is online.
  * Note that
  */
-public class ConOnlineConsoleSend extends SecondaryConnection {
+public class ConAutoPlugConsoleSend extends SecondaryConnection {
     private static final boolean isDebug;
 
     static {
@@ -61,7 +60,7 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
         }
     };
 
-    public ConOnlineConsoleSend() {
+    public ConAutoPlugConsoleSend() {
         super((byte) 2);  // Each connection has its own auth_id.
     }
 
@@ -89,18 +88,24 @@ public class ConOnlineConsoleSend extends SecondaryConnection {
 
             // Sending recent server log
             try {
-                if (!GD.LOG_FILE.exists())
-                    throw new FileNotFoundException("Latest log does not exist, not sending it to online-console: " + GD.LOG_FILE);
-
-                List<String> lines = Files.readAllLines(GD.FILE_OUT.toPath());
-                if (lines.size() > 500) {
-                    lines = lines.subList(lines.size() - 499, lines.size());
+                if (GD.AP_LATEST_LOG.exists()) {
+                    ReversedLinesFileReader object = new ReversedLinesFileReader(GD.FILE_OUT.toPath(), StandardCharsets.UTF_8);
+                    String[] lines = new String[10];
+                    for (int i = 0; i < 10; i++) { // Read last 10 lines
+                        try {
+                            lines[i] = object.readLine();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                    for (int i = lines.length - 1; i >= 0; i--) {
+                        if (lines[i] != null)
+                            send(lines[i]);
+                    }
                 }
+
                 if (!AL.actionsOnMessageEvent.contains(onMessageEvent))
                     AL.actionsOnMessageEvent.add(onMessageEvent);
-                for (String line : lines) {
-                    send(line);
-                }
+
             } catch (Exception e) {
                 if (!ConMain.isUserActive.get()) return false; // Ignore after logout
                 AL.warn(e, "Error during recent log sending.");

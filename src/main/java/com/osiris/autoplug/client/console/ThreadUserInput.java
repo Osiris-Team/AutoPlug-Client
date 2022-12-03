@@ -10,7 +10,7 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.connections.ConOnlineConsoleSend;
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.LogFileWriter;
 import org.jline.reader.EndOfFileException;
@@ -43,7 +43,7 @@ public class ThreadUserInput extends Thread {
                     // Send to online console
                     if (ConMain.CON_CONSOLE_SEND != null && ConMain.CON_CONSOLE_SEND.isConnected())
                         try {
-                            ConOnlineConsoleSend.send(user_input);
+                            ConAutoPlugConsoleSend.send(user_input);
                         } catch (Exception e) {
                             AL.warn(e);
                         }
