@@ -137,7 +137,7 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 `ban peter 10`, for that to work you would need to add `ban * *` or `ban *->` instead.
 - `*->` allows anything from this point onwards until the end of the line.
 
-The same wildcards are available for the files manager, but with a slightly different meaning:
+Similar wildcards are available for the files manager, but with a slightly different meaning:
 - `./` is the current working directory of the AutoPlug-Client.
 - `*` allows any character sequence (including spaces). Example: `./*.exe`
 would only allow access to files in the current working directory ending with `.exe`.
