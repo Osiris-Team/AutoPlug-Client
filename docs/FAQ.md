@@ -102,7 +102,8 @@ This file allows you to define permissions for a group and it could look somethi
     "fullWrite": false,
     "allowedCommands": [
       "help",
-      ".help"
+      ".help",
+      ""
     ]
   },
   "systemConsole":{
@@ -119,4 +120,21 @@ This file allows you to define permissions for a group and it could look somethi
 }
 ```
 As you can see both the console and system console have lists of allowed commands 
-which are only relevant if `fullWrite` is set to `false`.
+which are only relevant if `fullWrite` is set to `false`. 
+If its set to `true` this group will have 
+full write access and thus be able to send any command to the console.
+
+Keep in mind that the console is able able to execute AutoPlug-Client commands and
+server-software specific commands. The system console is able to execute any system-specific
+command. Thus its highly recommended **not** to give full write access to **any** of your groups.
+
+AutoPlug-Web will compare
+the sent staff command against each command in the `allowedCommands` list and only
+allow it, if there is a 100% match. There are however two wildcards, namely `*` and `*->`
+since sometimes commands want arguments. So instead of having to add each command-argument combination
+you can use these wildcards.
+- `*` allows any word or number.
+Example: `ban *`, now this group will be able to execute `ban peter` or `ban john`, but **not**
+`ban peter 10`, for that to work you would need to add `ban * *` or `ban *->` instead.
+- `*->` allows anything from this point onwards until the end of the line.
+
