@@ -102,8 +102,7 @@ This file allows you to define permissions for a group and it could look somethi
     "fullWrite": false,
     "allowedCommands": [
       "help",
-      ".help",
-      ""
+      ".help"
     ]
   },
   "systemConsole":{
