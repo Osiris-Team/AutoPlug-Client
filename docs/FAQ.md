@@ -141,6 +141,8 @@ The same wildcards are available for the files manager, but with a slightly diff
 - `./` is the current working directory of the AutoPlug-Client.
 - `*` allows any character sequence (including spaces). Example: `./*.exe`
 would only allow access to files in the current working directory ending with `.exe`.
-- `*->` allows any character sequence (including spaces) in this directory and sub-directories.
+If you wanted to also allow access to the `.exe` files in sub-directories just append `+sub`, so
+the permission would look like this: `./*.exe +sub`.
+- `+sub` allows access to all sub-directories.
 
 
