@@ -1,6 +1,6 @@
-# Frequently Asked Questions - AutoPlug Client
+# Frequently Asked Questions
 
-## **Common Questions**
+## AutoPlug-Client - Common Questions
 
 ---
 
@@ -49,7 +49,7 @@ Please make either a Github Issue or a post in the Discord's #help channel.
 
 ---
 
-## **Troubleshooting**
+## AutoPlug-Client - Troubleshooting
 
 ---
 
@@ -86,3 +86,37 @@ Please review your settings in the `backup.yml` config file and make sure your i
 
 ### **I still need help!**  
 Please make either a Github Issue or a post in the Discord's #help channel and include the `latest.log` file from `./autoplug/logs`.
+
+---
+
+## AutoPlug-Web - Common Questions
+
+---
+
+### What is the group permissions json file?
+This file allows you to define permissions for a group and it could look something like this:
+```json
+{
+  "console":{
+    "fullRead": false,
+    "fullWrite": false,
+    "allowedCommands": [
+      "help",
+      ".help"
+    ]
+  },
+  "systemConsole":{
+    "fullRead": false,
+    "fullWrite": false,
+    "allowedCommands": []
+  },
+  "files":{
+    "fullRead": false,
+    "fullWrite": false,
+    "allowedFilesToRead": []
+    "allowedFilesToWrite": []
+  }
+}
+```
+As you can see both the console and system console have lists of allowed commands 
+which are only relevant if `fullWrite` is set to `false`.
