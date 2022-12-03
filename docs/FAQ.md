@@ -98,7 +98,7 @@ This file allows you to define permissions for a group and it could look somethi
 ```json
 {
   "console":{
-    "fullRead": false,
+    "fullRead": true,
     "fullWrite": false,
     "allowedCommands": [
       "help",
@@ -106,7 +106,7 @@ This file allows you to define permissions for a group and it could look somethi
     ]
   },
   "systemConsole":{
-    "fullRead": false,
+    "fullRead": true,
     "fullWrite": false,
     "allowedCommands": []
   },
@@ -136,4 +136,11 @@ you can use these wildcards.
 Example: `ban *`, now this group will be able to execute `ban peter` or `ban john`, but **not**
 `ban peter 10`, for that to work you would need to add `ban * *` or `ban *->` instead.
 - `*->` allows anything from this point onwards until the end of the line.
+
+The same wildcards are available for the files manager, but with a slightly different meaning:
+- `./` is the current working directory of the AutoPlug-Client.
+- `*` allows any character sequence (including spaces). Example: `./*.exe`
+would only allow access to files in the current working directory ending with `.exe`.
+- `*->` allows any character sequence (including spaces) in this directory and sub-directories.
+
 
