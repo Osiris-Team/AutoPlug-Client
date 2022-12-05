@@ -14,7 +14,10 @@ import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleR
 import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.jlib.logger.AL;
+import com.osiris.jprocesses2.JProcess;
+import com.osiris.jprocesses2.ProcessUtils;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSession;
@@ -25,6 +28,9 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Authenticates this client to the AutoPlug-Web server.
@@ -62,6 +68,12 @@ public class DefaultConnection implements AutoCloseable {
     }
 
     private int connect() throws Exception {
+        String serverKey = new GeneralConfig().server_key.asString();
+        if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
+                serverKey.equals("NO_KEY"))
+            throw new Exception("No valid key provided." +
+                    " Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file." +
+                    " Enter '.con reload' to retry.");
         while (true) {
             SystemConfig systemConfig = new SystemConfig();
             String ip = systemConfig.autoplug_web_ip.asString();
@@ -85,7 +97,7 @@ public class DefaultConnection implements AutoCloseable {
         }
 
         AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
-        dataOut.writeUTF(new GeneralConfig().server_key.asString()); // Send server key
+        dataOut.writeUTF(serverKey); // Send server key
         dataOut.writeByte(conType); // Send connection type
 
         this.errorCode = dataIn.readByte(); // Get response
@@ -100,7 +112,33 @@ public class DefaultConnection implements AutoCloseable {
             case 1:
                 throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file. Enter '.con reload' to retry.");
             case 2:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected! Close that connection and restart AutoPlug.");
+                List<JProcess> list = new ArrayList<>();
+                Exception ex = null;
+                try {
+                    for (JProcess p : new ProcessUtils().getProcesses()) {
+                        if (p.name != null && p.name.toLowerCase().contains("autoplug")) {
+                            list.add(p);
+                        } else if (p.command != null && p.command.toLowerCase().contains("autoplug")) {
+                            list.add(p);
+                        }
+                    }
+                } catch (Exception e) {
+                    ex = e;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                if (!list.isEmpty()) {
+                    sb.append("Running processes (").append(list.size()).append(") with \"autoplug\" in name or start command: \n");
+                    for (JProcess p : list) {
+                        sb.append(p.name).append(" pid: ").append(p.pid).append(" command: ").append(p.command).append("\n");
+                    }
+                    sb.append("Make sure each of this processes has its own, unique server-key.");
+                }
+                if (ex != null) {
+                    sb.append("There was an error retrieving running process details: " + ex.getMessage() + " " + new UtilsLists().toString(Arrays.asList(ex.getStackTrace())));
+                }
+                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected!" +
+                        " Close that connection and restart AutoPlug. " + sb);
             case 3:
                 throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Make sure that the primary connection is established before all the secondary connections!");
             case 4:
