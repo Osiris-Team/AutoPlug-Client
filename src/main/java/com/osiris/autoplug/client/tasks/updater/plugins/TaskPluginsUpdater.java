@@ -166,6 +166,10 @@ public class TaskPluginsUpdater extends BThread {
                     throw new Exception("The plugins name couldn't be determined for '" + installedPlugin.getInstallationPath() + "'!");
 
                 YamlSection exclude = pluginsConfig.put(name, plName, "exclude").setDefValues("false"); // Check this plugin?
+                if (exclude.asBoolean()){
+                    excludedPlugins.add(installedPlugin);
+                    continue;
+                }
                 YamlSection version = pluginsConfig.put(name, plName, "version").setDefValues(installedPlugin.getVersion());
                 YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
                 YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
