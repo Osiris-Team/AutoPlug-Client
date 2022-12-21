@@ -69,7 +69,7 @@ public class RestarterConfig extends Yaml {
 
         restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
                 "You can execute multiple/single commands at any given second of the countdown.",
-                "The countdown starts at the highest given number.");
+                "The countdown starts at the highest given number and it begins AFTER the specified time above.");
         if (restarter_commands.getChildModules().isEmpty()) {
             put(name, "daily-restarter", "commands", "list", "10").setDefValues("say Restarting in 10 seconds.", "say Please allow up to 2min for this process to complete.");
             put(name, "daily-restarter", "commands", "list", "3").setDefValues("say Restarting in 3.");
