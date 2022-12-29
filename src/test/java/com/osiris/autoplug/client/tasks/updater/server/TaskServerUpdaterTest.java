@@ -52,7 +52,7 @@ class TaskServerUpdaterTest {
 
     @Test
     void testSpigot() throws Exception {
-        //defaultTest("spigot"); // Messes with git installation of the project
+        defaultTest("spigot", "1.16.5");
     }
 
     @Test

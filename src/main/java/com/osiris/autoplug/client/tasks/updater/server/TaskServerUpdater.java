@@ -18,6 +18,7 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
 import me.hsgamer.mcserverupdater.UpdateStatus;
 import org.apache.commons.io.FileUtils;
@@ -154,7 +155,7 @@ public class TaskServerUpdater extends BThread {
         UpdateBuilder updateBuilder = UpdateBuilder
                 .updateProject(serverSoftware)
                 .version(serverVersion)
-                .debugConsumer(this::addInfo); // TODO: Is this the correct way to do this?
+                .debugConsumer(s -> AL.debug(getClass(), s));
 
         // Change the output file based on the profile.
         File outputFile;
@@ -169,7 +170,7 @@ public class TaskServerUpdater extends BThread {
         updateBuilder.outputFile(outputFile);
 
         // Set the working directory for the updater
-        updateBuilder.workingDirectory(downloadsDir); // TODO: FIX THIS
+        updateBuilder.workingDirectory(downloadsDir);
 
         // If it's NOTIFY profile, we don't need to download anything, only check if the server is up-to-date.
         if (profile.equals("NOTIFY")) {
