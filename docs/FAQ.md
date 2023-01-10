@@ -145,4 +145,16 @@ If you wanted to also allow access to the `.exe` files in sub-directories just a
 the permission would look like this: `./*.exe +sub`.
 - `+sub` allows access to all sub-directories.
 
+---
 
+## AutoPlug-Web (self-host) - Common Questions
+
+---
+
+### Installation
+1. After buying a license, head over to https://autoplug.one/installer
+and scroll down to the AutoPlug-Web installer section. 
+2. Fill in the empty fields and download the generated zip file.
+3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
+4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web.jar` to start it.
+5. Enjoy AutoPlug-Web!
