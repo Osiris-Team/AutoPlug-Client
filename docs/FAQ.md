@@ -33,10 +33,10 @@ As an alternative, SPPU [[Link](https://github.com/Osiris-Team/SPPU)] may be bet
 *It is highly advised to read the entire readme before using this tool.*
 
 ### **How do I install AutoPlug Client?**  
-Go to <https://autoplug.one/installer> and follow the steps carefully.
+Go to the AutoPlug Client [installer page](https://autoplug.one/installer) and follow the steps carefully.
 
 ### **Can I install AutoPlug Client on a server host?**  
-Yes! For instructions on how to do so, please read [How To - Install AutoPlug Client on a Server Host](LinkToPageTBD).
+Yes! For instructions on how to do so, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
 
 ### **How do I change the settings?**  
 All settings are kept in their own respective `.yml` config files that can be found in the `autoplug` folder in your Minecraft server directory.
