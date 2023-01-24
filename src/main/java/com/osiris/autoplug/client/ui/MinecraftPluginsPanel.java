@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -55,7 +55,7 @@ public class MinecraftPluginsPanel extends BLayout {
         } else {
             Yaml plConfig = new Yaml(yamlFile);
             plConfig.load();
-            List<YamlSection> sections = Objects.requireNonNull(plConfig.get("plugins")).getChildModules();
+            List<YamlSection> sections = Objects.requireNonNull(plConfig.get("plugins")).getChildSections();
             sections.remove(0); // To skip first child, since that's no plugin data
             data = new Object[sections.size()][columnsCount];
             for (int i = 0; i < sections.size(); i++) {

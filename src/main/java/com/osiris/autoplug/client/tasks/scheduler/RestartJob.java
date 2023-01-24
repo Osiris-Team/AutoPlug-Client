@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -32,7 +32,7 @@ public class RestartJob implements Job {
 
             // Before restarting execute commands
             RestarterConfig config = new RestarterConfig();
-            List<YamlSection> modules = config.restarter_commands.getChildModules();
+            List<YamlSection> modules = config.restarter_commands.getChildSections();
 
             // Sort the stuff
             List<Integer> keysAsIntsList = new ArrayList<>();

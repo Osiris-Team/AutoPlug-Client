@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -70,7 +70,7 @@ public class RestarterConfig extends Yaml {
         restarter_commands = put(name, "daily-restarter", "commands", "list").setComments("Executes these commands as console, before restarting the server.",
                 "You can execute multiple/single commands at any given second of the countdown.",
                 "The countdown starts at the highest given number and it begins AFTER the specified time above.");
-        if (restarter_commands.getChildModules().isEmpty()) {
+        if (restarter_commands.getChildSections().isEmpty()) {
             put(name, "daily-restarter", "commands", "list", "10").setDefValues("say Restarting in 10 seconds.", "say Please allow up to 2min for this process to complete.");
             put(name, "daily-restarter", "commands", "list", "3").setDefValues("say Restarting in 3.");
             put(name, "daily-restarter", "commands", "list", "2").setDefValues("say Restarting in 2.");
@@ -79,7 +79,7 @@ public class RestarterConfig extends Yaml {
         }
         UtilsYamlSection utilsYamlSection = new UtilsYamlSection();
         for (YamlSection m :
-                restarter_commands.getChildModules()) {
+                restarter_commands.getChildSections()) {
             if (utilsYamlSection.getExisting(m, getAllInEdit()) == null)
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
@@ -95,7 +95,7 @@ public class RestarterConfig extends Yaml {
                         "Use this tool to setup your cron expression: https://www.freeformatter.com/cron-expression-generator-quartz.html");
 
         c_restarter_commands = put(name, "custom-restarter", "commands", "list");
-        if (c_restarter_commands.getChildModules().isEmpty()) {
+        if (c_restarter_commands.getChildSections().isEmpty()) {
             put(name, "custom-restarter", "commands", "list", "10").setDefValues("say Restarting in 10 seconds.", "say Please allow up to 2min for this process to complete.");
             put(name, "custom-restarter", "commands", "list", "3").setDefValues("say Restarting in 3.");
             put(name, "custom-restarter", "commands", "list", "2").setDefValues("say Restarting in 2.");
@@ -103,7 +103,7 @@ public class RestarterConfig extends Yaml {
             put(name, "custom-restarter", "commands", "list", "0").setDefValues("say Restarting...");
         }
         for (YamlSection m :
-                c_restarter_commands.getChildModules()) {
+                c_restarter_commands.getChildSections()) {
             if (utilsYamlSection.getExisting(m, getAllInEdit()) == null)
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
@@ -153,7 +153,7 @@ public class RestarterConfig extends Yaml {
 
 
         for (YamlSection m :
-                restarter_commands.getChildModules()) {
+                restarter_commands.getChildSections()) {
             try {
                 Integer.parseInt(m.getLastKey());
             } catch (Exception e) {
@@ -163,7 +163,7 @@ public class RestarterConfig extends Yaml {
         }
 
         for (YamlSection m :
-                c_restarter_commands.getChildModules()) {
+                c_restarter_commands.getChildSections()) {
             try {
                 Integer.parseInt(m.getLastKey());
             } catch (Exception e) {
