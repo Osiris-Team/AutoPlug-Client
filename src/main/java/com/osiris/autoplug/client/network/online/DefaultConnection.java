@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -180,7 +180,9 @@ public class DefaultConnection implements AutoCloseable {
 
         SSLSession session = ((SSLSocket) socket).getSession();
         if (!session.isValid())
-            throw new Exception("SSLSession is not valid!");
+            throw new Exception("SSLSession is not valid! An SSLSession may not be valid if the SSL/TLS connection" +
+                    " has been closed or if there has been an error during the SSL/TLS handshake process." +
+                    " It could also be invalid if the SSLSession has timed out due to inactivity. ");
 
         AL.debug(DefaultConnection.class, "Valid SSL session created for con_type " + conType + ". Details: " + session);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -145,7 +145,7 @@ public class TaskPluginsUpdater extends BThread {
                     getWarnings().add(new BWarning(this, "This server is either not registered or not premium," +
                             " thus failed to fill in missing plugin details via the AutoPlug-Web database. Disable " +
                             new UtilsLists().toString(updaterConfig.plugins_updater_web_database.getKeys())
-                            + " in the config to hide this warning."));
+                            + " in the /autoplug/updater.yml to hide this warning."));
                 else if (e.getHttpErrorCode() == 404) {
                     // We expect this error code since PluginName and PluginAuthor should not exist in the database
                     isPremiumServer = true;
@@ -392,7 +392,7 @@ public class TaskPluginsUpdater extends BThread {
                     else
                         getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
                 else if (code == 3)
-                    getWarnings().add(new BWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the plugins config file.")));
+                    getWarnings().add(new BWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the /autoplug/plugins.yml file.")));
                 else
                     getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 

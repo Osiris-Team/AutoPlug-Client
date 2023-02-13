@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -270,7 +270,7 @@ public class TaskModsUpdater extends BThread {
                     else
                         getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + pl.name + "!")));
                 else if (code == 3)
-                    getWarnings().add(new BWarning(this, new Exception("Mod " + pl.name + " was not found by the search-algorithm! Specify an id in the mods config file.")));
+                    getWarnings().add(new BWarning(this, new Exception("Mod " + pl.name + " was not found by the search-algorithm! Specify an id in /autoplug/mods.yml file.")));
                 else
                     getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
