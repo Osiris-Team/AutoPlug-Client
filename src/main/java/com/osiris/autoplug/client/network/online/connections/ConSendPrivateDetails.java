@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.jlib.logger.AL;
 import oshi.SystemInfo;
@@ -18,15 +18,13 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 
-import java.io.IOException;
-
 
 /**
  * Sends private details to AutoPlug-Web like
  * CPU speeds and memory used/total. Should only
  * be active when user is logged in.
  */
-public class ConSendPrivateDetails extends SecondaryConnection {
+public class ConSendPrivateDetails extends DefaultConnection {
     public float cpuSpeed;
     public float cpuMaxSpeed;
     /**
@@ -51,7 +49,7 @@ public class ConSendPrivateDetails extends SecondaryConnection {
             float oneGigaByteInBytes = 1073741824.0f;
             float oneGigaHertzInHertz = 1000000000.0f;
             SystemInfo si = new SystemInfo();
-            thread = new Thread(() -> {
+            setAndStartAsync(() -> {
                 try {
                     while (true) {
                         // Hardware info:
@@ -95,32 +93,15 @@ public class ConSendPrivateDetails extends SecondaryConnection {
                         Thread.sleep(5000);
                     }
                 } catch (Exception e) {
-                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
-                    AL.warn(e);
+                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
+                    throw e;
                 }
             });
-            thread.start();
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        try {
-            super.close();
-        } catch (Exception e) {
-            AL.warn("Failed to close connection.", e);
-        }
-
-        try {
-            if (thread != null && !thread.isInterrupted()) thread.interrupt();
-        } catch (Exception e) {
-            AL.warn("Failed to stop thread.", e);
-        }
-        thread = null;
     }
 }

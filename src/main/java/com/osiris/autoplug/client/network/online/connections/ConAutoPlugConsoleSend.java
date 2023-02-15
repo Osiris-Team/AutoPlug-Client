@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,10 +8,10 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.jlib.events.MessageEvent;
 import com.osiris.jlib.logger.AL;
@@ -25,6 +25,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 
 /**
@@ -32,8 +33,10 @@ import java.nio.charset.StandardCharsets;
  * send it to the AutoPlug server when the user is online.
  * Note that
  */
-public class ConAutoPlugConsoleSend extends SecondaryConnection {
+public class ConAutoPlugConsoleSend extends DefaultConnection {
     private static final boolean isDebug;
+    @Nullable
+    private static BufferedWriter out;
 
     static {
         try {
@@ -43,17 +46,13 @@ public class ConAutoPlugConsoleSend extends SecondaryConnection {
         }
     }
 
-    @Nullable
-    private static BufferedWriter out;
     public static final MessageEvent<Message> onMessageEvent = message -> {
         try {
-            switch (message.getType()) {
-                case DEBUG:
-                    if (isDebug)
-                        send(MessageFormatter.formatForAnsiConsole(message));
-                    break;
-                default:
+            if (Objects.requireNonNull(message.getType()) == Message.Type.DEBUG) {
+                if (isDebug)
                     send(MessageFormatter.formatForAnsiConsole(message));
+            } else {
+                send(MessageFormatter.formatForAnsiConsole(message));
             }
         } catch (Exception e) {
             AL.warn("Failed to send message to online console!", e);
@@ -107,7 +106,7 @@ public class ConAutoPlugConsoleSend extends SecondaryConnection {
                     AL.actionsOnMessageEvent.add(onMessageEvent);
 
             } catch (Exception e) {
-                if (!ConMain.isUserActive.get()) return false; // Ignore after logout
+                if (!Main.CON.isUserActive.get()) return false; // Ignore after logout
                 AL.warn(e, "Error during recent log sending.");
             }
 

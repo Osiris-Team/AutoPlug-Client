@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,157 +21,171 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The main connection authenticates using the server_key.
  * If it receives a true boolean it means that the user is logged in and opens new connections.
  */
-public class ConMain extends Thread {
-    public static final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
+public class ConMain extends DefaultConnection {
+    public final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
 
     // Secondary connections:
-    public static final ConAutoPlugConsoleReceive CON_CONSOLE_RECEIVE = new ConAutoPlugConsoleReceive();
-    public static final ConAutoPlugConsoleSend CON_CONSOLE_SEND = new ConAutoPlugConsoleSend();
-    public static final ConSystemConsoleSend CON_SYSTEM_CONSOLE_SEND = new ConSystemConsoleSend();
-    public static final ConSystemConsoleReceive CON_SYSTEM_CONSOLE_RECEIVE = new ConSystemConsoleReceive();
-    public static final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
-    public static final ConFileManager CON_FILE_MANAGER = new ConFileManager();
-    public static boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
-    public static AtomicBoolean isUserActive = new AtomicBoolean(false);
-    public static boolean isUserActiveOld = false; // Local variable that holds the auth boolean before the current one
-    public DefaultConnection con;
+    public final ConAutoPlugConsoleReceive CON_CONSOLE_RECEIVE = new ConAutoPlugConsoleReceive();
+    public final ConAutoPlugConsoleSend CON_CONSOLE_SEND = new ConAutoPlugConsoleSend();
+    public final ConSystemConsoleSend CON_SYSTEM_CONSOLE_SEND = new ConSystemConsoleSend();
+    public final ConSystemConsoleReceive CON_SYSTEM_CONSOLE_RECEIVE = new ConSystemConsoleReceive();
+    public final ConSendPrivateDetails CON_PRIVATE_DETAILS = new ConSendPrivateDetails();
+    public final ConFileManager CON_FILE_MANAGER = new ConFileManager();
+    public boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
+    public AtomicBoolean isUserActive = new AtomicBoolean(false);
+    public boolean isUserActiveOld = false; // Local variable that holds the auth boolean before the current one
+
     public int msUntilRetry = 30000;
 
+    public ConMain() {
+        super((byte) 0);
+    }
+
     @Override
-    public void run() {
-        super.run();
+    public boolean open() {
         try {
             AL.info("Authenticating server...");
-            con = new DefaultConnection((byte) 0);
+            super.open();
             AL.info("Authentication success!");
             CON_PUBLIC_DETAILS.open();
             isDone = true;
         } catch (Exception e) {
             AL.warn(e);
             isDone = true;
-            return;
+            return false;
         }
-        while (true) {
-            try {
-                if (con == null || !con.isAlive()) {
-                    AL.info("Authenticating server...");
-                    con = new DefaultConnection((byte) 0);
-                    AL.info("Authentication success!");
-                    CON_PUBLIC_DETAILS.open();
-                    msUntilRetry = 30000;
-                }
+        super.setAndStartAsync(() -> {
+            while (true) {
+                try {
+                    if (!super.isAlive()) {
+                        AL.info("Authenticating server...");
+                        super.open();
+                        AL.info("Authentication success!");
+                        CON_PUBLIC_DETAILS.open();
+                        msUntilRetry = 30000;
+                    }
 
-                isDone = true;
-                while (true) {
-                    isUserActive.set(con.dataIn.readBoolean()); // Ping
-                    con.dataOut.writeBoolean(true); // Pong true/false doesn't matter
+                    isDone = true;
+                    while (true) {
+                        isUserActive.set(super.in.readBoolean()); // Ping
+                        super.out.writeBoolean(true); // Pong true/false doesn't matter
 
-                    if (isUserActive.get()) {
-                        if (!isUserActiveOld) {
-                            AL.debug(this.getClass(), "Owner/Staff is online/active.");
-                            // User is online, so open secondary connections if they weren't already
-                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
-                            CON_CONSOLE_RECEIVE.open();
-                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
-                            CON_CONSOLE_SEND.open();
-                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
-                            CON_SYSTEM_CONSOLE_RECEIVE.open();
-                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
-                            CON_SYSTEM_CONSOLE_SEND.open();
-                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
-                            CON_FILE_MANAGER.open();
-                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
-                            CON_PRIVATE_DETAILS.open();
-                            //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
+                        if (isUserActive.get()) {
+                            if (!isUserActiveOld) {
+                                AL.debug(this.getClass(), "Owner/Staff is online/active.");
+                                // User is online, so open secondary connections if they weren't already
+                                if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
+                                CON_CONSOLE_RECEIVE.open();
+                                if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
+                                CON_CONSOLE_SEND.open();
+                                if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                                CON_SYSTEM_CONSOLE_RECEIVE.open();
+                                if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
+                                CON_SYSTEM_CONSOLE_SEND.open();
+                                if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
+                                CON_FILE_MANAGER.open();
+                                if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                                CON_PRIVATE_DETAILS.open();
+                                //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
+                            }
+                        } else {
+                            if (isUserActiveOld) {
+                                AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
+                                // Close secondary connections when user is offline/logged out
+                                if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
+                                if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
+                                if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                                if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
+                                if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
+                                if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                                //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
+                            }
+                        }
+                        isUserActiveOld = isUserActive.get();
+                        Thread.sleep(3000);
+                    }
+                } catch (Exception e) {
+                    isDone = true;
+                    if (isClosing.get()) break; // Exit first while
+                    AL.warn(e);
+
+                    close();
+                    if (super.errorCode == 0) {
+                        AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
+                        try {
+                            Thread.sleep(msUntilRetry);
+                            msUntilRetry += 30000;
+                        } catch (Exception exception) {
+                            AL.warn(exception);
+                            AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
+                            break;
                         }
                     } else {
-                        if (isUserActiveOld) {
-                            AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
-                            // Close secondary connections when user is offline/logged out
-                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
-                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
-                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
-                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
-                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
-                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
-                            //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
-                        }
-                    }
-                    isUserActiveOld = isUserActive.get();
-                    Thread.sleep(3000);
-                }
-            } catch (Exception e) {
-                isDone = true;
-                AL.warn(e);
-
-                // Reset booleans
-                isUserActiveOld = false;
-                isUserActive.set(false);
-                closeAll();
-                if (con == null || con.errorCode == 0) {
-                    AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
-                    try {
-                        Thread.sleep(msUntilRetry);
-                        msUntilRetry += 30000;
-                    } catch (Exception exception) {
-                        AL.warn(exception);
-                        AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
+                        AL.warn("Connection problems! Reconnect manually by entering '.con reload'.");
                         break;
                     }
-                } else {
-                    AL.warn("Connection problems! Reconnect manually by entering '.con reload'.");
-                    break;
                 }
             }
-        }
+        });
+        return true; // Success
     }
 
-    public boolean isConnected() {
-        return con != null && con.getSocket() != null && !con.getSocket().isClosed();
+    @Override
+    public void close() {
+        closeTempCons();
+        closePermCons();
     }
 
-    public void closeAll() {
-        // Make sure socket is really closed
+    /**
+     * Close connections that are alive all the time.
+     */
+    public void closePermCons() {
         try {
-            if (con != null && con.getSocket() != null)
-                con.close();
+            // Reset booleans
+            isUserActiveOld = false;
+            isUserActive.set(false);
+            super.close();
         } catch (Exception e) {
             AL.warn(e);
         }
 
-        // Close child connections
         try {
-            if (CON_CONSOLE_RECEIVE.isConnected())
+            if (CON_PUBLIC_DETAILS.isAlive())
+                CON_PUBLIC_DETAILS.close();
+        } catch (Exception e1) {
+            AL.warn(e1);
+        }
+    }
+
+    /**
+     * Close connections that are online alive when the user is logged in.
+     */
+    public void closeTempCons() {
+        try {
+            if (CON_CONSOLE_RECEIVE.isAlive())
                 CON_CONSOLE_RECEIVE.close();
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_CONSOLE_SEND.isConnected())
+            if (CON_CONSOLE_SEND.isAlive())
                 CON_CONSOLE_SEND.close();
         } catch (IOException e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_PUBLIC_DETAILS.isConnected())
-                CON_PUBLIC_DETAILS.close();
-        } catch (IOException e1) {
-            AL.warn(e1);
-        }
-
-        try {
-            if (CON_PRIVATE_DETAILS.isConnected())
+            if (CON_PRIVATE_DETAILS.isAlive())
                 CON_PRIVATE_DETAILS.close();
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_FILE_MANAGER.isConnected())
+            if (CON_FILE_MANAGER.isAlive())
                 CON_FILE_MANAGER.close();
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             AL.warn(e1);
         }
     }

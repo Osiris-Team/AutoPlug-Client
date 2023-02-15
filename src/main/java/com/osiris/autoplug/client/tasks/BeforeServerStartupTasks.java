@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,10 +8,10 @@
 
 package com.osiris.autoplug.client.tasks;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.scheduler.TaskCustomRestarter;
 import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
@@ -49,7 +49,7 @@ public class BeforeServerStartupTasks {
             loggerConfig = new LoggerConfig();
 
             // Wait until the main connection stuff is done, so the log isn't a mess
-            while (!ConMain.isDone)
+            while (!Main.CON.isDone)
                 Thread.sleep(1000);
 
             // Do cool-down check stuff

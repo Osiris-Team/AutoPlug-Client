@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,16 +8,15 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.MineStat;
 import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.jlib.logger.AL;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 
 
@@ -26,7 +25,7 @@ import java.util.Properties;
  * if the server is running/online, or the player count.
  * This connection should always stay active.
  */
-public class ConSendPublicDetails extends SecondaryConnection {
+public class ConSendPublicDetails extends DefaultConnection {
     public String host = "127.0.0.1"; // instead of localhost, use directly the resolved loop-back address
     public int port = 0;
     public boolean isRunning;
@@ -34,7 +33,6 @@ public class ConSendPublicDetails extends SecondaryConnection {
     public String version;
     public int currentPlayers;
     public int maxPlayers;
-    private Thread thread;
 
     public ConSendPublicDetails() {
         super((byte) 4);  // Each connection has its own auth_id.
@@ -74,7 +72,7 @@ public class ConSendPublicDetails extends SecondaryConnection {
                 }
             } else
                 port = webConfig.send_server_status_port.asInt();
-            thread = new Thread(() -> {
+            setAndStartAsync(() -> {
                 try {
                     while (true) {
                         // MC server related info:
@@ -95,32 +93,15 @@ public class ConSendPublicDetails extends SecondaryConnection {
                         Thread.sleep(5000);
                     }
                 } catch (Exception e) {
-                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
-                    AL.warn(e);
+                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
+                    throw e;
                 }
             });
-            thread.start();
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        try {
-            super.close();
-        } catch (Exception e) {
-            AL.warn("Failed to close connection.", e);
-        }
-
-        try {
-            if (thread != null && !thread.isInterrupted()) thread.interrupt();
-        } catch (Exception e) {
-            AL.warn("Failed to stop thread.", e);
-        }
-        thread = null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -42,7 +42,9 @@ public class LocalConnectionValidator {
                     AL.info("Wrong AutoPlugPlugin! Validation failed!");
                 }
 
-            } catch (@NotNull IOException | DuplicateKeyException | YamlReaderException | IllegalListException | YamlWriterException | NotLoadedException | IllegalKeyException e) {
+            } catch (@NotNull
+            IOException | DuplicateKeyException | YamlReaderException | IllegalListException | YamlWriterException |
+            NotLoadedException | IllegalKeyException e) {
                 e.printStackTrace();
             }
 

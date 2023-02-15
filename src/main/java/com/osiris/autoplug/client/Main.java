@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -44,7 +44,7 @@ import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
-    public static ConMain CON_MAIN = new ConMain();
+    public static final ConMain CON = new ConMain();
     public static Target TARGET = null;
 
     public static void main(String[] args) {
@@ -308,7 +308,7 @@ public class Main {
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
 
-            CON_MAIN.start();
+            CON.open();
 
             if (TARGET != Target.MINECRAFT_CLIENT)
                 new ConPluginCommandReceive();

@@ -31,6 +31,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Authenticates this client to the AutoPlug-Web server.
@@ -42,8 +43,10 @@ public class DefaultConnection implements AutoCloseable {
     public Socket socket;
     public InputStream input;
     public OutputStream output;
-    public DataInputStream dataIn;
-    public DataOutputStream dataOut;
+    public DataInputStream in;
+    public DataOutputStream out;
+    public AtomicBoolean isClosing = new AtomicBoolean(false);
+    private Thread thread;
 
 
     /**
@@ -56,18 +59,56 @@ public class DefaultConnection implements AutoCloseable {
      *                 3 = {@link ConPluginsUpdateResult}; <br>
      * @throws Exception if authentication fails. Details are in the message.
      */
-    public DefaultConnection(byte con_type) throws Exception {
+    public DefaultConnection(byte con_type) {
         this.conType = con_type;
-        connect();
+    }
+
+    /**
+     *
+     */
+    public void setSmartRunnable(RunnableWithException runnable) {
+
+    }
+
+    /**
+     * Interrupts the old thread and sets and starts a new thread.
+     * The provided runnable is encapsulated in another one inside a try/catch
+     * that catches and ignores Exceptions caused by {@link #close()}.
+     */
+    public synchronized void setAndStartAsync(RunnableWithException runnable) {
+        if (this.thread != null)
+            this.thread.interrupt();
+        this.thread = new Thread(() -> {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                if (isClosing.get()) return; // Exceptions caused by close() are ignored
+                AL.warn(e);
+                try {
+                    close();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        this.thread.start();
+    }
+
+    public synchronized boolean open() throws Exception {
+        _open();
         if (errorCode == 2) { // Retry in 10 seconds because it might be
             // that we just reconnected (there is a timeout of 5 seconds for the old connection until it gets closed)
             Thread.sleep(10000); // at least 5 seconds
-            connect();
+            _open();
         }
         throwError();
+        return errorCode == 0;
     }
 
-    private int connect() throws Exception {
+    private synchronized int _open() throws Exception {
+        isClosing.set(false);
+        errorCode = 0;
+        close();
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
                 serverKey.equals("NO_KEY"))
@@ -86,7 +127,7 @@ public class DefaultConnection implements AutoCloseable {
             }
 
             // DDOS protection
-            int punishment = dataIn.readInt();
+            int punishment = in.readInt();
             if (punishment == 0) {
                 AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connected to AutoPlug-Web successfully!");
                 break;
@@ -97,10 +138,10 @@ public class DefaultConnection implements AutoCloseable {
         }
 
         AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
-        dataOut.writeUTF(serverKey); // Send server key
-        dataOut.writeByte(conType); // Send connection type
+        out.writeUTF(serverKey); // Send server key
+        out.writeByte(conType); // Send connection type
 
-        this.errorCode = dataIn.readByte(); // Get response
+        this.errorCode = in.readByte(); // Get response
         return errorCode;
     }
 
@@ -146,9 +187,9 @@ public class DefaultConnection implements AutoCloseable {
             case 5:
                 throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
             case 6:
-                String ip = dataIn.readUTF();
-                String hostname = dataIn.readUTF();
-                int port = dataIn.readInt();
+                String ip = in.readUTF();
+                String hostname = in.readUTF();
+                int port = in.readInt();
                 throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "):" +
                         " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
                         " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
@@ -188,8 +229,8 @@ public class DefaultConnection implements AutoCloseable {
 
         input = socket.getInputStream();
         output = socket.getOutputStream();
-        dataIn = new DataInputStream(input);
-        dataOut = new DataOutputStream(output);
+        in = new DataInputStream(input);
+        out = new DataOutputStream(output);
     }
 
     public void createInsecureConnection(String host, int port) throws Exception {
@@ -197,8 +238,8 @@ public class DefaultConnection implements AutoCloseable {
         socket = new Socket(host, port);
         input = socket.getInputStream();
         output = socket.getOutputStream();
-        dataIn = new DataInputStream(input);
-        dataOut = new DataOutputStream(output);
+        in = new DataInputStream(input);
+        out = new DataOutputStream(output);
     }
 
     public boolean isAlive() {
@@ -217,27 +258,34 @@ public class DefaultConnection implements AutoCloseable {
         return output;
     }
 
-    public DataInputStream getDataIn() {
-        return dataIn;
+    public DataInputStream getIn() {
+        return in;
     }
 
-    public DataOutputStream getDataOut() {
-        return dataOut;
+    public DataOutputStream getOut() {
+        return out;
     }
 
     @Override
-    public void close() throws Exception {
-        dataIn.close();
-        dataOut.close();
-        socket.close();
+    public synchronized void close() throws Exception {
+        isClosing.set(true);
+        if (thread != null) thread.interrupt();
+        if (in != null) in.close();
+        if (out != null) out.close();
+        if (socket != null) socket.close();
     }
 
     @Override
     public String toString() {
-        return "DefaultConnection{" +
+        return this.getClass().getSimpleName() + "{" +
                 "ssl=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
                 ", errorCode=" + errorCode +
                 ", socket=" + socket +
+                ", threadRunning=" + (thread != null && !thread.isInterrupted() && thread.isAlive()) +
                 '}';
+    }
+
+    public boolean isInterrupted() {
+        return thread != null && thread.isInterrupted();
     }
 }

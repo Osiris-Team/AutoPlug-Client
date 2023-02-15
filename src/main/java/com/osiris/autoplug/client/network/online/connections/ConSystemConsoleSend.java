@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.terminal.AsyncTerminal;
 import com.osiris.jlib.logger.AL;
@@ -29,7 +29,7 @@ import java.util.Date;
  * send it to the AutoPlug server when the user is online.
  * Note that
  */
-public class ConSystemConsoleSend extends SecondaryConnection {
+public class ConSystemConsoleSend extends DefaultConnection {
     public static AsyncTerminal asyncTerminal;
     public static BufferedWriter asyncTerminalLogWriter;
 
@@ -79,14 +79,14 @@ public class ConSystemConsoleSend extends SecondaryConnection {
                 try {
                     send(line);
                 } catch (Exception e) {
-                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
+                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
                     AL.warn("Failed to send message to online console!", e);
                 }
             }, errLine -> {
                 try {
                     send(errLine);
                 } catch (Exception e) {
-                    if (!ConMain.isUserActive.get()) return; // Ignore after logout
+                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
                     AL.warn("Failed to send message to online console!", e);
                 }
             });

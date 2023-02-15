@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
@@ -111,24 +110,23 @@ public final class AutoPlugConsole {
                     new BeforeServerStartupTasks();
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
-                    AL.info("Main connection: connected=" + Main.CON_MAIN.isConnected() + " interrupted=" + Main.CON_MAIN.isInterrupted() + " user/staff active=" + ConMain.isUserActive);
-                    AL.info(ConMain.CON_PUBLIC_DETAILS.toString());
-                    AL.info(ConMain.CON_PRIVATE_DETAILS.toString());
-                    AL.info(ConMain.CON_CONSOLE_SEND.toString());
-                    AL.info(ConMain.CON_CONSOLE_RECEIVE.toString());
-                    AL.info(ConMain.CON_FILE_MANAGER.toString());
+                    AL.info("Main connection: connected=" + Main.CON.isAlive() + " interrupted=" + Main.CON.isInterrupted() + " user/staff active=" + Main.CON.isUserActive.get());
+                    AL.info(Main.CON.CON_PUBLIC_DETAILS.toString());
+                    AL.info(Main.CON.CON_PRIVATE_DETAILS.toString());
+                    AL.info(Main.CON.CON_CONSOLE_SEND.toString());
+                    AL.info(Main.CON.CON_CONSOLE_RECEIVE.toString());
+                    AL.info(Main.CON.CON_FILE_MANAGER.toString());
                     return true;
                 } else if (command.equals(".con reload") || command.equals(".cr")) {
-                    Main.CON_MAIN.msUntilRetry = 1000;
-                    Main.CON_MAIN.closeAll();
-                    Main.CON_MAIN.interrupt();
-                    Main.CON_MAIN = new ConMain();
-                    Main.CON_MAIN.start();
+                    Main.CON.close();
+                    AL.info("Closed connections, reconnecting in 10 seconds...");
+                    Thread.sleep(10000);
+                    Main.CON.open();
                     return true;
                 } else if (command.equals(".server info") || command.equals(".si")) {
                     AL.info("AutoPlug-Version: " + GD.VERSION);
-                    ConSendPublicDetails conPublic = ConMain.CON_PUBLIC_DETAILS;
-                    ConSendPrivateDetails conPrivate = ConMain.CON_PRIVATE_DETAILS;
+                    ConSendPublicDetails conPublic = Main.CON.CON_PUBLIC_DETAILS;
+                    ConSendPrivateDetails conPrivate = Main.CON.CON_PRIVATE_DETAILS;
                     AL.info("Running: " + Server.isRunning());
                     String ip;
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream()))) {
@@ -138,7 +136,7 @@ public final class AutoPlugConsole {
                     }
                     AL.info("Public-IP: " + ip);
                     AL.info("Device-/Local-IP: " + InetAddress.getLocalHost().getHostAddress());
-                    if (!conPublic.isConnected()) {
+                    if (!conPublic.isAlive()) {
                         AL.info(conPublic.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
                     } else {
                         AL.info("Details from " + conPublic.getClass().getSimpleName() + ":");

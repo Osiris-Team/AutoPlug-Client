@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,14 +8,12 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.List;
 
@@ -24,7 +22,7 @@ import java.util.List;
  * finishing its tasks.
  * It starts a {@link BThread} which is attached to the given {@link BThreadManager} (or creates a new Manager if null).
  */
-public class ConPluginsUpdateResult extends SecondaryConnection {
+public class ConPluginsUpdateResult extends DefaultConnection {
     private final List<SearchResult> searchResults;
     private final List<MinecraftPlugin> excludedPlugins;
 
@@ -52,99 +50,97 @@ public class ConPluginsUpdateResult extends SecondaryConnection {
 
 
     private void sendResultsOfPluginCheck() throws Exception {
-        DataOutputStream dos = this.getDataOut();
-        DataInputStream dis = this.getDataIn();
 
-        long msLeft = dis.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
+        long msLeft = in.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
         if (msLeft != 0)
             throw new Exception("Failed to send update check result to web. Web cool-down is still active (" + (msLeft / 60000) + " minutes remaining).");
 
-        dos.writeInt(searchResults.size());
+        out.writeInt(searchResults.size());
         for (SearchResult result :
                 searchResults) {
             if (result.getPlugin().getName() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getPlugin().getName());
+                out.writeUTF(result.getPlugin().getName());
 
             if (result.getPlugin().getAuthor() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getPlugin().getAuthor());
+                out.writeUTF(result.getPlugin().getAuthor());
 
             if (result.getPlugin().getVersion() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getPlugin().getVersion());
+                out.writeUTF(result.getPlugin().getVersion());
 
-            dos.writeByte(result.getResultCode());
+            out.writeByte(result.getResultCode());
 
             if (result.getDownloadType() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getDownloadType());
+                out.writeUTF(result.getDownloadType());
 
             if (result.getLatestVersion() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getLatestVersion());
+                out.writeUTF(result.getLatestVersion());
 
             if (result.getDownloadUrl() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.getDownloadUrl());
+                out.writeUTF(result.getDownloadUrl());
 
             if (result.getSpigotId() == null)
-                dos.writeUTF("0");
+                out.writeUTF("0");
             else
-                dos.writeUTF(result.getSpigotId());
+                out.writeUTF(result.getSpigotId());
 
             if (result.getBukkitId() == null)
-                dos.writeUTF("0");
+                out.writeUTF("0");
             else
-                dos.writeUTF(result.getBukkitId());
+                out.writeUTF(result.getBukkitId());
 
             if (result.plugin.getGithubRepoName() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.plugin.getGithubRepoName());
+                out.writeUTF(result.plugin.getGithubRepoName());
 
             if (result.plugin.getGithubAssetName() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.plugin.getGithubAssetName());
+                out.writeUTF(result.plugin.getGithubAssetName());
 
             if (result.plugin.getJenkinsProjectUrl() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.plugin.getJenkinsProjectUrl());
+                out.writeUTF(result.plugin.getJenkinsProjectUrl());
 
             if (result.plugin.getJenkinsArtifactName() == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(result.plugin.getJenkinsArtifactName());
+                out.writeUTF(result.plugin.getJenkinsArtifactName());
         }
 
-        dos.writeInt(excludedPlugins.size());
+        out.writeInt(excludedPlugins.size());
         for (MinecraftPlugin excludedPl :
                 excludedPlugins) {
             String plName = excludedPl.getName();
             if (plName == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(plName);
+                out.writeUTF(plName);
 
             String plAuthor = excludedPl.getAuthor();
             if (plAuthor == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(plAuthor);
+                out.writeUTF(plAuthor);
 
             String plVersion = excludedPl.getVersion();
             if (plAuthor == null)
-                dos.writeUTF("null");
+                out.writeUTF("null");
             else
-                dos.writeUTF(plVersion);
+                out.writeUTF(plVersion);
         }
 
     }

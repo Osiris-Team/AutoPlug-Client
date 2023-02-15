@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.SecondaryConnection;
+import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.io.UFDataIn;
 import com.osiris.autoplug.client.utils.io.UFDataOut;
@@ -26,12 +26,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 
-public class ConFileManager extends SecondaryConnection {
+public class ConFileManager extends DefaultConnection {
 
     @Nullable
     private UFDataOut dos;
     private UFDataIn dis;
-    private Thread thread;
 
     public ConFileManager() {
         super((byte) 5);  // Each connection has its own auth_id.
@@ -42,10 +41,10 @@ public class ConFileManager extends SecondaryConnection {
         if (new WebConfig().file_manager.asBoolean()) {
             super.open();
             getSocket().setSoTimeout(0);
-            dos = new UFDataOut(getOut());
-            dis = new UFDataIn(getDataIn());
+            dos = new UFDataOut(out);
+            dis = new UFDataIn(in);
 
-            thread = new Thread(() -> {
+            setAndStartAsync(() -> {
                 try {
                     while (true) {
                         byte requestType = dis.readByte(); // Blocks indefinitely
@@ -72,18 +71,10 @@ public class ConFileManager extends SecondaryConnection {
                         getSocket().setSoTimeout(0);
                     }
                 } catch (Exception e) {
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(3000); // Otherwise it gets always shown
-                            if (!ConMain.isUserActive.get()) return; // Ignore after logout
-                            AL.warn("File-Manager connection closed due to error.", e);
-                        } catch (Exception exception) {
-                            AL.warn(exception);
-                        }
-                    });
+                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
+                    throw e;
                 }
             });
-            thread.start();
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {
@@ -308,24 +299,5 @@ public class ConFileManager extends SecondaryConnection {
         dos.writeLine("...");
         dos.writeLong(file.lastModified());
         dos.writeBoolean(file.isHidden());
-    }
-
-    @Override
-    public void close() throws IOException {
-        try {
-            if (thread != null && !thread.isInterrupted()) thread.interrupt();
-        } catch (Exception e) {
-            AL.warn("Failed to stop thread.", e);
-        }
-
-        try {
-            super.close();
-        } catch (Exception e) {
-            AL.warn("Failed to close connection.", e);
-        }
-
-        thread = null;
-        dos = null;
-        dis = null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,8 +8,8 @@
 
 package com.osiris.autoplug.client.console;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.LogFileWriter;
@@ -41,7 +41,7 @@ public class ThreadUserInput extends Thread {
                     user_input = lineReader.readLine();
 
                     // Send to online console
-                    if (ConMain.CON_CONSOLE_SEND != null && ConMain.CON_CONSOLE_SEND.isConnected())
+                    if (Main.CON.CON_CONSOLE_SEND.isAlive())
                         try {
                             ConAutoPlugConsoleSend.send(user_input);
                         } catch (Exception e) {
