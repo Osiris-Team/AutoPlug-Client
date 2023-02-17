@@ -158,3 +158,9 @@ and scroll down to the AutoPlug-Web installer section.
 3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
 4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web.jar` to start it.
 5. Enjoy AutoPlug-Web!
+
+Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlug-Clients:
+1. Go to inside the directory where your AutoPlug-Client.jar is located.
+1. Open `./autoplug/system/config.yml`.
+2. Replace the `autoplug-web-ip` with the ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`.
+3. Restart the client, or enter `.con reload`.
