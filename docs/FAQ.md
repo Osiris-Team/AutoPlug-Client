@@ -160,9 +160,9 @@ and scroll down to the AutoPlug-Web installer section.
 5. Enjoy AutoPlug-Web!
 
 Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlug-Clients:
-1. Go to inside the directory where your AutoPlug-Client.jar is located.
+1. Go to the directory where your AutoPlug-Client.jar is located.
 2. Open `./autoplug/system/config.yml`.
-3. Replace the `autoplug-web-ip` with the ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`.
+3. Replace the `autoplug-web-ip` with the public ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`, or `localhost` if webserver and client on same device.
 4. Restart the client, or enter `.con reload`.
 5. Voila. Now the client connects to your AutoPlug-Web, instead of the default one. 
 
