@@ -164,7 +164,7 @@ Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlu
 2. Open `./autoplug/system/config.yml`.
 3. Replace the `autoplug-web-ip` with the public ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`, or `localhost` if webserver and client on same device.
 4. Restart the client, or enter `.con reload`.
-5. Voila. Now the client connects to your AutoPlug-Web, instead of the default one. 
+5. Voila. Now the client connects to your AutoPlug-Web, instead of https://autoplug.one. 
 
 ### What are the differences to autoplug.one?
 - Daily license check, that requires internet connection. Without a valid license you cannot run it.
