@@ -156,7 +156,7 @@ the permission would look like this: `./*.exe +sub`.
 and scroll down to the AutoPlug-Web installer section. 
 2. Fill in the empty fields and download the generated zip file.
 3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
-4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web.jar` to start it.
+4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web-seflhost.jar` to start it (or run the start script).
 5. Enjoy AutoPlug-Web!
 
 Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlug-Clients:
@@ -165,3 +165,11 @@ Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlu
 3. Replace the `autoplug-web-ip` with the ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`.
 4. Restart the client, or enter `.con reload`.
 5. Voila. Now the client connects to your AutoPlug-Web, instead of the default one. 
+
+### What are the differences to autoplug.one?
+- Daily license check, that requires internet connection. Without a valid license you cannot run it.
+- Self-signed certificate is always generated and used for SSL, instead of [ACME](https://github.com/shred/acme4j).
+- Payment services initialisation is optional.
+- All users are premium by default.
+- Sent mails are not encrypted.
+- /store is blank.
