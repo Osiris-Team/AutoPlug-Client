@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -17,8 +17,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -124,11 +126,12 @@ public class TaskDownload extends BThread {
      *
      * @return true if the hashes match
      */
-    public boolean compareWithMD5(String expectedMD5) throws NoSuchAlgorithmException, IOException {
-        final String hashResult = UtilsCrypto.fastMD5(dest);
-        boolean result = hashResult.equals(expectedMD5);
-        AL.debug(this.getClass(), "Comparing hashes (MD5). Result: " +
-                result + " Excepted: " + expectedMD5 + " Actual:" + hashResult);
+    public boolean compareWithMD5(String expectedHash) {
+        expectedHash = expectedHash.trim();
+        final String myHash = UtilsCrypto.fastMD5(dest).trim();
+        boolean result = myHash.equals(expectedHash);
+        AL.debug(this.getClass(), "Comparing hashes (MD5). Is equal? " +
+                result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");
         return result;
     }
 
@@ -136,13 +139,15 @@ public class TaskDownload extends BThread {
      * Only use this method after finishing the download.
      * It will get the hash for the newly downloaded file and
      * compare it with the given hash.
+     *
      * @return true if the hashes match
      */
-    public boolean compareWithSHA256(String sha256) throws IOException {
-        final String hashResult = UtilsCrypto.fastSHA256(dest);
-        boolean result = hashResult.equalsIgnoreCase(sha256);
-        AL.debug(this.getClass(), "Comparing hashes (SHA-256). Result: " +
-                result + " Excepted: " + sha256 + " Actual:" + hashResult);
+    public boolean compareWithSHA256(String expectedHash) {
+        expectedHash = expectedHash.trim().toLowerCase();
+        final String myHash = UtilsCrypto.fastSHA256(dest).trim().toLowerCase();
+        boolean result = myHash.equals(expectedHash);
+        AL.debug(this.getClass(), "Comparing hashes (SHA-256). Is equal? " +
+                result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");
         return result;
     }
 
