@@ -143,6 +143,12 @@ Similar wildcards are available for the files manager, but with a slightly diffe
 to all files and directories in AutoPlugs current working directory.
 - Note that Windows `\` and Linux `/` file separators are treated as equal.
 
+The `allowedFilesToRead` list contains paths to files or directories
+that the staff is allowed to open, list and read.
+
+The `allowedFilesToWrite` list contains paths to files or directories 
+that the staff is allowed to modify, create or delete.
+
 ---
 
 ## AutoPlug-Web (self-host) - Common Questions
