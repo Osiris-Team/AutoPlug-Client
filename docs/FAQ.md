@@ -114,7 +114,7 @@ This file allows you to define permissions for a group and it could look somethi
     "fullRead": false,
     "fullWrite": false,
     "allowedFilesToRead": [],
-    "allowedFilesToWrite": []
+    "allowedFilesToReadAndWrite": []
   }
 }
 ```
@@ -138,12 +138,17 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 - `*->` allows anything from this point onwards until the end of the line.
 
 Similar wildcards are available for the files manager, but with a slightly different meaning:
-- `./` is the current working directory of the AutoPlug-Client.
-- `*` allows any character sequence (including spaces). Example: `./*.exe`
-would only allow access to files in the current working directory ending with `.exe`.
-If you wanted to also allow access to the `.exe` files in sub-directories just append `+sub`, so
-the permission would look like this: `./*.exe +sub`.
-- `+sub` allows access to all sub-directories.
+- `./` or `.\` is the current working directory of the AutoPlug-Client.
+- `*->` allows access to all sub-directories. For example `./*->` would allow access
+to all files and directories in AutoPlugs current working directory.
+- Note that Windows `\` and Linux `/` file separators are treated as equal.
+
+The `allowedFilesToRead` list contains paths to files or directories
+that the staff is allowed to open, list and read.
+
+The `allowedFilesToReadAndWrite` list contains paths to files or directories 
+that the staff is allowed to open, list, read, modify, create or delete.
+This is probably the list you will use the most.
 
 ---
 
@@ -156,5 +161,20 @@ the permission would look like this: `./*.exe +sub`.
 and scroll down to the AutoPlug-Web installer section. 
 2. Fill in the empty fields and download the generated zip file.
 3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
-4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web.jar` to start it.
+4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web-seflhost.jar` to start it (or run the start script).
 5. Enjoy AutoPlug-Web!
+
+Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlug-Clients:
+1. Go to the directory where your AutoPlug-Client.jar is located.
+2. Open `./autoplug/system/config.yml`.
+3. Replace the `autoplug-web-ip` with the public ip/domain your AutoPlug-Web server is running from, for example `my-autoplug-web.com`, or `localhost` if webserver and client on same device.
+4. Restart the client, or enter `.con reload`.
+5. Voila. Now the client connects to your AutoPlug-Web, instead of https://autoplug.one. 
+
+### What are the differences to autoplug.one?
+- Daily license check, that requires internet connection. Without a valid license you cannot run it.
+- Self-signed certificate is always generated and used for SSL, instead of [ACME](https://github.com/shred/acme4j).
+- Payment services initialisation is optional.
+- All users are premium by default.
+- Sent mails are not encrypted.
+- /store is blank.
