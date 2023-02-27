@@ -138,12 +138,10 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 - `*->` allows anything from this point onwards until the end of the line.
 
 Similar wildcards are available for the files manager, but with a slightly different meaning:
-- `./` is the current working directory of the AutoPlug-Client.
-- `*` allows any character sequence (including spaces). Example: `./*.exe`
-would only allow access to files in the current working directory ending with `.exe`.
-If you wanted to also allow access to the `.exe` files in sub-directories just append `+sub`, so
-the permission would look like this: `./*.exe +sub`.
-- `+sub` allows access to all sub-directories.
+- `./` or `.\` is the current working directory of the AutoPlug-Client.
+- `*->` allows access to all sub-directories. For example `./*->` would allow access
+to all files and directories in AutoPlugs current working directory.
+- Note that Windows `\` and Linux `/` file separators are treated as equal.
 
 ---
 
