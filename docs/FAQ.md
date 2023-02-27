@@ -114,7 +114,7 @@ This file allows you to define permissions for a group and it could look somethi
     "fullRead": false,
     "fullWrite": false,
     "allowedFilesToRead": [],
-    "allowedFilesToWrite": []
+    "allowedFilesToReadAndWrite": []
   }
 }
 ```
@@ -146,8 +146,9 @@ to all files and directories in AutoPlugs current working directory.
 The `allowedFilesToRead` list contains paths to files or directories
 that the staff is allowed to open, list and read.
 
-The `allowedFilesToWrite` list contains paths to files or directories 
-that the staff is allowed to modify, create or delete.
+The `allowedFilesToReadAndWrite` list contains paths to files or directories 
+that the staff is allowed to open, list, read, modify, create or delete.
+This is probably the list you will use the most.
 
 ---
 
