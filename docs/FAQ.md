@@ -138,8 +138,8 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 - `*->` allows anything from this point onwards until the end of the line.
 
 You can add file and directory paths in Windows or Linux format to the `allowedFilesToRead` and
-`allowedFilesToReadAndWrite` lists to allow your staff access. If you add a directory access to its files is given,
-and access to the files of its sub-directories.
+`allowedFilesToReadAndWrite` lists to allow your staff access.
+Note that adding a directory results in access to all its files and the files of its sub-directories.
 Similar wildcards are available for the files manager, but with a slightly different meaning:
 - `./` or `.\` is the current working directory of the AutoPlug-Client.
 - `*->` to allow access to all sub-directories too. For example `./*->` would allow access
