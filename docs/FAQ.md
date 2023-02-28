@@ -138,15 +138,12 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 - `*->` allows anything from this point onwards until the end of the line.
 
 You can add file and directory paths in Windows or Linux format to the `allowedFilesToRead` and
-`allowedFilesToReadAndWrite` lists to allow your staff access. If you add a directory, only access to its files is given,
-not its directories.
+`allowedFilesToReadAndWrite` lists to allow your staff access. If you add a directory access to its files is given,
+and access to the files of its sub-directories.
 Similar wildcards are available for the files manager, but with a slightly different meaning:
 - `./` or `.\` is the current working directory of the AutoPlug-Client.
-- `+sub+all` to allow access to all sub-directories too. For example `./ +sub+all` would allow access
-to all files and directories and sub-directories in AutoPlugs current working directory.
-- `+sub+1`, or `+sub+2` etc... allows access to sub-directories but only to a specific depth.
-For example `./ +sub+1` allows access to its files by default, but because of the `+sub+1`
-also access to the files in its directories is given.
+- `*->` to allow access to all sub-directories too. For example `./*->` would allow access
+to all files and directories and all sub-directories in AutoPlugs current working directory.
 - Note that Windows `\` and Linux `/` file separators are treated as equal.
 
 The `allowedFilesToRead` list contains paths to files or directories
