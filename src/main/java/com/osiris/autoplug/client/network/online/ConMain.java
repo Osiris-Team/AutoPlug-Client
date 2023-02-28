@@ -106,22 +106,19 @@ public class ConMain extends DefaultConnection {
                     }
                 } catch (Exception e) {
                     isDone = true;
-                    if (isClosing.get()) break; // Exit first while
-                    AL.warn(e);
+                    if (isClosing.get()) {
+                        AL.info("Closed main connection to AutoPlug-Web.");
+                        break;
+                    }
 
-                    close();
-                    if (super.errorCode == 0) {
-                        AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
-                        try {
-                            Thread.sleep(msUntilRetry);
-                            msUntilRetry += 30000;
-                        } catch (Exception exception) {
-                            AL.warn(exception);
-                            AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
-                            break;
-                        }
-                    } else {
-                        AL.warn("Connection problems! Reconnect manually by entering '.con reload'.");
+                    try {
+                        AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...", e);
+                        close();
+                        Thread.sleep(msUntilRetry);
+                        msUntilRetry += 30000;
+                    } catch (Exception exception) {
+                        AL.warn(exception);
+                        AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
                         break;
                     }
                 }

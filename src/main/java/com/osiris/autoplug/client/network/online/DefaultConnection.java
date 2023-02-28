@@ -82,8 +82,7 @@ public class DefaultConnection implements AutoCloseable {
             try {
                 runnable.run();
             } catch (Exception e) {
-                if (isClosing.get()) return; // Exceptions caused by close() are ignored
-                AL.warn(e);
+                if (!isClosing.get()) AL.warn(e); // Exceptions caused by close() are ignored
                 try {
                     close();
                 } catch (Exception ex) {
@@ -109,6 +108,7 @@ public class DefaultConnection implements AutoCloseable {
         isClosing.set(false);
         errorCode = 0;
         close();
+        isClosing.set(false);
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
                 serverKey.equals("NO_KEY"))
@@ -138,8 +138,11 @@ public class DefaultConnection implements AutoCloseable {
         }
 
         AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
+        socket.setSoTimeout(30000);
         out.writeUTF(serverKey); // Send server key
         out.writeByte(conType); // Send connection type
+        socket.setSoTimeout(5000);
+
 
         this.errorCode = in.readByte(); // Get response
         return errorCode;
@@ -279,6 +282,7 @@ public class DefaultConnection implements AutoCloseable {
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
                 "ssl=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
+                ", isAlive=" + isAlive() +
                 ", errorCode=" + errorCode +
                 ", socket=" + socket +
                 ", threadRunning=" + (thread != null && !thread.isInterrupted() && thread.isAlive()) +

@@ -181,3 +181,4 @@ Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlu
 - All users are premium by default.
 - Sent mails are not encrypted.
 - /store is blank.
+- May be a few versions behind from autoplug.one.
