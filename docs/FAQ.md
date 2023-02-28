@@ -146,7 +146,7 @@ Similar wildcards are available for the files manager, but with a slightly diffe
 to all files and directories and sub-directories in AutoPlugs current working directory.
 - `+sub+1`, or `+sub+2` etc... allows access to sub-directories but only to a specific depth.
 For example `./ +sub+1` allows access to its files by default, but because of the `+sub+1`
-access to the files in its directories is also given.
+also access to the files in its directories is given.
 - Note that Windows `\` and Linux `/` file separators are treated as equal.
 
 The `allowedFilesToRead` list contains paths to files or directories
