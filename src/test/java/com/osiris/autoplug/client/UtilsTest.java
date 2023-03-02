@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Utils for tests.
  */
-public class UT {
+public class UtilsTest {
     public static MyBThreadManager createManagerWithDisplayer() throws JLineLinkException, NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
         return new UtilsTasks().createManagerAndPrinter();
     }
@@ -58,6 +58,8 @@ public class UT {
     }
 
     public static void initLogger() {
-        new AL().start("AL", true, new File(System.getProperty("user.dir") + "/test/ap-logs/latest.log"), false);
+        File logFile = new File(System.getProperty("user.dir") + "/logs/latest.log");
+        logFile.getParentFile().mkdirs();
+        new AL().start("AL", true, logFile, false);
     }
 }

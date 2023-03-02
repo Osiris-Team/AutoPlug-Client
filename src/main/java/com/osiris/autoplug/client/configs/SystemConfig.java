@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -25,6 +25,7 @@ public class SystemConfig extends Yaml {
     public YamlSection autoplug_web_port;
     public YamlSection autoplug_plugin_key;
     public YamlSection is_autostart_registered;
+    public YamlSection steamcmd_login;
 
 
     public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -54,6 +55,8 @@ public class SystemConfig extends Yaml {
         autoplug_plugin_key = put(name, "autoplug-plugin-key");
         if (autoplug_plugin_key.asString() == null)
             autoplug_plugin_key.setValues(new UtilsRandom().generateNewKey(500));
+
+        steamcmd_login = put(name, "steamcmd", "login").setComments("Usually not needed, except when trying to install restricted dedicated servers.");
 
         save();
         unlockFile();

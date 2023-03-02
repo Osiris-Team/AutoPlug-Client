@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -53,7 +53,7 @@ public class AsyncTerminal implements AutoCloseable {
     }
 
     public void sendCommands(String... commands) throws IOException {
-        if (commands != null && commands.length != 0)
+        if (commands != null)
             for (String command :
                     commands) {
                 out.write((command + "\n").getBytes(StandardCharsets.UTF_8));

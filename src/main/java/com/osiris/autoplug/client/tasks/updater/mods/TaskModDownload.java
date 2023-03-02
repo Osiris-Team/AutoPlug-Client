@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -96,7 +96,6 @@ public class TaskModDownload extends BThread {
         if (profile.equals("NOTIFY")) {
             setStatus("Your profile doesn't allow downloads! Profile: " + profile);
             finish(false);
-            return;
         } else if (profile.equals("MANUAL")) {
             download();
             isDownloadSuccessful = true;

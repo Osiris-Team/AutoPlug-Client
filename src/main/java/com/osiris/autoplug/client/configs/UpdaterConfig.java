@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -137,7 +137,7 @@ public class UpdaterConfig extends Yaml {
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
                         "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric," +
                         "spigot, bungeecord, patina, pufferfish, mirai, pearl, windspigot)\n" +
-                        "-> Learn more about them here: https://papermc.io/ | https://github.com/PaperMC/Waterfall | https://github.com/PaperMC/Travertine | https://github.com/PaperMC/Velocity | https://purpur.pl3x.net/ | https://fabricmc.net/\n" +
+                        "- Any Steam game (enter the app-id below, go to https://steamdb.info/ and search for: \"<game-name> server\" to find the app-id)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_version = put(name, "server-updater", "version").setComments(
                 "Select the servers' version. A list of supported version can be found in the links below:\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,22 +8,21 @@
 
 package com.osiris.autoplug.client.tasks.updater;
 
-import com.osiris.autoplug.client.UT;
+import com.osiris.autoplug.client.UtilsTest;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 import com.osiris.jlib.logger.AL;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 class TaskPluginDownloadTest {
 
-    @Test
+    @org.junit.jupiter.api.Test
     void pluginDownloadTest() throws Exception {
-        UT.init();
+        UtilsTest.init();
         BThreadManager man = new BThreadManager();
         BThreadPrinter printer = new BThreadPrinter(man);
         printer.start();

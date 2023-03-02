@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,12 +8,11 @@
 
 package com.osiris.autoplug.client.tasks.updater.server;
 
-import com.osiris.autoplug.client.UT;
+import com.osiris.autoplug.client.UtilsTest;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.betterthread.BWarning;
 import com.osiris.jlib.logger.AL;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -29,8 +28,8 @@ class TaskServerUpdaterTest {
     private void defaultTest(String serverSoftware, String version) throws Exception {
         if (true) return; // TODO RE-ENABLE TESTS
         if (version == null) version = "1.18.2";
-        UT.init();
-        MyBThreadManager maMan = UT.createManagerWithDisplayer();
+        UtilsTest.init();
+        MyBThreadManager maMan = UtilsTest.createManagerWithDisplayer();
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.load();
         updaterConfig.server_updater.setValues("true");
@@ -50,77 +49,77 @@ class TaskServerUpdaterTest {
         assertTrue(maMan.manager.getAll().get(0).isSuccess());
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testSpigot() throws Exception {
         defaultTest("spigot", "1.16.5");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testWindSpigot() throws Exception {
         defaultTest("windspigot");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testBungeeCord() throws Exception {
         defaultTest("bungeecord");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testPaper() throws Exception {
         defaultTest("paper");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testWaterfall() throws Exception {
         defaultTest("waterfall", "1.18");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testVelocity() throws Exception {
         defaultTest("velocity", "3.1.1");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testTravertine() throws Exception {
         defaultTest("travertine", "1.16");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testPurpur() throws Exception {
         defaultTest("purpur");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testFabric() throws Exception {
         defaultTest("fabric");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testSpongeVanilla() throws Exception {
         defaultTest("spongevanilla");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testSpongeForge() throws Exception {
         defaultTest("spongeforge", "1.16.5");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testPatina() throws Exception {
         defaultTest("patina");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testPufferfish() throws Exception {
         defaultTest("pufferfish");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testMirai() throws Exception {
         defaultTest("mirai");
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void testPearl() throws Exception {
         defaultTest("pearl");
     }
