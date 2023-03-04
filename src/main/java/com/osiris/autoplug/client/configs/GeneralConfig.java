@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.utils.GD;
 import com.osiris.dyml.SmartString;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -116,7 +117,7 @@ public class GeneralConfig extends Yaml {
             YamlSection oldServerJar = get(name, "server", "jar-path");
             oldServerJar.setComments("DEPRECATED in favor of 'start-command'.");
             if (oldServerJar.asString().equals("auto-find"))
-                startCommand += "-jar " + new FileManager().serverExecutable();
+                startCommand += "-jar " + new FileManager().serverExecutable(GD.WORKING_DIR);
             else startCommand += "-jar \"" + oldServerJar.asString() + "\"";
             startCommand += " ";
 

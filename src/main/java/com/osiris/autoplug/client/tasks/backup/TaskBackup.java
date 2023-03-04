@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -105,9 +105,10 @@ public class TaskBackup extends BThread {
             setStatus("Creating backup zip...");
             ZipFile zip = new ZipFile(server_backup_dest);
             ProgressMonitor progress = zip.getProgressMonitor();
+            BThread _this = this;
             new Thread(() -> {
                 try {
-                    while (this.isAlive()) { // Parent thread
+                    while (!_this.isFinished()) { // Parent thread
                         setStatus("Backing up " + new File(progress.getFileName()).getName() + " " + progress.getPercentDone() + "% - " + progress.getCurrentTask());
                         Thread.sleep(100);
                     }

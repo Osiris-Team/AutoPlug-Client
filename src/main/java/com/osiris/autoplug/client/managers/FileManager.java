@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static com.osiris.jprocesses2.util.OS.isWindows;
 
 /**
  * Search & find files!
@@ -94,20 +96,6 @@ public class FileManager {
 
     }
 
-    /**
-     * Finds the server jar by its name.
-     *
-     * @return server jar file.
-     */
-    @Nullable
-    public File serverExecutable(String server_jar_name) {
-        String searchPattern = "*" + server_jar_name + "**.jar";
-        //Find the file
-        findServerJarFileInWorkingDir(searchPattern);
-        //Return the result file
-        return queryFile;
-    }
-
     public File autoplugJar(File dirToSearch) {
         String searchPattern = "*.jar";
         //Find the file
@@ -122,14 +110,24 @@ public class FileManager {
      * @return server jar file.
      */
     @Nullable
-    public File serverExecutable() {
-        String searchPattern = "*.jar";
-        //Find the file
-        findServerJarFileInWorkingDir(searchPattern);
-        if (queryFile == null)
-            findServerJarFileInWorkingDir("*.exe");
-        //Return the result file
-        return queryFile;
+    public File serverExecutable(File dir) {
+        List<File> files = serverExecutables(dir);
+        if (files.isEmpty()) return null;
+        return files.get(0);
+    }
+
+    public List<File> serverExecutables(File dir) {
+        List<File> files = new ArrayList<>();
+        for (File f : dir.listFiles()) {
+            if (f.isFile() && // Can't be directory
+                    !f.getName().toLowerCase().contains("crashhandler") // Avoid unity crash handler exe
+                    && !jarContainsAutoPlugProperties(f) // Can't be AutoPlug.jar
+                    && (f.getName().endsWith(".jar")
+                    || f.getName().endsWith(".exe")
+                    || (!isWindows && !f.getName().contains("."))) // On Unix binaries/exes names usually don't contain dots
+            ) files.add(f);
+        }
+        return files;
     }
 
     @NotNull
@@ -212,47 +210,6 @@ public class FileManager {
         };
         Files.walkFileTree(dirPath, visitor);
         return list;
-    }
-
-    //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds one jar
-    private void findServerJarFileInWorkingDir(String searchPattern) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(@NotNull Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-
-                    //Must match the query name, can't be same name as AutoPlug.jar and can't be a directory
-                    if (pathMatcher.matches(path.getFileName())
-                            && !jarContainsAutoPlugProperties(path.toFile())) {
-
-                        queryFile = new File(path.toString());
-                        return FileVisitResult.TERMINATE;
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dirPath, @NotNull BasicFileAttributes attrs) throws IOException {
-                    if (dirPath.equals(GD.WORKING_DIR.toPath()))
-                        return FileVisitResult.CONTINUE;
-                    else
-                        return FileVisitResult.SKIP_SUBTREE;
-
-                }
-            });
-
-
-        } catch (IOException e) {
-            AL.warn(e);
-        }
-
     }
 
     private void findAutoPlugJarFileInDir(String searchPattern, File dirToSearch) {

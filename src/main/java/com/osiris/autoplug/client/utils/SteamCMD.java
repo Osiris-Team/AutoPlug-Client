@@ -8,7 +8,6 @@
 
 package com.osiris.autoplug.client.utils;
 
-import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.io.AsyncReader;
@@ -23,7 +22,10 @@ import org.rauschig.jarchivelib.CompressionType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -44,7 +46,7 @@ public class SteamCMD {
     }};
     public File destDir = new File(GD.WORKING_DIR + "/autoplug/system/steamcmd");
     public File destExe = new File(destDir + "/" + steamcmdExecutable);
-    public File dirSteamServers = new File(GD.WORKING_DIR + "/autoplug/steam-servers");
+    public File dirSteamServersDownloads = new File(GD.DOWNLOADS_DIR + "/steam-servers");
     public File destArchive = new File(destDir + "/" + steamcmdArchive);
 
     public boolean isInstalled() {
@@ -113,23 +115,27 @@ public class SteamCMD {
             AL.debug(this.getClass(), "Installing app " + appId + "...");
             onLog.accept("Installing app " + appId + "...");
 
-            SystemConfig sys = new SystemConfig();
-            String login = sys.steamcmd_login.asString();
+            String login = new UpdaterConfig().server_steamcmd_login.asString();
             if (login == null || login.isEmpty()) login = "anonymous";
 
-            File gameInstallDir = new File(dirSteamServers + "/" + appId);
+            File gameInstallDir = new File(dirSteamServersDownloads + "/" + appId);
             gameInstallDir.mkdirs();
             List<String> logLines = new ArrayList<>();
             List<String> logErrLines = new ArrayList<>();
             AtomicBoolean isFinished = new AtomicBoolean(false);
+            AtomicBoolean isSuccess = new AtomicBoolean(true);
             // Doesn't work when directly executing via ProcessBuilder thats why we execute it from an
             // actual terminal
             AsyncTerminal terminal = new AsyncTerminal(destDir, line -> { // Without a reader it seems to never finish
                 onLog.accept(line);
                 logLines.add(line);
-                if (line.toLowerCase().startsWith("Success! App".toLowerCase())
-                        || line.toLowerCase().startsWith("ERROR!".toLowerCase())) // Case actually changes without reason?!
+                if (line.toLowerCase().startsWith("Success! App".toLowerCase()))
                     isFinished.set(true);
+                if (line.toLowerCase().startsWith("ERROR!".toLowerCase())) // Case actually changes without reason?!
+                {
+                    isSuccess.set(false);
+                    isFinished.set(true);
+                }
             }, line -> {
                 onLogErr.accept(line);
                 logErrLines.add(line);
@@ -146,28 +152,11 @@ public class SteamCMD {
             while (!isFinished.get()) Thread.sleep(100);
             terminal.process.destroy();
             Runtime.getRuntime().removeShutdownHook(thread);
-
-            List<String> errors = scanForErrors(logLines);
-            errors.addAll(scanForErrors(logErrLines));
-            if (errors.size() != 0) {
-                AL.warn("There were " + errors.size() + " errors found, during SteamCMD execution:");
-                for (String error : errors) {
-                    AL.warn("- " + error + " Fix: " + getResolutionForError(error));
-                }
-                return false;
-            } else {
-                return true;
-            }
+            return isSuccess.get();
         } catch (Exception e) {
             AL.warn(e);
             return false;
         }
-    }
-
-    public List<String> scanForErrors(List<String> output) {
-        List<String> errors = new LinkedList<>();
-        for (String s : output) if (s.startsWith("ERROR!")) errors.add(s);
-        return errors;
     }
 
     public String getResolutionForError(String error) {

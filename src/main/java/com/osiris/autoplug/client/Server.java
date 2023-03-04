@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -65,7 +65,7 @@ public final class Server {
         while (true) {
             serverExe = new UtilsJar().determineServerJar();
             if (serverExe == null) {
-                serverExe = new FileManager().serverExecutable();
+                serverExe = new FileManager().serverExecutable(GD.WORKING_DIR);
                 if (serverExe == null || !serverExe.exists()) {
                     AL.info("Failed to determine the server executable and start-command.");
                     AL.info("Examples: 'java -jar server.jar' or '.\\server.exe'.");
@@ -137,7 +137,7 @@ public final class Server {
             AL.info("Starting server: " + serverExe.getName());
             createProcess();
         } catch (Exception e) {
-            AL.warn(e);
+            AL.warn("Failed to start server: " + e.getMessage(), e);
         }
     }
 

@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.tasks.updater.server;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
@@ -224,12 +225,15 @@ public class TaskServerUpdater extends BThread {
         }
 
         SteamCMD steamCMD = new SteamCMD();
-        if (profile.equals("MANUAL")) steamCMD.dirSteamServers = new File(GD.DOWNLOADS_DIR + "/steam-servers");
-        File serverDir = new File(steamCMD.dirSteamServers + "/" + updaterConfig.server_software.asString());
+        File serverDir = new File(steamCMD.dirSteamServersDownloads + "/" + updaterConfig.server_software.asString());
         boolean isFirstInstall = !serverDir.exists();
         boolean isSuccess = steamCMD.installOrUpdateServer(updaterConfig.server_software.asString(), line -> {
+            if (line.startsWith("Waiting for user info")) // Download status not shown, stays stuck at this message for me on Windows, don't know why.
+                line = "Downloading files, this might take a bit...";
+            AL.debug(this.getClass(), "SteamCMD-Out: " + line);
             setStatus(line);
         }, errLine -> {
+            AL.debug(this.getClass(), "SteamCMD-Err-Out: " + errLine);
             setStatus(errLine);
             addWarning(errLine);
         });
@@ -237,41 +241,25 @@ public class TaskServerUpdater extends BThread {
             setSuccess(false);
             return;
         }
-        if (isFirstInstall) {
-            // Update start command
-            GeneralConfig general = new GeneralConfig();
-            // Find exe
-            File serverExe = null;
-            if (isWindows) {
-                for (File f : serverDir.listFiles()) {
-                    if (f.getName().endsWith(".exe")
-                            && !f.getName().toLowerCase().contains("crashhandler")) { // Avoid unity crash handler exe
-                        serverExe = f;
-                        break;
-                    }
-                }
-            } else {
-                for (File f : serverDir.listFiles()) {
-                    if (!f.getName().contains(".") && f.isFile()
-                            && !f.getName().toLowerCase().contains("crashhandler")) { // Avoid unity crash handler exe
-                        serverExe = f;
-                        break;
-                    }
-                }
-            }
-
-            if (serverExe == null) addWarning("Failed to determine server exe, define the start command yourself: " +
-                    new UtilsLists().toString(general.server_start_command.getKeys()));
-            else {
-                if (profile.equals("MANUAL"))
-                    addWarning("Didn't set start command because profile is MANUAL.");
+        if (profile.equals("AUTOMATIC")) {
+            setStatus("Moving files, this might take a bit...");
+            FileUtils.copyDirectory(serverDir, GD.WORKING_DIR);
+            if (isFirstInstall) { // Update start command
+                String startCommand = (isWindows ? ".\\" : "./");
+                GeneralConfig general = new GeneralConfig();
+                File serverExe = new FileManager().serverExecutable(serverDir); // Find exe
+                if (serverExe == null)
+                    addWarning("Failed to determine server exe, define the start command yourself: " +
+                            new UtilsLists().toString(general.server_start_command.getKeys()));
                 else {
-                    general.server_start_command.setValues(serverExe.getAbsolutePath() + " +server.port 25565");
+                    startCommand += serverExe.getName() + " +server.port 25565";
+                    general.server_start_command.setValues(startCommand);
                     general.save();
                 }
             }
-
         }
+
+        setStatus("Installed updated if needed (SteamCMD).");
         setSuccess(true);
     }
 }
