@@ -324,9 +324,11 @@ public class Main {
             for (String arg : args) {
                 argsString += arg;
             }
-            String[] commands = argsString.split("\\."); // Split by dots
-            for (String c : commands) {
-                AutoPlugConsole.executeCommand("." + c);
+            if (argsString.contains(".")) {
+                String[] commands = argsString.split("\\."); // Split by dots
+                for (String c : commands) {
+                    AutoPlugConsole.executeCommand("." + c);
+                }
             }
 
             // We have to keep this main Thread running.
