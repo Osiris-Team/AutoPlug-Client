@@ -10,6 +10,7 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
+import com.osiris.autoplug.client.console.AutoPlugConsole;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
@@ -317,6 +318,16 @@ public class Main {
 
             if (TARGET != Target.MINECRAFT_CLIENT && generalConfig.server_auto_start.asBoolean())
                 Server.start();
+
+            // Execute arguments as commands if existing
+            String argsString = "";
+            for (String arg : args) {
+                argsString += arg;
+            }
+            String[] commands = argsString.split("\\."); // Split by dots
+            for (String c : commands) {
+                AutoPlugConsole.executeCommand("." + c);
+            }
 
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working
