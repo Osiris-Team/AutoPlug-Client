@@ -165,7 +165,7 @@ and scroll down to the AutoPlug-Web installer section.
 2. Fill in the empty fields and download the generated zip file.
 3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
 4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web-selfhost.jar` to start it (or run the start script).
-5. Access the website under http://localhost or https://localhost.
+5. Access the website under http://localhost or https://localhost (if running on same device, otherwise https://INSERT_DEVICE_PUBLIC_IP).
 6. Register and make your account premium by entering `make premium <email>` in the AutoPlug-Web terminal.
 7. Enjoy AutoPlug-Web!
 
