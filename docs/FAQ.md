@@ -164,8 +164,10 @@ This is probably the list you will use the most.
 and scroll down to the AutoPlug-Web installer section. 
 2. Fill in the empty fields and download the generated zip file.
 3. Unpack it in an empty directory, on the device you want to run it (note that latest Java is required).
-4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web-seflhost.jar` to start it (or run the start script).
-5. Enjoy AutoPlug-Web!
+4. Open your terminal, `cd` in that directory and execute `java -jar AutoPlug-Web-selfhost.jar` to start it (or run the start script).
+5. Access the website under http://localhost or https://localhost.
+6. Register and make your account premium by entering `make premium <email>` in the AutoPlug-Web terminal.
+7. Enjoy AutoPlug-Web!
 
 Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlug-Clients:
 1. Go to the directory where your AutoPlug-Client.jar is located.
@@ -178,7 +180,6 @@ Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlu
 - Daily license check, that requires internet connection. Without a valid license you cannot run it.
 - Self-signed certificate is always generated and used for SSL, instead of [ACME](https://github.com/shred/acme4j).
 - Payment services initialisation is optional.
-- All users are premium by default.
 - Sent mails are not encrypted.
 - /store is blank.
 - May be a few versions behind from autoplug.one.
