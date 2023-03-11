@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -69,6 +69,8 @@ public class JenkinsSearch {
                     if (n.contains(providedArtifactName)) {
                         fileName = n;
                         download_url = project_url + "/" + latest_build_id + "/artifact/" + obj.get("relativePath").getAsString();
+                        if (fileName.contains("."))
+                            downloadType = fileName.substring(fileName.lastIndexOf("."));
                         break;
                     }
                 }

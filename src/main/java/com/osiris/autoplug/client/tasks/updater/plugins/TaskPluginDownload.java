@@ -10,19 +10,26 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
+import com.osiris.jlib.UtilsFiles;
 import com.osiris.jlib.logger.AL;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.io.FileUtils;
+import org.rauschig.jarchivelib.ArchiveFormat;
+import org.rauschig.jarchivelib.Archiver;
+import org.rauschig.jarchivelib.ArchiverFactory;
+import org.rauschig.jarchivelib.CompressionType;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 
 public class TaskPluginDownload extends BThread {
@@ -145,9 +152,24 @@ public class TaskPluginDownload extends BThread {
             else if (!ignoreContentType && (
                     !body.contentType().subtype().equals("java-archive")
                             && !body.contentType().subtype().equals("jar")
+                            && !body.contentType().subtype().equals("zip") // Zip/Tar support
+                            && !body.contentType().subtype().equals("x-gtar") // Zip/Tar support
                             && !body.contentType().subtype().equals("octet-stream")
             ))
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+            // Zip/Tar support
+            boolean isZip = false, isTar = false;
+            if (body.contentType().subtype().equals("zip")) {
+                dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].zip");
+                AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + url + "'");
+                if (dest.exists()) dest.delete();
+                dest.createNewFile();
+            } else if (body.contentType().subtype().equals("x-gtar")) {
+                dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].tar.gz");
+                AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + url + "'");
+                if (dest.exists()) dest.delete();
+                dest.createNewFile();
+            }
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
@@ -172,6 +194,38 @@ public class TaskPluginDownload extends BThread {
             in.close();
             body.close();
             response.close();
+
+            // Zip/Tar support
+            if (isTar || isZip) {
+                setStatus("Unpacking " + fileName + "...");
+                Archiver archiver;
+                if (isTar)
+                    archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR, CompressionType.GZIP);
+                else // Zip
+                    archiver = ArchiverFactory.createArchiver(ArchiveFormat.ZIP);
+                File folder = new File(dir + "/" + plName + "-[" + plLatestVersion + "]");
+                if (folder.exists()) new UtilsFiles().forceDeleteDirectory(folder);
+                folder.mkdirs();
+                archiver.extract(dest, folder);
+                File[] files = folder.listFiles();
+                Double[] similarities = new Double[files.length];
+                String plName = // Remove any separator chars (-+_/\) from both plugin name and file name
+                        this.plName.replaceAll("[\\-\\+\\_\\/\\\\]", "").replace(" ", "");
+                for (int i = 0; i < files.length; i++) {
+                    File f = files[i];
+                    String name = f.getName().replaceAll("[0-9]", ""); // Remove numbers
+                    if (name.contains("."))
+                        name = name.substring(0, name.lastIndexOf(".")); // Remove file extension
+                    // Remove any separator chars (-+_/\) from both plugin name and file name
+                    name = name.replaceAll("[\\-\\+\\_]", "").replace(" ", "");
+                    similarities[i] = StringComparator.similarity(plName, name);
+                }
+                Arrays.sort(similarities);
+                dest = files[files.length - 1];
+                setStatus("Downloaded, unpacked " + fileName + " (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)" +
+                        " and selected " + dest.getName());
+            }
+
         } catch (Exception e) {
             if (body != null) body.close();
             response.close();

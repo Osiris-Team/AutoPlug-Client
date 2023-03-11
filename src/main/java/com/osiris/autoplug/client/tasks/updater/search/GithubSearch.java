@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -65,6 +65,8 @@ public class GithubSearch {
                     if (n.contains(githubAssetName)) {
                         fileName = n;
                         downloadUrl = obj.get("browser_download_url").getAsString();
+                        if (fileName.contains("."))
+                            downloadType = fileName.substring(fileName.lastIndexOf("."));
                         break;
                     }
                 }

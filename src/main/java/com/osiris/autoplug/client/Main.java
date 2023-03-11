@@ -322,7 +322,7 @@ public class Main {
             // Execute arguments as commands if existing
             String argsString = "";
             for (String arg : args) {
-                argsString += arg;
+                argsString += arg + " ";
             }
             if (argsString.contains(".")) {
                 String[] commands = argsString.split("\\."); // Split by dots
