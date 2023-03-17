@@ -173,7 +173,10 @@ public class TaskServerUpdater extends BThread {
         UpdateBuilder updateBuilder = UpdateBuilder
                 .updateProject(serverSoftware)
                 .version(serverVersion)
-                .debugConsumer(s -> AL.debug(getClass(), s));
+                .debugConsumer(s -> {
+                    AL.debug(getClass(), s);
+                    setStatus(s);
+                });
 
         // Change the output file based on the profile.
         File outputFile;
