@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -224,8 +224,15 @@ public class UtilsMinecraft {
                         String author = null;
                         if (authorRaw != null && !authorRaw.isJsonNull())
                             author = authorRaw.getAsString();
-                        else
-                            author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+                        else {
+                            try {
+                                // Old fabric.mod.json authors was a string array
+                                author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+                            } catch (Exception e) {
+                                // New fabric.mod.json authors is a json objects array
+                                author = authorsRaw.getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString();
+                            }
+                        }
 
                         // Also check for ids in the config
                         String modrinthId = obj.get("id").getAsString();
