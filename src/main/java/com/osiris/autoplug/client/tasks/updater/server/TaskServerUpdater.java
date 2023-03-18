@@ -21,6 +21,7 @@ import com.osiris.autoplug.client.utils.SteamCMD;
 import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
+import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
@@ -217,6 +218,8 @@ public class TaskServerUpdater extends BThread {
         } else {
             setStatus(status.getMessage());
         }
+        if (status.getThrowable() != null)
+            addWarning(new BWarning(this, status.getThrowable()));
         setSuccess(status.isSuccessStatus());
     }
 
