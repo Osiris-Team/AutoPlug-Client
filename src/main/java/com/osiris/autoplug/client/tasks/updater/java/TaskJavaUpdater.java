@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -25,6 +25,7 @@ import org.rauschig.jarchivelib.CompressionType;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Searches for updates and installs them is AUTOMATIC profile is selected.
@@ -113,28 +114,63 @@ public class TaskJavaUpdater extends BThread {
         // when onlyLTS is disabled. That's why we must use JDK currently.
         // TODO Hopefully this is temporary and can be fixed soon.
 
-        JsonObject jsonReleases = new AdoptV3API().getReleases(
+        AtomicReference<JsonObject> refJsonLatestRelease = new AtomicReference<>(null);
+        boolean isOnlyLTS = true;
+        new AdoptV3API().getReleases(
                 osArchitectureType,
                 isLargeHeapSize,
                 imageType,
                 true,
-                true, // Changing this to false makes the api return even fewer versions, which is pretty weird.
+                isOnlyLTS, // Changing this to false makes the api return even fewer versions, which is pretty weird.
                 osType,
-                20,
+                50,
                 AdoptV3API.VendorProjectType.JDK,
-                AdoptV3API.ReleaseType.GENERAL_AVAILABILITY
+                AdoptV3API.ReleaseType.GENERAL_AVAILABILITY,
+                jsonReleases -> { // The below gets executed now, in the current thread
+                    for (JsonElement e :
+                            jsonReleases.getAsJsonArray("versions")) {
+                        JsonObject o = e.getAsJsonObject();
+                        String version = o.get("major").getAsString();
+                        if (version.equals(javaVersion)) {
+                            refJsonLatestRelease.set(o);
+                            return false; // Should continue? No, since we found it!
+                        }
+                    }
+                    return true;
+                }
         );
-
-        JsonObject jsonLatestRelease = null;
-        for (JsonElement e :
-                jsonReleases.getAsJsonArray("versions")) {
-            JsonObject o = e.getAsJsonObject();
-            if (o.get("major").getAsString().equals(javaVersion)) {
-                jsonLatestRelease = o;
-                break;
-            }
+        JsonObject jsonLatestRelease = refJsonLatestRelease.get();
+        if (jsonLatestRelease == null) {
+            isOnlyLTS = false;
+            // Do the above search again, but this time with onlyLTS=false
+            // Note that this seems to exclude all LTS releases, thats why the above
+            // is still necessary.
+            new AdoptV3API().getReleases(
+                    osArchitectureType,
+                    isLargeHeapSize,
+                    imageType,
+                    true,
+                    isOnlyLTS,
+                    osType,
+                    50,
+                    AdoptV3API.VendorProjectType.JDK,
+                    AdoptV3API.ReleaseType.GENERAL_AVAILABILITY,
+                    jsonReleases -> { // The below gets executed now, in the current thread
+                        for (JsonElement e :
+                                jsonReleases.getAsJsonArray("versions")) {
+                            JsonObject o = e.getAsJsonObject();
+                            String version = o.get("major").getAsString();
+                            if (version.equals(javaVersion)) {
+                                refJsonLatestRelease.set(o);
+                                return false; // Should continue? No, since we found it!
+                            }
+                        }
+                        return true;
+                    }
+            );
         }
 
+        jsonLatestRelease = refJsonLatestRelease.get();
         if (jsonLatestRelease == null)
             throw new Exception("Couldn't find a matching major version to '" + javaVersion + "'.");
 
@@ -153,7 +189,7 @@ public class TaskJavaUpdater extends BThread {
                 isLargeHeapSize,
                 imageType,
                 true,
-                true,
+                isOnlyLTS,
                 osType,
                 20,
                 AdoptV3API.VendorProjectType.JDK,

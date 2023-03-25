@@ -307,6 +307,7 @@ public class Main {
             }
 
             AL.info("Initialised successfully.");
+            AL.info("Enter .help for a list of all commands.");
             AL.info("| ------------------------------------------- |");
 
             CON.open();

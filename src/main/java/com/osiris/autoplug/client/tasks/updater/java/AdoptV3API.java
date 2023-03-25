@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -15,6 +15,7 @@ import com.osiris.jlib.json.exceptions.HttpErrorException;
 import com.osiris.jlib.json.exceptions.WrongJsonTypeException;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 /**
  * Details here: https://api.adoptium.net/q/swagger-ui
@@ -75,7 +76,7 @@ public class AdoptV3API {
      * @param maxItems        Example: 20
      * @return
      */
-    public String getReleasesUrl(OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
+    public String getReleasesUrl(int page, OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
                                  boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
                                  VendorProjectType vendorProject, ReleaseType releaseType) {
         String jvmImplementation = isHotspotImpl ? "hotspot" : "openj9";
@@ -87,7 +88,7 @@ public class AdoptV3API {
                 + "&jvm_impl=" + jvmImplementation
                 + "&lts=" + isOnlyLTS
                 + "&os=" + osType.name
-                + "&page=0"
+                + "&page=" + page
                 + "&page_size=" + maxItems
                 + "&project=" + vendorProject.name
                 + "&release_type=" + releaseType.name
@@ -95,11 +96,23 @@ public class AdoptV3API {
                 + "&vendor=eclipse";
     }
 
-    public JsonObject getReleases(OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
-                                  boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
-                                  VendorProjectType vendorProject, ReleaseType releaseType) throws WrongJsonTypeException, IOException, HttpErrorException {
-        return Json.getAsObject(getReleasesUrl(osArchitectureType, isLargeHeapSize, imageType,
-                isHotspotImpl, isOnlyLTS, osType, maxItems, vendorProject, releaseType));
+    public void getReleases(OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
+                            boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
+                            VendorProjectType vendorProject, ReleaseType releaseType, Function<JsonObject, Boolean> onNewPage) throws WrongJsonTypeException, IOException, HttpErrorException {
+        String url = null;
+        int page = 0;
+        try {
+            while (true) { // Loop through all pages until last request gives 404 error code
+                url = getReleasesUrl(page, osArchitectureType, isLargeHeapSize, imageType,
+                        isHotspotImpl, isOnlyLTS, osType, maxItems, vendorProject, releaseType);
+                Boolean shouldContinue = onNewPage.apply(Json.getAsObject(url));
+                if (!shouldContinue) break;
+                page++;
+            }
+        } catch (HttpErrorException e) {
+            if (e.getHttpErrorCode() != 404) // 404 == Page not found
+                throw e;
+        }
     }
 
     /**
