@@ -28,7 +28,7 @@ public class JenkinsSearch {
         int latest_build_id = 0;
         String fileName = null;
         try {
-            JsonObject json_project = Json.getAsObject(project_url + "/api/json");
+            JsonObject json_project = Json.getAsObject(project_url + (project_url.endsWith("/") ? "" : "/") + "api/json");
             JsonObject json_last_successful_build = json_project.get("lastSuccessfulBuild").getAsJsonObject();
             latest_build_id = json_last_successful_build.get("number").getAsInt();
             latestVersion = "" + latest_build_id;
