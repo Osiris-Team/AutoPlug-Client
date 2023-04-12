@@ -2,7 +2,7 @@
    <img src="https://i.imgur.com/BMpvtWP.png">
 </div>
 
-## I'm now focusing on other projects like AutoPlug-Web, thus no new features will be added by me. However pull requests will still be reviewed and probably merged.
+## Pull requests will still be reviewed and probably merged, but no new features will be added by me.
   
 ## Links
 
