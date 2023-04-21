@@ -25,6 +25,8 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 
 - [Online Console](online-console.gif)
 - [Online File-Manager](file-manager.gif)
+- Staff Access
+- Plugin details database
 
 Community projects:
 
