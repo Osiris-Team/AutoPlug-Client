@@ -68,7 +68,7 @@ public class GeneralConfig extends Yaml {
                 "If you have no GUI its recommended to install software like \"screen\" for virtual terminals and edit the script accordingly.");
         autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
-                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY, OTHER.",
+                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.",
                 "When changed, requires an AutoPlug restart to take effect.");
         autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
         autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light")
