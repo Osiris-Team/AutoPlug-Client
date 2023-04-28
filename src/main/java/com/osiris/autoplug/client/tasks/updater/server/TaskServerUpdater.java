@@ -22,6 +22,7 @@ import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
@@ -80,7 +81,8 @@ public class TaskServerUpdater extends BThread {
         finish();
     }
 
-    private void doAlternativeUpdatingLogic() throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+    private void doAlternativeUpdatingLogic()
+            throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
         SearchResult sr = null;
         if (updaterConfig.server_github_repo_name.asString() != null) {
             sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
@@ -92,7 +94,7 @@ public class TaskServerUpdater extends BThread {
                 return;
             }
             if (sr.resultCode == 1) {
-                doInstallDependingOnProfile(updaterConfig.server_github_version.asString(), sr.latestVersion, sr.downloadUrl, sr.fileName);
+                doInstallDependingOnProfile(updaterConfig.server_github_version, sr.latestVersion, sr.downloadUrl, sr.fileName);
             }
         } else {
             sr = new JenkinsSearch().search(updaterConfig.server_jenkins_project_url.asString(),
@@ -105,16 +107,16 @@ public class TaskServerUpdater extends BThread {
                 return;
             }
             if (sr.resultCode == 1) {
-                doInstallDependingOnProfile(updaterConfig.server_jenkins_build_id.asString(), sr.latestVersion, sr.downloadUrl, sr.fileName);
+                doInstallDependingOnProfile(updaterConfig.server_jenkins_build_id, sr.latestVersion, sr.downloadUrl, sr.fileName);
             }
         }
     }
 
-    private void doInstallDependingOnProfile(String version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+    private void doInstallDependingOnProfile(YamlSection version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
         if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + version + " -> " + latestVersion + ")!");
+            setStatus("Update found (" + version.asString() + " -> " + latestVersion + ")!");
         } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
+            setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
@@ -137,7 +139,7 @@ public class TaskServerUpdater extends BThread {
                 }
             }
         } else {
-            setStatus("Update found (" + version + " -> " + latestVersion + "), started download!");
+            setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
 
             // Download the file
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
@@ -156,8 +158,8 @@ public class TaskServerUpdater extends BThread {
                         if (final_dest.exists()) final_dest.delete();
                         final_dest.createNewFile();
                         FileUtils.copyFile(cache_dest, final_dest);
-                        setStatus("Server update was installed successfully (" + version + " -> " + latestVersion + ")!");
-                        updaterConfig.server_jenkins_build_id.setValues("" + latestVersion);
+                        setStatus("Server update was installed successfully (" + version.asString() + " -> " + latestVersion + ")!");
+                        version.setValues(latestVersion);
                         updaterConfig.save();
                         setSuccess(true);
                     } else {
