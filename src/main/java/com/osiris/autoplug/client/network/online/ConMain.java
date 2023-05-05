@@ -47,6 +47,7 @@ public class ConMain extends DefaultConnection {
             AL.info("Authenticating server...");
             super.open();
             AL.info("Authentication success!");
+            socket.setSoTimeout(60000); // 60 seconds for when AP-Web is overloaded
             CON_PUBLIC_DETAILS.open();
             isDone = true;
         } catch (Exception e) {
@@ -55,73 +56,83 @@ public class ConMain extends DefaultConnection {
             return false;
         }
         super.setAndStartAsync(() -> {
-            while (true) {
-                try {
-                    if (!super.isAlive()) {
-                        AL.info("Authenticating server...");
-                        super.open();
-                        AL.info("Authentication success!");
-                        CON_PUBLIC_DETAILS.open();
-                        msUntilRetry = 30000;
-                    }
-
-                    isDone = true;
-                    while (true) {
-                        isUserActive.set(super.in.readBoolean()); // Ping
-                        super.out.writeBoolean(true); // Pong true/false doesn't matter
-
-                        if (isUserActive.get()) {
-                            if (!isUserActiveOld) {
-                                AL.debug(this.getClass(), "Owner/Staff is online/active.");
-                                // User is online, so open secondary connections if they weren't already
-                                if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
-                                CON_CONSOLE_RECEIVE.open();
-                                if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
-                                CON_CONSOLE_SEND.open();
-                                if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
-                                CON_SYSTEM_CONSOLE_RECEIVE.open();
-                                if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
-                                CON_SYSTEM_CONSOLE_SEND.open();
-                                if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
-                                CON_FILE_MANAGER.open();
-                                if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
-                                CON_PRIVATE_DETAILS.open();
-                                //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
-                            }
-                        } else {
-                            if (isUserActiveOld) {
-                                AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
-                                // Close secondary connections when user is offline/logged out
-                                if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
-                                if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
-                                if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
-                                if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
-                                if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
-                                if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
-                                //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
-                            }
-                        }
-                        isUserActiveOld = isUserActive.get();
-                        Thread.sleep(3000);
-                    }
-                } catch (Exception e) {
-                    isDone = true;
-                    if (isClosing.get()) {
-                        AL.info("Closed main connection to AutoPlug-Web.");
-                        break;
-                    }
-
-                    try {
-                        AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...", e);
-                        close();
-                        Thread.sleep(msUntilRetry);
-                        msUntilRetry += 30000;
-                    } catch (Exception exception) {
-                        AL.warn(exception);
-                        AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.");
-                        break;
-                    }
+            try {
+                if (!super.isAlive()) {
+                    AL.info("Authenticating server...");
+                    super.open();
+                    AL.info("Authentication success!");
+                    CON_PUBLIC_DETAILS.open();
+                    msUntilRetry = 30000;
                 }
+
+                isDone = true;
+                while (true) {
+                    isUserActive.set(super.in.readBoolean()); // Ping
+                    super.out.writeBoolean(true); // Pong true/false doesn't matter
+
+                    if (isUserActive.get()) {
+                        if (!isUserActiveOld) {
+                            AL.debug(this.getClass(), "Owner/Staff is online/active.");
+                            // User is online, so open secondary connections if they weren't already
+                            if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
+                            CON_CONSOLE_RECEIVE.open();
+                            if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
+                            CON_CONSOLE_SEND.open();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            CON_SYSTEM_CONSOLE_RECEIVE.open();
+                            if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
+                            CON_SYSTEM_CONSOLE_SEND.open();
+                            if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
+                            CON_FILE_MANAGER.open();
+                            if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                            CON_PRIVATE_DETAILS.open();
+                            //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
+                        }
+                    } else {
+                        if (isUserActiveOld) {
+                            AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
+                            // Close secondary connections when user is offline/logged out
+                            if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
+                            if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
+                            if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
+                            if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                            //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
+                        }
+                    }
+                    isUserActiveOld = isUserActive.get();
+                    Thread.sleep(3000);
+                }
+            } catch (Exception e) {
+                isDone = true;
+                if (isClosing.get()) {
+                    AL.info("Closed main connection to AutoPlug-Web.");
+                    return;
+                }
+
+                // Since we didn't meant to close, create a new thread that tries to reconnect
+                new Thread(() -> {
+                    try {
+                        while (true) {
+                            AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...", e);
+                            Thread.sleep(msUntilRetry);
+                            try {
+                                if (open())
+                                    break;
+                                else
+                                    AL.warn("Failed to reconnect!");
+                            } catch (Exception ex) {
+                                AL.warn("Failed to reconnect!", ex);
+                            }
+                            msUntilRetry += 30000;
+                        }
+                    } catch (Exception exception) {
+                        AL.warn("Connection problems, unexpected error! Reconnect manually by entering '.con reload'.", exception);
+                    }
+                }).start();
+
+                close();
             }
         });
         return true; // Success
