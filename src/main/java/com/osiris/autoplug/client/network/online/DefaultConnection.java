@@ -78,13 +78,17 @@ public class DefaultConnection implements AutoCloseable {
     public synchronized void setAndStartAsync(RunnableWithException runnable) {
         if (this.thread != null)
             this.thread.interrupt();
+        // Save instances to make sure NOT to close the wrong ones later.
+        Socket _socket = this.socket;
+        InputStream _in = this.in;
+        OutputStream _out = this.out;
         this.thread = new Thread(() -> {
             try {
                 runnable.run();
             } catch (Exception e) {
                 if (!isClosing.get()) AL.warn(e); // Exceptions caused by close() are ignored
                 try {
-                    close();
+                    _close(Thread.currentThread(), _in, _out, _socket);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -272,8 +276,12 @@ public class DefaultConnection implements AutoCloseable {
 
     @Override
     public synchronized void close() throws Exception {
-        AL.debug(this.getClass(), "close()");
         isClosing.set(true);
+        _close(thread, in, out, socket);
+    }
+
+    private void _close(Thread thread, InputStream in, OutputStream out, Socket socket) throws Exception {
+        AL.debug(this.getClass(), "_close()");
         if (thread != null) thread.interrupt();
         if (in != null) in.close();
         if (out != null) out.close();
