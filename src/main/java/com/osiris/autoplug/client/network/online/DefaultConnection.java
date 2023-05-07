@@ -94,6 +94,7 @@ public class DefaultConnection implements AutoCloseable {
     }
 
     public synchronized boolean open() throws Exception {
+        AL.debug(this.getClass(), "open()");
         _open();
         if (errorCode == 2) { // Retry in 10 seconds because it might be
             // that we just reconnected (there is a timeout of 5 seconds for the old connection until it gets closed)
@@ -271,6 +272,7 @@ public class DefaultConnection implements AutoCloseable {
 
     @Override
     public synchronized void close() throws Exception {
+        AL.debug(this.getClass(), "close()");
         isClosing.set(true);
         if (thread != null) thread.interrupt();
         if (in != null) in.close();
