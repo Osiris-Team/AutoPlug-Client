@@ -282,10 +282,10 @@ public class DefaultConnection implements AutoCloseable {
 
     private void _close(Thread thread, InputStream in, OutputStream out, Socket socket) throws Exception {
         AL.debug(this.getClass(), "_close()");
-        if (thread != null) thread.interrupt();
         if (in != null) in.close();
         if (out != null) out.close();
         if (socket != null) socket.close();
+        if (thread != null) thread.interrupt();
     }
 
     @Override
