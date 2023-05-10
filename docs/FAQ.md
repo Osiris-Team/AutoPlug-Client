@@ -5,10 +5,20 @@
 ---
 
 ### **What is AutoPlug Client?**  
-AutoPlug Client is a standalone, executable java program that runs in place of your Minecraft server.
+AutoPlug Client is a standalone, executable Java program that has multiple execution modes: Server-Wrapper, CLI-Tool, Background-Service.
+The main purpose is to automate updating of any sofware related to servers and simplify their maintenance in general.
 
-### **What does AutoPlug Client do?**  
-The main purpose of AutoPlug Client is to automatically identify and update any plugins or mods you use with your Minecraft server.
+### **How does AutoPlug work? Server-Wrapper? CLI-Tool? Background-Service?**  
+AutoPlug performs all its tasks when your server is offline, thus its recommended
+to run AutoPlug as a Server-Wrapper so that it can start/stop/restart your server.
+In this case AutoPlug will start your server automatically when it launches and show its console output.
+
+To achieve full automation the daily server restarter is used (enabled by default),
+which restarts your server at specific times in the day. AutoPlug runs its tasks when your server restarts.
+
+If you don't want AutoPlug to have access to your servers' console, you can install AutoPlug as CLI-Tool or Background-Service:
+- CLI-Tool (command-line interface tool): Manually run the AutoPlug commands/tasks once in a while (remember that your server must be offline).
+- Background-Service: Runs the tasks periodically but does not know if the server is offline, thus you would have to take care of that.
 
 ### **Is AutoPlug Client a plugin or mod?**  
 No! AutoPlug Client is neither a plugin nor mod and should not be treated as such.  
