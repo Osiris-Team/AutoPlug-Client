@@ -6,7 +6,7 @@
 
 ### **What is AutoPlug Client?**  
 AutoPlug Client is a standalone, executable Java program that has multiple execution modes: Server-Wrapper, CLI-Tool, Background-Service.
-The main purpose is to automate updating of any sofware related to servers and simplify their maintenance in general.
+The main purpose is to automate updating of any sofware related to servers and simplify server maintenance in general.
 
 ### **How does AutoPlug work? Server-Wrapper? CLI-Tool? Background-Service?**  
 AutoPlug performs all its tasks when your server is offline, thus its recommended
