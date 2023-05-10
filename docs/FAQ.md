@@ -20,6 +20,8 @@ If you don't want AutoPlug to have access to your servers' console, you can inst
 - CLI-Tool (command-line interface tool): Manually run the AutoPlug commands/tasks once in a while (remember that your server must be offline).
 - Background-Service: Runs the tasks periodically but does not know if the server is offline, thus you would have to take care of that.
 
+Note that these "execution modes" are nothing more that simple configuration presets.
+
 ### **Is AutoPlug Client a plugin or mod?**  
 No! AutoPlug Client is neither a plugin nor mod and should not be treated as such.  
 It runs entirely independently of your Minecraft server.
