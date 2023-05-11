@@ -85,8 +85,8 @@ public class DefaultConnection implements AutoCloseable {
         this.thread = new Thread(() -> {
             try {
                 runnable.run();
-            } catch (Exception e) {
-                if (!isClosing.get()) AL.warn(e); // Exceptions caused by close() are ignored
+            } catch (Exception e) { // Exceptions caused by close() are ignored
+                if (!isClosing.get()) AL.warn(e);
                 try {
                     _close(Thread.currentThread(), _in, _out, _socket);
                 } catch (Exception ex) {
@@ -110,6 +110,7 @@ public class DefaultConnection implements AutoCloseable {
     }
 
     private synchronized int _open() throws Exception {
+        socket.setSoTimeout(60000);
         isClosing.set(false);
         errorCode = 0;
         close();
@@ -143,12 +144,8 @@ public class DefaultConnection implements AutoCloseable {
         }
 
         AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
-        socket.setSoTimeout(30000);
         out.writeUTF(serverKey); // Send server key
         out.writeByte(conType); // Send connection type
-        socket.setSoTimeout(5000);
-
-
         this.errorCode = in.readByte(); // Get response
         return errorCode;
     }
@@ -285,7 +282,7 @@ public class DefaultConnection implements AutoCloseable {
         if (in != null) in.close();
         if (out != null) out.close();
         if (socket != null) socket.close();
-        if (thread != null) thread.interrupt();
+        if (thread != null) thread.interrupt(); // Close thread last, since it might be the current thread
     }
 
     @Override
