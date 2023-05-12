@@ -110,7 +110,6 @@ public class DefaultConnection implements AutoCloseable {
     }
 
     private synchronized int _open() throws Exception {
-        socket.setSoTimeout(60000);
         isClosing.set(false);
         errorCode = 0;
         close();
@@ -144,6 +143,7 @@ public class DefaultConnection implements AutoCloseable {
         }
 
         AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
+        socket.setSoTimeout(60000);
         out.writeUTF(serverKey); // Send server key
         out.writeByte(conType); // Send connection type
         this.errorCode = in.readByte(); // Get response
