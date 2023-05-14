@@ -18,9 +18,14 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+
 import static com.osiris.betterthread.Constants.TERMINAL;
 
 public class ThreadUserInput extends Thread {
+
+    public static CopyOnWriteArrayList<Consumer<String>> onReadLine = new CopyOnWriteArrayList<>();
 
     public ThreadUserInput() {
         setName("AutoPlug-UserInputListenerThread");
@@ -39,6 +44,9 @@ public class ThreadUserInput extends Thread {
                 String user_input = null;
                 try {
                     user_input = lineReader.readLine();
+                    for (Consumer<String> code : onReadLine) {
+                        code.accept(user_input);
+                    }
 
                     // Send to online console
                     if (Main.CON.CON_CONSOLE_SEND.isAlive())

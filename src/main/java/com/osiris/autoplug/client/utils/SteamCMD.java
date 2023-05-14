@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.io.AsyncReader;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
@@ -23,8 +24,12 @@ import org.rauschig.jarchivelib.CompressionType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static com.osiris.jprocesses2.util.OS.isMac;
@@ -154,11 +159,28 @@ public class SteamCMD {
                 AL.info("Paused task printing, login into Steam timed out (10 seconds).");
                 AL.info("Steam Guard key seems to be needed (check your email)!");
                 AL.info("Insert it below and press enter:");
-                String steamGuardKey = new Scanner(System.in).nextLine();
-                AL.info("Steam Guard key will be provided to SteamCMD.");
-                terminal.sendCommands(steamGuardKey);
+                AtomicReference<String> steamGuardKey = new AtomicReference<>();
+                Consumer<String> code = steamGuardKey::set;
+                ThreadUserInput.onReadLine.add(code);
+                while (steamGuardKey.get() == null) Thread.sleep(100);
+                String key = steamGuardKey.get();
+                AL.info("Steam Guard key " + key + " will be provided to SteamCMD...");
+                terminal.sendCommands(key);
                 Thread.sleep(10000);
-                if (isLoginSuccess.get()) break;
+                ThreadUserInput.onReadLine.remove(code);
+                if (isLoginSuccess.get()) {
+                    AL.info("Success! Continuing task printing!");
+                    try {
+                        new Thread(() -> {
+                            MyBThreadManager.lastCreatedPrinter.get().run(); // Since we cannot start a stopped thread again
+                        }).start();
+                    } catch (Exception e) {
+                        AL.warn(e);
+                    }
+                    break;
+                } else {
+                    AL.info("Failed! Please try again.");
+                }
             }
             terminal.sendCommands("force_install_dir \"" + gameInstallDir.getAbsolutePath() + "\"",
                     "app_update " + appId,
