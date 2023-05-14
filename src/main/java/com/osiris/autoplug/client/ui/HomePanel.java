@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.ui;
 
-import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.console.Commands;
 import com.osiris.autoplug.client.ui.utils.HintTextField;
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.betterlayout.BLayout;
@@ -57,7 +57,7 @@ public class HomePanel extends BLayout {
                     });
                     txtConsole.scrollToEndV();
                     AL.info("Received System-Tray command: '" + txtSendCommand.getText() + "'");
-                    AutoPlugConsole.executeCommand(txtSendCommand.getText());
+                    Commands.execute(txtSendCommand.getText());
                     txtSendCommand.setText("");
                 }
             }

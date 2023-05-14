@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,13 +8,12 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.YamlReaderException;
-import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.dyml.exceptions.*;
 import com.osiris.dyml.utils.UtilsYamlSection;
 import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +32,9 @@ import java.util.Objects;
  * Frequently used code of config stuff.
  */
 public class UtilsConfig {
+
+    public UtilsConfig() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+    }
 
     /**
      * Compares values of two sections and returns true if they are the same. <br>
@@ -70,13 +72,18 @@ public class UtilsConfig {
         yaml.unlockFile();
     }
 
+    private final List<String> ymlServerKeys = new GeneralConfig().server_key.getKeys();
+    private final List<String> ymlSteamLogin = new UpdaterConfig().server_steamcmd_login.getKeys();
+
     public void printAllModulesToDebugExceptServerKey(@NotNull List<YamlSection> modules, String serverKey) {
         try {
             UtilsYamlSection utils = new UtilsYamlSection();
             for (YamlSection module :
                     modules) {
-                if (module.asString() != null && module.asString().equals(serverKey)) {
-                    AL.debug(this.getClass(), module.getKeys().toString() + " VAL: SERVER KEY NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
+                if (module.asString() != null) {
+                    if (module.getKeys().equals(ymlServerKeys) || module.getKeys().equals(ymlSteamLogin)) {
+                        AL.debug(this.getClass(), module.getKeys().toString() + " VAL: NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
+                    }
                 } else {
                     AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + utils.valuesListToStringList(module.getValues()).toString() + " DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
                 }

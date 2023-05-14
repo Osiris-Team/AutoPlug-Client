@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.network.local;
 
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.console.Commands;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 
@@ -81,7 +81,7 @@ public class ConPluginCommandReceive {
                                     String line;
                                     while (!socket.isClosed() && (line = reader.readLine()) != null) {
                                         AL.info("Received Plugin-Command: " + line);
-                                        if (!AutoPlugConsole.executeCommand(line))
+                                        if (!Commands.execute(line))
                                             Server.submitCommand(line);
                                     }
                                 }

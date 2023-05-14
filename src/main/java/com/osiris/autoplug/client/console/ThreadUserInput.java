@@ -49,11 +49,11 @@ public class ThreadUserInput extends Thread {
                         }
 
                     //Check if user input is autoplug command or not
-                    if (AutoPlugConsole.executeCommand(user_input)) {
+                    if (Commands.execute(user_input)) {
 
                         //Do nothing else if it is a client command, just save it to log file
                         try {
-                            LogFileWriter.writeToLog(user_input);
+                            LogFileWriter.writeToLog("\n\n" + user_input + "\n\n");
                         } catch (Exception e) {
                             AL.warn(e, "Failed to write command to log file.");
                         }

@@ -10,7 +10,7 @@ package com.osiris.autoplug.client;
 
 
 import com.osiris.autoplug.client.configs.*;
-import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.console.Commands;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
@@ -328,7 +328,7 @@ public class Main {
             if (argsString.contains(".")) {
                 String[] commands = argsString.split("\\."); // Split by dots
                 for (String c : commands) {
-                    AutoPlugConsole.executeCommand("." + c);
+                    Commands.execute("." + c);
                 }
             }
 

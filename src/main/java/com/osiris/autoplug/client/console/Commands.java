@@ -35,14 +35,14 @@ import java.util.Objects;
  * Listens for input started with .
  * List the server with .help
  */
-public final class AutoPlugConsole {
+public final class Commands {
 
     /**
      * Returns true if the provided String is a AutoPlug command.
      *
      * @param command An AutoPlug command like .help for example.
      */
-    public static boolean executeCommand(@NotNull String command) {
+    public static boolean execute(@NotNull String command) {
 
         String first = "";
         try {

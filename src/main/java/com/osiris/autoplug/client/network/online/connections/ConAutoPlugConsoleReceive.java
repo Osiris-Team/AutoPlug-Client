@@ -11,7 +11,7 @@ package com.osiris.autoplug.client.network.online.connections;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
-import com.osiris.autoplug.client.console.AutoPlugConsole;
+import com.osiris.autoplug.client.console.Commands;
 import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.jlib.logger.AL;
 
@@ -44,7 +44,7 @@ public class ConAutoPlugConsoleReceive extends DefaultConnection {
                         String line;
                         while (!socket.isClosed() && (line = reader.readLine()) != null) {
                             AL.info("Received Web-Command for Console: " + line);
-                            if (!AutoPlugConsole.executeCommand(line))
+                            if (!Commands.execute(line))
                                 Server.submitCommand(line);
                         }
                     }
