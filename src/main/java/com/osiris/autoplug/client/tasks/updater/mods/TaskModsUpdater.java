@@ -329,7 +329,7 @@ public class TaskModsUpdater extends BThread {
                     matchingResult.setResultCode((byte) 6);
                     YamlSection jenkinsBuildId = modsConfig.get(
                             modsConfigName, download.getPlName(), "alternatives", "jenkins", "build-id");
-                    jenkinsBuildId.setValues("" + download.searchResult.jenkinsId);
+                    jenkinsBuildId.setValues(String.valueOf(download.searchResult.jenkinsId));
                     YamlSection version = modsConfig.get(
                             modsConfigName, download.getPlName(), "version");
                     version.setValues(download.searchResult.getLatestVersion());

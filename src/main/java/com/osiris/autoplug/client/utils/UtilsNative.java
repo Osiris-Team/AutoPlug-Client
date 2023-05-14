@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -47,22 +47,19 @@ public class UtilsNative {
             startScript.getParentFile().mkdirs();
             startScript.createNewFile();
         }
-        String scriptContent = "" +
-                (OSUtils.IS_WINDOWS ? "@echo off\n" : "") +
+        String scriptContent = (OSUtils.IS_WINDOWS ? "@echo off\n" : "") +
                 "echo Starting AutoPlug-Client..." +
                 "echo No need to worry about this window, its just AutoPlug starting automatically in the background.\n" +
                 "echo It will disappear in 10 seconds, then you should be able to access the terminal over the system-tray.\n" +
                 "echo To abort enter CTRL+C or close this window.\n";
         if (OSUtils.IS_WINDOWS) {
-            scriptContent += "" +
-                    "cd /d \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
+            scriptContent += "cd /d \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
                     "cd\n" +
                     "timeout /t 10 /nobreak\n" +
                     "start \"\" javaw -jar \"" + jar.getAbsolutePath() + "\"\n" // "javaw" to start without terminal, "start" to start async and be able to exit this terminal
             ;
         } else {
-            scriptContent += "" +
-                    "sleep 10\n" +
+            scriptContent += "sleep 10\n" +
                     "cdWorkingDir () {\n" + // cd executed in a function to avoid sub-shell creation and have correct cd command execution
                     "  cd \"" + jar.getParentFile().getAbsolutePath() + "\"\n" +
                     "}\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -56,7 +56,7 @@ public class BukkitSearchById {
         if (new UtilsVersion().compare(plugin.getVersion(), latest)) code = 1;
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + downloadType + " ");
-        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, "" + bukkitId, false);
+        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, String.valueOf(bukkitId), false);
         result.setException(exception);
         return result;
     }

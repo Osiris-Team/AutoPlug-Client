@@ -141,7 +141,8 @@ public class UpdaterConfig extends Yaml {
                         "- Any Steam game (enter the app-id below, go to https://steamdb.info/ and search for: \"<game-name> server\" to find the app-id)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_steamcmd_login = put(name, "server-updater", "steam-cmd-login")
-                .setComments("Some games require you to be logged in. Add your username and password, separated by a space below (<username> <password>).");
+                .setComments("Some games require you to be logged in. Add your username and password, separated by a space below (<username> <password>).",
+                        "Note that SteamGuard must be disabled.");
         server_version = put(name, "server-updater", "version").setComments(
                 "Select the servers' version. A list of supported version can be found in the links below:\n" +
                         "- Minecraft versions: https://papermc.io/api/v2/projects/paper | https://papermc.io/api/v2/projects/waterfall | https://papermc.io/api/v2/projects/travertine | https://papermc.io/api/v2/projects/velocity | https://purpur.pl3x.net/downloads | https://fabricmc.net/use/installer\n" +

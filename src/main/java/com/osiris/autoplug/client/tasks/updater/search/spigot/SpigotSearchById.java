@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -54,7 +54,7 @@ public class SpigotSearchById {
         }
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + type + " ");
-        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, type, "" + spigotId, null, isPremium);
+        SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, type, String.valueOf(spigotId), null, isPremium);
         result.setException(exception);
         return result;
     }

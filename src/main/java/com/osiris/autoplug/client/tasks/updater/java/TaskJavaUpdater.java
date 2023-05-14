@@ -280,7 +280,7 @@ public class TaskJavaUpdater extends BThread {
 
                             archiver.extract(download.getNewCacheDest(), final_dir_dest);
                             setStatus("Java update was installed successfully (" + currentBuildId + " -> " + latestBuildId + ")!");
-                            updaterConfig.java_updater_build_id.setValues("" + latestBuildId);
+                            updaterConfig.java_updater_build_id.setValues(String.valueOf(latestBuildId));
                             updaterConfig.save();
                             finish(true);
                         } else {

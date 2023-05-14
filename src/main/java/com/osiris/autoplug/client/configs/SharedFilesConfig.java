@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -42,13 +42,12 @@ public class SharedFilesConfig extends Yaml {
         enable = put(name, "enable").setDefValues("false").setComments("Enable/Disable sharing folders from this server to other servers.\n" +
                 "NOTE: CHANGES TO THIS FILE REQUIRE A AUTOPLUG RESTART TO TAKE AFFECT!\n");
 
+        //TODO "More control is in TODO.\n" +
         copy_from = put(name, "copy-from").setDefValues("./plugins", "./server.jar")
                 .setComments("List of folders to watch. Once a file event happens, that event/change gets shared/sent to the servers in the 'send-to' list.\n" +
                         "All folders must be sub-folders of the server root and thus start with './' (the servers root directory).\n" +
                         "If you want to watch all files from your server simply add './' below.\n" +
-                        "Note that sub-folders of the added folders below are also watched. \n" +
-                        //TODO "More control is in TODO.\n" +
-                        ""
+                        "Note that sub-folders of the added folders below are also watched. \n"
                 );
 
         send_to = put(name, "send-to").addDefValues("C:\\User\\Peter\\servers\\my-second-server")

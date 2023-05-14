@@ -187,9 +187,9 @@ public class TaskPluginsUpdater extends BThread {
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
-                    spigotId.setValues("" + installedPlugin.getSpigotId());
+                    spigotId.setValues(String.valueOf(installedPlugin.getSpigotId()));
                 if (installedPlugin.getBukkitId() != 0 && bukkitId.asString() != null && bukkitId.asInt() == 0)
-                    bukkitId.setValues("" + installedPlugin.getBukkitId());
+                    bukkitId.setValues(String.valueOf(installedPlugin.getBukkitId()));
 
                 // Fetch missing details from the AutoPlug-Web database
                 if (isPremiumServer) {
@@ -448,7 +448,7 @@ public class TaskPluginsUpdater extends BThread {
                     matchingResult.setResultCode((byte) 6);
                     YamlSection jenkinsBuildId = pluginsConfig.get(
                             pluginsConfigName, finishedDownloadTask.getPlName(), "alternatives", "jenkins", "build-id");
-                    jenkinsBuildId.setValues("" + finishedDownloadTask.searchResult.jenkinsId);
+                    jenkinsBuildId.setValues(String.valueOf(finishedDownloadTask.searchResult.jenkinsId));
                     YamlSection version = pluginsConfig.get(
                             pluginsConfigName, finishedDownloadTask.getPlName(), "version");
                     version.setValues(finishedDownloadTask.searchResult.getLatestVersion());

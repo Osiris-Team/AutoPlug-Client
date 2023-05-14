@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -52,22 +52,22 @@ public class UFDataOut {
     }
 
     public void writeByte(byte val) throws IOException {
-        writeLine("" + val);
+        writeLine(String.valueOf(val));
     }
 
     public void writeShort(short val) throws IOException {
-        writeLine("" + val);
+        writeLine(String.valueOf(val));
     }
 
     public void writeInt(int val) throws IOException {
-        writeLine("" + val);
+        writeLine(String.valueOf(val));
     }
 
     public void writeLong(long val) throws IOException {
-        writeLine("" + val);
+        writeLine(String.valueOf(val));
     }
 
     public void writeFloat(float val) throws IOException {
-        writeLine("" + val);
+        writeLine(String.valueOf(val));
     }
 }

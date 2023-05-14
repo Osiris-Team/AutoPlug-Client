@@ -311,7 +311,7 @@ public final class Server {
                     ansi.a(line).reset();
                 }
                 System.out.println(ansi);
-                ConAutoPlugConsoleSend.send("" + ansi);
+                ConAutoPlugConsoleSend.send(String.valueOf(ansi));
             } catch (Exception e) {
                 AL.warn(e);
             }

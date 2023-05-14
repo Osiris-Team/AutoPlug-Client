@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -30,8 +30,8 @@ public class UtilsVersion {
             Objects.requireNonNull(latestVersion);
 
             // First duplicate the strings so the original ones don't get altered
-            String currentVersionDUPLICATE = "" + currentVersion;
-            String latestVersionDUPLICATE = "" + latestVersion;
+            String currentVersionDUPLICATE = currentVersion;
+            String latestVersionDUPLICATE = latestVersion;
 
             // Remove left and right spaces
             currentVersionDUPLICATE = currentVersionDUPLICATE.trim();
