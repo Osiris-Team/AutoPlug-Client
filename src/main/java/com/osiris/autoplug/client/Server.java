@@ -16,8 +16,11 @@ import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleS
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.autoplug.client.utils.UtilsString;
 import com.osiris.autoplug.client.utils.io.AsyncInputStream;
+import com.osiris.dyml.SmartString;
+import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 import net.lingala.zip4j.ZipFile;
@@ -160,7 +163,15 @@ public final class Server {
         AL.info("Stopping server...");
 
         if (isRunning()) {
-            submitCommand(new GeneralConfig().server_stop_command.asString());
+            YamlSection stopCommand = new GeneralConfig().server_stop_command;
+            List<SmartString> values = stopCommand.getValues();
+            if (values.isEmpty()) {
+                AL.warn("No stop command provided in " + new UtilsLists().toString(stopCommand.getKeys()));
+                return;
+            }
+            for (SmartString v : values) {
+                submitCommand(v.asString());
+            }
             while (Server.isRunning())
                 Thread.sleep(1000);
             ASYNC_SERVER_IN = null;

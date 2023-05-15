@@ -91,8 +91,9 @@ public class GeneralConfig extends Yaml {
         server_start_command = put(name, "server", "start-command").setComments("The full command used to start your server.",
                 "Like 'java -jar server.jar' for example, or './server.exe'.",
                 "./ represents the working directory (where the AutoPlug was started from).");
-        server_stop_command = put(name, "server", "stop-command").setDefValues("stop").setComments(
-                "AutoPlug uses this command to stop your server.");
+        server_stop_command = put(name, "server", "stop-command").setDefValues("stop", "shutdown", "end", "close", "finish", "terminate", "abort").setComments(
+                "AutoPlug uses this command to stop your server.",
+                "By default there are multiple provided to ensure the right one is also there for your server type.");
 
         // Convert old config stuff to new one:
         YamlSection oldJavaPath = get(name, "server", "java-path");
