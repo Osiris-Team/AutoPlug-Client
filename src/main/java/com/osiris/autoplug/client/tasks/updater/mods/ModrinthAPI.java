@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.jlib.json.Json;
@@ -36,10 +35,10 @@ public class ModrinthAPI {
      * Requires a modrithId (chars or number), or curseforgeId (no number, but chars).
      * If the id contains chars its usually the mods slugs.
      */
-    public SearchResult searchUpdate(MinecraftMod mod, String mcVersion) {
+    public SearchResult searchUpdate(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
         if (mod.modrinthId == null && !isInt(mod.curseforgeId)) mod.modrinthId = mod.curseforgeId; // Slug
         String url = baseUrl + "/project/" + mod.modrinthId + "/version?loaders=[\"" +
-                (Server.isFabric ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
+                (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
         url = new UtilsURL().clean(url);
         Exception exception = null;
         String latest = null;
@@ -59,7 +58,7 @@ public class ModrinthAPI {
                 if (!isInt(mod.modrinthId)) { // Try another url, with slug replaced _ with -
                     url = baseUrl + "/project/" + mod.modrinthId.replace("_", "-")
                             + "/version?loaders=[\"" +
-                            (Server.isFabric ? "fabric" : "forge") + "\"]" + (mod.forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
+                            (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge") + "\"]" + (mod.forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
                     AL.debug(this.getClass(), url);
                     release = Json.getAsJsonArray(url)
                             .get(0).getAsJsonObject();

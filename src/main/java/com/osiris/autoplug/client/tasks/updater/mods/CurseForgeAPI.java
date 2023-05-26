@@ -12,7 +12,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.jlib.logger.AL;
@@ -37,7 +36,7 @@ public class CurseForgeAPI {
     /**
      * Requires curseforgeId not null.
      */
-    public SearchResult searchUpdate(MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
+    public SearchResult searchUpdate(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
         boolean isIdNumber = isInt(mod.curseforgeId);
         String url;
         Exception exception = null;
@@ -45,7 +44,7 @@ public class CurseForgeAPI {
         String type = ".jar";
         String downloadUrl = null;
         byte code = 0;
-        String modInfo = mod.getName() + "/" + (Server.isFabric ? "fabric" : "forge");
+        String modInfo = mod.getName() + "/" + (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge");
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
                 try {
@@ -97,7 +96,7 @@ public class CurseForgeAPI {
                 }
 
                 // If the release has no fabric or forge tag, then we expect only forge support.
-                if (Server.isFabric) { // FABRIC
+                if (modLoader.isFabric || modLoader.isQuilt) { // FABRIC or QUILT
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain fabric
                         if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
                             isModLoaderCompatible = true;

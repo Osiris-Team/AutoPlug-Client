@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.tasks.updater.plugins;
 
 
 import com.osiris.autoplug.client.tasks.updater.mods.CurseForgeAPI;
+import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.mods.ModrinthAPI;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
@@ -45,14 +46,14 @@ public class ResourceFinder {
      * If the modrinth/bukkit id is not given this type of search
      * based on the mods' name and author will be executed.
      */
-    public SearchResult findByModrinthOrCurseforge(MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
+    public SearchResult findByModrinthOrCurseforge(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
         // Do spigot search by name
-        SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
+        SearchResult sr = new ModrinthAPI().searchUpdate(modLoader, mod, mcVersion);
 
         if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
             //Couldn't find author or resource via first search
             //Do alternative search:
-            sr = new CurseForgeAPI().searchUpdate(mod, mcVersion, checkNameForModLoader);
+            sr = new CurseForgeAPI().searchUpdate(modLoader, mod, mcVersion, checkNameForModLoader);
         }
 
         sr.mod = mod;
@@ -73,14 +74,14 @@ public class ResourceFinder {
         return sr;
     }
 
-    public SearchResult findModByModrinthId(MinecraftMod mod, String mcVersion) {
-        SearchResult sr = new ModrinthAPI().searchUpdate(mod, mcVersion);
+    public SearchResult findModByModrinthId(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
+        SearchResult sr = new ModrinthAPI().searchUpdate(modLoader, mod, mcVersion);
         sr.mod = mod;
         return sr;
     }
 
-    public SearchResult findModByCurseforgeId(MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
-        SearchResult sr = new CurseForgeAPI().searchUpdate(mod, mcVersion, checkNameForModLoader);
+    public SearchResult findModByCurseforgeId(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
+        SearchResult sr = new CurseForgeAPI().searchUpdate(modLoader, mod, mcVersion, checkNameForModLoader);
         sr.mod = mod;
         return sr;
     }
