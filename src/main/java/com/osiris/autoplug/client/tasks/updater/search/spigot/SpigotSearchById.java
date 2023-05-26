@@ -46,7 +46,7 @@ public class SpigotSearchById {
             // If not external download over the spiget api
             downloadUrl = "https://api.spiget.org/v2/resources/" + spigotId + "/download";
 
-            if (new UtilsVersion().compare(plugin.getVersion(), latest))
+            if (new UtilsVersion().isSecondBigger(plugin.getVersion(), latest))
                 code = 1;
         } catch (Exception e) {
             exception = e;

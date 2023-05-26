@@ -33,6 +33,9 @@ import java.util.Objects;
  */
 public class UtilsConfig {
 
+    private final List<String> ymlServerKeys = new GeneralConfig().server_key.getKeys();
+    private final List<String> ymlSteamLogin = new UpdaterConfig().server_steamcmd_login.getKeys();
+
     public UtilsConfig() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
     }
 
@@ -71,9 +74,6 @@ public class UtilsConfig {
         yaml.save();
         yaml.unlockFile();
     }
-
-    private final List<String> ymlServerKeys = new GeneralConfig().server_key.getKeys();
-    private final List<String> ymlSteamLogin = new UpdaterConfig().server_steamcmd_login.getKeys();
 
     public void printAllModulesToDebugExceptServerKey(@NotNull List<YamlSection> modules, String serverKey) {
         try {

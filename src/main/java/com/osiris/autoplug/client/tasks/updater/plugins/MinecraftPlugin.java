@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -113,7 +113,8 @@ public class MinecraftPlugin {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name != null)
+            this.name = name.replaceAll(":", ""); // Before passing over remove :
     }
 
     public String getVersion() {

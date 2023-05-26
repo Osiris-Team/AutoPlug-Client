@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -59,7 +59,7 @@ public class ModrinthAPI {
                 if (!isInt(mod.modrinthId)) { // Try another url, with slug replaced _ with -
                     url = baseUrl + "/project/" + mod.modrinthId.replace("_", "-")
                             + "/version?loaders=[\"" +
-                            (Server.isFabric ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
+                            (Server.isFabric ? "fabric" : "forge") + "\"]" + (mod.forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
                     AL.debug(this.getClass(), url);
                     release = Json.getAsJsonArray(url)
                             .get(0).getAsJsonObject();

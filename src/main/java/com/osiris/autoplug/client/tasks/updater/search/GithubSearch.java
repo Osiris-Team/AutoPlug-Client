@@ -33,7 +33,7 @@ public class GithubSearch {
             latestVersion = latestRelease.get("tag_name").getAsString();
             if (latestVersion != null)
                 latestVersion = latestVersion.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new UtilsVersion().compare(version, latestVersion)) {
+            if (new UtilsVersion().isSecondBigger(version, latestVersion)) {
                 resultCode = 1;
                 // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.
                 // The following does that sorting.

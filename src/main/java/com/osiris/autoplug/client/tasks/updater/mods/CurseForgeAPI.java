@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -45,7 +45,7 @@ public class CurseForgeAPI {
         String type = ".jar";
         String downloadUrl = null;
         byte code = 0;
-        String modInfo = mod.name + "/" + (Server.isFabric ? "fabric" : "forge");
+        String modInfo = mod.getName() + "/" + (Server.isFabric ? "fabric" : "forge");
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
                 try {
@@ -57,7 +57,8 @@ public class CurseForgeAPI {
             }
             if (mod.curseforgeId == null) throw new Exception("Failed to determine curseforge-id!");
             modInfo += "/" + mod.curseforgeId;
-            url = baseUrl + "/mods/" + mod.curseforgeId + "/files?gameVersion=" + mcVersion;
+            url = baseUrl + "/mods/" + mod.curseforgeId + "/files" +
+                    (mod.forceLatest ? "" : "?gameVersion=" + mcVersion);
             url = new UtilsURL().clean(url);
             AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
             JsonArray arr;
@@ -65,7 +66,8 @@ public class CurseForgeAPI {
                 arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
             } catch (Exception e) {
                 if (!isInt(mod.curseforgeId)) { // Try another url, with slug replaced _ with -
-                    url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files?gameVersion=" + mcVersion;
+                    url = baseUrl + "/mods/" + mod.curseforgeId.replace("_", "-") + "/files" +
+                            (mod.forceLatest ? "" : "?gameVersion=" + mcVersion);
                     url = new UtilsURL().clean(url);
                     AL.debug(this.getClass(), modInfo + " fetch details from: " + url);
                     arr = new CurseForgeJson().getJsonObject(url).get("data").getAsJsonArray();
@@ -83,10 +85,14 @@ public class CurseForgeAPI {
             for (int i = arr.size() - 1; i >= 0; i--) {
                 JsonObject tempRelease = arr.get(i).getAsJsonObject();
                 boolean isVersionCompatible = false, isModLoaderCompatible = false;
-                for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) {
-                    if (el.getAsString().equals(mcVersion)) {
-                        isVersionCompatible = true;
-                        break;
+                if (mod.forceLatest) {
+                    isVersionCompatible = true;
+                } else {
+                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) {
+                        if (el.getAsString().equals(mcVersion)) {
+                            isVersionCompatible = true;
+                            break;
+                        }
                     }
                 }
 

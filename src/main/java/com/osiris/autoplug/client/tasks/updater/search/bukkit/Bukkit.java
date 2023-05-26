@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -75,7 +75,7 @@ public class Bukkit {
                     boolean resultVersion;
                     OUTPUT_PLUGIN_VERSION = latest.get("name").toString(); //API is just shit
                     AL.info("Comparing versions: " + OUTPUT_PLUGIN_VERSION + " with " + pl_version);
-                    resultVersion = new UtilsVersion().compare(pl_version, OUTPUT_PLUGIN_VERSION); // result = true
+                    resultVersion = new UtilsVersion().isSecondBigger(pl_version, OUTPUT_PLUGIN_VERSION); // result = true
                     if (resultVersion) {
                         AL.info("New Version found for: " + INPUT_PLUGIN_NAME + " From -> " + pl_version + " to -> " + OUTPUT_PLUGIN_VERSION);
                         String final_url = latest.get("downloadUrl").toString();

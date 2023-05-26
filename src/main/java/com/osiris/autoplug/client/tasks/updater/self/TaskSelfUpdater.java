@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -97,7 +97,7 @@ public class TaskSelfUpdater extends BThread {
         // Check if the latest version is bigger than our current one.
         File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         downloadsDir.mkdirs();
-        if (!(new UtilsVersion().compare(currentVersion, version))) {
+        if (!(new UtilsVersion().isSecondBigger(currentVersion, version))) {
             finish("AutoPlug is on the latest version!");
             return;
         }

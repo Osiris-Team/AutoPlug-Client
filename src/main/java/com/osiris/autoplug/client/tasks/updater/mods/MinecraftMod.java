@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,23 +9,33 @@
 package com.osiris.autoplug.client.tasks.updater.mods;
 
 public class MinecraftMod {
-    public String installationPath, name, modrinthId, curseforgeId, customDownloadURL;
+    public String installationPath, modrinthId, curseforgeId, customDownloadURL;
     public boolean ignoreContentType;
     public String githubRepoName, githubAssetName;
     public String jenkinsProjectUrl, jenkinsArtifactName;
     public int jenkinsBuildId;
-    private String author, version;
+    public boolean forceLatest;
+    private String name, author, version;
 
     public MinecraftMod(String installationPath, String name, String version,
                         String author, String modrinthId, String curseforgeId,
                         String customDownloadURL) {
         this.installationPath = installationPath;
-        this.name = name;
+        setName(name);
         setAuthor(author);
         setVersion(version);
         this.modrinthId = modrinthId;
         this.curseforgeId = curseforgeId;
         this.customDownloadURL = customDownloadURL;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name != null)
+            this.name = name.replaceAll(":", ""); // Before passing over remove : numbers and dots
     }
 
     public String getVersion() {

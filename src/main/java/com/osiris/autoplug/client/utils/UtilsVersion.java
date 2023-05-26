@@ -16,41 +16,41 @@ import java.util.Objects;
 public class UtilsVersion {
 
     /**
-     * Compares the current version with the latest
-     * version and returns true if the latest version is
-     * bigger than the current version.
+     * Compares the first version with the second
+     * version and returns true if the second version is
+     * bigger than the first version.
      *
-     * @param currentVersion
-     * @param latestVersion
+     * @param firstVersion
+     * @param secondVersion
      * @return
      */
-    public boolean compare(@Nullable String currentVersion, @Nullable String latestVersion) {
+    public boolean isSecondBigger(@Nullable String firstVersion, @Nullable String secondVersion) {
         try {
-            Objects.requireNonNull(currentVersion);
-            Objects.requireNonNull(latestVersion);
+            Objects.requireNonNull(firstVersion);
+            Objects.requireNonNull(secondVersion);
 
             // First duplicate the strings so the original ones don't get altered
-            String currentVersionDUPLICATE = currentVersion;
-            String latestVersionDUPLICATE = latestVersion;
+            String firstVersionDUPLICATE = firstVersion;
+            String secondVersionDUPLICATE = secondVersion;
 
             // Remove left and right spaces
-            currentVersionDUPLICATE = currentVersionDUPLICATE.trim();
-            latestVersionDUPLICATE = latestVersionDUPLICATE.trim();
+            firstVersionDUPLICATE = firstVersionDUPLICATE.trim();
+            secondVersionDUPLICATE = secondVersionDUPLICATE.trim();
 
-            if (!currentVersionDUPLICATE.contains(".") && !latestVersionDUPLICATE.contains(".")) {
-                return Integer.parseInt(latestVersionDUPLICATE) > Integer.parseInt(currentVersionDUPLICATE);
+            if (!firstVersionDUPLICATE.contains(".") && !secondVersionDUPLICATE.contains(".")) {
+                return Integer.parseInt(secondVersionDUPLICATE) > Integer.parseInt(firstVersionDUPLICATE);
             }
 
             // Remove everything except numbers and dots
-            currentVersionDUPLICATE = currentVersionDUPLICATE.replaceAll("[^0-9.]", "");
-            latestVersionDUPLICATE = latestVersionDUPLICATE.replaceAll("[^0-9.]", "");
+            firstVersionDUPLICATE = firstVersionDUPLICATE.replaceAll("[^0-9.]", "");
+            secondVersionDUPLICATE = secondVersionDUPLICATE.replaceAll("[^0-9.]", "");
 
-            if (currentVersionDUPLICATE.isEmpty()) throw new Exception("Empty currentVersion string!");
-            if (latestVersionDUPLICATE.isEmpty()) throw new Exception("Empty latestVersion string!");
+            if (firstVersionDUPLICATE.isEmpty()) throw new Exception("Empty currentVersion string!");
+            if (secondVersionDUPLICATE.isEmpty()) throw new Exception("Empty latestVersion string!");
 
             // If there are dots in the string we split it up
-            String[] arrCurrent = currentVersionDUPLICATE.split("\\.");
-            String[] arrLatest = latestVersionDUPLICATE.split("\\.");
+            String[] arrCurrent = firstVersionDUPLICATE.split("\\.");
+            String[] arrLatest = secondVersionDUPLICATE.split("\\.");
 
             // Latest version is shorter thus current version is newer.
             if (arrLatest.length == arrCurrent.length) {
