@@ -85,13 +85,16 @@ To make AutoPlug-Client reinstall Java:
 3. Restart AutoPlug Client.
 
 ### **Some of my plugins/mods aren't being detected or updated!**  
-This can happen sometimes if the plugin/mod author did not include critical metadata in the file and AutoPlug may exclude it from future checks.
+This can happen sometimes if the plugin/mod author did not include critical metadata, and
+fixed quite easily by opening either `/autoplug/plugins.yml` or `/autoplug/mods.yml`,
+finding your plugin/mod in that file, and providing either a `spigot-id` or `bukkit-id` for the plugin, or
+in case of a mod a `modrinth-id` or `curseforge-id`.
 
-For plugins, you will have to manually enter the plugin author's username in the `author` field as well as either the `spigot-id` or `bukkit-id` for the plugin in your `plugins.yml` config file.  
-For mods, you will have to manually enter the mod author's username in the `author` field as well as either the `modrinth-id` or `curseforge-id` for the mod in your `mods.yml` config file.
-
-As a last resort, you can use either the `github` or `jenkins` custom fields if the plugin/mod developer has it available.  
+As a last resort, you can use either the `github` or `jenkins` alternatives, if the plugin/mod developer has it available.  
 Please see the top of the `plugins.yml`/`mods.yml` file for instructions and examples on filling these out.
+
+If you have a premium account and your server connected, AutoPlug will additionally check
+our database for additional info and fill it in, if that info is used by over 50 other servers too.
 
 ### **My host keeps telling me that my server is crashing!**  
 This usually happens when AutoPlug Client tries to restart when updating itself.  
