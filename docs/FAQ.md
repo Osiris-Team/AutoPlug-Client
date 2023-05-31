@@ -90,7 +90,9 @@ fixed quite easily by opening either `/autoplug/plugins.yml` or `/autoplug/mods.
 finding your plugin/mod in that file, and providing either a `spigot-id` or `bukkit-id` for the plugin, or
 in case of a mod a `modrinth-id` or `curseforge-id`.
 
-As a last resort, you can use either the `github` or `jenkins` alternatives, if the plugin/mod developer has it available.  
+If the downloads on those pages do not return a .jar/.zip file, but for example forward to another page,
+you must use either use the `github` or `jenkins` alternative. If the plugin/mod developer has none
+of those available (which pretty much is never the case) its simply not possible to auto-update that plugin/mod.  
 Please see the top of the `plugins.yml`/`mods.yml` file for instructions and examples on filling these out.
 
 If you have a premium account and your server connected, AutoPlug will additionally check
