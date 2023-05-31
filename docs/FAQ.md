@@ -4,13 +4,13 @@
 
 ---
 
-### **What is it? Purpose?**  
+## **What is it? Purpose?**  
 AutoPlug Client is a standalone, executable Java program that has multiple execution modes: Server-Wrapper, CLI-Tool, Background-Service.
 Its main purpose is to automate updating of any sofware related to servers and simplify server maintenance in general.
 While all server types are compatible, the majority of its features cater specifically to Minecraft,
 which is renowned as the world's top-selling game and boasts an exceptionally extensive modding community.
 
-### **How does it work? Server-Wrapper? CLI-Tool? Background-Service?**  
+## **How does it work? Server-Wrapper? CLI-Tool? Background-Service?**  
 AutoPlug performs all its tasks when your server is offline, thus its recommended
 to run AutoPlug as a Server-Wrapper so that it can start/stop/restart your server.
 In this case AutoPlug will start your server automatically when it launches and show its console output.
@@ -24,11 +24,11 @@ If you don't want AutoPlug to have access to your servers' console, you can inst
 
 Note that these "execution modes" are nothing more that simple configuration presets.
 
-### **Is it a plugin or mod?**  
+## **Is it a plugin or mod?**  
 No! AutoPlug Client is neither a plugin nor mod and should not be treated as such.  
 It runs entirely independently of your Minecraft server.
 
-### **What are the features?**  
+## **What are the features?**  
 AutoPlug Client currently has the following features:
 - AutoPlug Client self-updating
 - Standalone Java installation and updating
@@ -40,27 +40,27 @@ AutoPlug Client currently has the following features:
 
 For a full list of features, please visit <https://autoplug.one/features>
 
-### **Can it update my paid/premium plugins?**  
+## **Can it update my paid/premium plugins?**  
 No. Due to the nature of how the paid plugins are hosted, as well as the hosts' API limitations and Terms of Service, AutoPlug Client will never contain functionality for downloading paid/premium plugins.
 
 As an alternative, SPPU [[Link](https://github.com/Osiris-Team/SPPU)] may be better suited.  
 *It is highly advised to read the entire readme before using this tool.*
 
-### **How do I install it?**  
+## **How do I install it?**  
 Go to the AutoPlug Client [installer page](https://autoplug.one/installer) and follow the steps carefully.
 
-### **Can I install it on a server host?**  
+## **Can I install it on a server host?**  
 Yes! For instructions on how to do so, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
 
-### **How do I change the settings? Live-Settings?**  
+## **How do I change the settings? Live-Settings?**  
 All settings are kept in their own respective `.yml` config files that can be found in the `autoplug` folder in your Minecraft server directory.
 Almost all settings can be changed without needing to restart AutoPlug to have effect (Live-Settings), since
 related settings are freshly loaded before executing a task.
 
-### **How do I know what some settings do?**  
+## **How do I know what some settings do?**  
 Every `.yml` config file has explanations with examples written both at the very top of the file and next to each setting.
 
-### **I still have questions!**  
+## **I still have questions!**  
 Please make either a Github Issue or a post in the Discord's #help channel.
 
 ---
@@ -69,13 +69,13 @@ Please make either a Github Issue or a post in the Discord's #help channel.
 
 ---
 
-### **Just installed and it's taking forever to start!**  
+## **Just installed and it's taking forever to start!**  
 By default backup creation is enabled, so before executing its tasks a backup will be created that
 can take up to 3 - 5 minutes depending on system resources and size of the directory.
 Besides that there may be many updates/files that have to be downloaded, so do not abort
 this process to ensure a correct installation.
 
-### **I get the message `Starting server: xxx.jar` but nothing happens!**  
+## **I get the message `Starting server: xxx.jar` but nothing happens!**  
 This usually means that something is wrong with your Java installation.  
 By default, AutoPlug Client installs its own standalone Java runtime in `./autoplug/system`.
 
@@ -84,7 +84,7 @@ To make AutoPlug-Client reinstall Java:
 2. In the Updater config (default: `./autoplug/updater.yml`), set `updater: java-updater: build-id:` to `0` and save the file.
 3. Restart AutoPlug Client.
 
-### **Some of my plugins/mods aren't being detected or updated!**  
+## **Some of my plugins/mods aren't being detected or updated!**  
 This can happen sometimes if the plugin/mod author did not include critical metadata, and
 fixed quite easily by opening either `/autoplug/plugins.yml` or `/autoplug/mods.yml`,
 finding your plugin/mod in that file, and providing either a `spigot-id` or `bukkit-id` for the plugin, or
@@ -98,17 +98,17 @@ Please see the top of the `plugins.yml`/`mods.yml` file for instructions and exa
 If you have a premium account and your server connected, AutoPlug will additionally check
 our database for additional info and fill it in, if that info is used by over 50 other servers too.
 
-### **My host keeps telling me that my server is crashing!**  
+## **My host keeps telling me that my server is crashing!**  
 This usually happens when AutoPlug Client tries to restart when updating itself.  
 Some hosts don't like it when the server manages itself and will read any close not caused by them as a crash.
 
 The recommended workaround is setting the `self-updater` profile in your `updater.yml` config file from `AUTOMATIC` to `NOTIFY` or `MANUAL`.  
 Alternatively, you can disable the `self-updater` by setting `enable` to `false`, but this highly not recommended.
 
-### **AutoPlug keeps making huge backups!**  
+## **AutoPlug keeps making huge backups!**  
 Please review your settings in the `backup.yml` config file and make sure your inclusions and exclusions are formatted correctly.
 
-### **I still need help!**  
+## **I still need help!**  
 Please make either a Github Issue or a post in the Discord's #help channel and include the `latest.log` file from `./autoplug/logs`.
 
 ---
@@ -117,7 +117,7 @@ Please make either a Github Issue or a post in the Discord's #help channel and i
 
 ---
 
-### What is the group permissions json file?
+## What is the group permissions json file?
 This file allows you to define permissions for a group and it could look something like this:
 ```json
 {
@@ -183,7 +183,7 @@ This is probably the list you will use the most.
 
 ---
 
-### Installation
+## Installation
 1. After buying a license, head over to https://autoplug.one/installer
 and scroll down to the AutoPlug-Web installer section. 
 2. Fill in the empty fields and download the generated zip file.
@@ -200,7 +200,7 @@ Keep in mind that you must change the AutoPlug-Web ip/domain of all your AutoPlu
 4. Restart the client, or enter `.con reload`.
 5. Voila. Now the client connects to your AutoPlug-Web, instead of https://autoplug.one. 
 
-### What are the differences to autoplug.one?
+## What are the differences to autoplug.one?
 - Daily license check, that requires internet connection. Without a valid license you cannot run it.
 - Self-signed certificate is always generated and used for SSL, instead of [ACME](https://github.com/shred/acme4j).
 - Payment services initialisation is optional.
