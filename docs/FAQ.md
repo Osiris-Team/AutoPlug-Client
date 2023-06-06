@@ -18,30 +18,34 @@ In this case AutoPlug will start your server automatically when it launches and 
 To achieve full automation the daily server restarter is used (enabled by default),
 which restarts your server at specific times in the day. AutoPlug runs its tasks when your server restarts.
 
-If you don't want AutoPlug to have access to your servers' console, you can install AutoPlug as CLI-Tool or Background-Service:
-- CLI-Tool (command-line interface tool): Manually run the AutoPlug commands/tasks once in a while (remember that your server must be offline).
-- Background-Service: Runs the tasks periodically but does not know if the server is offline, thus you would have to take care of that.
+If you don't want AutoPlug to have access to your servers' console, you can install AutoPlug as CLI-Tool or
+Background-Service:
+
+- CLI-Tool (command-line interface tool): Manually run the AutoPlug commands/tasks once in a while (remember that your
+  server must be offline).
+- Background-Service: Runs the tasks periodically but does not know if the server is offline, thus you would have to
+  take care of that.
 
 Note that these "execution modes" are nothing more that simple configuration presets.
 
-## **Is it a plugin or mod?**  
+## **Is it a plugin or mod?**
+
 No! AutoPlug Client is neither a plugin nor mod and should not be treated as such.  
 It runs entirely independently of your Minecraft server.
 
-## **What are the features?**  
-AutoPlug Client currently has the following features:
-- AutoPlug Client self-updating
-- Standalone Java installation and updating
-- Automatic plugin identification and updating
-- Automatic mod identification and updating
-- Automatic Minecraft server identification and updating
-- Adjustable updater profiles
-- And much more
+## **Set server RAM? Change startup flags and tune performance?**
 
-For a full list of features, please visit <https://autoplug.one/features>
+The start command inside `/autoplug/general.yml` is used
+to start your server, thus this is where you should put your flags/arguments
+to modify the min/max RAM usage of your server, as well as any other flags/arguments.
 
-## **Can it update my paid/premium plugins?**  
-No. Due to the nature of how the paid plugins are hosted, as well as the hosts' API limitations and Terms of Service, AutoPlug Client will never contain functionality for downloading paid/premium plugins.
+Many Minecraft servers use [Aikars' Flags](https://docs.papermc.io/paper/aikars-flags)
+in their start command. Check them out if you want to learn more about this topic.
+
+## **Can it update my paid/premium plugins?**
+
+No. Due to the nature of how the paid plugins are hosted, as well as the hosts' API limitations and Terms of Service,
+AutoPlug Client will never contain functionality for downloading paid/premium plugins.
 
 As an alternative, SPPU [[Link](https://github.com/Osiris-Team/SPPU)] may be better suited.  
 *It is highly advised to read the entire readme before using this tool.*
