@@ -8,8 +8,31 @@
 
 package com.osiris.autoplug.client.tasks.updater.mods;
 
+import com.osiris.jlib.logger.AL;
+
+import java.io.File;
+
 public class InstalledModLoader {
     public boolean isForge, isFabric, isQuilt;
+
+    public InstalledModLoader() {
+        try {
+            for (File f :
+                    new File(System.getProperty("user.dir")).listFiles()) {
+                if (f.getName().equals(".fabric")) {
+                    isFabric = true;
+                    break;
+                }
+                if (f.getName().equals(".quilt")) {
+                    isQuilt = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            AL.warn("Failed to determine installed Minecraft mod loader, fallback to forge.", e);
+            isForge = true;
+        }
+    }
 
     public InstalledModLoader(boolean isForge, boolean isFabric, boolean isQuilt) {
         this.isForge = isForge;

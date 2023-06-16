@@ -22,7 +22,6 @@ import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -222,22 +221,6 @@ public class TaskModsUpdater extends BThread {
         else
             executorService = Executors.newSingleThreadExecutor();
         InstalledModLoader modLoader = new InstalledModLoader(false, false, false);
-        try {
-            for (File f :
-                    new File(System.getProperty("user.dir")).listFiles()) {
-                if (f.getName().equals(".fabric")) {
-                    modLoader.isFabric = true;
-                    break;
-                }
-                if (f.getName().equals(".quilt")) {
-                    modLoader.isQuilt = true;
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            AL.warn("Failed to determine installed Minecraft mod loader, fallback to forge.", e);
-            modLoader.isForge = true;
-        }
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
         for (MinecraftMod mod :
                 includedMods) {

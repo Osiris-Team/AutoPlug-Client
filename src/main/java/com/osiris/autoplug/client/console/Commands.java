@@ -17,6 +17,9 @@ import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetail
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
+import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
+import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
+import com.osiris.autoplug.client.tasks.updater.mods.TaskModDownload;
 import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
@@ -83,6 +86,10 @@ public final class Commands {
                     AL.info(".kill both | Kills the server without saving and closes AutoPlug (.kb)");
                     AL.info(".server info | Shows details about this server (.si)");
                     AL.info("");
+                    AL.info("Direct install commands:");
+                    AL.info(".install plugin <spigot<id>/bukkit<id>> | Installs a new plugin (.ip)");
+                    AL.info(".install mod <modrinth<id>/curseforge<id>> | Installs a new mod (.im)");
+                    AL.info("");
                     AL.info("Update checking commands: (note that all the checks below");
                     AL.info("ignore the cool-down and behave according to the selected profile)");
                     AL.info(".check | Checks for AutoPlug updates (.c)");
@@ -90,7 +97,7 @@ public final class Commands {
                     AL.info(".check server | Checks for server updates (.cs)");
                     AL.info(".check plugins | Checks for plugins updates (.cp)");
                     AL.info(".check mods | Checks for mods updates (.cm)");
-                    AL.info(".install plugin <spigot<id>/bukkit<id>> | Installs a new plugin (.ip)");
+
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -194,40 +201,10 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.startsWith(".install plugin") || command.startsWith(".ip")) {
-                    String input = command.replaceFirst("\\.install plugin", "").replaceFirst("\\.ip", "").trim();
-                    SearchResult result = null;
-                    String tempName = "NEW_PLUGIN";
-                    File pluginsDir = FileManager.convertRelativeToAbsolutePath(new UpdaterConfig().plugins_updater_path.asString());
-                    if (input.contains("spigot")) {
-                        int spigotId = Integer.parseInt(input.replace("spigot", ""));
-                        result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
-                    } else if (input.contains("bukkit")) {
-                        int bukkitId = Integer.parseInt(input.replace("bukkit", ""));
-                        result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                                tempName, "0", "", 0, bukkitId, ""));
-                    } else {
-                        AL.warn("Your id \"" + input + "\" must start with either spigot or bukkit.");
-                        return false;
-                    }
-                    if (result.isError()) {
-                        AL.warn(result.exception);
-                        return false;
-                    }
-                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
-                    File finalDest = new File(pluginsDir + "/" + result.plugin.getName() + "-LATEST-[" + result.latestVersion + "].jar");
-                    TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", myManager.manager, tempName, result.latestVersion,
-                            result.downloadUrl, result.plugin.getIgnoreContentType(), "AUTOMATIC", finalDest);
-                    task.start();
-                    new UtilsTasks().printResultsWhenDone(myManager.manager);
-                    List<MinecraftPlugin> plugins = new UtilsMinecraft().getPlugins(pluginsDir);
-                    for (MinecraftPlugin pl : plugins) {
-                        if (pl.getInstallationPath().equals(finalDest.getAbsolutePath())) {
-                            // Replace tempName with actual plugin name
-                            finalDest = new UtilsFile().renameFile(task.getFinalDest(),
-                                    new File(pl.getInstallationPath()).getName().replace(tempName, pl.getName()));
-                        }
-                    }
-                    AL.info("Installed to: " + finalDest);
+                    installPlugin(command);
+                    return true;
+                } else if (command.startsWith(".install mod") || command.startsWith(".im")) {
+                    installMod(command);
                     return true;
                 } else if (command.equals(".backup") || command.equals(".b")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
@@ -246,6 +223,91 @@ public final class Commands {
             }
         } else
             return false;
+    }
+
+    public static boolean installPlugin(String command) throws Exception {
+        String input = command.replaceFirst("\\.install plugin", "").replaceFirst("\\.ip", "").trim();
+        SearchResult result = null;
+        String tempName = "NEW_PLUGIN";
+        File pluginsDir = FileManager.convertRelativeToAbsolutePath(new UpdaterConfig().plugins_updater_path.asString());
+        if (input.contains("spigot")) {
+            int spigotId = Integer.parseInt(input.replace("spigot", ""));
+            result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
+        } else if (input.contains("bukkit")) {
+            int bukkitId = Integer.parseInt(input.replace("bukkit", ""));
+            result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
+                    tempName, "0", "", 0, bukkitId, ""));
+        } else {
+            AL.warn("Your id \"" + input + "\" must start with either spigot or bukkit.");
+            return false;
+        }
+        if (result.isError()) {
+            AL.warn(result.exception);
+            return false;
+        }
+        MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
+        File finalDest = new File(pluginsDir + "/" + result.plugin.getName() + "-LATEST-[" + result.latestVersion + "].jar");
+        TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", myManager.manager, tempName, result.latestVersion,
+                result.downloadUrl, result.plugin.getIgnoreContentType(), "AUTOMATIC", finalDest);
+        task.start();
+        new UtilsTasks().printResultsWhenDone(myManager.manager);
+        List<MinecraftPlugin> plugins = new UtilsMinecraft().getPlugins(pluginsDir);
+        for (MinecraftPlugin pl : plugins) {
+            if (pl.getInstallationPath().equals(finalDest.getAbsolutePath())) {
+                // Replace tempName with actual plugin name
+                finalDest = new UtilsFile().renameFile(task.getFinalDest(),
+                        new File(pl.getInstallationPath()).getName().replace(tempName, pl.getName()));
+            }
+        }
+        AL.info("Installed to: " + finalDest);
+        return true;
+    }
+
+    public static boolean installMod(String command) throws Exception {
+        String input = command.replaceFirst("\\.install mod", "").replaceFirst("\\.im", "").trim();
+        SearchResult result = null;
+        String tempName = "NEW_MOD";
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
+        String mcVersion = updaterConfig.mods_updater_version.asString();
+        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
+        if (mcVersion == null) throw new NullPointerException("Failed to determine minecraft server version.");
+
+        if (input.contains("modrinth")) {
+            String modrinthId = input.replace("modrinth", "");
+            result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(),
+                    new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
+                            "", modrinthId, "0", ""),
+                    mcVersion);
+        } else if (input.contains("curseforge")) {
+            String curseforgeId = input.replace("curseforge", "");
+            result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(),
+                            tempName, "0", "", "0", curseforgeId, ""),
+                    mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
+        } else {
+            AL.warn("Your id \"" + input + "\" must start with either modrinth or curseforge.");
+            return false;
+        }
+        if (result.isError()) {
+            AL.warn(result.exception);
+            return false;
+        }
+        MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
+        File finalDest = new File(modsDir + "/" + result.plugin.getName() + "-LATEST-[" + result.latestVersion + "].jar");
+        TaskModDownload task = new TaskModDownload("PluginDownloader", myManager.manager, tempName, result.latestVersion,
+                result.downloadUrl, result.plugin.getIgnoreContentType(), "AUTOMATIC", finalDest);
+        task.start();
+        new UtilsTasks().printResultsWhenDone(myManager.manager);
+        List<MinecraftPlugin> plugins = new UtilsMinecraft().getPlugins(modsDir);
+        for (MinecraftPlugin pl : plugins) {
+            if (pl.getInstallationPath().equals(finalDest.getAbsolutePath())) {
+                // Replace tempName with actual plugin name
+                finalDest = new UtilsFile().renameFile(task.getFinalDest(),
+                        new File(pl.getInstallationPath()).getName().replace(tempName, pl.getName()));
+            }
+        }
+        AL.info("Installed to: " + finalDest);
+        return true;
     }
 
 
