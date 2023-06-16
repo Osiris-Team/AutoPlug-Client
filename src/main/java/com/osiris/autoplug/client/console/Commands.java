@@ -10,25 +10,35 @@ package com.osiris.autoplug.client.console;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
+import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
+import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginDownload;
 import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsFile;
+import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.jlib.logger.AL;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -80,6 +90,7 @@ public final class Commands {
                     AL.info(".check server | Checks for server updates (.cs)");
                     AL.info(".check plugins | Checks for plugins updates (.cp)");
                     AL.info(".check mods | Checks for mods updates (.cm)");
+                    AL.info(".install plugin <spigot<id>/bukkit<id>> | Installs a new plugin (.ip)");
                     AL.info("");
                     return true;
                 } else if (command.equals(".start") || command.equals(".s")) {
@@ -181,6 +192,42 @@ public final class Commands {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
+                    return true;
+                } else if (command.startsWith(".install plugin") || command.startsWith(".ip")) {
+                    String input = command.replaceFirst("\\.install plugin", "").replaceFirst("\\.ip", "").trim();
+                    SearchResult result = null;
+                    String tempName = "NEW_PLUGIN";
+                    File pluginsDir = FileManager.convertRelativeToAbsolutePath(new UpdaterConfig().plugins_updater_path.asString());
+                    if (input.contains("spigot")) {
+                        int spigotId = Integer.parseInt(input.replace("spigot", ""));
+                        result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
+                    } else if (input.contains("bukkit")) {
+                        int bukkitId = Integer.parseInt(input.replace("bukkit", ""));
+                        result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
+                                tempName, "0", "", 0, bukkitId, ""));
+                    } else {
+                        AL.warn("Your id \"" + input + "\" must start with either spigot or bukkit.");
+                        return false;
+                    }
+                    if (result.isError()) {
+                        AL.warn(result.exception);
+                        return false;
+                    }
+                    MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
+                    File finalDest = new File(pluginsDir + "/" + result.plugin.getName() + "-LATEST-[" + result.latestVersion + "].jar");
+                    TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", myManager.manager, tempName, result.latestVersion,
+                            result.downloadUrl, result.plugin.getIgnoreContentType(), "AUTOMATIC", finalDest);
+                    task.start();
+                    new UtilsTasks().printResultsWhenDone(myManager.manager);
+                    List<MinecraftPlugin> plugins = new UtilsMinecraft().getPlugins(pluginsDir);
+                    for (MinecraftPlugin pl : plugins) {
+                        if (pl.getInstallationPath().equals(finalDest.getAbsolutePath())) {
+                            // Replace tempName with actual plugin name
+                            finalDest = new UtilsFile().renameFile(task.getFinalDest(),
+                                    new File(pl.getInstallationPath()).getName().replace(tempName, pl.getName()));
+                        }
+                    }
+                    AL.info("Installed to: " + finalDest);
                     return true;
                 } else if (command.equals(".backup") || command.equals(".b")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();

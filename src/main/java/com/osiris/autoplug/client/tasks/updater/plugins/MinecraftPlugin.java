@@ -27,7 +27,7 @@ public class MinecraftPlugin {
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.installationPath = installationPath;
-        this.name = name;
+        setName(name);
         setVersion(version);
         setAuthor(author);
         this.spigotId = spigotId;

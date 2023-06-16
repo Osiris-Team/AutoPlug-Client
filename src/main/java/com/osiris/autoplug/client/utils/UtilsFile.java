@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -35,5 +35,13 @@ public class UtilsFile {
             targetFile.createNewFile();
             Files.copy(sourceFile.toPath(), targetFile.toPath());
         }
+    }
+
+    public File renameFile(File file, String newName) {
+        File newFile = new File(file.getParentFile() + "/" + newName);
+        if (newFile.exists()) newFile.delete(); // Replace existing
+        file.renameTo(newFile);
+        file.delete(); // Delete old
+        return newFile;
     }
 }

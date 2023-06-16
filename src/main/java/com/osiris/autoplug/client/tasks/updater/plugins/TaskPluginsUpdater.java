@@ -156,8 +156,8 @@ public class TaskPluginsUpdater extends BThread {
             }
         }
 
-        UtilsMinecraft man = new UtilsMinecraft();
-        this.allPlugins.addAll(man.getPlugins(FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString())));
+        UtilsMinecraft utilsMinecraft = new UtilsMinecraft();
+        this.allPlugins.addAll(utilsMinecraft.getPlugins(FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString())));
         for (MinecraftPlugin installedPlugin :
                 allPlugins) {
             try {
