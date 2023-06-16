@@ -271,7 +271,7 @@ public final class Commands {
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
         String mcVersion = updaterConfig.mods_updater_version.asString();
         if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException("Failed to determine minecraft server version.");
+        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
 
         if (input.contains("modrinth")) {
             String modrinthId = input.replace("modrinth", "");
