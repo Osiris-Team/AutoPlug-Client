@@ -21,10 +21,7 @@ import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.ui.MainWindow;
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsConfig;
-import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsNative;
+import com.osiris.autoplug.client.utils.*;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.dyml.Yaml;
@@ -48,7 +45,16 @@ public class Main {
     public static final ConMain CON = new ConMain();
     public static Target TARGET = null;
 
-    public static void main(String[] args) {
+    /**
+     * @param _args arguments separated by spaces. <br>
+     *              - AutoPlug console commands <br>
+     *              - skipSystemCheck: skips the first system check <br>
+     *              - test: enables test mode <br>
+     */
+    public static void main(String[] _args) {
+        List<String> args = new ArrayList<>();
+        if (_args != null)
+            Collections.addAll(args, _args);
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
         long now = System.currentTimeMillis();
@@ -86,10 +92,12 @@ public class Main {
                 return;
             }
 
-            SystemChecker system = new SystemChecker();
-            system.checkReadWritePermissions();
-            system.checkInternetAccess();
-            system.addShutDownHook();
+            if (!args.contains("skipSystemCheck")) {
+                SystemChecker system = new SystemChecker();
+                system.checkReadWritePermissions();
+                system.checkInternetAccess();
+                system.addShutDownHook();
+            }
 
             // Set default SysOut to TeeOutput, for the OnlineConsole
             AnsiConsole.systemInstall(); // This must happen before the stuff below.
@@ -133,7 +141,7 @@ public class Main {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "JAR: " + new UtilsJar().getThisJar());
-            AL.debug(Main.class, "ARGS: " + (args != null ? Arrays.toString(args) : ""));
+            AL.debug(Main.class, "ARGS: " + (args != null ? new UtilsLists().toString(args) : ""));
             AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
             AL.debug(Main.class, "SYSTEM OS ARCH: " + System.getProperty("os.arch"));
             AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
