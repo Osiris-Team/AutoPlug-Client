@@ -220,7 +220,7 @@ public class TaskModsUpdater extends BThread {
             executorService = Executors.newFixedThreadPool(includedSize);
         else
             executorService = Executors.newSingleThreadExecutor();
-        InstalledModLoader modLoader = new InstalledModLoader(false, false, false);
+        InstalledModLoader modLoader = new InstalledModLoader();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
         for (MinecraftMod mod :
                 includedMods) {
