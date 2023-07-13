@@ -1,4 +1,7 @@
 # Frequently Asked Questions
+- [AutoPlug-Client - Common Questions](#autoplug-client---common-questions)
+- [AutoPlug-Web - Common Questions](#autoplug-web---common-questions)
+- [AutoPlug-Web (self-host) - Common Questions](#autoplug-web-self-host---common-questions)
 
 ## AutoPlug-Client - Common Questions
 
