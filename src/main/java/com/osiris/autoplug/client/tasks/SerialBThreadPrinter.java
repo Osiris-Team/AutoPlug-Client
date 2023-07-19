@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,8 +21,7 @@ import java.util.List;
 public class SerialBThreadPrinter extends BThreadPrinter {
 
     public SerialBThreadPrinter(BThreadManager manager) throws JLineLinkException {
-        super(manager);
-        refreshInterval = 5000;
+        super(manager, null, 5000, false);
         hideRegularOutput = false;
         printMissedRegularOutput = false;
     }
