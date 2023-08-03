@@ -48,7 +48,7 @@ public class ConFileManager extends DefaultConnection {
                 try {
                     while (true) {
                         byte requestType = dis.readByte(); // Blocks indefinitely
-                        getSocket().setSoTimeout(5000);
+                        getSocket().setSoTimeout(60000);
                         if (requestType == 0) {
                             doProtocolForSendingFileDetails();
                         } else if (requestType == 1) {
