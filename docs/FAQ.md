@@ -59,6 +59,14 @@ Go to the AutoPlug Client [installer page](https://autoplug.one/installer) and f
 ## **Can I install it on a server host?**  
 Yes! For instructions on how to do so, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
 
+## **Can I install it on my local Minecraft installation?**
+1. Go to https://autoplug.one/installer (select Minecraft, Client and set your version) and download the generated zip file.
+1. Open your Minecraft installation folder (where /mods is located and other files) and unpack the zip there.
+1. Run the start script.
+1. Ignore warnings related to the server or connection problems.
+1. Enter `.help` for a list of all commands.
+1. Enter `.backup` then `.check mods` to update your mods.
+
 ## **How do I change the settings? Live-Settings?**  
 All settings are kept in their own respective `.yml` config files that can be found in the `autoplug` folder in your Minecraft server directory.
 Almost all settings can be changed without needing to restart AutoPlug to have effect (Live-Settings), since
