@@ -61,7 +61,7 @@ Yes! For instructions on how to do so, please read [How To - Install AutoPlug Cl
 
 ## **Can I install it on my local Minecraft installation?**
 1. Go to https://autoplug.one/installer (select Minecraft, Client and set your version) and download the generated zip file.
-1. Open your Minecraft installation folder (contains /mods) and unpack the zip there.
+1. Open your Minecraft installation folder (contains /mods), unpack the zip, and move its files into that folder.
 1. Run the start script.
 1. Ignore warnings related to the server or connection problems.
 1. Enter `.help` for a list of all commands.
