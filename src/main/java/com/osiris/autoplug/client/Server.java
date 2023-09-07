@@ -96,7 +96,7 @@ public final class Server {
                 }
             } else {
                 if (!serverExe.exists())
-                    AL.warn("Note that the provided file doesn't seem to exist, this may cause troubles later.");
+                    AL.warn("Note that the server executable \"" + serverExe.getName() + "\" doesn't seem to exist yet, which may cause issues. Full path: " + serverExe.getAbsolutePath());
                 break;
             }
         }

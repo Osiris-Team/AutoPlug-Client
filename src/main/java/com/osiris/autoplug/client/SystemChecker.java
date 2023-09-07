@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,8 +11,7 @@ package com.osiris.autoplug.client;
 import com.osiris.jlib.logger.AL;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.InetAddress;
 
 public class SystemChecker {
 
@@ -43,12 +42,8 @@ public class SystemChecker {
 
     public void checkInternetAccess() throws Exception {
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
-            connection.setRequestMethod("HEAD");
-            int responseCode = connection.getResponseCode();
-            if (responseCode != 200) {
-                throw new Exception("Failed to get code 200 from " + connection.getURL().toString());
-            }
+            boolean reachable = InetAddress.getByName("www.google.com").isReachable(10000);
+            if (!reachable) throw new Exception("Failed to reach www.google.com!");
         } catch (Exception e) {
             System.err.println("Make sure that you have an internet connection!");
             throw e;
