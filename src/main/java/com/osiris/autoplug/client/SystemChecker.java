@@ -11,7 +11,9 @@ package com.osiris.autoplug.client;
 import com.osiris.jlib.logger.AL;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URL;
 
 public class SystemChecker {
 
@@ -45,8 +47,14 @@ public class SystemChecker {
             boolean reachable = InetAddress.getByName("www.google.com").isReachable(10000);
             if (!reachable) throw new Exception("Failed to reach www.google.com!");
         } catch (Exception e) {
-            System.err.println("Make sure that you have an internet connection!");
-            throw e;
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
+                connection.connect();
+                connection.disconnect();
+            } catch (Exception ex) {
+                System.err.println("Make sure that you have an internet connection!");
+                throw ex;
+            }
         }
     }
 
