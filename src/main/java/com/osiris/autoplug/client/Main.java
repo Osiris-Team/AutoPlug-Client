@@ -147,6 +147,7 @@ public class Main {
             AL.debug(Main.class, "SYSTEM VERSION: " + System.getProperty("os.version"));
             AL.debug(Main.class, "JAVA VERSION: " + System.getProperty("java.version"));
             AL.debug(Main.class, "JAVA VENDOR: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vendor.url"));
+            AL.debug(Main.class, "JAVA DIR: " + System.getProperty("java.home"));
             AL.debug(Main.class, "WORKING DIR: " + WORKING_DIR);
             AL.debug(Main.class, "TEST-MODE: " + GD.IS_TEST_MODE);
         } catch (Exception e) {
