@@ -78,15 +78,13 @@ public class UtilsConfig {
     public void printAllModulesToDebugExceptServerKey(@NotNull List<YamlSection> modules, String serverKey) {
         try {
             UtilsYamlSection utils = new UtilsYamlSection();
-            for (YamlSection module :
+            for (YamlSection sec :
                     modules) {
-                if (module.asString() != null) {
-                    if (module.getKeys().equals(ymlServerKeys) || module.getKeys().equals(ymlSteamLogin)) {
-                        AL.debug(this.getClass(), module.getKeys().toString() + " VAL: NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
-                    }
-                } else {
-                    AL.debug(this.getClass(), module.getKeys().toString() + " VAL: " + utils.valuesListToStringList(module.getValues()).toString() + " DEF: " + utils.valuesListToStringList(module.getDefValues()).toString());
-                }
+                if (sec.asString() != null &&
+                        (sec.getKeys().equals(ymlServerKeys) || sec.getKeys().equals(ymlSteamLogin)))
+                    AL.debug(this.getClass(), sec.getKeys().toString() + " VAL: NOT SHOWN DUE TO SECURITY RISK  DEF: " + utils.valuesListToStringList(sec.getDefValues()).toString());
+                else
+                    AL.debug(this.getClass(), sec.getKeys().toString() + " VAL: " + utils.valuesListToStringList(sec.getValues()).toString() + " DEF: " + utils.valuesListToStringList(sec.getDefValues()).toString());
             }
         } catch (Exception e) {
             AL.warn("Couldn't show/write ConfigModule information!", e);
