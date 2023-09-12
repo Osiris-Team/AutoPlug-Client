@@ -38,11 +38,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.util.List;
-import java.util.Objects;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 /**
  * Listens for input started with .
@@ -76,6 +78,8 @@ public final class Commands {
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
                     AL.info(".con reload | Closes and reconnects all connections (.cr)");
                     AL.info(".backup | Ignores cool-down and does an backup (.b)");
+                    AL.info(".env info | Shows environment details (.ei)");
+                    AL.info(".find java | Finds all Java installations and lists current Javas binaries (.fj)");
                     AL.info("");
                     AL.info("Server related commands:");
                     AL.info(".start | Starts the server (.s)");
@@ -175,6 +179,64 @@ public final class Commands {
                         AL.info("MEM total: " + conPrivate.memTotal + " Gb");
                     }
                     return true;
+                } else if (command.equals(".env info") || command.equals(".ei")) {
+
+                    AL.info("###################################################");
+                    AL.info("ALL PROPERTIES:");
+                    AL.info("###################################################");
+                    Properties props = System.getProperties();
+                    props.forEach((key, val) -> {
+                        AL.info(key + ": " + val);
+                    });
+
+                    AL.info("###################################################");
+                    AL.info("ALL ENVIRONMENT VARIABLES:");
+                    AL.info("###################################################");
+                    // Get all environment variables
+                    Map<String, String> env = System.getenv();
+                    // Loop through and print each environment variable
+                    for (Map.Entry<String, String> entry : env.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        AL.info(key + ": " + value);
+                    }
+
+                    return true;
+                } else if (command.equals(".find java") || command.equals(".fj")) {
+                    Path directoryPath = new File(System.getProperty("java.home")).toPath();
+
+                    AL.info("###################################################");
+                    AL.info("ALL BINARY FILES IN " + directoryPath + ": ");
+                    AL.info("###################################################");
+                    try {
+                        Files.walkFileTree(directoryPath, new SimpleFileVisitor<Path>() {
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                // Check if the file name contains "java"
+                                if (file.toFile().isFile() && (!file.getFileName().toString().contains(".") || file.getFileName().toString().contains(".exe"))) {
+                                    AL.info(file.toString());
+                                }
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                    } catch (IOException e) {
+                        AL.warn(e);
+                    }
+
+                    AL.info("###################################################");
+                    AL.info("JAVA INSTALLATIONS: ");
+                    AL.info("###################################################");
+                    List<String> javaInstallations = findJavaInstallations();
+
+                    if (javaInstallations.isEmpty()) {
+                        AL.info("No Java installations found.");
+                    } else {
+                        AL.info("Possible Java installations found:");
+                        for (String installation : javaInstallations) {
+                            AL.info(installation);
+                        }
+                    }
+                    return true;
                 } else if (command.equals(".check") || command.equals(".c")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskSelfUpdater("SelfUpdater", myManager.manager).start();
@@ -223,6 +285,52 @@ public final class Commands {
             }
         } else
             return false;
+    }
+
+    public static List<String> findJavaInstallations() {
+        List<String> installations = new ArrayList<>();
+
+        // Get all drives on the system
+        File[] drives;
+        try {
+            drives = File.listRoots();
+        } catch (Exception e) {
+            AL.warn("Failed to fetch drives, using fallback hardcoded drives.", e);
+            drives = new File[]{Paths.get("/").toFile(), Paths.get("C:\\").toFile(), Paths.get("D:\\").toFile()};
+        }
+
+        for (File drive : drives) {
+            try {
+                findJavaInstallationsInDrive(drive, installations);
+            } catch (Exception e) {
+                AL.warn("Failed for drive: " + drive, e);
+            }
+        }
+
+        return installations;
+    }
+
+    private static void findJavaInstallationsInDrive(File directory, List<String> installations) {
+        // Check if the directory is named "bin"
+        File binDirectory = new File(directory, "bin");
+
+        if (binDirectory.exists() && binDirectory.isDirectory()) {
+            // Check if the "java" file exists in the "bin" directory
+            for (File f : binDirectory.listFiles()) {
+                if (f.getName().startsWith("java")) {
+                    installations.add(binDirectory.getAbsolutePath());
+                    break;
+                }
+            }
+        }
+
+        // Recursively search subdirectories
+        File[] subDirectories = directory.listFiles(File::isDirectory);
+        if (subDirectories != null) {
+            for (File subDirectory : subDirectories) {
+                findJavaInstallationsInDrive(subDirectory, installations);
+            }
+        }
     }
 
     public static boolean installPlugin(String command) throws Exception {

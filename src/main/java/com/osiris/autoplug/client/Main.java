@@ -28,6 +28,7 @@ import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.MessageFormatter;
+import com.osiris.jprocesses2.ProcessUtils;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
@@ -140,6 +141,13 @@ public class Main {
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
             AL.debug(Main.class, "!!!IMPORTANT!!! -> THIS LOG-FILE CONTAINS SENSITIVE INFORMATION <- !!!IMPORTANT!!!");
+            String command = "";
+            try {
+                command = new ProcessUtils().getThis().command;
+            } catch (Throwable e) {
+                command = e.getMessage();
+            }
+            AL.debug(Main.class, "START COMMAND: " + command);
             AL.debug(Main.class, "JAR: " + new UtilsJar().getThisJar());
             AL.debug(Main.class, "ARGS: " + (args != null ? new UtilsLists().toString(args) : ""));
             AL.debug(Main.class, "SYSTEM OS: " + System.getProperty("os.name"));
