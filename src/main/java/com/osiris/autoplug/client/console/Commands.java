@@ -401,17 +401,17 @@ public final class Commands {
             return false;
         }
         MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
-        File finalDest = new File(modsDir + "/" + result.plugin.getName() + "-LATEST-[" + result.latestVersion + "].jar");
-        TaskModDownload task = new TaskModDownload("PluginDownloader", myManager.manager, tempName, result.latestVersion,
-                result.downloadUrl, result.plugin.getIgnoreContentType(), "AUTOMATIC", finalDest);
+        File finalDest = new File(modsDir + "/" + result.mod.getName() + "-LATEST-[" + result.latestVersion + "].jar");
+        TaskModDownload task = new TaskModDownload("ModDownloader", myManager.manager, tempName, result.latestVersion,
+                result.downloadUrl, result.mod.ignoreContentType, "AUTOMATIC", finalDest);
         task.start();
         new UtilsTasks().printResultsWhenDone(myManager.manager);
-        List<MinecraftPlugin> plugins = new UtilsMinecraft().getPlugins(modsDir);
-        for (MinecraftPlugin pl : plugins) {
-            if (pl.getInstallationPath().equals(finalDest.getAbsolutePath())) {
+        List<MinecraftMod> plugins = new UtilsMinecraft().getMods(modsDir);
+        for (MinecraftMod mod : plugins) {
+            if (mod.installationPath.equals(finalDest.getAbsolutePath())) {
                 // Replace tempName with actual plugin name
                 finalDest = new UtilsFile().renameFile(task.getFinalDest(),
-                        new File(pl.getInstallationPath()).getName().replace(tempName, pl.getName()));
+                        new File(mod.installationPath).getName().replace(tempName, mod.getName()));
             }
         }
         AL.info("Installed to: " + finalDest);
