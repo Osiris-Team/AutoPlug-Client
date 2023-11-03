@@ -8,13 +8,18 @@
 
 package com.osiris.autoplug.client;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 class SystemCheckerTest {
+
+    private SystemChecker systemChecker;
 
     @Test
     void checkInternetAccessMethod1() throws Exception {
@@ -27,5 +32,20 @@ class SystemCheckerTest {
         HttpURLConnection connection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
         connection.connect();
         connection.disconnect();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        systemChecker = new SystemChecker();
+    }
+
+    @Test
+    public void testCheckReadWritePermissions() {
+        assertDoesNotThrow(() -> systemChecker.checkReadWritePermissions());
+    }
+
+    @Test
+    public void testCheckInternetAccess() {
+        assertDoesNotThrow(() -> systemChecker.checkInternetAccess());
     }
 }
