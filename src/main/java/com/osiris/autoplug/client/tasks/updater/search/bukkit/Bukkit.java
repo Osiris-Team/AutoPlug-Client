@@ -13,8 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.utils.StringComparator;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.search.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,7 +75,7 @@ public class Bukkit {
                     boolean resultVersion;
                     OUTPUT_PLUGIN_VERSION = latest.get("name").toString(); //API is just shit
                     AL.info("Comparing versions: " + OUTPUT_PLUGIN_VERSION + " with " + pl_version);
-                    resultVersion = new UtilsVersion().isSecondBigger(pl_version, OUTPUT_PLUGIN_VERSION); // result = true
+                    resultVersion = Version.isLatestBigger(pl_version, OUTPUT_PLUGIN_VERSION); // result = true
                     if (resultVersion) {
                         AL.info("New Version found for: " + INPUT_PLUGIN_NAME + " From -> " + pl_version + " to -> " + OUTPUT_PLUGIN_VERSION);
                         String final_url = latest.get("downloadUrl").toString();

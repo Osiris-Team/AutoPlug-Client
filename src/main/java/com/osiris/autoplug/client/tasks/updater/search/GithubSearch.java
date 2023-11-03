@@ -10,8 +10,8 @@ package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.jlib.json.Json;
+import com.osiris.jlib.search.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class GithubSearch {
             latestVersion = latestRelease.get("tag_name").getAsString();
             if (latestVersion != null)
                 latestVersion = latestVersion.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new UtilsVersion().isSecondBigger(version, latestVersion)) {
+            if (Version.isLatestBigger(version, latestVersion == null ? "0" : latestVersion)) {
                 resultCode = 1;
                 // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.
                 // The following does that sorting.

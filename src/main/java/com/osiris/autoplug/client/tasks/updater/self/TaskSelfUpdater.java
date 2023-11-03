@@ -16,10 +16,10 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.jlib.json.Json;
+import com.osiris.jlib.search.Version;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -97,7 +97,7 @@ public class TaskSelfUpdater extends BThread {
         // Check if the latest version is bigger than our current one.
         File downloadsDir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         downloadsDir.mkdirs();
-        if (!(new UtilsVersion().isSecondBigger(currentVersion, version))) {
+        if (!(Version.isLatestBigger(currentVersion, version))) {
             finish("AutoPlug is on the latest version!");
             return;
         }

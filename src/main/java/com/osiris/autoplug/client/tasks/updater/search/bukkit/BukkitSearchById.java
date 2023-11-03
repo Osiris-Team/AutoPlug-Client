@@ -12,9 +12,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.search.Version;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +53,7 @@ public class BukkitSearchById {
             code = 2;
         }
 
-        if (new UtilsVersion().isSecondBigger(plugin.getVersion(), latest)) code = 1;
+        if (Version.isLatestBigger(plugin.getVersion(), latest == null ? "0" : latest)) code = 1;
 
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Finished check with results: code:" + code + " latest:" + latest + " downloadURL:" + downloadUrl + " type:" + downloadType + " ");
         SearchResult result = new SearchResult(plugin, code, latest, downloadUrl, downloadType, null, String.valueOf(bukkitId), false);

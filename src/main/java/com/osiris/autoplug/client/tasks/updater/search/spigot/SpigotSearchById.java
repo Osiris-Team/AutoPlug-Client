@@ -11,9 +11,9 @@ package com.osiris.autoplug.client.tasks.updater.search.spigot;
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.autoplug.client.utils.UtilsVersion;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.logger.AL;
+import com.osiris.jlib.search.Version;
 
 public class SpigotSearchById {
 
@@ -46,7 +46,7 @@ public class SpigotSearchById {
             // If not external download over the spiget api
             downloadUrl = "https://api.spiget.org/v2/resources/" + spigotId + "/download";
 
-            if (new UtilsVersion().isSecondBigger(plugin.getVersion(), latest))
+            if (Version.isLatestBigger(plugin.getVersion(), latest == null ? "0" : latest))
                 code = 1;
         } catch (Exception e) {
             exception = e;
