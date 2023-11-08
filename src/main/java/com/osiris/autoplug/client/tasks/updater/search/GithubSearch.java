@@ -29,7 +29,7 @@ public class GithubSearch {
         String latestVersion = null;
         String fileName = null;
         try {
-            JsonObject latestRelease = Json.getAsObject("https://api.github.com/repos/" + githubRepoName + "/releases/latest");
+            JsonObject latestRelease = Json.getAsObject("https://api.github.com/repos/" + githubRepoName + "/" + githubAssetName + "/releases/latest");
             latestVersion = latestRelease.get("tag_name").getAsString();
             if (latestVersion != null)
                 latestVersion = latestVersion.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots

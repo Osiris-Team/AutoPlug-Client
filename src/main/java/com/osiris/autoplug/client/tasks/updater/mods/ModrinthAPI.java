@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.google.gson.JsonObject;
+import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.jlib.json.Json;
@@ -35,10 +36,18 @@ public class ModrinthAPI {
      * Requires a modrithId (chars or number), or curseforgeId (no number, but chars).
      * If the id contains chars its usually the mods slugs.
      */
-    public SearchResult searchUpdate(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
+    public SearchResult searchUpdateMod(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
         if (mod.modrinthId == null && !isInt(mod.curseforgeId)) mod.modrinthId = mod.curseforgeId; // Slug
-        String url = baseUrl + "/project/" + mod.modrinthId + "/version?loaders=[\"" +
-                (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge") + "\"]&game_versions=[\"" + mcVersion + "\"]";
+        SearchResult res = searchUpdate((modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge"),mod.modrinthId,mcVersion, mod.installationPath, mod.forceLatest);
+        res.mod = mod;
+        return res;
+    }
+    public SearchResult searchUpdatePlugin(MinecraftPlugin plugin, String mcVersion) { //TODO: probably don't hardcode spigot and papermc
+        return searchUpdate("spigot\",\"paper",plugin.getModrinthId(), mcVersion, plugin.getInstallationPath(), false);
+    }
+    private SearchResult searchUpdate(String loader, String id, String mcVersion, String installPath, boolean forceLatest) {
+
+        String url = baseUrl + "/project/" + id + "/version?loaders=[\"" + loader + "\"]&game_versions=[\"" + mcVersion + "\"]";
         url = new UtilsURL().clean(url);
         Exception exception = null;
         String latest = null;
@@ -46,7 +55,7 @@ public class ModrinthAPI {
         String downloadUrl = null;
         byte code = 0;
         try {
-            if (mod.modrinthId == null)
+            if (id == null)
                 throw new Exception("Modrinth-id is null!"); // Modrinth id can be slug or actual id
 
             AL.debug(this.getClass(), url);
@@ -55,10 +64,10 @@ public class ModrinthAPI {
                 release = Json.getAsJsonArray(url)
                         .get(0).getAsJsonObject();
             } catch (Exception e) {
-                if (!isInt(mod.modrinthId)) { // Try another url, with slug replaced _ with -
-                    url = baseUrl + "/project/" + mod.modrinthId.replace("_", "-")
+                if (!isInt(id)) { // Try another url, with slug replaced _ with -
+                    url = baseUrl + "/project/" + id.replace("_", "-")
                             + "/version?loaders=[\"" +
-                            (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge") + "\"]" + (mod.forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
+                            loader + "\"]" + (forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
                     AL.debug(this.getClass(), url);
                     release = Json.getAsJsonArray(url)
                             .get(0).getAsJsonObject();
@@ -67,7 +76,7 @@ public class ModrinthAPI {
             }
 
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new File(mod.installationPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
+            if (new File(installPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
                 code = 1;
             JsonObject releaseDownload = release.getAsJsonArray("files").get(0).getAsJsonObject();
             downloadUrl = releaseDownload.get("url").getAsString();
@@ -81,7 +90,6 @@ public class ModrinthAPI {
             code = 2;
         }
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
-        result.mod = mod;
         result.setException(exception);
         return result;
     }

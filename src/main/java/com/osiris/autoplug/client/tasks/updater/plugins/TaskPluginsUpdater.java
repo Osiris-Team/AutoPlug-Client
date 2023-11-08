@@ -184,6 +184,7 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                YamlSection modrinthId = pluginsConfig.put(name, plName, "alternatives", "modrinth", "plugin-id");
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -254,6 +255,7 @@ public class TaskPluginsUpdater extends BThread {
                 installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
+                installedPlugin.setModrinthId(modrinthId.asString());
 
                 // Check for missing plugin details in plugin.yml
                 if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
@@ -319,6 +321,7 @@ public class TaskPluginsUpdater extends BThread {
         int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
         int sizeBukkitPlugins = 0;
+        int sizeModrinthPlugins = 0;
         int sizeUnknownPlugins = 0;
 
         ExecutorService executorService;
@@ -327,6 +330,13 @@ public class TaskPluginsUpdater extends BThread {
         else
             executorService = Executors.newSingleThreadExecutor();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+
+        String mcVersion = updaterConfig.mods_updater_version.asString();
+
+        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
+        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+
         for (MinecraftPlugin pl :
                 includedPlugins) {
             try {
@@ -344,6 +354,10 @@ public class TaskPluginsUpdater extends BThread {
                     sizeBukkitPlugins++; // BUKKIT PLUGIN
                     pl.setIgnoreContentType(true); // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginByBukkitId(pl)));
+                } else if (pl.getModrinthId() != null) { // MODRINTH PLUGIN
+                    sizeModrinthPlugins++;
+                    String finalMcVersion = mcVersion;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findPluginByModrinthId(pl, finalMcVersion)));
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
                     pl.setIgnoreContentType(true); // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
