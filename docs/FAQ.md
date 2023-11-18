@@ -157,28 +157,82 @@ This file allows you to define permissions for a group and it could look somethi
   }
 }
 ```
+### Commands
 As you can see both the console and system console have lists of allowed commands 
 which are only relevant if `fullWrite` is set to `false`. 
-If its set to `true` this group will have 
+If it's set to `true` this group will have 
 full write access and thus be able to send any command to the console.
 
-Keep in mind that the console is able able to execute AutoPlug-Client commands and
+Keep in mind that the console is able to execute AutoPlug-Client commands and
 server-software specific commands. The system console is able to execute any system-specific
-command. Thus its highly recommended **not** to give full write access to **any** of your groups.
+command. Thus it's **not** recommended to give full write access to **any** of your groups.
 
 AutoPlug-Web will compare
 the sent staff command against each command in the `allowedCommands` list and only
 allow it, if there is a 100% match. There are however two wildcards, namely `*` and `*->`
 since sometimes commands want arguments. So instead of having to add each command-argument combination
 you can use these wildcards.
-- `*` allows any word or number.
+- `*` allows any word (which can include numbers and any special chars).
 Example: `ban *`, now this group will be able to execute `ban peter` or `ban john`, but **not**
 `ban peter 10`, for that to work you would need to add `ban * *` or `ban *->` instead.
 - `*->` allows anything from this point onwards until the end of the line.
+- Note that you can **not** use both in one command, its either `*` or `*->`.
 
+<details>
+<summary>Show Java code used to check commands.</summary>
+
+```java
+    public static boolean isCommandAllowed(String command, List<String> allowedCommands){
+
+        // First check for an exact match with the allowed commands
+        if(allowedCommands.contains(command)) return true;
+
+        // Next compare with allowed commands that contain *->
+        // Everything before *-> must match the command
+        for (String allowedCommand : allowedCommands) {
+
+            if(allowedCommand.equals("*->")) return true; // Only *-> with nothing preceding then allow everything.
+
+            int i = allowedCommand.indexOf("*->");
+            if(i >= 0){
+                String precedingStuff = allowedCommand.substring(0, i);
+                if(command.startsWith(precedingStuff)) return true;
+            }
+        }
+
+        // Next compare with allowed commands that contain * or multiple like "command * * p * p2"
+        String[] commandWords = command.split(" ");
+        for (String allowedCommand : allowedCommands) {
+
+            if(allowedCommand.contains("*->")) continue;
+
+            // The amount of words must match
+            String[] allowedCommandWords = allowedCommand.split(" ");
+            if(commandWords.length != allowedCommandWords.length) continue;
+
+            // All words must match except the ones where the allowed command word is *
+            boolean allMatch = true;
+            for (int wordI = 0; wordI < allowedCommandWords.length; wordI++) {
+                String allowedWord = allowedCommandWords[wordI];
+
+                if(allowedWord.contains("*")) continue;
+
+                if (!allowedWord.equals(commandWords[wordI])){
+                    allMatch = false;
+                    break;
+                }
+            }
+            if(allMatch) return true;
+        }
+        return false;
+    }
+```
+</details>
+
+### Files and Directories
 You can add file and directory paths in Windows or Linux format to the `allowedFilesToRead` and
 `allowedFilesToReadAndWrite` lists to allow your staff access.
-Note that adding a directory allows access to its files, but not its directories (its contents can only be viewed).
+Note that adding a directory allows access to its files, but not its directories (their contents can only be viewed, not read).
 Similar wildcards are available for the files manager, but with a slightly different meaning:
 - `./` or `.\` is the current working directory of the AutoPlug-Client.
 - `*->` to allow access to all sub-directories too. For example `./*->` would allow access
@@ -191,6 +245,61 @@ that the staff is allowed to open, list and read.
 The `allowedFilesToReadAndWrite` list contains paths to files or directories 
 that the staff is allowed to open, list, read, modify, create or delete.
 This is probably the list you will use the most.
+
+<details>
+<summary>Show Java code used to check paths.</summary>
+
+```java
+    public static boolean isFileAccessAllowed(FileDetails workingDir, String path, List<String> list){
+        if(path.isEmpty()) return false;
+
+        // Make sure allowedPath and requestedPath both use / separator
+        if(path.contains("\\")) path = path.replaceAll("\\\\", "/");
+        List<String> pathArr = withoutEmpty(path.split("/"));
+
+        for (String allowedPath : list) {
+            if(allowedPath.isEmpty()) continue;
+
+            // Make sure allowedPath and requestedPath both use / separator
+            if(allowedPath.contains("./")) allowedPath = allowedPath.replace("./", workingDir.getAbsolutePath()+"/");
+            if(allowedPath.contains("\\")) allowedPath = allowedPath.replaceAll("\\\\", "/");
+
+            // Check for exact match
+            List<String> allowedPathArr = withoutEmpty(allowedPath.split("/"));
+            if(allowedPathArr.size() == pathArr.size()){
+                boolean isExactMatch = true;
+                for (int i = 0; i < allowedPathArr.size(); i++) {
+                    String s = allowedPathArr.get(i);
+                    if (!s.equals(pathArr.get(i))){
+                        isExactMatch = false;
+                        break;
+                    }
+                }
+                if(isExactMatch) return true;
+            }
+
+            // Check if allowedPath contains *->
+            // Then check path names until that point
+            if(allowedPathArr.contains("*->")){
+                // path must be same length as allowedPath or longer (meaning a sub-directory)
+                if(pathArr.size() >= allowedPathArr.size()) {
+                    int i = allowedPathArr.indexOf("*->") - 1;
+                    boolean isMatchUntilI = true;
+                    for (int j = 0; j <= i; j++) {
+                        String s = allowedPathArr.get(j);
+                        if(!s.equals(pathArr.get(j))){
+                            isMatchUntilI = false;
+                            break;
+                        }
+                    }
+                    if(isMatchUntilI) return true;
+                }
+            }
+        }
+        return false;
+    }
+```
+</details>
 
 ---
 
