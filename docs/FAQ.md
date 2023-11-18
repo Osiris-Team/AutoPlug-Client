@@ -182,50 +182,52 @@ Example: `ban *`, now this group will be able to execute `ban peter` or `ban joh
 <summary>Show Java code used to check commands.</summary>
 
 ```java
-    public static boolean isCommandAllowed(String command, List<String> allowedCommands){
+class Demo {
+  public static boolean isCommandAllowed(String command, List<String> allowedCommands) {
 
-        // First check for an exact match with the allowed commands
-        if(allowedCommands.contains(command)) return true;
+    // First check for an exact match with the allowed commands
+    if (allowedCommands.contains(command)) return true;
 
-        // Next compare with allowed commands that contain *->
-        // Everything before *-> must match the command
-        for (String allowedCommand : allowedCommands) {
+    // Next compare with allowed commands that contain *->
+    // Everything before *-> must match the command
+    for (String allowedCommand : allowedCommands) {
 
-            if(allowedCommand.equals("*->")) return true; // Only *-> with nothing preceding then allow everything.
+      if (allowedCommand.equals("*->")) return true; // Only *-> with nothing preceding then allow everything.
 
-            int i = allowedCommand.indexOf("*->");
-            if(i >= 0){
-                String precedingStuff = allowedCommand.substring(0, i);
-                if(command.startsWith(precedingStuff)) return true;
-            }
-        }
-
-        // Next compare with allowed commands that contain * or multiple like "command * * p * p2"
-        String[] commandWords = command.split(" ");
-        for (String allowedCommand : allowedCommands) {
-
-            if(allowedCommand.contains("*->")) continue;
-
-            // The amount of words must match
-            String[] allowedCommandWords = allowedCommand.split(" ");
-            if(commandWords.length != allowedCommandWords.length) continue;
-
-            // All words must match except the ones where the allowed command word is *
-            boolean allMatch = true;
-            for (int wordI = 0; wordI < allowedCommandWords.length; wordI++) {
-                String allowedWord = allowedCommandWords[wordI];
-
-                if(allowedWord.contains("*")) continue;
-
-                if (!allowedWord.equals(commandWords[wordI])){
-                    allMatch = false;
-                    break;
-                }
-            }
-            if(allMatch) return true;
-        }
-        return false;
+      int i = allowedCommand.indexOf("*->");
+      if (i >= 0) {
+        String precedingStuff = allowedCommand.substring(0, i);
+        if (command.startsWith(precedingStuff)) return true;
+      }
     }
+
+    // Next compare with allowed commands that contain * or multiple like "command * * p * p2"
+    String[] commandWords = command.split(" ");
+    for (String allowedCommand : allowedCommands) {
+
+      if (allowedCommand.contains("*->")) continue;
+
+      // The amount of words must match
+      String[] allowedCommandWords = allowedCommand.split(" ");
+      if (commandWords.length != allowedCommandWords.length) continue;
+
+      // All words must match except the ones where the allowed command word is *
+      boolean allMatch = true;
+      for (int wordI = 0; wordI < allowedCommandWords.length; wordI++) {
+        String allowedWord = allowedCommandWords[wordI];
+
+        if (allowedWord.contains("*")) continue;
+
+        if (!allowedWord.equals(commandWords[wordI])) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return true;
+    }
+    return false;
+  }
+}
 ```
 </details>
 
@@ -250,54 +252,37 @@ This is probably the list you will use the most.
 <summary>Show Java code used to check paths.</summary>
 
 ```java
-    public static boolean isFileAccessAllowed(FileDetails workingDir, String path, List<String> list){
-        if(path.isEmpty()) return false;
+class Demo {
+  public static boolean isFileAccessAllowed(FileDetails workingDir, String path, List<String> list) {
+    if (path.isEmpty()) return false;
 
-        // Make sure allowedPath and requestedPath both use / separator
-        if(path.contains("\\")) path = path.replaceAll("\\\\", "/");
-        List<String> pathArr = withoutEmpty(path.split("/"));
+    // Make sure allowedPath and requestedPath both use no separator
+    // This makes comparing simpler
+    path = path.replace("\\", "").replace("/", "");
 
-        for (String allowedPath : list) {
-            if(allowedPath.isEmpty()) continue;
+    for (String allowedPath : list) {
+      if (allowedPath.isEmpty()) continue;
 
-            // Make sure allowedPath and requestedPath both use / separator
-            if(allowedPath.contains("./")) allowedPath = allowedPath.replace("./", workingDir.getAbsolutePath()+"/");
-            if(allowedPath.contains("\\")) allowedPath = allowedPath.replaceAll("\\\\", "/");
+      if (allowedPath.contains("./")) allowedPath = allowedPath.replace("./", workingDir.getAbsolutePath() + "/");
+      allowedPath = allowedPath.replace("\\", "").replace("/", "");
 
-            // Check for exact match
-            List<String> allowedPathArr = withoutEmpty(allowedPath.split("/"));
-            if(allowedPathArr.size() == pathArr.size()){
-                boolean isExactMatch = true;
-                for (int i = 0; i < allowedPathArr.size(); i++) {
-                    String s = allowedPathArr.get(i);
-                    if (!s.equals(pathArr.get(i))){
-                        isExactMatch = false;
-                        break;
-                    }
-                }
-                if(isExactMatch) return true;
-            }
+      // Check for exact match
+      if (allowedPath.equals(path)) return true;
 
-            // Check if allowedPath contains *->
-            // Then check path names until that point
-            if(allowedPathArr.contains("*->")){
-                // path must be same length as allowedPath or longer (meaning a sub-directory)
-                if(pathArr.size() >= allowedPathArr.size()) {
-                    int i = allowedPathArr.indexOf("*->") - 1;
-                    boolean isMatchUntilI = true;
-                    for (int j = 0; j <= i; j++) {
-                        String s = allowedPathArr.get(j);
-                        if(!s.equals(pathArr.get(j))){
-                            isMatchUntilI = false;
-                            break;
-                        }
-                    }
-                    if(isMatchUntilI) return true;
-                }
-            }
+      // Check if allowedPath contains *->
+      // Then check path names until that point
+      int i = allowedPath.indexOf("*->");
+      if (i >= 0) {
+        allowedPath = allowedPath.substring(0, i); // Remove *->
+        // path must be same length as allowedPath or longer (meaning a sub-directory)
+        if (path.length() >= allowedPath.length()) {
+          if (path.substring(0, i).equals(allowedPath)) return true;
         }
-        return false;
+      }
     }
+    return false;
+  }
+}
 ```
 </details>
 
