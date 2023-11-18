@@ -173,8 +173,8 @@ allow it, if there is a 100% match. There are however two wildcards, namely `*` 
 since sometimes commands want arguments. So instead of having to add each command-argument combination
 you can use these wildcards.
 - `*` allows any word (which can include numbers and any special chars).
-Example: `ban *`, now this group will be able to execute `ban peter` or `ban john`, but **not**
-`ban peter 10`, for that to work you would need to add `ban * *` or `ban *->` instead.
+  Example: `ban *`, now this group will be able to execute `ban peter` or `ban john`, but **not**
+  `ban peter 10`, for that to work you would need to add `ban * *` or `ban*->` instead.
 - `*->` allows anything from this point onwards until the end of the line.
 - Note that you can **not** use both in one command, its either `*` or `*->`.
 
