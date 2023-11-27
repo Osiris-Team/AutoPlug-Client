@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.utils.tasks;
 
 import com.osiris.autoplug.client.configs.LoggerConfig;
 import com.osiris.autoplug.client.tasks.SerialBThreadPrinter;
+import com.osiris.autoplug.client.utils.DefaultBThreadPrinter;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BThreadPrinter;
@@ -30,9 +31,9 @@ public class UtilsTasks {
     public MyBThreadManager createManagerAndPrinter() throws YamlWriterException, NotLoadedException, IOException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException, JLineLinkException {
         LoggerConfig loggerConfig = new LoggerConfig();
         BThreadManager manager = new BThreadManager();
-        BThreadPrinter printer;
+        BThreadPrinter printer = null;
         if (loggerConfig.live_tasks.asBoolean()) {
-            printer = new BThreadPrinter(manager);
+            manager = new BThreadManager();
             printer.defaultPrinterModules = new BThreadModulesBuilder()
                     .custom(new MyDate())
                     .text(Ansi.ansi().bg(Ansi.Color.WHITE).fgCyan().a("[" + loggerConfig.autoplug_label.asString() + "]").reset())
@@ -51,7 +52,9 @@ public class UtilsTasks {
                     .status().build();
         }
 
+        //printer.setupPrinterModules(loggerConfig);
         printer.start();
+
         return new MyBThreadManager(manager, printer);
     }
 

@@ -119,15 +119,26 @@ public class FileManager {
     public List<File> serverExecutables(File dir) {
         List<File> files = new ArrayList<>();
         for (File f : dir.listFiles()) {
-            if (f.isFile() && // Can't be directory
-                    !f.getName().toLowerCase().contains("crashhandler") // Avoid unity crash handler exe
-                    && !jarContainsAutoPlugProperties(f) // Can't be AutoPlug.jar
-                    && (f.getName().endsWith(".jar")
-                    || f.getName().endsWith(".exe")
-                    || (!isWindows && !f.getName().contains("."))) // On Unix binaries/exes names usually don't contain dots
-            ) files.add(f);
+            if (isExecutableFile(f)) files.add(f);
         }
         return files;
+    }
+
+    private boolean isExecutableFile(File f) {
+        return f.isFile() && // Can't be directory
+                isNotCrashHandler(f) // Avoid unity crash handler exe
+                && !jarContainsAutoPlugProperties(f) // Can't be AutoPlug.jar
+                && isAllowedExtension(f); // On Unix binaries/exes names usually don't contain dots
+    }
+
+    private boolean isAllowedExtension(File f) {
+        return f.getName().endsWith(".jar")
+                || f.getName().endsWith(".exe")
+                || (!isWindows && !f.getName().contains("."));
+    }
+
+    private boolean isNotCrashHandler(File f) {
+        return !f.getName().toLowerCase().contains("crashhandler");
     }
 
     @NotNull
