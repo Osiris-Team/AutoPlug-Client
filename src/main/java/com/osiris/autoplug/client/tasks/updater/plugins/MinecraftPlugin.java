@@ -24,6 +24,7 @@ public class MinecraftPlugin {
     private String jenkinsProjectUrl;
     private String jenkinsArtifactName;
     private int jenkinsBuildId;
+    private String modrinthId;
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.installationPath = installationPath;
@@ -58,6 +59,12 @@ public class MinecraftPlugin {
     public void setJenkinsBuildId(int jenkinsBuildId) {
         this.jenkinsBuildId = jenkinsBuildId;
     }
+
+    public String getModrinthId() {
+        return modrinthId;
+    }
+
+    public void setModrinthId(String modrinthId) { this.modrinthId = modrinthId; }
 
     public String getConfigPath() {
         return configPath;
