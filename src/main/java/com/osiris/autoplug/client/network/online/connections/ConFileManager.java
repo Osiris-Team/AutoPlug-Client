@@ -85,12 +85,15 @@ public class ConFileManager extends DefaultConnection {
 
     private void doProtocolForSendingRoots() throws IOException {
         File[] roots = File.listRoots();
-        dos.writeInt(roots.length);
-        for (File f :
-                roots) {
-            dos.writeLine(f.getAbsolutePath()); // For example "C:\" or "D:\" etc. on Windows
+        if (roots == null || roots.length == 0) {
+            dos.write(0);
+        } else {
+            dos.writeInt(roots.length);
+            for (File f :
+                    roots) {
+                dos.writeLine(f.getAbsolutePath()); // For example "C:\" or "D:\" etc. on Windows
+            }
         }
-
     }
 
     private void doProtocolForCopyOrCutFiles() throws IOException {
