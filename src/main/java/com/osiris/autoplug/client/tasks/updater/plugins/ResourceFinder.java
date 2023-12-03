@@ -20,6 +20,7 @@ import com.osiris.autoplug.client.tasks.updater.search.bukkit.BukkitSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByAuthor;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByName;
+import com.osiris.autoplug.client.utils.UtilsMinecraft;
 
 public class ResourceFinder {
 
@@ -48,7 +49,7 @@ public class ResourceFinder {
      */
     public SearchResult findByModrinthOrCurseforge(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
         // Do spigot search by name
-        SearchResult sr = new ModrinthAPI().searchUpdate(modLoader, mod, mcVersion);
+        SearchResult sr = new ModrinthAPI().searchUpdateMod(modLoader, mod, mcVersion);
 
         if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
             //Couldn't find author or resource via first search
@@ -73,9 +74,14 @@ public class ResourceFinder {
         sr.plugin = plugin;
         return sr;
     }
+    public SearchResult findPluginByModrinthId(MinecraftPlugin plugin, String mcVersion) {
+        SearchResult sr = new ModrinthAPI().searchUpdatePlugin(plugin, mcVersion);
+        sr.plugin = plugin;
+        return sr;
+    }
 
     public SearchResult findModByModrinthId(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
-        SearchResult sr = new ModrinthAPI().searchUpdate(modLoader, mod, mcVersion);
+        SearchResult sr = new ModrinthAPI().searchUpdateMod(modLoader, mod, mcVersion);
         sr.mod = mod;
         return sr;
     }

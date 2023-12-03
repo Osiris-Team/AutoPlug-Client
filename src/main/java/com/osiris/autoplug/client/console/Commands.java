@@ -45,6 +45,8 @@ import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Listens for input started with .
@@ -91,8 +93,8 @@ public final class Commands {
                     AL.info(".server info | Shows details about this server (.si)");
                     AL.info("");
                     AL.info("Direct install commands:");
-                    AL.info(".install plugin <spigot<id>/bukkit<id>> | Installs a new plugin (.ip)");
-                    AL.info(".install mod <modrinth<id>/curseforge<id>> | Installs a new mod (.im)");
+                    AL.info(".install plugin spigot|bukkit|github|modrinth|search <id> | Installs a new plugin (.ip)");
+                    AL.info(".install mod modrinth|curseforge | Installs a new mod (.im)");
                     AL.info("");
                     AL.info("Update checking commands: (note that all the checks below");
                     AL.info("ignore the cool-down and behave according to the selected profile)");
@@ -333,21 +335,97 @@ public final class Commands {
         }
     }
 
+    static final Pattern pluginPattern = Pattern.compile("(spigot|bukkit|github|modrinth|search)([\\w.!?_,\\-]+)");
     public static boolean installPlugin(String command) throws Exception {
         String input = command.replaceFirst("\\.install plugin", "").replaceFirst("\\.ip", "").trim();
         SearchResult result = null;
         String tempName = "NEW_PLUGIN";
         File pluginsDir = FileManager.convertRelativeToAbsolutePath(new UpdaterConfig().plugins_updater_path.asString());
-        if (input.contains("spigot")) {
-            int spigotId = Integer.parseInt(input.replace("spigot", ""));
-            result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
-        } else if (input.contains("bukkit")) {
-            int bukkitId = Integer.parseInt(input.replace("bukkit", ""));
-            result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                    tempName, "0", "", 0, bukkitId, ""));
-        } else {
-            AL.warn("Your id \"" + input + "\" must start with either spigot or bukkit.");
-            return false;
+        String[] vars = input.split(" ");
+        MinecraftPlugin plugin = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
+                tempName, "0", "", 0, 0, "");
+        String mcVersion = new UpdaterConfig().mods_updater_version.asString();
+
+        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
+        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+        if (vars.length < 2) { //Try the regex support thing (Probably would be better to just remove whitespaces from the input)
+            Matcher m = pluginPattern.matcher(input);
+            if (!m.find()) return false;
+            vars = new String[] {m.group(1), m.group(2)};
+        }
+        switch (vars[0]) {
+            case "spigot":
+                int spigotId = Integer.parseInt(vars[1]);
+                result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
+                break;
+            case "bukkit":
+                int bukkitId = Integer.parseInt(vars[1]);
+                result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
+                        tempName, "0", "", 0, bukkitId, ""));
+                break;
+            case "github":
+                String[] split = vars[1].split("/");
+                if (split.length < 2) {
+                    AL.warn("The github format must be githubrepo/asset");
+                    return false;
+                }
+                plugin.setGithubRepoName(split[0]);
+                plugin.setGithubAssetName(split[1]);
+                result = new ResourceFinder().findByGithubUrl(plugin);
+                break;
+            case "modrinth":
+                MinecraftPlugin plugin2 = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
+                        tempName, "0", "", 0, 0, "");
+                plugin2.setModrinthId(vars[1]);
+                result = new ResourceFinder().findPluginByModrinthId(plugin2, mcVersion);
+                break;
+            case "search":
+                //Try every single way to download a plugin and stop if it finds something
+                try { // SPIGOT
+                    int id = Integer.parseInt(vars[1]);
+                    plugin.setSpigotId(id);
+                    result = new ResourceFinder().findPluginBySpigotId(plugin);
+                } catch (Exception e) {
+                    plugin.setSpigotId(0);
+                }
+                if (result == null) {
+                    try { // BUKKIT
+                        int id = Integer.parseInt(vars[1]);
+                        plugin.setBukkitId(id);
+                        result = new ResourceFinder().findPluginByBukkitId(plugin);
+                    } catch (Exception e) {
+                        plugin.setBukkitId(0);
+                    }
+                }
+                if (result == null) {
+                    try { // GITHUB
+                        split = vars[1].split("/");
+                        if (split.length > 1) {
+                            plugin.setGithubRepoName(split[0]);
+                            plugin.setGithubAssetName(split[1]);
+                            result = new ResourceFinder().findByGithubUrl(plugin);
+                        }
+                    } catch (Exception e) {
+                        plugin.setGithubAssetName(null);
+                        plugin.setGithubRepoName(null);
+                    }
+                }
+                if (result == null) {
+                    try { //MODRINTH
+                        plugin.setModrinthId(vars[1]);
+                        result = new ResourceFinder().findPluginByModrinthId(plugin, mcVersion);
+                    } catch (Exception e) {
+                        plugin.setModrinthId(null);
+                    }
+                }
+                if (result == null || result.isError() || result.plugin == null) {
+                    AL.warn("No plugin with that id found.");
+                    return false;
+                }
+                break;
+            default:
+                AL.warn("Invalid syntax, use '.help' for more info."); //too lazy to add every argument here
+                return false;
         }
         if (result.isError()) {
             AL.warn(result.exception);
@@ -371,8 +449,15 @@ public final class Commands {
         return true;
     }
 
+    static final Pattern modPattern = Pattern.compile("(curse|forge|curseforge|modrinth|github|search)([\\w.!?_,\\-]+)");
     public static boolean installMod(String command) throws Exception {
         String input = command.replaceFirst("\\.install mod", "").replaceFirst("\\.im", "").trim();
+        String[] vars = input.split(" ");
+        if (vars.length < 2) { //Try the regex support thing (Probably would be better to just remove whitespaces from the input)
+            Matcher m = modPattern.matcher(input);
+            if (!m.find()) return false;
+            vars = new String[] {m.group(1), m.group(2)};
+        }
         SearchResult result = null;
         String tempName = "NEW_MOD";
         UpdaterConfig updaterConfig = new UpdaterConfig();
@@ -380,21 +465,69 @@ public final class Commands {
         String mcVersion = updaterConfig.mods_updater_version.asString();
         if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
         if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+        MinecraftMod mod = new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
+                "", "0", "0", "");
 
-        if (input.contains("modrinth")) {
-            String modrinthId = input.replace("modrinth", "");
-            result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(),
-                    new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
-                            "", modrinthId, "0", ""),
-                    mcVersion);
-        } else if (input.contains("curseforge")) {
-            String curseforgeId = input.replace("curseforge", "");
-            result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(),
-                            tempName, "0", "", "0", curseforgeId, ""),
-                    mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
-        } else {
-            AL.warn("Your id \"" + input + "\" must start with either modrinth or curseforge.");
-            return false;
+        switch (vars[0]) {
+            case "modrinth":
+                mod.modrinthId = vars[1];
+                result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(),
+                        mod, mcVersion);
+                break;
+            case "curse":
+            case "forge":
+            case "curseforge":
+                mod.curseforgeId = vars[1];
+                result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), mod,
+                        mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
+                break;
+            case "github":
+                String[] split = vars[1].split("/");
+                if (split.length  < 2) {
+                    AL.warn("The github format must be githubrepo/asset");
+                    return false;
+                }
+                mod.githubRepoName = split[0];
+                mod.githubAssetName = split[1];
+                result = new ResourceFinder().findByGithubUrl(mod);
+                break;
+            case "search":
+                try { //MODRINTH
+                    mod.modrinthId = vars[1];
+                    result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(), mod, mcVersion);
+                } catch (Exception e) {
+                    mod.modrinthId = null;
+                }
+                if (result == null) {
+                    try { // GITHUB
+                        split = vars[1].split("/");
+                        if (split.length > 1) {
+                            mod.githubRepoName = split[0];
+                            mod.githubAssetName = split[1];
+                            result = new ResourceFinder().findByGithubUrl(mod);
+                        }
+                    } catch (Exception e) {
+                        mod.githubRepoName = null;
+                        mod.githubAssetName = null;
+                    }
+                }
+                if (result == null) {
+                    try { //CURSEFORGE
+                        mod.curseforgeId = vars[1];
+                        result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), mod,
+                                mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
+                    } catch (Exception e) {
+                        mod.curseforgeId = null;
+                    }
+                }
+                if (result == null || result.isError() || result.plugin == null) {
+                    AL.warn("No mod with that id found.");
+                    return false;
+                }
+                break;
+            default:
+                AL.warn("Invalid syntax, use '.help' for more info."); //too lazy to add every argument here
+                return false;
         }
         if (result.isError()) {
             AL.warn(result.exception);
@@ -407,11 +540,11 @@ public final class Commands {
         task.start();
         new UtilsTasks().printResultsWhenDone(myManager.manager);
         List<MinecraftMod> plugins = new UtilsMinecraft().getMods(modsDir);
-        for (MinecraftMod mod : plugins) {
-            if (mod.installationPath.equals(finalDest.getAbsolutePath())) {
+        for (MinecraftMod mod2 : plugins) {
+            if (mod2.installationPath.equals(finalDest.getAbsolutePath())) {
                 // Replace tempName with actual plugin name
                 finalDest = new UtilsFile().renameFile(task.getFinalDest(),
-                        new File(mod.installationPath).getName().replace(tempName, mod.getName()));
+                        new File(mod2.installationPath).getName().replace(tempName, mod2.getName()));
             }
         }
         AL.info("Installed to: " + finalDest);
