@@ -86,7 +86,7 @@ public class ConFileManager extends DefaultConnection {
     private void doProtocolForSendingRoots() throws IOException {
         File[] roots = File.listRoots();
         if (roots == null || roots.length == 0) {
-            dos.write(0);
+            dos.writeInt(0);
         } else {
             dos.writeInt(roots.length);
             for (File f :
