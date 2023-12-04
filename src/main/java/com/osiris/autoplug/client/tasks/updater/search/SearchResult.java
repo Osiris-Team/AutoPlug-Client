@@ -11,13 +11,22 @@ package com.osiris.autoplug.client.tasks.updater.search;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Contains all the relevant information
  * after finishing a search.
  */
 public class SearchResult {
+
+    public static boolean isMatchFound(SearchResult sr) {
+        return sr != null && sr.getResultCode() != 2 && sr.getResultCode() != 3;
+    }
+
     // TODO remove getters and setters and make everything public for easier future coding
     public MinecraftPlugin plugin;
+    public List<MinecraftPlugin> similarPlugins = new ArrayList<>();
     public MinecraftMod mod;
     public String latestVersion;
     public String downloadUrl;

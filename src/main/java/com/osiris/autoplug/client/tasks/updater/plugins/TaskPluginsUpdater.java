@@ -174,6 +174,7 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection latestVersion = pluginsConfig.put(name, plName, "latest-version");
                 YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
                 YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
+                YamlSection modrinthId = pluginsConfig.put(name, plName, "modrinth-id");
                 //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                 YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
                 YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
@@ -184,7 +185,6 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
-                YamlSection modrinthId = pluginsConfig.put(name, plName, "alternatives", "modrinth", "plugin-id");
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -361,7 +361,7 @@ public class TaskPluginsUpdater extends BThread {
                 } else {
                     sizeUnknownPlugins++; // UNKNOWN PLUGIN
                     pl.setIgnoreContentType(true); // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownPlugin(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findUnknownSpigotPlugin(pl)));
                 }
             } catch (Exception e) {
                 this.getWarnings().add(new BWarning(this, e, "Critical error while searching for update for '" + pl.getName() + "' plugin!"));

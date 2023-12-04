@@ -20,7 +20,6 @@ import com.osiris.autoplug.client.tasks.updater.search.bukkit.BukkitSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByAuthor;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByName;
-import com.osiris.autoplug.client.utils.UtilsMinecraft;
 
 public class ResourceFinder {
 
@@ -28,7 +27,7 @@ public class ResourceFinder {
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins' name and author will be executed.
      */
-    public SearchResult findUnknownPlugin(MinecraftPlugin plugin) {
+    public SearchResult findUnknownSpigotPlugin(MinecraftPlugin plugin) {
         // Do spigot search by name
         SearchResult sr = new SpigotSearchByName().search(plugin);
 
@@ -48,7 +47,7 @@ public class ResourceFinder {
      * based on the mods' name and author will be executed.
      */
     public SearchResult findByModrinthOrCurseforge(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion, boolean checkNameForModLoader) {
-        // Do spigot search by name
+        // TODO actualy do search by name, since currently it still searches by id
         SearchResult sr = new ModrinthAPI().searchUpdateMod(modLoader, mod, mcVersion);
 
         if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {

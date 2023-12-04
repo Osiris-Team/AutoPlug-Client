@@ -15,6 +15,9 @@ import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.StringComparator;
 import com.osiris.jlib.logger.AL;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpigotSearchByName {
 
     /**
@@ -28,6 +31,7 @@ public class SpigotSearchByName {
         String plAuthor = plugin.getAuthor();
         String plVersion = plugin.getVersion();
         Exception exception = null;
+        List<MinecraftPlugin> similarPlugins = new ArrayList<>();
         try {
             AL.debug(this.getClass(), "[" + plugin.getName() + "] Searching for plugin " + plName + "(" + plAuthor + ")...");
             JsonArray queryPlugins = new SpigetAPI().getPlugins(plName);
@@ -48,13 +52,15 @@ public class SpigotSearchByName {
                     //Remove any symbols and spaces to exactly compare both strings, but keep numbers
                     queryAuthor = queryAuthor.replaceAll("[^a-zA-Z]", "");
                     plAuthor = plAuthor.replaceAll("[^a-zA-Z]", "");
+                    int plId = Integer.parseInt(jsonPlugin.get("id").getAsString());
+
+                    similarPlugins.add(new MinecraftPlugin(null, plName, plVersion, plAuthor, plId, 0, null));
 
                     double similarity = StringComparator.similarity(queryAuthor, plAuthor);
                     AL.debug(this.getClass(), "[" + plugin.getName() + "] Similarity between -> " + plAuthor + " and " + queryAuthor + " is: " + similarity);
                     if (similarity > 0.5) {
                         AL.debug(this.getClass(), "[" + plugin.getName() + "] Found plugin " + plName + " with matching author: " + queryAuthor + ")");
-                        String pluginId = jsonPlugin.get("id").getAsString();
-                        plugin.setSpigotId(Integer.parseInt(pluginId));
+                        plugin.setSpigotId(plId);
                         return new SpigotSearchById().search(plugin);
                     }
                 }
@@ -69,6 +75,7 @@ public class SpigotSearchByName {
             result = new SearchResult(plugin, (byte) 2, null, null, null, null, null, false);
         else
             result = new SearchResult(plugin, (byte) 3, null, null, null, null, null, false);
+        result.similarPlugins = similarPlugins;
         result.setException(exception);
         return result;
     }
