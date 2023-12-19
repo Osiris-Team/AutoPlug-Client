@@ -15,15 +15,8 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
-import com.osiris.autoplug.client.tasks.updater.mods.TaskModsUpdater;
-import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
-import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
-import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
 import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.*;
-import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
-import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.jlib.logger.AL;
@@ -34,7 +27,6 @@ import org.fusesource.jansi.AnsiConsole;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,9 +34,10 @@ import java.util.logging.Logger;
 import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
+    // Do not init fields directly here, but instead in main() after logger was initialised
     //public static NonBlockingPipedInputStream PIPED_IN;
-    public static final ConMain CON = new ConMain();
-    public static Target TARGET = null;
+    public static ConMain CON;
+    public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
     /**
      * @param _args arguments separated by spaces. <br>
@@ -186,29 +179,7 @@ public class Main {
 
             // Loads or creates all needed configuration files
             GeneralConfig generalConfig = new GeneralConfig();
-            String target = generalConfig.autoplug_target_software.asString();
-            while (true) {
-                if (target == null) {
-                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
-                        AL.info(comment);
-                    }
-                    AL.info("Please enter a valid option and press enter:");
-                    target = new Scanner(System.in).nextLine();
-                    generalConfig.autoplug_target_software.setValues(target);
-                    generalConfig.save();
-                } else {
-                    TARGET = Target.fromString(target);
-                    if (TARGET != null) break;
-                    for (String comment : generalConfig.autoplug_target_software.getComments()) {
-                        AL.info(comment);
-                    }
-                    AL.info("The selected target software '" + target + "' is not a valid option.");
-                    AL.info("Please enter a valid option and press enter:");
-                    target = new Scanner(System.in).nextLine();
-                    generalConfig.autoplug_target_software.setValues(target);
-                    generalConfig.save();
-                }
-            }
+            GD.determineTarget(generalConfig);
             utilsConfig.checkForDeprecatedSections(generalConfig);
             allModules.addAll(generalConfig.getAllInEdit());
 
@@ -251,6 +222,9 @@ public class Main {
             utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
+            PluginsConfig pluginsConfig = new PluginsConfig();
+            ModsConfig modsConfig = new ModsConfig();
+
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Checked configs, took " + (System.currentTimeMillis() - now) + "ms");
 
@@ -285,56 +259,27 @@ public class Main {
             try {
                 if (updaterConfig.global_recurring_checks.asBoolean()) {
                     now = System.currentTimeMillis();
-                    new Thread(() -> {
-                        try {
-                            while (true) {
-                                long last = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                                        .parse(new SystemConfig().timestamp_last_updater_tasks.asString())
-                                        .getTime();
-                                long now1 = System.currentTimeMillis();
-                                long msSinceLast = now1 - last;
-                                long msLeft = (new UpdaterConfig().global_recurring_checks_intervall.asInt() * 3600000L) // 1h in ms
-                                        - msSinceLast;
-                                if (msLeft > 0) Thread.sleep(msLeft);
-                                AL.info("Running tasks from recurring update-checker thread.");
-                                MyBThreadManager man = new UtilsTasks().createManagerAndPrinter();
-                                TaskSelfUpdater selfUpdater = new TaskSelfUpdater("SelfUpdater", man.manager);
-                                TaskJavaUpdater taskJavaUpdater = new TaskJavaUpdater("JavaUpdater", man.manager);
-                                TaskServerUpdater taskServerUpdater = new TaskServerUpdater("ServerUpdater", man.manager);
-                                TaskPluginsUpdater taskPluginsUpdater = new TaskPluginsUpdater("PluginsUpdater", man.manager);
-                                TaskModsUpdater taskModsUpdater = new TaskModsUpdater("ModsUpdater", man.manager);
-                                selfUpdater.start();
-                                while (!selfUpdater.isFinished()) // Wait until the self updater finishes
-                                    Thread.sleep(1000);
-                                taskJavaUpdater.start();
-                                taskServerUpdater.start();
-                                taskPluginsUpdater.start();
-                                taskModsUpdater.start();
-                                while (!man.manager.isFinished())
-                                    Thread.sleep(1000);
-                            }
-                        } catch (Exception e) {
-                            AL.warn(e);
-                        }
-                    }).start();
+                    UPDATE_CHECKER_THREAD = new UpdateCheckerThread();
+                    UPDATE_CHECKER_THREAD.start();
                     AL.info("Started update-checker thread with " + updaterConfig.global_recurring_checks_intervall.asString() + "h intervall, took " + (System.currentTimeMillis() - now) + "ms");
                 }
             } catch (Exception e) {
                 AL.warn(e);
             }
 
-            AL.info("Initialised successfully.");
-            AL.info("Enter .help for a list of all commands.");
-            AL.info("| ------------------------------------------- |");
-
+            CON = new ConMain();
             CON.open();
 
-            if (TARGET != Target.MINECRAFT_CLIENT)
+            AL.info("Initialised successfully.");
+            AL.info("| ------------------------------------------- |");
+            AL.info("Enter .help for a list of all commands.");
+
+            if (GD.TARGET != Target.MINECRAFT_CLIENT)
                 new ConPluginCommandReceive();
 
             new ThreadUserInput().start();
 
-            if (TARGET != Target.MINECRAFT_CLIENT && generalConfig.server_auto_start.asBoolean())
+            if (GD.TARGET != Target.MINECRAFT_CLIENT && generalConfig.server_auto_start.asBoolean())
                 Server.start();
 
             // Execute arguments as commands if existing

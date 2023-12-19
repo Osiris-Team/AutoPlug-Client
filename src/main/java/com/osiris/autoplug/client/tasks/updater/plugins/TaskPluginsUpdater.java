@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.PluginsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.managers.FileManager;
@@ -26,7 +27,6 @@ import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
-import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.jlib.json.Json;
@@ -61,7 +61,7 @@ public class TaskPluginsUpdater extends BThread {
     @NotNull
     private final List<MinecraftPlugin> excludedPlugins = new ArrayList<>();
     private final Gson gson = new GsonBuilder().create();
-    Yaml pluginsConfig;
+    PluginsConfig pluginsConfig;
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private String pluginsConfigName;
@@ -77,47 +77,9 @@ public class TaskPluginsUpdater extends BThread {
 
     @Override
     public void runAtStart() throws Exception {
-        pluginsConfig = new Yaml(System.getProperty("user.dir") + "/autoplug/plugins.yml");
+        pluginsConfig = new PluginsConfig();
         pluginsConfig.load(); // No lock needed, since there are no other threads that access this file
         String name = pluginsConfig.getFileNameWithoutExt();
-        pluginsConfig.put(name).setComments(
-                "#######################################################################################################################\n" +
-                        "    ___       __       ___  __\n" +
-                        "   / _ |__ __/ /____  / _ \\/ /_ _____ _\n" +
-                        "  / __ / // / __/ _ \\/ ___/ / // / _ `/\n" +
-                        " /_/ |_\\_,_/\\__/\\___/_/  /_/\\_,_/\\_, /\n" +
-                        "                                /___/ Plugins-Config\n" +
-                        "Thank you for using AutoPlug!\n" +
-                        "You can find detailed installation instructions here: https://autoplug.one/installer\n" +
-                        "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC\n" +
-                        "\n" +
-                        "#######################################################################################################################\n" +
-                        "This file contains detailed information about your installed plugins. It is fetched from each plugins 'plugin.yml' file (located inside their jars).\n" +
-                        "Example configuration for the EssentialsX plugin with each setting explained:\n" +
-                        "  Essentials: \n" +
-                        "    exclude: false #### If a name/author/version is missing, the plugin gets excluded automatically\n " +
-                        "    version: 1434 #### Gets fetched from 'plugin.yml' and refreshed after each check\n " +
-                        "    latest-version: 1434 #### Gets refreshed after each check\n " +
-                        "    author: Zenexer #### Gets fetched from 'plugin.yml' and refreshed after each check #### If multiple names are provided, only the first author will be used.\n" +
-                        "    #### Note that only one id is necessary, provided both for demonstration purposes.\n" +
-                        "    spigot-id: 871 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### You can find it directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n " +
-                        "    bukkit-id: 93271 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n " +
-                        "    custom-check-url: #### (FEATURE NOT WORKING YET) Must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
-                        "    custom-download-url: #### Must be a static url to the plugins latest jar file.\n" +
-                        "    ignore-content-type: false #### When downloading a file the file host is asked for the file-type which must be .jar, when true this check is not performed.\n" +
-                        "    alternatives: #### below both alternatives are used for demonstration purposes, make sure to use only one)\n" +
-                        "      github: \n" +
-                        "        repo-name: EssentialsX/Essentials #### Provided by you #### Can be found in its url: https://github.com/EssentialsX/Essentials\n" +
-                        "        asset-name: EssentialsX #### Provided by you #### Wrong: 'EssentialsX-1.7.23.jar', we discard the version information.\n" +
-                        "      jenkins: \n" +
-                        "        project-url: https://ci.ender.zone/job/EssentialsX/ #### Provided by you ### Note that each plugins jenkins url looks different.\n" +
-                        "        artifact-name: EssentialsX #### Provided by you #### Wrong: 'EssentialsX-1.7.23.jar', we discard the version information.\n" +
-                        "        build-id: 1434\n #### The currently installed build identifier. Don't touch this." +
-                        "The configuration for uninstalled plugins wont be removed from this file, but they are automatically excluded from future checks (the exclude value is ignored).\n" +
-                        "Note for plugin devs: You can add your spigot/bukkit-id to your plugin.yml file. For more information visit " + GD.OFFICIAL_WEBSITE + "faq/2\n");
-
-        YamlSection keep_removed = pluginsConfig.put(name, "general", "keep-removed").setDefValues("true")
-                .setComments("Keep the plugins entry in this file even after its removal/uninstallation?");
 
         pluginsConfigName = pluginsConfig.getFileNameWithoutExt();
         generalConfig = new GeneralConfig();
@@ -291,7 +253,7 @@ public class TaskPluginsUpdater extends BThread {
             }
         }
 
-        if (keep_removed.asBoolean())
+        if (pluginsConfig.keep_removed.asBoolean())
             pluginsConfig.save();
         else {
             pluginsConfig.save(true); // This overwrites the file and removes everything else that wasn't added via the add method before.
@@ -332,10 +294,10 @@ public class TaskPluginsUpdater extends BThread {
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
         UpdaterConfig updaterConfig = new UpdaterConfig();
 
-        String mcVersion = updaterConfig.mods_updater_version.asString();
-
+        String mcVersion = updaterConfig.plugins_updater_version.asString();
+        if (mcVersion == null) mcVersion = generalConfig.server_version.asString();
         if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+        if (mcVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
 
         for (MinecraftPlugin pl :
                 includedPlugins) {

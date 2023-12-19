@@ -8,6 +8,9 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.tasks.scheduler.TaskDailyRestarter;
+import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
+import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
@@ -20,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class RestarterConfig extends Yaml {
+public class RestarterConfig extends MyYaml {
 
     public YamlSection restarter_enabled;
     public YamlSection restarter_times_raw;
@@ -37,6 +40,17 @@ public class RestarterConfig extends Yaml {
 
     public RestarterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/restarter.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+            try {
+                MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
+                TaskDailyRestarter taskDailyRestarter = new TaskDailyRestarter("DailyRestarter", myManager.manager);
+                taskDailyRestarter.start();
+            } catch (Exception ex) {
+                AL.warn(ex);
+            }
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -108,12 +122,12 @@ public class RestarterConfig extends Yaml {
                 getAllInEdit().add(m); // So that these don't get marked as deprecated
         }
 
-        validateOptions();
         save();
         unlockFile();
     }
 
-    private void validateOptions() {
+    @Override
+    public Yaml validateValues() {
 
         //Get the config string list
         //Split each time up into hours and min to validate them
@@ -172,6 +186,6 @@ public class RestarterConfig extends Yaml {
             }
         }
 
+        return this;
     }
-
 }

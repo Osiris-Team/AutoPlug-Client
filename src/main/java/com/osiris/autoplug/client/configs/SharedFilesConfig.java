@@ -8,13 +8,15 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 
-public class SharedFilesConfig extends Yaml {
+public class SharedFilesConfig extends MyYaml {
 
     public YamlSection enable;
     public YamlSection copy_from;
@@ -23,6 +25,15 @@ public class SharedFilesConfig extends Yaml {
 
     public SharedFilesConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/shared-files.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+            try {
+                new SyncFilesManager(this);
+            } catch (Exception ex) {
+                AL.warn(ex);
+            }
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -64,5 +75,10 @@ public class SharedFilesConfig extends Yaml {
 
         save();
         unlockFile();
+    }
+
+    @Override
+    public Yaml validateValues() {
+        return this;
     }
 }

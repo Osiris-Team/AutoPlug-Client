@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,13 +8,15 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 
-public class LoggerConfig extends Yaml {
+public class LoggerConfig extends MyYaml {
     public YamlSection debug;
     public YamlSection autoplug_label;
     public YamlSection force_ansi;
@@ -29,6 +31,13 @@ public class LoggerConfig extends Yaml {
 
     public LoggerConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/logger.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+            boolean isDebug = this.debug.asBoolean();
+            AL.isDebugEnabled = isDebug;
+            ConAutoPlugConsoleSend.isDebug = isDebug;
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -47,8 +56,7 @@ public class LoggerConfig extends Yaml {
 
         debug = put(name, "debug").setDefValues("false").setComments(
                 "Writes the debug output to console.\n" +
-                        "The log file contains the debug output by default and this option wont affect that.\n" +
-                        "This is the only setting that needs a restart to work.");
+                        "The log file contains the debug output by default and this option wont affect that.\n");
 
         autoplug_label = put(name, "autoplug-label").setDefValues("AP");
         force_ansi = put(name, "force-ANSI").setDefValues("false").setComments(
@@ -85,4 +93,8 @@ public class LoggerConfig extends Yaml {
     }
 
 
+    @Override
+    public Yaml validateValues() {
+        return this;
+    }
 }

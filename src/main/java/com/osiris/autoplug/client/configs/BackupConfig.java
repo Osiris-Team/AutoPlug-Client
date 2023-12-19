@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -19,7 +19,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BackupConfig extends Yaml {
+public class BackupConfig extends MyYaml {
+    private static final boolean isFileListenerRegistered = false;
 
     public YamlSection backup;
     public YamlSection backup_max_days;
@@ -40,6 +41,10 @@ public class BackupConfig extends Yaml {
 
     public BackupConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -144,4 +149,8 @@ public class BackupConfig extends Yaml {
         return files;
     }
 
+    @Override
+    public Yaml validateValues() {
+        return this;
+    }
 }

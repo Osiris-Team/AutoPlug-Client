@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.autoplug.client.utils.GD;
@@ -77,7 +78,12 @@ public class ConSendPublicDetails extends DefaultConnection {
                     while (true) {
                         // MC server related info:
                         mineStat = new MineStat(host, port);
-                        isRunning = mineStat.isServerUp();
+                        // mineStat.isServerUp(); // Before, but deprecated now to support
+                        // mc proxies and other servers like steam game servers.
+                        // This has one caveat since the server might be running, but we
+                        // actually want to know if players can join it, since it might still be blocked
+                        // by the firewall or another network issue.
+                        isRunning = Server.isRunning();
                         version = mineStat.getVersion();
                         if (version != null)
                             version = version.replaceAll("[a-zA-Z]", "").trim();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -25,7 +25,13 @@ import java.util.function.Consumer;
 import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class SyncFilesManager {
+    private static List<File> lastFoldersToWatch = new ArrayList<>();
     public SyncFilesManager(SharedFilesConfig sharedFilesConfig) throws Exception {
+        for (File folder : lastFoldersToWatch) {
+            // TODO does this also clean sub-dir listeners?
+            DirWatcher.get(folder, false).removeAllListeners(true);
+        }
+
         List<File> foldersToWatch = new ArrayList<>();
         for (String pathAsString :
                 sharedFilesConfig.copy_from.asStringList()) {
@@ -81,5 +87,6 @@ public class SyncFilesManager {
             DirWatcher.get(folder, true).addListeners(onFileChangeEvent);
             AL.debug(Main.class, "Watching 'copy-from' folder and sub-folders from: " + folder);
         }
+        lastFoldersToWatch = foldersToWatch;
     }
 }

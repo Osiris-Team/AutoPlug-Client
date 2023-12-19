@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Osiris-Team.
+ * Copyright (c) 2022-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.ui;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
@@ -59,8 +58,12 @@ public class MainWindow extends JFrame {
     }
 
     public void initTheme() {
+        initTheme(null);
+    }
+
+    public void initTheme(GeneralConfig generalConfig) {
         try {
-            GeneralConfig generalConfig = new GeneralConfig();
+            if (generalConfig == null) generalConfig = new GeneralConfig();
             if (generalConfig.autoplug_system_tray_theme.asString().equals("light")) {
                 if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
             } else if (generalConfig.autoplug_system_tray_theme.asString().equals("dark")) {
@@ -80,6 +83,7 @@ public class MainWindow extends JFrame {
         if (SystemTray.isSupported())
             SystemTray.getSystemTray().remove(trayIcon);
         this.dispose();
+        GET = null;
     }
 
     public void start() throws Exception {
@@ -157,18 +161,18 @@ public class MainWindow extends JFrame {
             // Tab panels/layouts
             try {
                 tabbedPane.addTab("Home", new HomePanel(tabbedPane));
-                if (Main.TARGET == Target.MINECRAFT_CLIENT) {
+                if (GD.TARGET == Target.MINECRAFT_CLIENT) {
                     MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
                     tabbedPane.addTab("Mods", minecraftMods);
-                } else if (Main.TARGET == Target.MINECRAFT_SERVER) {
+                } else if (GD.TARGET == Target.MINECRAFT_SERVER) {
                     MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
                     MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
                     tabbedPane.addTab("Plugins", minecraftPluginsPanel);
                     tabbedPane.addTab("Mods", minecraftModsPanel);
-                } else if (Main.TARGET == Target.MINDUSTRY_SERVER) {
+                } else if (GD.TARGET == Target.MINDUSTRY_SERVER) {
                     MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
                     tabbedPane.addTab("Mods", mindustryModsPanel);
-                } else if (Main.TARGET == Target.MINDUSTRY_CLIENT) {
+                } else if (GD.TARGET == Target.MINDUSTRY_CLIENT) {
                     MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
                     tabbedPane.addTab("Mods", mindustryModsPanel);
                 } else { // Target.OTHER

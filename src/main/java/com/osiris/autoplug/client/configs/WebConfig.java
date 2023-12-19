@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2023 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -14,7 +14,7 @@ import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class WebConfig extends Yaml {
+public class WebConfig extends MyYaml {
 
     public YamlSection online_console;
     public YamlSection online_system_console;
@@ -32,6 +32,10 @@ public class WebConfig extends Yaml {
 
     public WebConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/web.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -85,5 +89,10 @@ public class WebConfig extends Yaml {
 
         save();
         unlockFile();
+    }
+
+    @Override
+    public Yaml validateValues() {
+        return this;
     }
 }

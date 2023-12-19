@@ -19,6 +19,7 @@ import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.SteamCMD;
 import com.osiris.autoplug.client.utils.UtilsLists;
+import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
@@ -57,7 +58,11 @@ public class TaskServerUpdater extends BThread {
         }
         profile = updaterConfig.server_updater_profile.asString();
         serverSoftware = updaterConfig.server_software.asString();
+
         serverVersion = updaterConfig.server_version.asString();
+        if (serverVersion == null) serverVersion = new GeneralConfig().server_version.asString();
+        if (serverVersion == null) serverVersion = new UtilsMinecraft().getInstalledVersion();
+        if (serverVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
 
         setStatus("Searching for updates...");
 

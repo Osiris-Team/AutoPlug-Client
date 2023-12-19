@@ -34,7 +34,7 @@ import java.util.Objects;
  * Note that
  */
 public class ConAutoPlugConsoleSend extends DefaultConnection {
-    private static final boolean isDebug;
+    public static boolean isDebug;
     @Nullable
     private static BufferedWriter out;
 

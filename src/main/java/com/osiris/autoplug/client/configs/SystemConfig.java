@@ -15,7 +15,7 @@ import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 
-public class SystemConfig extends Yaml {
+public class SystemConfig extends MyYaml {
 
     public YamlSection timestamp_last_backup;
 
@@ -29,6 +29,10 @@ public class SystemConfig extends Yaml {
 
     public SystemConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/system/config.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -57,5 +61,10 @@ public class SystemConfig extends Yaml {
 
         save();
         unlockFile();
+    }
+
+    @Override
+    public Yaml validateValues() {
+        return this;
     }
 }

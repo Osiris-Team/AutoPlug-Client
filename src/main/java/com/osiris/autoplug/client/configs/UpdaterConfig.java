@@ -8,7 +8,8 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.utils.UtilsMinecraft;
+import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.utils.UpdateCheckerThread;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
@@ -16,7 +17,7 @@ import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 
-public class UpdaterConfig extends Yaml {
+public class UpdaterConfig extends MyYaml {
 
     public YamlSection global_cool_down;
     public YamlSection global_recurring_checks;
@@ -50,6 +51,7 @@ public class UpdaterConfig extends Yaml {
     public YamlSection plugins_updater;
     public YamlSection plugins_updater_profile;
     public YamlSection plugins_updater_path;
+    public YamlSection plugins_updater_version;
     public YamlSection plugins_updater_async;
     public YamlSection plugins_updater_web_database;
     public YamlSection plugins_updater_web_database_min_usages;
@@ -64,6 +66,15 @@ public class UpdaterConfig extends Yaml {
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/updater.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+            if (Main.UPDATE_CHECKER_THREAD != null) Main.UPDATE_CHECKER_THREAD.isRunning = false;
+            if (global_recurring_checks.asBoolean()) {
+                Main.UPDATE_CHECKER_THREAD = new UpdateCheckerThread();
+                Main.UPDATE_CHECKER_THREAD.start();
+            }
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -144,19 +155,14 @@ public class UpdaterConfig extends Yaml {
                 .setComments("Some games require you to be logged in. Add your username and password, separated by a space below (<username> <password>).",
                         "Note that SteamGuard must be disabled.");
         server_version = put(name, "server-updater", "version").setComments(
-                "Select the servers' version. A list of supported version can be found in the links below:\n" +
+                "If left empty, taken from general.yml, if also empty, taken from server jar.\n" +
+                        "A list of supported versions can be found in the links below:\n" +
                         "- Minecraft versions: https://papermc.io/api/v2/projects/paper | https://papermc.io/api/v2/projects/waterfall | https://papermc.io/api/v2/projects/travertine | https://papermc.io/api/v2/projects/velocity | https://purpur.pl3x.net/downloads | https://fabricmc.net/use/installer\n" +
                         "Enter \"latest\" as version to always fetch the latest release (major + minor).\n" +
                         "Pufferfish+ (and its purpur variant) are also supported by appending -plus and/or -purpur to the version.\n" +
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
                         "Note: Remember that worlds cannot be converted to older versions.\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
-        if (server_version.asString() == null) {
-            String version = new UtilsMinecraft().getInstalledVersion();
-            if (version != null) server_version.setDefValues(version);
-            else server_version.setDefValues("1.18.2");
-        } else
-            server_version.setDefValues("1.18.2");
         server_build_id = put(name, "server-updater", "build-id").setDefValues("0").setComments(
                 "Each release/update has its unique build-id. First release was 1, the second 2 and so on...\n" +
                         "If you change your server software or mc-version, remember to change this to 0, to ensure proper update-detection.\n" +
@@ -189,6 +195,9 @@ public class UpdaterConfig extends Yaml {
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
         plugins_updater_profile = put(name, "plugins-updater", "profile").setDefValues("AUTOMATIC");
         plugins_updater_path = put(name, "plugins-updater", "path").setDefValues("./plugins");
+        plugins_updater_version = put(name, "plugins-updater", "version").setComments("The Minecraft version to check and download plugins for.",
+                "If left empty, taken from general.yml, if also empty, taken from server jar.",
+                "Currently only relevant for Modrinth plugins.");
         plugins_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
@@ -207,7 +216,7 @@ public class UpdaterConfig extends Yaml {
         mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
         mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
         mods_updater_version = put(name, "mods-updater", "version").setComments("The Minecraft version to check and download mods for.",
-                "If left empty, will be determined via the installed server jar.");
+                "If left empty, taken from general.yml, if also empty, taken from server jar.");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
@@ -216,12 +225,12 @@ public class UpdaterConfig extends Yaml {
                 "Only relevant for determining if a curseforge mod release is forge or fabric.",
                 "If enabled additionally checks the mod name to see if it contains fabric or forge.");
 
-        validateOptions();
         save();
         unlockFile();
     }
 
-    private void validateOptions() {
+    @Override
+    public Yaml validateValues() {
         String selfP = self_updater_profile.asString();
         String jP = java_updater_profile.asString();
         String sP = server_updater_profile.asString();
@@ -250,7 +259,6 @@ public class UpdaterConfig extends Yaml {
             AL.warn("Config error -> " + plugins_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugins_updater_profile.setValues(correction);
         }
-
+        return this;
     }
-
 }

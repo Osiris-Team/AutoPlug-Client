@@ -9,15 +9,19 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.dyml.SmartString;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 
-public class GeneralConfig extends Yaml {
+public class GeneralConfig extends MyYaml {
     public YamlSection autoplug_auto_stop;
     public YamlSection autoplug_target_software;
     public YamlSection autoplug_start_on_boot;
@@ -25,6 +29,7 @@ public class GeneralConfig extends Yaml {
     public YamlSection autoplug_system_tray_theme;
 
     public YamlSection server_key;
+    public YamlSection server_version;
     public YamlSection server_auto_start;
     public YamlSection server_auto_eula;
     public YamlSection server_start_command;
@@ -41,6 +46,43 @@ public class GeneralConfig extends Yaml {
 
     public GeneralConfig(boolean save) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
         super(System.getProperty("user.dir") + "/autoplug/general.yml");
+
+        addSingletonConfigFileEventListener(e -> {
+
+            try {
+                GD.determineTarget(this);
+            } catch (Exception ex) {
+                AL.warn(ex);
+            }
+
+            try {
+                if (this.autoplug_start_on_boot.asBoolean())
+                    new UtilsNative().enableStartOnBootIfNeeded(new UtilsJar().getThisJar());
+                else new UtilsNative().disableStartOnBootIfNeeded();
+            } catch (Exception ex) {
+                AL.warn(ex);
+            }
+
+            try {
+                if (this.autoplug_system_tray.asBoolean()) {
+                    boolean firstStart = MainWindow.GET == null;
+                    new MainWindow();
+                    if (firstStart) AL.info("Started system-tray GUI.");
+                } else {
+                    boolean isRunning = MainWindow.GET != null;
+                    if (isRunning) {
+                        MainWindow.GET.close();
+                        AL.info("Stopped system-tray GUI.");
+                    }
+                }
+            } catch (Exception ex) {
+                AL.warn(ex);
+            }
+
+            if (MainWindow.GET != null) MainWindow.GET.initTheme(this);
+
+        });
+
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -68,8 +110,7 @@ public class GeneralConfig extends Yaml {
                 "If you have no GUI its recommended to install software like \"screen\" for virtual terminals and edit the script accordingly.");
         autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
-                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.",
-                "When changed, requires an AutoPlug restart to take effect.");
+                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.");
         autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
         autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light")
                 .setComments("Select between: light, dark and darcula.");
@@ -80,6 +121,9 @@ public class GeneralConfig extends Yaml {
                         "The Server-Key enables remote access from your account.\n" +
                         "No matter what, keep this key private to ensure your servers security!");
 
+        server_version = put(name, "server", "version").setComments(
+                "Leave empty to determine it automatically via the server jar.",
+                "Set this if the above fails, or you are running as CLI, or you just want to force a specific version.");
         server_auto_start = put(name, "server", "auto-start").setDefValues("true").setComments(
                 "Starts your server with the start of AutoPlug.");
         server_auto_eula = put(name, "server", "auto-eula").setDefValues("true").setComments(
@@ -156,12 +200,12 @@ public class GeneralConfig extends Yaml {
                         "Supported paths are relative (starting with './' which is the servers root directory) and absolute paths.")
                 .setDefValues("true ./autoplug/logs", "./autoplug/downloads");
 
-        validateOptions();
         if (save) save();
         unlockFile();
     }
 
-    private void validateOptions() {
+    @Override
+    public Yaml validateValues() {
+        return this;
     }
-
 }
