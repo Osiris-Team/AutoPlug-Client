@@ -109,7 +109,7 @@ public class TaskBackup extends BThread {
             new Thread(() -> {
                 try {
                     while (!_this.isFinished()) { // Parent thread
-                        setStatus("Backing up " + new File(progress.getFileName()).getName() + " " + progress.getPercentDone() + "% - " + progress.getCurrentTask());
+                        setStatus("Backing up " + progress.getFileName() + " " + progress.getPercentDone() + "% - " + progress.getCurrentTask());
                         Thread.sleep(100);
                     }
                 } catch (Exception e) {
