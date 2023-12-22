@@ -28,8 +28,9 @@ public class SyncFilesManager {
     private static List<File> lastFoldersToWatch = new ArrayList<>();
     public SyncFilesManager(SharedFilesConfig sharedFilesConfig) throws Exception {
         for (File folder : lastFoldersToWatch) {
-            // TODO does this also clean sub-dir listeners?
-            DirWatcher.get(folder, false).removeAllListeners(true);
+            DirWatcher dirWatcher = DirWatcher.get(folder, false);
+            dirWatcher.removeAllListeners(true);
+            dirWatcher.close();
         }
 
         List<File> foldersToWatch = new ArrayList<>();
