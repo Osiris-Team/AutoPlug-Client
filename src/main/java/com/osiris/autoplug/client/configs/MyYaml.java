@@ -99,8 +99,10 @@ public abstract class MyYaml extends Yaml {
             filesAndPEvents.put(path, new PSave());
         }
 
+        AL.debug(this.getClass(), "Listening for changes for " + path);
         super.addFileEventListener(e -> {
-            String preInfo = "Modified " + this.file.getName() + ": ";
+            String preInfo = this.file.getName() + " (" + e.getWatchEventKind() + "): ";
+            AL.debug(this.getClass(), preInfo);
             if (e.isDeleteEvent())
                 AL.info(preInfo + "Deleted. Thus clean config with defaults will be created once ist needed.");
             if (e.isModifyEvent()) {
