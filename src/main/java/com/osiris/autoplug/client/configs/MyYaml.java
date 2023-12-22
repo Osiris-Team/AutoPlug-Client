@@ -76,7 +76,7 @@ public abstract class MyYaml extends Yaml {
     /**
      * Pairs of absolute file path and count of pending programmatic save events for that file.
      */
-    private static final Map<String, Integer> filesAndPEvents = new HashMap<>();
+    private static final Map<String, PSave> filesAndPEvents = new HashMap<>();
 
     private long msLastEvent = 0;
 
@@ -95,9 +95,8 @@ public abstract class MyYaml extends Yaml {
         String path = file.getAbsolutePath();
 
         synchronized (filesAndPEvents) {
-            if (!filesAndPEvents.containsKey(path)) {
-                filesAndPEvents.put(path, 0);
-            }
+            if (filesAndPEvents.containsKey(path)) return this; // Already exists
+            filesAndPEvents.put(path, new PSave());
         }
 
         super.addFileEventListener(e -> {
@@ -106,11 +105,12 @@ public abstract class MyYaml extends Yaml {
                 AL.info(preInfo + "Deleted. Thus clean config with defaults will be created once ist needed.");
             if (e.isModifyEvent()) {
                 synchronized (filesAndPEvents) {
-                    int pendingProgrammaticSaveEvents = filesAndPEvents.get(path);
-                    if (pendingProgrammaticSaveEvents != 0) {
-                        pendingProgrammaticSaveEvents--;
-                        if (pendingProgrammaticSaveEvents >= 0) // Prevent negative values
-                            filesAndPEvents.put(path, pendingProgrammaticSaveEvents);
+                    PSave p = filesAndPEvents.get(path);
+                    //AL.info(preInfo+" pending: "+p.pendingSaveCount);
+                    if (p.pendingSaveCount != 0) {
+                        p.pendingSaveCount--;
+                        if (p.pendingSaveCount < 0) // Prevent negative values
+                            p.pendingSaveCount = 0;
                         // Prevent stackoverflow from recursive programmatic save events.
                         // Only allow user save events.
                         return;
@@ -157,11 +157,28 @@ public abstract class MyYaml extends Yaml {
     public Yaml save(boolean overwrite) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException {
         validateValues();
         synchronized (filesAndPEvents) {
-            String p = file.getAbsolutePath();
-            if (filesAndPEvents.containsKey(p)) {
-                filesAndPEvents.put(p, filesAndPEvents.get(p) + 1);
+            String path = file.getAbsolutePath();
+            if (filesAndPEvents.containsKey(path)) {
+                PSave p = filesAndPEvents.get(path);
+                // If save events are to close after each other the listener fails to differentiate them
+                // and only notices one event, thus to prevent incrementing the count by adding a delay between saves
+                long msCurrentSave = System.currentTimeMillis();
+                //AL.info(""+ (msCurrentSave - p.msLastSave));
+                if (msCurrentSave - p.msLastSave >= 50) {
+                    //AL.info("save() "+this.file.getName()+" filesAndPEvents.get(p) + 1 = "+ (p.pendingSaveCount + 1));
+                    p.pendingSaveCount++;
+                }
+                p.msLastSave = msCurrentSave;
             }
         }
         return super.save(overwrite);
+    }
+
+    /**
+     * Programmatic save of a yaml file.
+     */
+    public static class PSave {
+        public long msLastSave = System.currentTimeMillis();
+        public int pendingSaveCount = 0;
     }
 }
