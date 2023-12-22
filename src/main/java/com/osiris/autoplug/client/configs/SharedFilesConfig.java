@@ -28,7 +28,10 @@ public class SharedFilesConfig extends MyYaml {
 
         addSingletonConfigFileEventListener(e -> {
             try {
-                new SyncFilesManager(this);
+                this.load();
+
+                if (enable.asBoolean())
+                    new SyncFilesManager(this);
             } catch (Exception ex) {
                 AL.warn(ex);
             }
