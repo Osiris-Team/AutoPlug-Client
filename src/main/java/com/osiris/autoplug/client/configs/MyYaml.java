@@ -78,14 +78,20 @@ public abstract class MyYaml extends Yaml {
      */
     private static final Map<String, PSave> filesAndPEvents = new HashMap<>();
 
-    private long msLastEvent = 0;
+    private final long msLastEvent = 0;
 
     /**
+     * We can't count correctly bc the received events count is not exactly the same?!
+     * Instead of keeping track of the save() and modify event counts we simply check
+     * when the last save() was executed and if it was within the last 2 seconds
+     * we do NOT execute the listeners for that file.
+     *
      * Does nothing if a listener for this config/file was already registered. <br>
      * {@link #load()} is performed before executing the listener to ensure this config has the latest values
      * and {@link #validateValues()} to ensure the input is correct. <br>
      * <p>
      * Also has anti-spam meaning it waits 10 seconds for a newer event and executes the listener then. <br>
+     * UPDATE: Not anymore.
      * <p>
      * To be able to call {@link #save(boolean)} in here and prevent a stackoverflow error, events
      * caused by a programmatic save will not execute the listener, thus only user modify events will.
@@ -96,57 +102,47 @@ public abstract class MyYaml extends Yaml {
 
         synchronized (filesAndPEvents) {
             if (filesAndPEvents.containsKey(path)) return this; // Already exists
-            filesAndPEvents.put(path, new PSave());
+            PSave pSave = new PSave();
+            pSave.listener = listener;
+            filesAndPEvents.put(path, pSave);
         }
 
         AL.debug(this.getClass(), "Listening for changes for " + path);
         super.addFileEventListener(e -> {
             String preInfo = this.file.getName() + " (" + e.getWatchEventKind() + "): ";
-            AL.debug(this.getClass(), preInfo);
+            //AL.debug(this.getClass(), preInfo);
             if (e.isDeleteEvent())
                 AL.info(preInfo + "Deleted. Thus clean config with defaults will be created once ist needed.");
             if (e.isModifyEvent()) {
                 synchronized (filesAndPEvents) {
                     PSave p = filesAndPEvents.get(path);
                     //AL.info(preInfo+" pending: "+p.pendingSaveCount);
-                    if (p.pendingSaveCount != 0) {
-                        p.pendingSaveCount--;
-                        if (p.pendingSaveCount < 0) // Prevent negative values
-                            p.pendingSaveCount = 0;
-                        // Prevent stackoverflow from recursive programmatic save events.
-                        // Only allow user save events.
+                    if ((System.currentTimeMillis() - p.msLastSave) < 2000) {
+                        //AL.info(preInfo+" IGNORED!");
                         return;
                     }
                 }
-                long msThisEvent = System.currentTimeMillis();
-                new Thread(() -> {
+                try {
                     try {
-                        Thread.sleep(10000); // 10sec
-                        if (msLastEvent > msThisEvent)
-                            // Means there was a newer event than this one
-                            return;
-                        try {
-                            lockFile();
-                            load();
-                        } catch (Exception ex) {
-                            AL.warn(preInfo + "Failed to update internal values for config. Check for syntax errors.", ex);
-                            return;
-                        } finally {
-                            unlockFile();
-                        }
-                        try {
-                            validateValues();
-                        } catch (Exception ex) {
-                            AL.warn(preInfo + "Failed to update internal values for config. One or multiple values are not valid.", ex);
-                            return;
-                        }
-                        listener.accept(e);
-                        AL.info(preInfo + "Modified. Internal values updated.");
+                        lockFile();
+                        load();
                     } catch (Exception ex) {
-                        AL.warn(ex);
+                        AL.warn(preInfo + "Failed to update internal values for config. Check for syntax errors.", ex);
+                        return;
+                    } finally {
+                        unlockFile();
                     }
-                }).start();
-                msLastEvent = msThisEvent;
+                    try {
+                        validateValues();
+                    } catch (Exception ex) {
+                        AL.warn(preInfo + "Failed to update internal values for config. One or multiple values are not valid.", ex);
+                        return;
+                    }
+                    listener.accept(e);
+                    AL.info(preInfo + "Internal values updated.");
+                } catch (Exception ex) {
+                    AL.warn(ex);
+                }
             }
         });
 
@@ -162,15 +158,7 @@ public abstract class MyYaml extends Yaml {
             String path = file.getAbsolutePath();
             if (filesAndPEvents.containsKey(path)) {
                 PSave p = filesAndPEvents.get(path);
-                // If save events are to close after each other the listener fails to differentiate them
-                // and only notices one event, thus to prevent incrementing the count by adding a delay between saves
-                long msCurrentSave = System.currentTimeMillis();
-                //AL.info(""+ (msCurrentSave - p.msLastSave));
-                if (msCurrentSave - p.msLastSave >= 50) {
-                    //AL.info("save() "+this.file.getName()+" filesAndPEvents.get(p) + 1 = "+ (p.pendingSaveCount + 1));
-                    p.pendingSaveCount++;
-                }
-                p.msLastSave = msCurrentSave;
+                p.msLastSave = System.currentTimeMillis();
             }
         }
         return super.save(overwrite);
@@ -181,6 +169,6 @@ public abstract class MyYaml extends Yaml {
      */
     public static class PSave {
         public long msLastSave = System.currentTimeMillis();
-        public int pendingSaveCount = 0;
+        public Consumer<FileEvent> listener;
     }
 }
