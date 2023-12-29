@@ -45,8 +45,6 @@ import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Listens for input started with .
@@ -343,14 +341,14 @@ public final class Commands {
         String input = command.replaceFirst("\\.install plugin", "").replaceFirst("\\.ip", "").trim();
         SearchResult result = null;
         String tempName = "NEW_PLUGIN";
-        File pluginsDir = FileManager.convertRelativeToAbsolutePath(new UpdaterConfig().plugins_updater_path.asString());
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        File pluginsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString());
 
         MinecraftPlugin plugin = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
                 tempName, "0", "", 0, 0, "");
-        String mcVersion = new UpdaterConfig().mods_updater_version.asString();
 
-        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+        String mcVersion = updaterConfig.plugins_updater_version.asString();
+        if (mcVersion == null) Server.getMCVersion();
 
         String repo = "spigot";
         if(input.startsWith(repo)){
@@ -451,9 +449,10 @@ public final class Commands {
         String tempName = "NEW_MOD";
         UpdaterConfig updaterConfig = new UpdaterConfig();
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
+
         String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException("Failed to determine Minecraft version.");
+        if (mcVersion == null) Server.getMCVersion();
+
         MinecraftMod mod = new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
                 "", "0", "0", "");
 

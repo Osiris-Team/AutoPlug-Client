@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.osiris.autoplug.client.Server;
-import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.ModsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
@@ -181,9 +180,7 @@ public class TaskModsUpdater extends BThread {
 
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) mcVersion = new GeneralConfig().server_version.asString();
-        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
+        if (mcVersion == null) Server.getMCVersion();
 
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())

@@ -295,9 +295,7 @@ public class TaskPluginsUpdater extends BThread {
         UpdaterConfig updaterConfig = new UpdaterConfig();
 
         String mcVersion = updaterConfig.plugins_updater_version.asString();
-        if (mcVersion == null) mcVersion = generalConfig.server_version.asString();
-        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
-        if (mcVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
+        if (mcVersion == null) Server.getMCVersion();
 
         for (MinecraftPlugin pl :
                 includedPlugins) {

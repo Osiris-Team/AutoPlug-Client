@@ -14,10 +14,7 @@ import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsJar;
-import com.osiris.autoplug.client.utils.UtilsLists;
-import com.osiris.autoplug.client.utils.UtilsString;
+import com.osiris.autoplug.client.utils.*;
 import com.osiris.autoplug.client.utils.io.AsyncInputStream;
 import com.osiris.dyml.SmartString;
 import com.osiris.dyml.YamlSection;
@@ -386,6 +383,12 @@ public final class Server {
         }
     }
 
+    public static String getMCVersion() throws Exception {
+        String mcVersion = new GeneralConfig().server_version.asString();
+        if (mcVersion == null) mcVersion = new UtilsMinecraft().getInstalledVersion();
+        if (mcVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
+        return mcVersion;
+    }
 }
 
 
