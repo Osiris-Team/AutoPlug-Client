@@ -30,7 +30,7 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 - Staff Access
 - Plugin details database
 
-Community projects:
+## Community projects
 
 - Docker support: https://github.com/lkkuma/AutoPlug-Client-Docker
 - Pterodactly panel support: https://github.com/ImLunaUwU/PteroPlug
