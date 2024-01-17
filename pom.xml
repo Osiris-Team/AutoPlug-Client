@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2021-2023 Osiris-Team.
+  ~ Copyright (c) 2021-2024 Osiris-Team.
   ~ All rights reserved.
   ~
   ~ This software is copyrighted work, licensed under the terms
@@ -14,7 +14,7 @@
 
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>7.5.7</version>
+    <version>7.5.8</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>

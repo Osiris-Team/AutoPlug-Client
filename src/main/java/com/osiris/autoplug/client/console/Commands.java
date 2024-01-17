@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -348,7 +348,7 @@ public final class Commands {
                 tempName, "0", "", 0, 0, "");
 
         String mcVersion = updaterConfig.plugins_updater_version.asString();
-        if (mcVersion == null) Server.getMCVersion();
+        if (mcVersion == null) mcVersion = Server.getMCVersion();
 
         String repo = "spigot";
         if(input.startsWith(repo)){
@@ -451,7 +451,7 @@ public final class Commands {
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) Server.getMCVersion();
+        if (mcVersion == null) mcVersion = Server.getMCVersion();
 
         MinecraftMod mod = new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
                 "", "0", "0", "");

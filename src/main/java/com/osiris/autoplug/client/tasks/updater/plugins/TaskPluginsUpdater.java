@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -295,7 +295,7 @@ public class TaskPluginsUpdater extends BThread {
         UpdaterConfig updaterConfig = new UpdaterConfig();
 
         String mcVersion = updaterConfig.plugins_updater_version.asString();
-        if (mcVersion == null) Server.getMCVersion();
+        if (mcVersion == null) mcVersion = Server.getMCVersion();
 
         for (MinecraftPlugin pl :
                 includedPlugins) {
