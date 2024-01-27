@@ -218,26 +218,19 @@ public final class Server {
                 if (folders.isEmpty())
                     throw new Exception("No Java-Installation was found in '" + jreFolder.getAbsolutePath() + "'!");
                 File javaInstallationFolder = folders.get(0);
-                File javaBinFolder = null;
-                for (File folder :
-                        fileManager.getFoldersFrom(javaInstallationFolder)) {// This are the files inside a java installation
-
-                    if (folder.getName().equalsIgnoreCase("Home")) // For macos support
-                        for (File folder2 :
-                                folder.listFiles()) {
-                            if (folder2.getName().equals("bin")) {
-                                javaBinFolder = folder;
-                                break;
-                            }
-                        }
-
-                    if (folder.getName().equals("bin")) { // Regular java installations
-                        javaBinFolder = folder;
-                        break;
-                    }
+                File javaBinFolder = new File(javaInstallationFolder+"/bin");
+                if(!javaBinFolder.exists()) {
+                    AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
+                    javaBinFolder = new File(javaInstallationFolder + "/Home/bin"); // For macos support
                 }
-                if (javaBinFolder == null)
+                if(!javaBinFolder.exists()) {
+                    AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
+                    javaBinFolder = new File(javaInstallationFolder + "/HOME/bin"); // For macos support
+                }
+                if (!javaBinFolder.exists()){
+                    AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
                     throw new Exception("No Java 'bin' folder found inside of Java installation at path: '" + jreFolder.getAbsolutePath() + "'");
+                }
                 File javaFile = null;
                 if (SystemUtils.IS_OS_WINDOWS) {
                     for (File file :
