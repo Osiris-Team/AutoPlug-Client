@@ -221,11 +221,11 @@ public final class Server {
                 File javaBinFolder = new File(javaInstallationFolder+"/bin");
                 if(!javaBinFolder.exists()) {
                     AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
-                    javaBinFolder = new File(javaInstallationFolder + "/Home/bin"); // For macos support
+                    javaBinFolder = new File(javaInstallationFolder + "/Contents/Home/bin"); // For macos support
                 }
                 if(!javaBinFolder.exists()) {
                     AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
-                    javaBinFolder = new File(javaInstallationFolder + "/HOME/bin"); // For macos support
+                    javaBinFolder = new File(javaInstallationFolder + "/Contents/HOME/bin"); // For macos support
                 }
                 if (!javaBinFolder.exists()){
                     AL.debug(Server.class, "Failed to find Java bin in: "+javaBinFolder);
