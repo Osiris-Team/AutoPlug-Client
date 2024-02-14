@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -130,7 +130,7 @@ public class UpdaterConfig extends MyYaml {
                 "If you selected the AUTOMATIC profile the 'java-path' value inside 'autoplug-general-config.yml' gets ignored.",
                 "Note that this won't update your already existing Java installation, but instead create a new one inside of /autoplug/system/jre, which then will be used to run your server."
         );
-        java_updater_version = put(name, "java-updater", "version").setDefValues("17").setComments(
+        java_updater_version = put(name, "java-updater", "version").setDefValues("21").setComments(
                 "The major Java version. List of versions available: https://api.adoptium.net/v3/info/available_releases",
                 "Note: If you change this, also set the \"build-id\" value to 0, to guarantee correct update-detection."
         );

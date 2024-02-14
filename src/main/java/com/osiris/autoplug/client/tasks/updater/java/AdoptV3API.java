@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.json.exceptions.HttpErrorException;
 import com.osiris.jlib.json.exceptions.WrongJsonTypeException;
+import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -41,11 +42,13 @@ public class AdoptV3API {
                                            VendorProjectType vendorProject, ReleaseType releaseType) {
         String jvmImplementation = isHotspotImpl ? "hotspot" : "openj9";
         String heapSize = isLargeHeapSize ? "large" : "normal";
-        return START_ASSETS_URL
-                + "%5B" + releaseVersionName
+        return log(START_ASSETS_URL
+                + "%5B" // [ // Wrap version inside [] (in url encoded format) so that we get an exact match, see: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
+                + releaseVersionName
                 .replace(".LTS", "")
                 .replace(".EA", "")
-                .replace("+", "%2B") + "%2C%29"
+                .replace("+", "%2B")
+                + "%5D" // ]
                 + "?architecture=" + osArchitectureType.name
                 + "&heap_size=" + heapSize
                 + "&image_type=" + imageType.name
@@ -57,7 +60,7 @@ public class AdoptV3API {
                 + "&project=" + vendorProject.name
                 + "&release_type=" + releaseType.name
                 + "&sort_method=DEFAULT&sort_order=DESC"
-                + "&vendor=eclipse";
+                + "&vendor=eclipse");
     }
 
     public JsonArray getVersionInformation(String releaseVersionName, OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
@@ -84,7 +87,7 @@ public class AdoptV3API {
                                  VendorProjectType vendorProject, ReleaseType releaseType) {
         String jvmImplementation = isHotspotImpl ? "hotspot" : "openj9";
         String heapSize = isLargeHeapSize ? "large" : "normal";
-        return START_RELEASES_URL
+        return log(START_RELEASES_URL
                 + osArchitectureType.name
                 + "&heap_size=" + heapSize
                 + "&image_type=" + imageType.name
@@ -96,7 +99,7 @@ public class AdoptV3API {
                 + "&project=" + vendorProject.name
                 + "&release_type=" + releaseType.name
                 + "&sort_method=DEFAULT&sort_order=DESC"
-                + "&vendor=eclipse";
+                + "&vendor=eclipse");
     }
 
     public void getReleases(OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
@@ -131,14 +134,19 @@ public class AdoptV3API {
                                  VendorProjectType vendorProject) {
         String jvmImplementation = isHotspotImpl ? "hotspot" : "openj9";
         String heapSize = isLargeHeapSize ? "large" : "normal";
-        return START_DOWNLOAD_URL
+        return log(START_DOWNLOAD_URL
                 + releaseName + "/"
                 + osType.name + "/"
                 + osArchitectureType.name + "/"
                 + imageType.name + "/"
                 + jvmImplementation + "/"
                 + heapSize + "/"
-                + "eclipse?project=" + vendorProject.name;
+                + "eclipse?project=" + vendorProject.name);
+    }
+
+    private String log(String s) {
+        AL.debug(this.getClass(), s);
+        return s;
     }
 
 

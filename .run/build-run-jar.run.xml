@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023-2024 Osiris-Team.
+  ~ Copyright (c) 2024 Osiris-Team.
   ~ All rights reserved.
   ~
   ~ This software is copyrighted work, licensed under the terms
@@ -7,7 +7,7 @@
   -->
 
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="run-jar" type="JarApplication">
+    <configuration default="false" name="build-run-jar" type="JarApplication">
         <option name="JAR_PATH" value="$PROJECT_DIR$/AP-TEST-SERVER/AutoPlug-Client.jar"/>
         <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8"/>
         <option name="PROGRAM_PARAMETERS" value="test"/>

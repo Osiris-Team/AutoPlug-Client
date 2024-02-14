@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Osiris-Team.
+ * Copyright (c) 2022-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -26,9 +26,16 @@ public class HomePanel extends BLayout {
     public JLabel labelConsole = new JLabel("Console");
     public BLayout txtConsole;
     public HintTextField txtSendCommand = new HintTextField("Send command...");
+    private final JButton execute;
 
     public HomePanel(Container parent) {
         super(parent);
+
+        execute = new JButton("Execute");
+        BLayout jPanel = new BLayout(this, 100, 30);
+//        jPanel.setLayout(new FlowLayout());
+        jPanel.addH(txtSendCommand);
+        jPanel.addH(execute);
 
         //TODO this.addV(getBtnMinecraftLaunch());
 
@@ -38,6 +45,7 @@ public class HomePanel extends BLayout {
         //TODO txtConsole.getScrollPane().getVerticalScrollBar().setUnitIncrement(16);
 
         this.addV(txtSendCommand);
+        this.addV(jPanel);
 
         AL.actionsOnMessageEvent.add(msg -> {
             txtConsole.access(() -> {
@@ -71,6 +79,16 @@ public class HomePanel extends BLayout {
             public void keyReleased(KeyEvent e) {
 
             }
+        });
+
+        execute.addActionListener(e -> {
+            txtConsole.access(() -> {
+                txtConsole.addV(new JLabel(txtSendCommand.getText()));
+            });
+            txtConsole.scrollToEndV();
+            AL.info("Received System-Tray command: '" + txtSendCommand.getText() + "'");
+            Commands.execute(txtSendCommand.getText());
+            txtSendCommand.setText("");
         });
     }
 
