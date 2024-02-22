@@ -113,8 +113,8 @@ Please see the top of the `plugins.yml`/`mods.yml` file for instructions and exa
 If you have a premium account and your server connected, AutoPlug will additionally check
 our database for additional info and fill it in, if that info is used by over 50 other servers too.
 
-## **Download of 'plugin.jar' failed because of invalid content type: text**
-The download fails due to the download link redirecting to another page. 
+## **Download of 'plugin/mod.jar' failed because of invalid content type: text**
+The download fails due to the download link redirecting to another page (see question above for details). 
 In this situation, use an alternative updating method for for that plugin. You can set it in `/autoplug/plugins.yml`.
 
 ## **My host keeps telling me that my server is crashing!**  
