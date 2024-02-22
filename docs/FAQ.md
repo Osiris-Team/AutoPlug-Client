@@ -115,7 +115,7 @@ our database for additional info and fill it in, if that info is used by over 50
 
 ## **Download of 'plugin.jar' failed because of invalid content type: text**
 The download fails due to the download link redirecting to another page. 
-In this situation, it would be helpful to use an alternative method for updating for that plugin in `/autoplug/plugins.yml`.
+In this situation, use an alternative updating method for for that plugin. You can set it in `/autoplug/plugins.yml`.
 
 ## **My host keeps telling me that my server is crashing!**  
 This usually happens when AutoPlug Client tries to restart when updating itself.  
