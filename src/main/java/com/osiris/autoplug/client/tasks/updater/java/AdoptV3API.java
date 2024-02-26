@@ -43,7 +43,9 @@ public class AdoptV3API {
         String jvmImplementation = isHotspotImpl ? "hotspot" : "openj9";
         String heapSize = isLargeHeapSize ? "large" : "normal";
         return log(START_ASSETS_URL
-                + "%5B" // [ // Wrap version inside [] (in url encoded format) so that we get an exact match, see: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
+                + "%28%2C" // [ // Wrap version inside (,] (in url encoded format) so that we get an exact match, or older version, see: https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html
+                // Note that we do not encapsulate in [], since SOMEHOW the provided latest version from the other API endpoint
+                // does sometimes not exist?
                 + releaseVersionName
                 .replace(".LTS", "")
                 .replace(".EA", "")
