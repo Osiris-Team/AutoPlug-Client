@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -51,7 +51,6 @@ public class RestartJob implements Job {
                 for (YamlSection m :
                         modules) {
                     if (Integer.parseInt(m.getLastKey()) == i) {
-                        AL.debug(this.getClass(), "Executing command(s): " + m.getValues().toString());
                         for (String command : m.asStringList()) {
                             try {
                                 if (command == null)
