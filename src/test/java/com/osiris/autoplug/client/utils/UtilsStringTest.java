@@ -37,4 +37,12 @@ class UtilsStringTest {
                 " nogui");
         assertEquals(6, l.size());
     }
+
+    @Test
+    void indexOf_singleOccurrence() {
+        UtilsString utilsString = new UtilsString();
+        int result = utilsString.indexOf("Hello world!", 'o', 1);
+        assertEquals(4, result);
+    }
+
 }
