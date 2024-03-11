@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -11,8 +11,8 @@ package com.osiris.autoplug.client.tasks.backup;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsConfig;
+import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.tasks.CoolDownReport;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class TaskBackup extends BThread {
 
-    private final File autoplug_backups = new File(GD.WORKING_DIR + "/autoplug/backups");
+    private File autoplug_backups;
     private final LocalDateTime date = LocalDateTime.now();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm");
     private final String formattedDate = date.format(formatter);
@@ -51,7 +51,6 @@ public class TaskBackup extends BThread {
     @Override
     public void runAtStart() throws Exception {
         super.runAtStart();
-        autoplug_backups.mkdirs();
         createBackup();
     }
 
@@ -79,6 +78,9 @@ public class TaskBackup extends BThread {
             systemConfig.save(); // Save the current timestamp to file
             systemConfig.unlockFile();
         }
+
+        autoplug_backups = new UtilsFile().pathToFile(config.backup_path.asString());
+        autoplug_backups.mkdirs();
 
         String server_backup_dest = autoplug_backups.getAbsolutePath() + "/" + formattedDate + "-BACKUP.zip";
         int max_days_server = config.backup_max_days.asInt();

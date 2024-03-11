@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Osiris-Team.
+ * Copyright (c) 2022-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -43,5 +43,17 @@ public class UtilsFile {
         file.renameTo(newFile);
         file.delete(); // Delete old
         return newFile;
+    }
+
+    public File pathToFile(String path) {
+        File file = null;
+        if (path.contains("./"))
+            path = path.replace("./", GD.WORKING_DIR.getAbsolutePath() + File.separator);
+        if (path.contains(".\\"))
+            path = path.replace(".\\", GD.WORKING_DIR.getAbsolutePath() + File.separator);
+        if (!path.contains("/") && !path.contains("\\"))
+            path = GD.WORKING_DIR.getAbsolutePath() + File.separator + path;
+
+        return new File(path);
     }
 }

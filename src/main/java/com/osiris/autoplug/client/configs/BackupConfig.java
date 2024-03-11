@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.configs;
 
-import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
@@ -25,6 +25,7 @@ public class BackupConfig extends MyYaml {
     public YamlSection backup;
     public YamlSection backup_max_days;
     public YamlSection backup_cool_down;
+    public YamlSection backup_path;
     public YamlSection backup_exclude;
     public YamlSection backup_exclude_list;
     public YamlSection backup_include;
@@ -72,6 +73,8 @@ public class BackupConfig extends MyYaml {
                 "The cool-down prevents exactly that from happening and saves you storage space and time.",
                 "Set to 0 to disable."
         );
+        backup_path = put(name, "path").setDefValues("./autoplug/backups").setComments(
+                "Where to create your backups.");
         backup_include = put(name, "include", "enable").setDefValues("true").setComments(
                 "Add specific files or folders you want to include in the backup, to the list below.",
                 "Windows/Linux formats are supported. './' stands for the servers root directory."
@@ -113,22 +116,12 @@ public class BackupConfig extends MyYaml {
         unlockFile();
     }
 
-    private File pathToFile(String path) {
-        File file = null;
-        if (path.contains("./"))
-            path = path.replace("./", GD.WORKING_DIR.getAbsolutePath() + File.separator);
-        if (!path.contains("/") && !path.contains("\\"))
-            path = GD.WORKING_DIR.getAbsolutePath() + File.separator + path;
-
-        return new File(path);
-    }
-
     public List<File> getExcludedFiles() {
         List<File> files = new ArrayList<>();
         for (String path :
                 backup_exclude_list.asStringList()) {
             try {
-                files.add(pathToFile(path));
+                files.add(new UtilsFile().pathToFile(path));
             } catch (Exception e) {
                 AL.warn(e);
             }
@@ -141,7 +134,7 @@ public class BackupConfig extends MyYaml {
         for (String path :
                 backup_include_list.asStringList()) {
             try {
-                files.add(pathToFile(path));
+                files.add(new UtilsFile().pathToFile(path));
             } catch (Exception e) {
                 AL.warn(e);
             }
