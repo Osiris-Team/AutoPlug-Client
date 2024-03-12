@@ -14,7 +14,7 @@
 
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>autoplug-client</artifactId>
-    <version>7.5.14</version>
+    <version>7.5.15</version>
     <packaging>jar</packaging>
 
     <name>AutoPlug-Client</name>
@@ -237,7 +237,7 @@
         <dependency>
             <groupId>me.hsgamer</groupId>
             <artifactId>mc-server-updater-lib</artifactId>
-            <version>3.2.0</version>
+            <version>3.4.0</version>
         </dependency>
     </dependencies>
 
