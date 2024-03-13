@@ -18,7 +18,7 @@ which is renowned as the world's top-selling game and boasts an exceptionally ex
 **I am self-hosting**: Go to the AutoPlug Client [installer page](https://autoplug.one/installer) and follow the steps.
 
 **I am using a server hoster**:
-If using server hosts, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
+Pease read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
 
 **I want it on my Minecraft client:**
 1. Go to https://autoplug.one/installer (select Minecraft, Client and set your version) and download the generated zip file.
