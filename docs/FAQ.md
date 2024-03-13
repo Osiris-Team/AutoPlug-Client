@@ -53,11 +53,9 @@ AutoPlug Client will never contain functionality for downloading paid/premium pl
 As an alternative, SPPU [[Link](https://github.com/Osiris-Team/SPPU)] may be better suited.  
 *It is highly advised to read the entire readme before using this tool.*
 
-## **How do I install it?**  
+## **How do I install it? Can I install it on a server host?**  
 Go to the AutoPlug Client [installer page](https://autoplug.one/installer) and follow the steps carefully.
-
-## **Can I install it on a server host?**  
-Yes! For instructions on how to do so, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
+If using server hosts, please read [How To - Install AutoPlug Client on a Server Host](How%20To%20-%20Install%20AP%20Client%20on%20a%20Server.md).
 
 ## **Can I install it on my local Minecraft installation?**
 1. Go to https://autoplug.one/installer (select Minecraft, Client and set your version) and download the generated zip file.
