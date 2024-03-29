@@ -8,10 +8,7 @@
 
 package com.osiris.autoplug.client.managers;
 
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.jlib.logger.AL;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import static com.osiris.jprocesses2.util.OS.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +21,11 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.osiris.jprocesses2.util.OS.isWindows;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.osiris.autoplug.client.utils.GD;
+import com.osiris.jlib.logger.AL;
 
 /**
  * Search & find files!
@@ -369,20 +370,27 @@ public class FileManager {
                 @NotNull
                 @Override
                 public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    //Skip subdirectories of non main worki dirs and non matching dirs
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory() && !pathMatcher.matches(dir.getFileName())) {
+                    if (shouldSkipDirectory(dir, attrs)) {
                         return FileVisitResult.SKIP_SUBTREE;
                     } else if (!dir.toString().equals(GD.WORKING_DIR.toString())) {
-                        //Adds folders to list
+                        // Adds folders to list
                         queryFiles.add(new File(dir.toString()));
                         return FileVisitResult.CONTINUE;
                     } else {
                         return FileVisitResult.CONTINUE;
                     }
-
-
                 }
+
+                // Method to determine whether to skip the directory
+                private boolean shouldSkipDirectory(Path dir, BasicFileAttributes attrs) {
+                    return !dir.equals(GD.WORKING_DIR) && attrs.isDirectory() && !matchesPattern(dir);
+                }
+
+                // Method to check if directory name matches a pattern
+                private boolean matchesPattern(Path dir) {
+                    return pathMatcher.matches(dir.getFileName());
+                }
+
 
                 @NotNull
                 @Override

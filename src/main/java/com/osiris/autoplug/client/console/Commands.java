@@ -8,6 +8,27 @@
 
 package com.osiris.autoplug.client.console;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Scanner;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
@@ -33,18 +54,14 @@ import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
+import com.osiris.betterthread.exceptions.JLineLinkException;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.NotLoadedException;
+import com.osiris.dyml.exceptions.YamlReaderException;
+import com.osiris.dyml.exceptions.YamlWriterException;
 import com.osiris.jlib.logger.AL;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
 
 /**
  * Listens for input started with .
@@ -359,7 +376,7 @@ public final class Commands {
         if(input.startsWith(repo)){
             int bukkitId = Integer.parseInt(input.replace(repo, "").trim());
             result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                    tempName, "0", "", 0, bukkitId, ""));
+                            tempName, "0", "", 0, bukkitId, ""));
         }
         repo = "github";
         if(input.startsWith(repo)){
@@ -381,7 +398,7 @@ public final class Commands {
             result = new ResourceFinder().findPluginByModrinthId(plugin2, mcVersion);
         }
         /*
-        Nothing of the above worked thus do search by name
+         Nothing of the above worked thus do search by name
          */
         if(!SearchResult.isMatchFound(result)){
             plugin.setName(input.trim());
@@ -444,61 +461,78 @@ public final class Commands {
 
     public static boolean installMod(String command) throws Exception {
         String input = command.replaceFirst("\\.install mod", "").replaceFirst("\\.im", "").trim();
-
         SearchResult result = null;
         String tempName = "NEW_MOD";
         UpdaterConfig updaterConfig = new UpdaterConfig();
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
-
         String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) mcVersion = Server.getMCVersion();
-
-        MinecraftMod mod = new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0",
-                "", "0", "0", "");
-
-        String repo = "modrinth";
-        if(input.startsWith(repo)) {
-            mod.modrinthId = input.replace(repo, "").trim();
-            result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(),
-                    mod, mcVersion);
-        }
-        repo = "curseforge";
-        if(input.startsWith(repo)) {
-            mod.curseforgeId = input.replace(repo, "").trim();
-            result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), mod,
-                    mcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
-        }
-        repo = "github";
-        if(input.startsWith(repo)) {
-            String[] split = input.replace(repo, "").trim().split(" ");
-            if (!input.contains("/")) {
-                AL.warn("The github format must be <author>/<name> (and optional <asset-name>).");
-                return false;
-            }
-            mod.githubRepoName = (split[0]);
-            if(split.length >= 2) mod.githubAssetName = (split[1]);
-            else mod.githubAssetName = (split[0].split("/")[1]);
-            result = new ResourceFinder().findByGithubUrl(mod);
-        }
-        /*
-        Nothing of the above worked thus do search by name
-         */
-        if(!SearchResult.isMatchFound(result)){
-            mod.setName(input.trim());
-
-            try { // SPIGOT
-                // TODO something similar for mods: result = new ResourceFinder().findUnknownSpigotPlugin(plugin);
-            } catch (Exception e) {
-                //AL.warn("Failed to find plugin named '"+plugin.getName()+"' at spigotmc.org.", e);
-            }
-            // TODO also search other repos
+        if (mcVersion == null)
+            mcVersion = Server.getMCVersion();
+        MinecraftMod mod = initializeMinecraftMod(modsDir, tempName, input);
+        if (mod != null) {
+            result = findMod(input, mod, mcVersion);
         }
 
         if (!SearchResult.isMatchFound(result)) {
             AL.warn("Failed to find mod, check the provided name for typos.");
             return false;
         }
-        MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
+        File finalDest = downloadMod(modsDir, result, tempName);
+        AL.info("Installed to: " + finalDest);
+        return true;
+    }
+
+    private static MinecraftMod initializeMinecraftMod(File modsDir, String tempName, String input) {
+        MinecraftMod mod = new MinecraftMod(new File(modsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "",
+                "0", "0", "");
+        String repo;
+        if (input.startsWith(repo = "modrinth")) {
+            mod.modrinthId = input.replace(repo, "").trim();
+        } else if (input.startsWith(repo = "curseforge")) {
+            mod.curseforgeId = input.replace(repo, "").trim();
+        } else if (input.startsWith(repo = "github")) {
+            String[] split = input.replace(repo, "").trim().split(" ");
+            if (!input.contains("/")) {
+                AL.warn("The github format must be <author>/<name> (and optional <asset-name>).");
+                return null;
+            }
+            mod.githubRepoName = (split[0]);
+            if (split.length >= 2)
+                mod.githubAssetName = (split[1]);
+            else
+                mod.githubAssetName = (split[0].split("/")[1]);
+        } else {
+            mod.setName(input.trim());
+        }
+        return mod;
+    }
+
+    private static SearchResult findMod(String input, MinecraftMod mod, String mcVersion)
+            throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException,
+            DuplicateKeyException, IllegalListException {
+        SearchResult result = null;
+        if (mod.modrinthId != null) {
+            result = new ResourceFinder().findModByModrinthId(new InstalledModLoader(), mod, mcVersion);
+        } else if (mod.curseforgeId != null) {
+            UpdaterConfig updaterConfig = new UpdaterConfig();
+            result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), mod, mcVersion,
+                    updaterConfig.mods_loader_update_checkName.asBoolean());
+        } else if (mod.githubRepoName != null) {
+            result = new ResourceFinder().findByGithubUrl(mod);
+        }
+        return result;
+    }
+
+    private static File downloadMod(File modsDir, SearchResult result, String tempName)
+            throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException,
+            DuplicateKeyException, IllegalListException {
+        UpdaterConfig updaterConfig = new UpdaterConfig();
+        MyBThreadManager myManager = null;
+        try {
+            myManager = new UtilsTasks().createManagerAndPrinter();
+        } catch (JLineLinkException e) {
+            throw new RuntimeException(e);
+        }
         File finalDest = new File(modsDir + "/" + result.mod.getName() + "-LATEST-[" + result.latestVersion + "].jar");
         TaskModDownload task = new TaskModDownload("ModDownloader", myManager.manager, tempName, result.latestVersion,
                 result.downloadUrl, result.mod.ignoreContentType, "AUTOMATIC", finalDest);
@@ -512,9 +546,7 @@ public final class Commands {
                         new File(mod2.installationPath).getName().replace(tempName, mod2.getName()));
             }
         }
-        AL.info("Installed to: " + finalDest);
-        return true;
+        return finalDest;
     }
-
 
 }
