@@ -57,19 +57,24 @@ public class SyncFilesManager {
 
     private List<File> initializeFilesToSendTo(SharedFilesConfig sharedFilesConfig) throws Exception {
         List<File> filesToSendTo = new ArrayList<>();
+        //List<String> ipsToSendTo = new ArrayList<>();
         for (String value : sharedFilesConfig.send_to.asStringList()) {
             if (value.startsWith("./"))
                 filesToSendTo.add(FileManager.convertRelativeToAbsolutePath(value));
             else if (value.contains("/") || value.contains("\\"))
                 filesToSendTo.add(new File(value));
+                // TODO else if (value.contains("."))
+                //    ipsToSendTo.add(value);
             else
-                throw new Exception("Failed to determine if '" + value + "' is an absolute/relative path address.");
+                throw new Exception("Failed to determine if '" + value + "' is an absolute/relative path address."); //TODO or ipv4/ipv6
         }
         return filesToSendTo;
     }
 
     private Consumer<FileEvent> defineFileChangeEventHandler(List<File> filesToSendTo) {
         return event -> {
+            // Determine relative path from file to server root
+            // Example: C:/Users/Server/plugins/AutoPlug.jar -> /plugins/AutoPlug.jar
             String relPath = event.file.getAbsolutePath().replace(WORKING_DIR.getAbsolutePath(), "");
             handleFileChange(event, filesToSendTo, relPath);
         };

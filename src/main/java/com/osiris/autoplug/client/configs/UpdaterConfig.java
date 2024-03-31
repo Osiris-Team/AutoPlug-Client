@@ -54,14 +54,14 @@ public class UpdaterConfig extends MyYaml {
     public YamlSection plugins_updater_version;
     public YamlSection plugins_updater_async;
     public YamlSection plugins_updater_web_database;
-    public YamlSection plugin_updater_min_usages;
+    public YamlSection plugins_updater_web_database_min_usages;
 
     public YamlSection mods_updater;
     public YamlSection mods_updater_profile;
     public YamlSection mods_updater_path;
     public YamlSection mods_updater_version;
     public YamlSection mods_updater_async;
-    public YamlSection mods_loader_update_checkName;
+    public YamlSection mods_update_check_name_for_mod_loader;
 
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -206,7 +206,7 @@ public class UpdaterConfig extends MyYaml {
                 "Uses the AutoPlug-Web database to fill in missing plugin information.",
                 "This option is only available for premium servers.",
                 "Note that a server-key must be provided for this to work.");
-        plugin_updater_min_usages = put(name, "plugins-updater", "web-database", "min-usages").setDefValues("50").setComments(
+        plugins_updater_web_database_min_usages = put(name, "plugins-updater", "web-database", "min-usages").setDefValues("50").setComments(
                 "The minimum amount of usages in servers a piece of information has to have to be used and deemed reliable.");
 
         put(name, "mods-updater").setCountTopLineBreaks(1);
@@ -221,7 +221,7 @@ public class UpdaterConfig extends MyYaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
-        mods_loader_update_checkName = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("false").setComments(
+        mods_update_check_name_for_mod_loader = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("false").setComments(
                 "Only relevant for determining if a curseforge mod release is forge or fabric.",
                 "If enabled additionally checks the mod name to see if it contains fabric or forge.");
 

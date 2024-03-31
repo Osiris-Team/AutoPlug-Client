@@ -14,19 +14,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 
+import com.osiris.dyml.exceptions.*;
 import org.jetbrains.annotations.NotNull;
 
 import com.osiris.autoplug.client.Main;
@@ -55,12 +47,6 @@ import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.betterthread.exceptions.JLineLinkException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.NotLoadedException;
-import com.osiris.dyml.exceptions.YamlReaderException;
-import com.osiris.dyml.exceptions.YamlWriterException;
 import com.osiris.jlib.logger.AL;
 
 /**
@@ -470,7 +456,7 @@ public final class Commands {
             mcVersion = Server.getMCVersion();
         MinecraftMod mod = initializeMinecraftMod(modsDir, tempName, input);
         if (mod != null) {
-            result = findMod(input, mod, mcVersion);
+            result = findMod(mod, mcVersion);
         }
 
         if (!SearchResult.isMatchFound(result)) {
@@ -507,7 +493,7 @@ public final class Commands {
         return mod;
     }
 
-    private static SearchResult findMod(String input, MinecraftMod mod, String mcVersion)
+    private static SearchResult findMod(MinecraftMod mod, String mcVersion)
             throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException,
             DuplicateKeyException, IllegalListException {
         SearchResult result = null;
@@ -516,7 +502,7 @@ public final class Commands {
         } else if (mod.curseforgeId != null) {
             UpdaterConfig updaterConfig = new UpdaterConfig();
             result = new ResourceFinder().findModByCurseforgeId(new InstalledModLoader(), mod, mcVersion,
-                    updaterConfig.mods_loader_update_checkName.asBoolean());
+                    updaterConfig.mods_update_check_name_for_mod_loader.asBoolean());
         } else if (mod.githubRepoName != null) {
             result = new ResourceFinder().findByGithubUrl(mod);
         }

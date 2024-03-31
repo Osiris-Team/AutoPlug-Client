@@ -165,12 +165,12 @@ public class TaskPluginsUpdater extends BThread {
                             JsonObject result = Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", request).getAsJsonObject();
                             Type typeOfSet = new TypeToken<HashSet<Entry>>() {
                             }.getType();
-                            Entry webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
-                            Entry webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
-                            Entry webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
-                            Entry webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
-                            Entry webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
-                            Entry webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfSet), updaterConfig.plugin_updater_min_usages.asInt());
+                            Entry webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            Entry webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
 
                             // Fill missing id information
                             if (webSpigotId != null && (spigotId.asString() == null || spigotId.asInt() == 0))
