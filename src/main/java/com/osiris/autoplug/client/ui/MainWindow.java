@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainWindow extends JFrame {
     /**
      * There should always be only one instance of {@link MainWindow}.
@@ -61,18 +64,57 @@ public class MainWindow extends JFrame {
         initTheme(null);
     }
 
+    interface ThemeSetup {
+        boolean setup();
+    }
+
+    static class LightThemeSetup implements ThemeSetup {
+        @Override
+        public boolean setup() {
+            return FlatLightLaf.setup();
+        }
+    }
+
+    static class DarkThemeSetup implements ThemeSetup {
+        @Override
+        public boolean setup() {
+            return FlatDarkLaf.setup();
+        }
+    }
+
+    static class DarculaThemeSetup implements ThemeSetup {
+        @Override
+        public boolean setup() {
+            return FlatDarculaLaf.setup();
+        }
+    }
+
+
+    private static final Map<String, ThemeSetup> themeSetupMap = new HashMap<>();
+
+    static {
+        themeSetupMap.put("light", new LightThemeSetup());
+        themeSetupMap.put("dark", new DarkThemeSetup());
+        themeSetupMap.put("darcula", new DarculaThemeSetup());
+    }
+
+    private static ThemeSetup getThemeSetup(String theme) {
+        for (Map.Entry<String, ThemeSetup> entry : themeSetupMap.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(theme)) {
+                return entry.getValue();
+            }
+        }
+
+        AL.warn("The selected theme '" + theme + "' is not a valid option! Using default.");
+        return new LightThemeSetup();
+    }
+
     public void initTheme(GeneralConfig generalConfig) {
         try {
             if (generalConfig == null) generalConfig = new GeneralConfig();
-            if (generalConfig.autoplug_system_tray_theme.asString().equals("light")) {
-                if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
-            } else if (generalConfig.autoplug_system_tray_theme.asString().equals("dark")) {
-                if (!FlatDarkLaf.setup()) throw new Exception("Returned false!");
-            } else if (generalConfig.autoplug_system_tray_theme.asString().equals("darcula")) {
-                if (!FlatDarculaLaf.setup()) throw new Exception("Returned false!");
-            } else {
-                AL.warn("The selected theme '" + generalConfig.autoplug_system_tray_theme.asString() + "' is not a valid option! Using default.");
-                if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
+            ThemeSetup themeSetup = getThemeSetup(generalConfig.autoplug_system_tray_theme.asString());
+            if (!themeSetup.setup()) {
+                throw new Exception("Returned false!");
             }
         } catch (Exception e) {
             AL.warn("Failed to init GUI theme!", e);

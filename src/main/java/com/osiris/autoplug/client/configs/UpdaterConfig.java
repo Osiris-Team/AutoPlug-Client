@@ -9,12 +9,20 @@
 package com.osiris.autoplug.client.configs;
 
 import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.tasks.updater.TaskDownload;
+import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
+import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
+import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UpdateCheckerThread;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 public class UpdaterConfig extends MyYaml {
@@ -261,4 +269,100 @@ public class UpdaterConfig extends MyYaml {
         }
         return this;
     }
+
+    public void doAlternativeUpdatingLogic(TaskServerUpdater task)
+            throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+        SearchResult sr = null;
+        if (server_github_repo_name.asString() != null) {
+            sr = new GithubSearch().search(server_github_repo_name.asString(),
+                    server_github_asset_name.asString(),
+                    server_github_version.asString());
+            if (sr.resultCode == 0) {
+                task.setStatus("Your server is on the latest version!");
+                task.setSuccess(true);
+                return;
+            }
+            if (sr.resultCode == 1) {
+                doInstallDependingOnProfile(task, server_github_version, sr.latestVersion, sr.downloadUrl, sr.fileName);
+            }
+        } else {
+            sr = new JenkinsSearch().search(server_jenkins_project_url.asString(),
+                    server_jenkins_artifact_name.asString(),
+                    server_jenkins_build_id.asInt());
+
+            if (sr.resultCode == 0) {
+                task.setStatus("Your server is on the latest version!");
+                task.setSuccess(true);
+                return;
+            }
+            if (sr.resultCode == 1) {
+                doInstallDependingOnProfile(task, server_jenkins_build_id, sr.latestVersion, sr.downloadUrl, sr.fileName);
+            }
+        }
+    }
+
+    private void doInstallDependingOnProfile(TaskServerUpdater task, YamlSection version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+        String profile = server_updater_profile.asString();
+        File downloadsDir = GD.DOWNLOADS_DIR;
+        File serverExe = task.serverExe;
+
+        if (profile.equals("NOTIFY")) {
+            task.setStatus("Update found (" + version.asString() + " -> " + latestVersion + ")!");
+        } else if (profile.equals("MANUAL")) {
+            task.setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
+
+            // Download the file
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
+            if (cache_dest.exists()) cache_dest.delete();
+            cache_dest.createNewFile();
+            TaskDownload download = new TaskDownload("ServerDownloader", task.getManager(), downloadUrl, cache_dest);
+            download.start();
+
+            while (true) {
+                Thread.sleep(500); // Wait until download is finished
+                if (download.isFinished()) {
+                    if (download.isSuccess()) {
+                        task.setStatus("Server update downloaded successfully.");
+                        task.setSuccess(true);
+                    } else {
+                        task.setStatus("Server update failed!");
+                        task.setSuccess(false);
+                    }
+                    break;
+                }
+            }
+        } else {
+            task.setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
+
+            // Download the file
+            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
+            if (cache_dest.exists()) cache_dest.delete();
+            cache_dest.createNewFile();
+            TaskDownload download = new TaskDownload("ServerDownloader", task.getManager(), downloadUrl, cache_dest);
+            download.start();
+
+            while (true) {
+                Thread.sleep(500);
+                if (download.isFinished()) {
+                    if (download.isSuccess()) {
+                        File final_dest = serverExe;
+                        if (final_dest == null)
+                            final_dest = new File(GD.WORKING_DIR + "/" + onlineFileName);
+                        if (final_dest.exists()) final_dest.delete();
+                        final_dest.createNewFile();
+                        FileUtils.copyFile(cache_dest, final_dest);
+                        task.setStatus("Server update was installed successfully (" + version.asString() + " -> " + latestVersion + ")!");
+                        version.setValues(latestVersion);
+                        save();
+                        task.setSuccess(true);
+                    } else {
+                        task.setStatus("Server update failed!");
+                        task.setSuccess(false);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
 }
