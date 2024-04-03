@@ -105,8 +105,10 @@ public class TaskModsUpdater extends BThread {
                 YamlSection jenkinsArtifactName = modsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = modsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
-                if (installedMod.modrinthId != null) modrinthId.setValues(installedMod.modrinthId);
-                if (installedMod.curseforgeId != null) curseforgeId.setValues(installedMod.curseforgeId);
+                if (updaterConfig.mods_update_update_id_from_jar.asBoolean()) {
+                    if (installedMod.modrinthId != null) modrinthId.setValues(installedMod.modrinthId);
+                    if (installedMod.curseforgeId != null) curseforgeId.setValues(installedMod.curseforgeId);
+                }
 
                 // Update the detailed mods in-memory values
                 installedMod.modrinthId = modrinthId.asString();
@@ -289,10 +291,12 @@ public class TaskModsUpdater extends BThread {
                 if (matchingResult == null)
                     throw new Exception("This should not happen! Please report to the devs!");
 
-                if (download.mod.modrinthId != null)
-                    modsConfig.put(modsConfigName, download.mod.getName(), "modrinth-id").setValues(download.mod.modrinthId);
-                if (download.mod.curseforgeId != null)
-                    modsConfig.put(modsConfigName, download.mod.getName(), "modrinth-id").setValues(download.mod.curseforgeId);
+                if (updaterConfig.mods_update_update_id_from_jar.asBoolean()) {
+                    if (download.mod.modrinthId != null)
+                        modsConfig.put(modsConfigName, download.mod.getName(), "modrinth-id").setValues(download.mod.modrinthId);
+                    if (download.mod.curseforgeId != null)
+                        modsConfig.put(modsConfigName, download.mod.getName(), "curseforge-id").setValues(download.mod.curseforgeId);
+                }
 
                 if (download.isDownloadSuccessful())
                     matchingResult.setResultCode((byte) 5);
