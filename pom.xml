@@ -81,6 +81,13 @@
             <version>5.12.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.12.4</version> <!-- or the version you prefer -->
+            <scope>test</scope>
+        </dependency>
+
         <!-- https://github.com/Osiris-Team/AutoPlug-Core -->
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>

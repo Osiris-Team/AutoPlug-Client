@@ -8,10 +8,7 @@
 
 package com.osiris.autoplug.client.managers;
 
-import com.osiris.autoplug.client.utils.GD;
-import com.osiris.jlib.logger.AL;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import static com.osiris.jprocesses2.util.OS.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,13 +21,19 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.osiris.jprocesses2.util.OS.isWindows;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.osiris.autoplug.client.utils.GD;
+import com.osiris.jlib.logger.AL;
 
 /**
  * Search & find files!
  * TODO (Not tasty code. Rework needed!)
  */
 public class FileManager {
+    private final FileSearcher fileSearcher = new FileSearcher();
+
     private final List<File> queryFiles = new ArrayList<>();
     @Nullable
     private File queryFile = null;
@@ -50,7 +53,7 @@ public class FileManager {
     public void deleteOldPlugin(String pl_name) {
         String searchPattern = "*" + pl_name + "**.jar";
         //Find the file
-        findFileInPluginsDir(searchPattern);
+        FileSearcher.findFileInPluginsDir(searchPattern);
         //Delete the file
         if (!queryFile.delete()) {
             AL.warn(" [!] Couldn't remove old plugin jar at: " + queryFile.toPath() + " [!] ");
@@ -67,7 +70,7 @@ public class FileManager {
     public List<File> getAllPlugins() {
         String searchPattern = "*.jar";
         //Find the file
-        findFilesInPluginsDir(searchPattern);
+        FileSearcher.findFilesInPluginsDir(searchPattern);
         return queryFiles;
     }
 
@@ -76,7 +79,7 @@ public class FileManager {
     public List<File> serverWorldsFolders() {
         String searchPattern = "*world*";
         //Find the files
-        findFoldersInWorkingDir(searchPattern);
+        FileSearcher.findFoldersInWorkingDir(searchPattern);
         //Return the results
         return queryFiles;
 
@@ -90,7 +93,7 @@ public class FileManager {
     public List<File> serverFiles() {
         String searchPattern = "*";
         //Find the files
-        findFilesInWorkingDir(searchPattern);
+        FileSearcher.findFilesInWorkingDir(searchPattern);
         //Return the results
         return queryFiles;
 
@@ -99,9 +102,9 @@ public class FileManager {
     public File autoplugJar(File dirToSearch) {
         String searchPattern = "*.jar";
         //Find the file
-        findAutoPlugJarFileInDir(searchPattern, dirToSearch);
+        fileSearcher.findAutoPlugJarFileInDir(searchPattern, dirToSearch);
         //Return the result file
-        return queryFile;
+        return fileSearcher.getQueryFile();
     }
 
     /**
@@ -211,53 +214,7 @@ public class FileManager {
         Files.walkFileTree(dirPath, visitor);
         return list;
     }
-
-    private void findAutoPlugJarFileInDir(String searchPattern, File dirToSearch) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(dirToSearch.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(@NotNull Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-                    if (pathMatcher.matches(path.getFileName())
-                            && jarContainsAutoPlugProperties(path.toFile())) {
-                        queryFile = new File(path.toString());
-                        return FileVisitResult.TERMINATE;
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    if (!dir.toString().equals(dirToSearch.toString()) && attrs.isDirectory()) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-
-        } catch (IOException e) {
-            AL.warn(e);
-        }
-
-    }
-
-    private boolean jarContainsAutoPlugProperties(File jar) {
+    static boolean  jarContainsAutoPlugProperties(File jar) {
         if (!jar.getName().endsWith(".jar")) return false;
         FileInputStream fis = null;
         ZipInputStream zis = null;
@@ -301,201 +258,5 @@ public class FileManager {
             }
         }
         return false;
-    }
-
-    //Walks through files (skips AutoPlug.jar and all other subdirectories) and finds ALL files
-    private void findFilesInWorkingDir(String searchPattern) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(@NotNull Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-
-                    if (pathMatcher.matches(path.getFileName())) {
-                        //Adds files to list to return multiple files
-                        queryFiles.add(new File(path.toString()));
-                        return FileVisitResult.CONTINUE;
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory()) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
-        }
-
-    }
-
-    //Walks through files and finds ALL sub-folders in main working dir
-    private void findFoldersInWorkingDir(String searchPattern) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(GD.WORKING_DIR.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    //Skip subdirectories of non main worki dirs and non matching dirs
-                    if (!dir.toString().equals(GD.WORKING_DIR.toString()) && attrs.isDirectory() && !pathMatcher.matches(dir.getFileName())) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else if (!dir.toString().equals(GD.WORKING_DIR.toString())) {
-                        //Adds folders to list
-                        queryFiles.add(new File(dir.toString()));
-                        return FileVisitResult.CONTINUE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
-        }
-
-    }
-
-    //Walks through files (skips all Plugin directories) and finds one jar
-    private void findFileInPluginsDir(String searchPattern) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(@NotNull Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-
-                    if (pathMatcher.matches(path.getFileName())) {
-
-                        queryFile = new File(path.toString());
-                        return FileVisitResult.TERMINATE;
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            AL.warn(" [!] Error: " + e.getMessage() + " [!]");
-        }
-
-    }
-
-    //Walks through files (skips all Plugin directories)
-    private void findFilesInPluginsDir(String searchPattern) {
-
-        try {
-            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + searchPattern);
-
-            Files.walkFileTree(GD.PLUGINS_DIR.toPath(), new SimpleFileVisitor<Path>() {
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFile(@NotNull Path path,
-                                                 BasicFileAttributes attrs) throws IOException {
-
-                    if (pathMatcher.matches(path.getFileName())) {
-
-                        queryFile = new File(path.toString());
-                        queryFiles.add(queryFile);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
-
-                    if (!dir.toString().equals(GD.PLUGINS_DIR.toString()) && attrs.isDirectory()) {
-                        return FileVisitResult.SKIP_SUBTREE;
-                    } else {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-
-                }
-
-                @NotNull
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc)
-                        throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-
-        } catch (IOException e) {
-            AL.warn(e);
-        }
-
     }
 }

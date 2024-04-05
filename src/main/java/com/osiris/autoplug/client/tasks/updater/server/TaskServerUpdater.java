@@ -12,10 +12,6 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.tasks.updater.TaskDownload;
-import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
-import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
-import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.SteamCMD;
 import com.osiris.autoplug.client.utils.UtilsLists;
@@ -23,7 +19,6 @@ import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
-import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 import me.hsgamer.mcserverupdater.UpdateBuilder;
@@ -76,7 +71,7 @@ public class TaskServerUpdater extends BThread {
         }
 
         if (updaterConfig.server_github_repo_name.asString() != null || updaterConfig.server_jenkins_project_url.asString() != null) {
-            doAlternativeUpdatingLogic();
+            updaterConfig.doAlternativeUpdatingLogic(this);
         } else {
             if (isSteamAppId)
                 doSteamUpdaterLogic();
@@ -84,97 +79,6 @@ public class TaskServerUpdater extends BThread {
                 doMCServerUpdaterLogic();
         }
         finish();
-    }
-
-    private void doAlternativeUpdatingLogic()
-            throws YamlWriterException, IOException, InterruptedException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
-        SearchResult sr = null;
-        if (updaterConfig.server_github_repo_name.asString() != null) {
-            sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
-                    updaterConfig.server_github_asset_name.asString(),
-                    updaterConfig.server_github_version.asString());
-            if (sr.resultCode == 0) {
-                setStatus("Your server is on the latest version!");
-                setSuccess(true);
-                return;
-            }
-            if (sr.resultCode == 1) {
-                doInstallDependingOnProfile(updaterConfig.server_github_version, sr.latestVersion, sr.downloadUrl, sr.fileName);
-            }
-        } else {
-            sr = new JenkinsSearch().search(updaterConfig.server_jenkins_project_url.asString(),
-                    updaterConfig.server_jenkins_artifact_name.asString(),
-                    updaterConfig.server_jenkins_build_id.asInt());
-
-            if (sr.resultCode == 0) {
-                setStatus("Your server is on the latest version!");
-                setSuccess(true);
-                return;
-            }
-            if (sr.resultCode == 1) {
-                doInstallDependingOnProfile(updaterConfig.server_jenkins_build_id, sr.latestVersion, sr.downloadUrl, sr.fileName);
-            }
-        }
-    }
-
-    private void doInstallDependingOnProfile(YamlSection version, String latestVersion, String downloadUrl, String onlineFileName) throws IOException, InterruptedException, YamlWriterException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
-        if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + version.asString() + " -> " + latestVersion + ")!");
-        } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
-
-            // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500); // Wait until download is finished
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Server update downloaded successfully.");
-                        setSuccess(true);
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
-            }
-        } else {
-            setStatus("Update found (" + version.asString() + " -> " + latestVersion + "), started download!");
-
-            // Download the file
-            File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
-            if (cache_dest.exists()) cache_dest.delete();
-            cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500);
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        File final_dest = serverExe;
-                        if (final_dest == null)
-                            final_dest = new File(GD.WORKING_DIR + "/" + onlineFileName);
-                        if (final_dest.exists()) final_dest.delete();
-                        final_dest.createNewFile();
-                        FileUtils.copyFile(cache_dest, final_dest);
-                        setStatus("Server update was installed successfully (" + version.asString() + " -> " + latestVersion + ")!");
-                        version.setValues(latestVersion);
-                        updaterConfig.save();
-                        setSuccess(true);
-                    } else {
-                        setStatus("Server update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     private void doMCServerUpdaterLogic() throws Exception {

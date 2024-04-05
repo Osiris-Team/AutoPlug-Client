@@ -64,7 +64,7 @@ public class ConFileManager extends DefaultConnection {
                         } else if (requestType == 6) {
                             doProtocolForCopyOrCutFiles();
                         } else if (requestType == 7) {
-                            doProtocolForSendingRoots();
+                            FileSystemUtils.sendRoots(dos);
                         } else {
                             AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
                         }
@@ -80,19 +80,6 @@ public class ConFileManager extends DefaultConnection {
         } else {
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
             return false;
-        }
-    }
-
-    private void doProtocolForSendingRoots() throws IOException {
-        File[] roots = File.listRoots();
-        if (roots == null || roots.length == 0) {
-            dos.writeInt(0);
-        } else {
-            dos.writeInt(roots.length);
-            for (File f :
-                    roots) {
-                dos.writeLine(f.getAbsolutePath()); // For example "C:\" or "D:\" etc. on Windows
-            }
         }
     }
 
@@ -223,7 +210,7 @@ public class ConFileManager extends DefaultConnection {
         filePath = dis.readLine(); // Wait until we receive the files path
         if (filePath.isEmpty()) requestedFile = GD.WORKING_DIR;
         else requestedFile = new File(filePath);
-        sendFileDetails(requestedFile);
+        FileSystemUtils.sendFileDetails(dos, requestedFile);
         if (requestedFile.isDirectory()) {
             File[] files = requestedFile.listFiles();
             if (files == null) dos.writeInt(0);
@@ -233,12 +220,12 @@ public class ConFileManager extends DefaultConnection {
                 for (File f :
                         files) { // Send directories first and then files
                     if (f.isDirectory())
-                        sendFileDetails(f);
+                        FileSystemUtils.sendFileDetails(dos, f);
                 }
                 for (File f :
                         files) {
                     if (!f.isDirectory())
-                        sendFileDetails(f);
+                        FileSystemUtils.sendFileDetails(dos, f);
                 }
             }
         } else { // Is not a dir
@@ -266,41 +253,5 @@ public class ConFileManager extends DefaultConnection {
             }
             */
         //System.out.println("Sent file!");
-    }
-
-    private void sendFileDetails(File file) throws IOException {
-        dos.writeLine(file.getAbsolutePath());
-        dos.writeBoolean(file.isDirectory());
-        long length = file.length(); // In bytes
-        dos.writeLong(length);
-        if (length < 1000) // Smaller than 1kb
-            dos.writeLine(length + "B");
-        else if (length < 1000000) // Smaller than 1mb
-            dos.writeLine(length / 1000 + "kB");
-        else if (length < 1000000000) // Smaller than 1 gb
-            dos.writeLine(length / 1000000 + "MB");
-        else // Bigger than 1 gb
-            dos.writeLine(length / 1000000000 + "GB");
-        dos.writeLine(file.getName());
-        dos.writeLong(file.lastModified());
-        dos.writeBoolean(file.isHidden());
-    }
-
-    private void sendParentDirDetails(File file) throws IOException {
-        dos.writeLine(file.getAbsolutePath());
-        dos.writeBoolean(file.isDirectory());
-        long length = file.length(); // In bytes
-        dos.writeLong(length);
-        if (length < 1000) // Smaller than 1kb
-            dos.writeLine(length + "B");
-        else if (length < 1000000) // Smaller than 1mb
-            dos.writeLine(length / 1000 + "kB");
-        else if (length < 1000000000) // Smaller than 1 gb
-            dos.writeLine(length / 1000000 + "MB");
-        else // Bigger than 1 gb
-            dos.writeLine(length / 1000000000 + "GB");
-        dos.writeLine("...");
-        dos.writeLong(file.lastModified());
-        dos.writeBoolean(file.isHidden());
     }
 }
