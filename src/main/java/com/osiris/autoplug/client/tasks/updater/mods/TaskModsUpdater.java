@@ -105,13 +105,13 @@ public class TaskModsUpdater extends BThread {
                 YamlSection jenkinsArtifactName = modsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = modsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
 
-                if (updaterConfig.mods_update_update_id_from_jar.asBoolean()) {
-                    if (installedMod.modrinthId != null) modrinthId.setValues(installedMod.modrinthId);
-                    if (installedMod.curseforgeId != null) curseforgeId.setValues(installedMod.curseforgeId);
-                }
+                if (installedMod.modrinthId != null && modrinthId.asString() == null)
+                    modrinthId.setValues(installedMod.modrinthId);
+                if (installedMod.curseforgeId != null && curseforgeId.asString() == null)
+                    curseforgeId.setValues(installedMod.curseforgeId);
 
                 // Update the detailed mods in-memory values
-                installedMod.modrinthId = modrinthId.asString();
+                installedMod.modrinthId = (modrinthId.asString());
                 installedMod.curseforgeId = (curseforgeId.asString());
                 installedMod.ignoreContentType = (ignoreContentType.asBoolean());
                 installedMod.forceLatest = (forceLatest.asBoolean());
@@ -233,8 +233,8 @@ public class TaskModsUpdater extends BThread {
                 String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
                 String latest = result.getLatestVersion(); // The latest version as String
                 String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
-                String resultmodrinthId = result.getSpigotId();
-                String resultBukkitId = result.getBukkitId();
+                String resultModrinthId = mod.modrinthId;
+                String resultCurseForgeId = mod.curseforgeId;
                 this.setStatus("Checked '" + mod.getName() + "' mod (" + results.size() + "/" + includedSize + ")");
                 if (code == 0 || code == 1) {
                     doDownloadLogic(mod, result);
@@ -249,15 +249,13 @@ public class TaskModsUpdater extends BThread {
                     getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
 
                 try {
-                    YamlSection mmodrinthId = modsConfig.get(modsConfigName, mod.getName(), "modrinth-id");
-                    if (resultmodrinthId != null
-                            && (mmodrinthId.asString() == null || mmodrinthId.asInt() == 0)) // Because we can get a "null" string from the server
-                        mmodrinthId.setValues(resultmodrinthId);
+                    YamlSection mModrinthId = modsConfig.get(modsConfigName, mod.getName(), "modrinth-id");
+                    if (resultModrinthId != null && mModrinthId.asString() == null) // Because we can get a "null" string from the server
+                        mModrinthId.setValues(resultModrinthId);
 
-                    YamlSection mBukkitId = modsConfig.get(modsConfigName, mod.getName(), "bukkit-id");
-                    if (resultBukkitId != null
-                            && (mmodrinthId.asString() == null || mmodrinthId.asInt() == 0)) // Because we can get a "null" string from the server
-                        mBukkitId.setValues(resultBukkitId);
+                    YamlSection mCurseForgeId = modsConfig.get(modsConfigName, mod.getName(), "curseforge-id");
+                    if (resultCurseForgeId != null && mCurseForgeId.asString() == null) // Because we can get a "null" string from the server
+                        mCurseForgeId.setValues(resultCurseForgeId);
 
                     // The config gets saved at the end of the runAtStart method.
                 } catch (Exception e) {
@@ -290,13 +288,6 @@ public class TaskModsUpdater extends BThread {
                 }
                 if (matchingResult == null)
                     throw new Exception("This should not happen! Please report to the devs!");
-
-                if (updaterConfig.mods_update_update_id_from_jar.asBoolean()) {
-                    if (download.mod.modrinthId != null)
-                        modsConfig.put(modsConfigName, download.mod.getName(), "modrinth-id").setValues(download.mod.modrinthId);
-                    if (download.mod.curseforgeId != null)
-                        modsConfig.put(modsConfigName, download.mod.getName(), "curseforge-id").setValues(download.mod.curseforgeId);
-                }
 
                 if (download.isDownloadSuccessful())
                     matchingResult.setResultCode((byte) 5);
