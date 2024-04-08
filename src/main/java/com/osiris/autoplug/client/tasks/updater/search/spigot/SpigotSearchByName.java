@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -54,7 +54,7 @@ public class SpigotSearchByName {
                     plAuthor = plAuthor.replaceAll("[^a-zA-Z]", "");
                     int plId = Integer.parseInt(jsonPlugin.get("id").getAsString());
 
-                    similarPlugins.add(new MinecraftPlugin(null, plName, plVersion, plAuthor, plId, 0, null));
+                    similarPlugins.add(new MinecraftPlugin(null, plName, plVersion, queryAuthor, plId, 0, null));
 
                     double similarity = StringComparator.similarity(queryAuthor, plAuthor);
                     AL.debug(this.getClass(), "[" + plugin.getName() + "] Similarity between -> " + plAuthor + " and " + queryAuthor + " is: " + similarity);

@@ -388,13 +388,15 @@ public final class Commands {
 
             try { // SPIGOT
                 result = new ResourceFinder().findUnknownSpigotPlugin(plugin);
-                if(!SearchResult.isMatchFound(result)){
+                if (!result.similarPlugins.isEmpty()) {
                     List<MinecraftPlugin> similarPlugins = result.similarPlugins;
+                    AL.info("Multiple results (" + similarPlugins.size() + "):");
+                    AL.info("Sorted by most downloads first.");
                     for (int i = 0; i < similarPlugins.size(); i++) {
                         MinecraftPlugin similarPl = similarPlugins.get(i);
                         AL.info(i+". "+similarPl.getName()+" by "+similarPl.getAuthor());
                     }
-                    AL.info("Multiple results, enter the number to install it or press enter to abort:");
+                    AL.info("Enter the number to install it or press enter to abort:");
                     String input2 = "";
                     Scanner scanner = new Scanner(System.in);
                     while(true){
@@ -486,7 +488,9 @@ public final class Commands {
         if(!SearchResult.isMatchFound(result)){
             mod.setName(input.trim());
 
-            try { // SPIGOT
+            try { // MODRINTH
+                // https://docs.modrinth.com/#tag/projects/operation/searchProjects
+                AL.warn("Modrinth search is not implemented yet, this is in todo. As alternative use .im modrinth <id> for example.");
                 // TODO something similar for mods: result = new ResourceFinder().findUnknownSpigotPlugin(plugin);
             } catch (Exception e) {
                 //AL.warn("Failed to find plugin named '"+plugin.getName()+"' at spigotmc.org.", e);

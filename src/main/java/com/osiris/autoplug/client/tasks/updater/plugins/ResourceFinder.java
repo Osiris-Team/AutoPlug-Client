@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -25,16 +25,19 @@ public class ResourceFinder {
 
     /**
      * If the spigot/bukkit id is not given this type of search
-     * based on the plugins' name and author will be executed.
+     * based on the plugins' name and author will be executed. <br>
      */
     public SearchResult findUnknownSpigotPlugin(MinecraftPlugin plugin) {
         // Do spigot search by name
         SearchResult sr = new SpigotSearchByName().search(plugin);
 
-        if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
+        SearchResult sr2 = null;
+        if (!SearchResult.isMatchFound(sr)) {
             //Couldn't find author or resource via first search
             //Do alternative search:
-            sr = new SpigotSearchByAuthor().search(plugin);
+            sr2 = new SpigotSearchByAuthor().search(plugin);
+            sr2.similarPlugins.addAll(sr.similarPlugins);
+            sr = sr2;
         }
 
         plugin.setPremium(sr.isPremium);

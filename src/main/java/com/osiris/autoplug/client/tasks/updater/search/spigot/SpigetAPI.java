@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -42,7 +42,7 @@ public class SpigetAPI {
      */
     public JsonArray getPlugins(String queryPlName) throws Exception {
         try {
-            return Json.getAsJsonArray(LINK_SEARCH_RESOURCES + queryPlName);
+            return Json.getAsJsonArray(LINK_SEARCH_RESOURCES + queryPlName + SORT_DESC_DOWNLOADS);
         } catch (HttpErrorException e) {
             if (e.getHttpErrorCode() != 404)
                 throw e;
