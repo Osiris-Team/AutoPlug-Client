@@ -2,7 +2,7 @@
    <img src="https://i.imgur.com/BMpvtWP.png">
 </div>
 
- AutoPlug-Client is a standalone, executable Java program that has multiple execution modes: Server-Wrapper, CLI-Tool, Background-Service. Its main purpose is to automate updating of any sofware related to servers and simplify server maintenance in general. While all server types are compatible, the majority of its features cater specifically to Minecraft, which is renowned as the world's top-selling game and boasts an exceptionally extensive modding community.
+ AutoPlug-Client is a standalone, executable Java program that has multiple execution modes: Server-Wrapper, CLI-Tool, Background-Service. Its main purpose is to automate updating of any sofware related to servers and simplify server maintenance in general. While all server types are compatible (including Steam game servers), the majority of its features cater specifically to Minecraft, which is renowned as the world's top-selling game and boasts an exceptionally extensive modding community.
  
 ## Links
 
