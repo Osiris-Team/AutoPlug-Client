@@ -77,7 +77,7 @@ public class BackupConfig extends MyYaml {
                 "Where to create your backups.");
         backup_include = put(name, "include", "enable").setDefValues("true").setComments(
                 "Add specific files or folders you want to include in the backup, to the list below.",
-                "Windows/Linux formats are supported. './' stands for the servers root directory.",
+                "Windows/Linux formats are supported. './' stands for the servers root directory."
         );
         backup_include_list = put(name, "include", "list").setDefValues("./").setComments(
                 "  - ./example/directory",
