@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -100,7 +100,7 @@ public final class Server {
         return serverExe;
     }
 
-    public static void start() {
+    public static synchronized void start() {
         try {
             try {
                 colorServerLog = new LoggerConfig().color_server_log.asBoolean();
@@ -122,6 +122,8 @@ public final class Server {
 
             AL.info("Starting server: " + serverExe.getName());
             createProcess();
+            AL.debug(Server.class, "process: " + process);
+            AL.debug(Server.class, "ASYNC_SERVER_IN: " + ASYNC_SERVER_IN);
         } catch (Exception e) {
             AL.warn("Failed to start server: " + e.getMessage(), e);
         }
@@ -141,9 +143,11 @@ public final class Server {
     /**
      * Blocks until the server was stopped.
      */
-    public static void stop() throws IOException, InterruptedException, YamlWriterException, NotLoadedException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
+    public static synchronized void stop() throws IOException, InterruptedException, YamlWriterException, NotLoadedException, IllegalKeyException, DuplicateKeyException, YamlReaderException, IllegalListException {
 
         AL.info("Stopping server...");
+        AL.debug(Server.class, "process: " + process);
+        AL.debug(Server.class, "ASYNC_SERVER_IN: " + ASYNC_SERVER_IN);
 
         if (isRunning()) {
             YamlSection stopCommand = new GeneralConfig().server_stop_command;
@@ -153,10 +157,25 @@ public final class Server {
                 return;
             }
             for (SmartString v : values) {
+                AL.debug(Server.class, "Stopping server with command: \"" + v.asString() + "\"");
                 submitCommand(v.asString());
             }
-            while (Server.isRunning())
+            int maxSeconds = 60 * 10;
+            int seconds = 0;
+            boolean inKillMode = false;
+            while (Server.isRunning()) {
                 Thread.sleep(1000);
+                seconds++;
+                if (seconds >= maxSeconds) {
+                    if (inKillMode)
+                        throw new IOException("Failed to stop (after 10 minutes) and kill (after 1 minute) server.");
+                    inKillMode = true;
+                    AL.warn("10 minutes have passed and the server is still running, killing it...");
+                    kill();
+                    seconds -= 60;
+                }
+            }
+
             ASYNC_SERVER_IN = null;
         } else {
             AL.warn("Server not running!");
@@ -167,7 +186,7 @@ public final class Server {
     /**
      * Blocks until server was killed.
      */
-    public static boolean kill() {
+    public static synchronized boolean kill() {
         isKill.set(true);
         AL.info("Killing server!");
         try {
