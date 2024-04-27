@@ -81,9 +81,11 @@ public class BackupConfig extends MyYaml {
         );
         backup_include_list = put(name, "include", "list").setDefValues(
                 "./",
-                "./example/directory",
-                "./specific-file.txt",
-                "C:\\Users\\Example Windows Directory"
+                "./server.properties"
+        ).setComments(
+                "  - ./example/directory",
+                "  - ./specific-file.txt",
+                "  - C:\\Users\\Example Windows Directory"
         );
         backup_exclude = put(name, "exclude", "enable").setDefValues("true").setComments(
                 "Add specific files or folders you want to exclude from the backup, to the list below.",
