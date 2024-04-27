@@ -168,11 +168,10 @@ public final class Server {
                 seconds++;
                 if (seconds >= maxSeconds) {
                     if (inKillMode)
-                        throw new IOException("Failed to stop (after 10 minutes) and kill (after 1 minute) server.");
+                        throw new IOException("Failed to stop and kill server (waited 20 minutes in total).");
                     inKillMode = true;
                     AL.warn("10 minutes have passed and the server is still running, killing it...");
                     kill();
-                    seconds -= 60;
                 }
             }
 
@@ -197,14 +196,21 @@ public final class Server {
                 AL.warn("Server is not running!");
             }
 
-            while (isRunning()) {
+            int maxSeconds = 60 * 10;
+            int seconds = 0;
+            while (Server.isRunning()) {
                 Thread.sleep(1000);
+                seconds++;
+                if (seconds >= maxSeconds) {
+                    throw new RuntimeException("Failed to kill server (waited 10 minutes).");
+                }
             }
             AL.info("Server killed!");
+            //isKill.set(false); // Gets set to false in thread alive checker
             return true;
-
         } catch (InterruptedException e) {
             AL.warn(e);
+            //isKill.set(false);
             return false;
         }
     }
