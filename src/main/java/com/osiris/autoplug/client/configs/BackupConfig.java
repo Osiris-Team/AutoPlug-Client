@@ -75,15 +75,14 @@ public class BackupConfig extends MyYaml {
         );
         backup_path = put(name, "path").setDefValues("./autoplug/backups").setComments(
                 "Where to create your backups.");
-        backup_include = put(name, "include", "enable").setDefValues("false").setComments(
+        backup_include = put(name, "include", "enable").setDefValues("true").setComments(
                 "Add specific files or folders you want to include in the backup, to the list below.",
-                "Windows/Linux formats are supported. './' stands for the servers root directory."
+                "Windows/Linux formats are supported. './' stands for the servers root directory.",
         );
-        backup_include_list = put(name, "include", "list").setDefValues(
-                "./",
-                "./example/directory",
-                "./specific-file.txt",
-                "C:\\Users\\Example Windows Directory"
+        backup_include_list = put(name, "include", "list").setDefValues("./").setComments(
+                "  - ./example/directory",
+                "  - ./specific-file.txt",
+                "  - C:\\Users\\Example Windows Directory"
         );
         backup_exclude = put(name, "exclude", "enable").setDefValues("true").setComments(
                 "Add specific files or folders you want to exclude from the backup, to the list below.",
