@@ -1,3 +1,6 @@
+**/AP-TEST-SERVER/
+/autoplug
+/test
 .gradle
 **/build/
 !src/**/build/
