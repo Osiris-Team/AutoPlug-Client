@@ -21,5 +21,5 @@ jobs:
         with:
           java-version: '17'
           distribution: 'graalvm'
-      - name: Build with Gradle
-        run: ./gradlew build shadowJar -x test --no-daemon
+      - name: Test with Gradle
+        run: ./gradlew test --no-daemon
