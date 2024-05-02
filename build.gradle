@@ -39,7 +39,7 @@ def
 
 // Make this jar executable
 shadowJar {
-    archiveFileName = rootProject.name
+    archiveFileName = '${rootProject.name}.jar'
     // Output into directory for manual tests
     destinationDirectory = file("AP-TEST-SERVER")
     dependsOn generateAutoplugProperties
