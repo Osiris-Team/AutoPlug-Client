@@ -26,4 +26,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        path: ./AP-TEST-SERVER/AutoPlug-Client.jar
+        name: AutoPlug-Client
+        path: AP-TEST-SERVER/AutoPlug-Client.jar
