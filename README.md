@@ -68,10 +68,8 @@ By commiting to an issue with the bounty tag you agree to these terms.
 
 Details:
 
-- Written in [Java](https://java.com/),
-  with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
-  of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- Built with [Gradle](https://gradle.org/), profiles: `./gradlew build shadowJar` (Linux and UNIX systems) or `.\gradlew.bat build shadowJar` (Windows systems) from project root directory to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
+- Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+- Built with [Gradle](https://gradle.org/), command: `./gradlew build shadowJar` (Linux and UNIX systems) or `.\gradlew.bat build shadowJar` (Windows systems) from project root directory to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
 
 ## Libraries
 
