@@ -35,8 +35,6 @@ def generateAutoplugProperties = task('generateAutoplugProperties') {
     }
 }
 
-def 
-
 // Make this jar executable
 shadowJar {
     archiveFileName = '${rootProject.name}.jar'
