@@ -71,11 +71,11 @@ Details:
 - Written in [Java](https://java.com/),
   with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside
   of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- Built with [Maven](https://maven.apache.org/), profiles: `clean package` to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
+- Built with [Gradle](https://gradle.org/), profiles: `./gradlew build shadowJar` (Linux and UNIX systems) or `.\gradlew.bat build shadowJar` (Windows systems) from project root directory to create the `./AP-TEST-SERVER/AutoPlug-Client.jar` 
 
 ## Libraries
 
-Note that this list may be outdated. Check the [pom.xml](/pom.xml) file for our current dependencies.
+Note that this list may be outdated. Check the [build.gradle](/build.gradle) file for our current dependencies.
 - [AutoPlug-Core](https://github.com/Osiris-Team/AutoPlug-Core) contains frequently used code accross all AutoPlug
   projects in one jar.
 - [Dream-Yaml](https://github.com/Osiris-Team/Dream-Yaml) is used for handling YAML files.

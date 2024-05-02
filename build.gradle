@@ -1,0 +1,138 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'java'
+}
+
+// Important for AutoPlugs Self-Updater!
+// Also take look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
+group = 'com.osiris.autoplug.client'
+version = '7.5.18'
+description = 'Responsible for all the main actions.'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// Important for AutoPlugs Self-Updater!
+// Generates a autoplug.properties file inside the generated jar file, with the stuff inside <properties>
+def generateAutoplugProperties = task('generateAutoplugProperties') {
+    def propertiesFile = file("$buildDir/resources/main/autoplug.properties")
+    outputs.file(propertiesFile)
+
+    doLast {
+        propertiesFile.text = """# Properties
+                                |# Generated on: ${new Date()}
+                                |java.version=${System.properties['java.version']}
+                                |version=${project.version}
+                                |main-class=com.osiris.autoplug.client.Main
+                                |slf4j.version=2.0.13
+                                |name=AutoPlug-Client
+                                |project.build.sourceEncoding=UTF-8
+                                |id=0
+                                |installation-path=./AutoPlug-Client.jar
+                                |""".stripMargin()
+    }
+}
+
+// Make this jar executable
+shadowJar {
+    archiveFileName = 'AutoPlug-Client.jar'
+    // Output into directory for manual tests
+    destinationDirectory = file("AP-TEST-SERVER")
+    dependsOn generateAutoplugProperties
+}
+
+// Configure jar task
+jar {
+    from sourceSets.main.output
+    archiveFileName = 'original-AutoPlug-Client.jar'
+    manifest {
+        attributes('Main-Class': 'com.osiris.autoplug.client.Main')
+    }
+    dependsOn generateAutoplugProperties
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.panda-lang.org/' }
+    maven { url 'https://repo.codemc.io/repository/maven-public/' }
+}
+
+dependencies {
+    // To make sure transitive dependencies do not include an older version. This must stay at the top.
+    
+    implementation 'net.java.dev.jna:jna:5.12.1'
+    // https://github.com/Osiris-Team/AutoPlug-Core
+    implementation 'com.github.Osiris-Team:jlib:18.0'
+    
+    implementation 'com.github.Osiris-Team:Dyml:9.8.3'
+    implementation 'com.github.Osiris-Team:Better-Thread:5.1.2'
+    implementation 'com.github.Osiris-Team:Better-Layout:1.4.0'
+    implementation 'com.github.Osiris-Team:jProcesses2:2.1.9'
+    
+    // For getting hardware info
+    implementation 'com.github.oshi:oshi-core:6.4.0'
+    
+    // Needed for working with .zip and .jar files, in the Plugins-Updater
+    implementation 'net.lingala.zip4j:zip4j:2.11.3'
+    
+    // Needed for working with .tar.gz files, in the Java-Updater
+    implementation 'org.rauschig:jarchivelib:1.2.0'
+    
+    implementation 'org.jetbrains:annotations:13.0'
+    
+    // Extra terminal stuff
+    implementation 'org.jline:jline-reader:3.20.0'
+    
+    // Requests
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-io
+    implementation 'org.apache.commons:commons-io:1.3.2'
+    
+    implementation 'commons-io:commons-io:2.7'
+    implementation 'commons-lang:commons-lang:2.6'
+    
+    // https://mvnrepository.com/artifact/commons-net/commons-net
+    implementation 'commons-net:commons-net:3.9.0'
+    
+    // https://mvnrepository.com/artifact/com.jcraft/jsch
+    implementation 'com.jcraft:jsch:0.1.55'
+    
+    // Quartz Core
+    implementation 'org.quartz-scheduler:quartz:2.3.2'
+    
+    
+    // To remove this annoying warning, add the dependency below:
+    //	SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    //  SLF4J: Defaulting to no-operation (NOP) logger implementation
+    //  SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    // https://stackoverflow.com/questions/7421612/slf4j-failed-to-load-class-org-slf4j-impl-staticloggerbinder
+    implementation 'org.slf4j:slf4j-api:2.0.13'
+    implementation 'org.slf4j:slf4j-nop:2.0.13'
+
+    implementation 'org.tomlj:tomlj:1.0.0'
+    
+    // For GUI of tray icon
+    implementation 'com.formdev:flatlaf:2.2'
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    
+    // For Server Updater
+    implementation 'me.hsgamer:mc-server-updater-lib:3.4.0'
+}
+
+// Responsible for running all tests before building.
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+

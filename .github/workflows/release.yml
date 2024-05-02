@@ -1,5 +1,5 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# This workflow will build a Java project with Gradle, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
 name: Release
 
@@ -13,24 +13,24 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
-      - name: Set up JDK 16
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-graalvm@v1
         with:
-          java-version: '16'
-          distribution: 'temurin'
-          cache: maven
+          java-version: '17'
+          distribution: 'graalvm'
+          cache: 'gradle'
 
-      - name: Build with Maven
+      - name: Build with Gradle
         shell: pwsh
-        run: mvn -B package --file pom.xml -DskipTests
+        run: .\gradlew.bat build shadowJar --no-daemon
 
       - name: Show files.
         run: |
           echo Showing current directory:
           ls
-          echo Showing ./target directory:
-          ls ./target
+          echo Showing ./build directory:
+          ls ./build
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -39,7 +39,7 @@ jobs:
           prerelease: false
           title: "Release"
           files: |
-            ./target/*.tar.gz
-            ./target/*.zip
-            ./target/*.jar
-            ./target/*.exe
+            ./build/*.tar.gz
+            ./build/*.zip
+            ./build/*.jar
+            ./build/libs/*.exe
