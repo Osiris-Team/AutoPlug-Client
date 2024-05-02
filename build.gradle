@@ -9,6 +9,8 @@ group = 'com.osiris.autoplug.client'
 version = '7.5.18'
 description = 'Responsible for all the main actions.'
 
+def AutoPlugClientJar = 'AutoPlug-Client.jar'
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -27,17 +29,19 @@ def generateAutoplugProperties = task('generateAutoplugProperties') {
                                 |version=${project.version}
                                 |main-class=com.osiris.autoplug.client.Main
                                 |slf4j.version=2.0.13
-                                |name=AutoPlug-Client
+                                |name=${rootProject.name}
                                 |project.build.sourceEncoding=UTF-8
                                 |id=0
-                                |installation-path=./AutoPlug-Client.jar
+                                |installation-path=./${AutoPlugClientJar}
                                 |""".stripMargin()
     }
 }
 
+def 
+
 // Make this jar executable
 shadowJar {
-    archiveFileName = 'AutoPlug-Client.jar'
+    archiveFileName = AutoPlugClientJar
     // Output into directory for manual tests
     destinationDirectory = file("AP-TEST-SERVER")
     dependsOn generateAutoplugProperties
@@ -46,7 +50,7 @@ shadowJar {
 // Configure jar task
 jar {
     from sourceSets.main.output
-    archiveFileName = 'original-AutoPlug-Client.jar'
+    archiveFileName = 'original-${AutoPlugClientJar}'
     manifest {
         attributes('Main-Class': 'com.osiris.autoplug.client.Main')
     }
