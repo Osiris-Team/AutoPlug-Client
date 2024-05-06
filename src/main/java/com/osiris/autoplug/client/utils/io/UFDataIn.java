@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,116 +8,104 @@
 
 package com.osiris.autoplug.client.utils.io;
 
+import com.osiris.jlib.logger.AL;
+
 import javax.naming.LimitExceededException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * ULTRA FAST DATA INPUTSTREAM!
  */
 public class UFDataIn {
-    private final InputStream inputStream;
-    private final BufferedReader reader;
+    private final DataInputStream dis;
 
     public UFDataIn(InputStream inputStream) {
-        this.inputStream = inputStream;
-        this.reader = new BufferedReader(new InputStreamReader(inputStream));
+        this.dis = new DataInputStream(inputStream);
     }
 
     public String readLine() throws IOException {
-        return reader.readLine();
+        return dis.readUTF();
     }
 
     public boolean readBoolean() throws IOException {
-        return reader.read() != 0;
+        return dis.readBoolean();
+    }
+
+    public void readFile(File file, long maxBytes) throws IOException, LimitExceededException {
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            readStream(out, maxBytes);
+        }
     }
 
     /**
      * Returns a list containing the lines of the file.
      */
-    public List<String> readFile() throws IOException {
-        List<String> lines = new ArrayList<>();
-        String line;
-        while ((line = reader.readLine()) != null && !line.equals("\u001a")) { // Stop at 10 mb
-            lines.add(line + "\n");
-        }
-        return lines;
-    }
+    public void readStream(OutputStream out, long maxBytes) throws IOException, LimitExceededException {
+        long countBytesRead = 0;
+        int count;
+        byte[] buffer = new byte[8192]; // or 4096, or more
+        String buffer_s = "";
+        while (!(buffer_s = dis.readUTF()).equals(UFDataOut.EOF)) {
+            buffer = buffer_s.getBytes(StandardCharsets.UTF_8);
+            count = buffer.length;
 
-    /**
-     * Returns a list containing the lines of the file. <br>
-     *
-     * @param maxBytes the maximum amount of bytes to read.
-     * @throws LimitExceededException when the provided maximum bytes amount was read.
-     */
-    public List<String> readFile(long maxBytes) throws IOException, LimitExceededException {
-        List<String> lines = new ArrayList<>();
-        long bytesRead = 0;
-        String line;
-        while ((line = reader.readLine()) != null && !line.equals("\u001a")) { // Stop at 10 mb
-            lines.add(line + "\n");
-            bytesRead = bytesRead + line.getBytes().length;
-            if (bytesRead > maxBytes) {
+            countBytesRead += count;
+            if (countBytesRead > maxBytes) {
                 throw new LimitExceededException("Exceeded the maximum allowed bytes: " + maxBytes);
             }
+            out.write(buffer, 0, count);
+            out.flush();
         }
-        return lines;
+        //read("\u001a") // Not needed here since already read above by read()
+    }
+
+    public void readFile(File file) throws IOException {
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            readStream(out);
+        }
     }
 
     /**
      * Returns a list containing the lines of the file.
      */
-    public List<String> readStream() throws IOException {
-        List<String> lines = new ArrayList<>();
-        String line;
-        while ((line = reader.readLine()) != null && !line.equals("\u001a")) {
-            lines.add(line + "\n");
-        }
-        return lines;
-    }
+    public void readStream(OutputStream out) throws IOException {
+        Base64.Decoder decoder = Base64.getDecoder();
+        long countBytesRead = 0;
+        int count;
+        byte[] buffer = new byte[8192]; // or 4096, or more
+        String buffer_s = "";
+        while (!(buffer_s = dis.readUTF()).equals(UFDataOut.EOF)) {
+            buffer = decoder.decode(buffer_s);
+            count = buffer.length;
 
-    /**
-     * Returns a list containing the lines of the file. <br>
-     *
-     * @param maxBytes the maximum amount of bytes to read.
-     * @throws LimitExceededException when the provided maximum bytes amount was read.
-     */
-    public List<String> readStream(long maxBytes) throws IOException, LimitExceededException {
-        List<String> lines = new ArrayList<>();
-        long bytesRead = 0;
-        String line;
-        while ((line = reader.readLine()) != null && !line.equals("\u001a")) { // Stop at 10 mb
-            lines.add(line + "\n");
-            bytesRead = bytesRead + line.getBytes().length;
-            if (bytesRead > maxBytes) {
-                throw new LimitExceededException("Exceeded the maximum allowed bytes: " + maxBytes);
-            }
+            countBytesRead += count;
+            out.write(buffer, 0, count);
+            out.flush();
         }
-        return lines;
+        AL.debug(this.getClass(), "BYTES READ: " + countBytesRead);
+        //read("\u001a") // Not needed here since already read above by read()
     }
 
     public byte readByte() throws IOException {
-        return Byte.parseByte(readLine());
+        return dis.readByte();
     }
 
     public short readShort() throws IOException {
-        return Short.parseShort(readLine());
+        return dis.readShort();
     }
 
     public int readInt() throws IOException {
-        return Integer.parseInt(readLine());
+        return dis.readInt();
     }
 
     public long readLong() throws IOException {
-        return Long.parseLong(readLine());
+        return dis.readLong();
     }
 
     public float readFloat() throws IOException {
-        return Float.parseFloat(readLine());
+        return dis.readFloat();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -18,10 +18,7 @@ import com.osiris.jlib.logger.AL;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
@@ -120,29 +117,26 @@ public class ConFileManager extends DefaultConnection {
                     }
                 }
             }
+            dos.writeBoolean(true);
         } catch (Exception e) {
             AL.warn(e);
             dos.writeBoolean(false);
             dos.writeLine("Critical error while copying/cutting a file! Check your servers log for further details: " + e.getMessage());
         }
-        dos.writeBoolean(true);
     }
 
     private void doProtocolForReceivingUploadedFile() throws IOException {
-        File file = new File(dis.readLine());
+        String filePath = dis.readLine();
+        File file = new File(filePath);
         if (!file.exists()) file.createNewFile();
-        try (BufferedWriter fw = new BufferedWriter(new FileWriter(file))) {
-            String line;
-            while ((line = dis.readLine()) != null && !line.equals("\u001a")) {
-                fw.write(line + "\n");
-                fw.flush();
-            }
+        try (FileOutputStream fw = new FileOutputStream(file)) {
+            dis.readStream(fw);
+            dos.writeBoolean(true);
         } catch (Exception e) {
             AL.warn(e);
             dos.writeBoolean(false);
             dos.writeLine("Critical error while saving uploaded file! Check your servers log for further details: " + e.getMessage());
         }
-        dos.writeBoolean(true);
     }
 
     private void doProtocolForSavingFile() throws IOException {
@@ -153,12 +147,12 @@ public class ConFileManager extends DefaultConnection {
                 fw.write(line + "\n");
                 fw.flush();
             }
+            dos.writeBoolean(true);
         } catch (Exception e) {
             AL.warn(e);
             dos.writeBoolean(false);
             dos.writeLine("Critical error while saving a file! Check your servers log for further details: " + e.getMessage());
         }
-        dos.writeBoolean(true);
     }
 
     private void doProtocolForRenamingFile() throws IOException {

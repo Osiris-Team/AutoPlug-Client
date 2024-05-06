@@ -11,7 +11,7 @@
         <option name="JAR_PATH" value="$PROJECT_DIR$/AP-TEST-SERVER/AutoPlug-Client.jar"/>
         <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8"/>
         <option name="PROGRAM_PARAMETERS" value="test"/>
-        <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/AP-TEST-SERVER"/>
+        <option name="WORKING_DIRECTORY" value="D:\Coding\JAVA\AutoPlug-Client\AP-TEST-SERVER"/>
         <option name="ALTERNATIVE_JRE_PATH"/>
         <method v="2">
             <option name="RunConfigurationTask" enabled="true" run_configuration_name="autoplug-client [-DskipTests]"

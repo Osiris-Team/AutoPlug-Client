@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online;
 
+import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.jlib.logger.AL;
 
@@ -53,7 +54,14 @@ public class ConMain extends DefaultConnection {
         } catch (Exception e) {
             AL.warn(e);
             isDone = true;
-            return false;
+            try {
+                String key = new GeneralConfig().server_key.asString();
+                if (key == null || key.isEmpty() || key.equals(NO_KEY))
+                    return false;
+                // else we continue below and retry the connection
+            } catch (Exception ex) {
+                return false;
+            }
         }
         super.setAndStartAsync(() -> {
             try {
