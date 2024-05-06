@@ -8,11 +8,11 @@
 
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -54,14 +54,9 @@ public class ConMain extends DefaultConnection {
         } catch (Exception e) {
             AL.warn(e);
             isDone = true;
-            try {
-                String key = new GeneralConfig().server_key.asString();
-                if (key == null || key.isEmpty() || key.equals(NO_KEY))
-                    return false;
-                // else we continue below and retry the connection
-            } catch (Exception ex) {
-                return false;
-            }
+            if (e instanceof InvalidKeyException)
+                return false; // Abort directly since no valid key exists
+            // else we continue below and retry the connection
         }
         super.setAndStartAsync(() -> {
             try {

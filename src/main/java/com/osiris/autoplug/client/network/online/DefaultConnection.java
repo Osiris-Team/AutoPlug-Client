@@ -28,6 +28,7 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -118,7 +119,7 @@ public class DefaultConnection implements AutoCloseable {
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
                 serverKey.equals(NO_KEY))
-            throw new Exception("No valid key provided." +
+            throw new InvalidKeyException("No valid key provided." +
                     " Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file." +
                     " Enter '.con reload' to retry.");
         while (true) {
