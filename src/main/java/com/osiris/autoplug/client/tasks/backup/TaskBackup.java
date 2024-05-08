@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import java.nio.file.Files; // Added for reading files - Zoe
+import java.nio.file.Paths; // Added for reading paths - Zoe
 
 public class TaskBackup extends BThread {
 
@@ -169,15 +172,25 @@ public class TaskBackup extends BThread {
                         config.backup_upload_path.asString(),
                         zip.getFile());
 
-                String rsa = config.backup_upload_rsa.asString();
+                
+                String rsaFilePath = config.backup_upload_rsa.asString(); // Get file path
+                String mode = "UPLOAD_METHOD" // Track upload method for displaying errors & warnings
                 try {
-                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
-                    else upload.sftp(rsa.trim());
-
-                    if (config.backup_upload_delete_on_complete.asBoolean())
+                    byte[] keyBytes = Files.readAllBytes(Paths.get(rsaFilePath)); // Read RSA file contents
+                    String rsa = new String(keyBytes); // Use file contents as string
+                    if (rsa == null || rsa.trim().isEmpty()) {
+                        upload.ftps();
+                        mode = "FTPS";
+                    } else {
+                        upload.sftp(rsa.trim());
+                        mode = "SFTP";
+                    }
+                    if (config.backup_upload_delete_on_complete.asBoolean()) {
                         zip.getFile().delete();
+                    }
+                    
                 } catch (Exception e) {
-                    getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
+                    getWarnings().add(new BWarning(this, e, mode + " file upload failed!"));
                 }
 
                 if (getWarnings().size() > 0)
