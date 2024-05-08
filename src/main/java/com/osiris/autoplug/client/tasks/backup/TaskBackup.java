@@ -162,22 +162,32 @@ public class TaskBackup extends BThread {
 
                 setStatus("Uploading server-files backup...");
 
-                Upload upload = new Upload(config.backup_upload_host.asString(),
-                        config.backup_upload_port.asInt(),
-                        config.backup_upload_user.asString(),
-                        config.backup_upload_password.asString(),
-                        config.backup_upload_path.asString(),
-                        zip.getFile());
+                Upload upload = new Upload(
+                    config.backup_upload_host.asString(),
+                    config.backup_upload_port.asInt(),
+                    config.backup_upload_user.asString(),
+                    config.backup_upload_password.asString(),
+                    config.backup_upload_path.asString(),
+                    zip.getFile()
+                );
 
-                String rsa = config.backup_upload_rsa.asString();
+                    try {
+                        upload.ftps();
+                    } catch (Exception ftpsException) {
+                        getWarnings().add(new BWarning(this, ftpsException, "Failed to upload backup using FTPS."));
+                        try {
+                            upload.sftp(config.backup_upload_rsa.asString());
+                        } catch (Exception sftpException) {
+                            getWarnings().add(new BWarning(this, sftpException, "Failed to upload backup using SFTP. Upload failed."));
+                        }
+                    }
+
                 try {
-                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
-                    else upload.sftp(rsa.trim());
-
-                    if (config.backup_upload_delete_on_complete.asBoolean())
+                    if (config.backup_upload_delete_on_complete.asBoolean()) {
                         zip.getFile().delete();
-                } catch (Exception e) {
-                    getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
+                    }
+                } catch (Exception rmLocalBackup) {
+                    getWarnings().add(new BWarning(this, rmLocalBackup, "Failed to remove backup from local."));
                 }
 
                 if (getWarnings().size() > 0)

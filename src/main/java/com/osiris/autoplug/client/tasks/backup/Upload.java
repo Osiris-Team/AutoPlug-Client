@@ -17,7 +17,6 @@ import org.apache.commons.net.ftp.FTPSClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
-import java.util.Base64;
 
 /**
  * @author kastenklicker
@@ -37,29 +36,40 @@ public class Upload {
         this.zipFile = zipFile;
     }
 
-    public void sftp(String rsa) throws JSchException, SftpException {
+    public void sftp(String rsaPathString) throws JSchException, SftpException {
         JSch jSch = new JSch();
-
-        //HostKey verification
-        byte[] key = Base64.getDecoder().decode(rsa);
-        HostKey hostKey1 = new HostKey(host, key);
-        jSch.getHostKeyRepository().add(hostKey1, null);
-
-        //Connect
-        Session session = jSch.getSession(user, host, port);
-        session.setPassword(password);
-        session.connect();
-        ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
-        channel.connect();
-
-        //Upload
-        channel.put(zipFile.getPath(), path + this.zipFile.getName());
-
-        //Disconnect
-        channel.exit();
-        session.disconnect();
+        
+        // Try to use RSA key
+        if (rsaPathString != null && !rsaPathString.equals("")) {
+            jSch.addIdentity(rsaPathString);
+        }
+    
+        Session session = null;
+        ChannelSftp channel = null;
+    
+        try {
+            session = jSch.getSession(user, host, port);
+            if (password != null && !password.equals("")) {
+                session.setPassword(password);
+            }
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.connect();
+    
+            channel = (ChannelSftp) session.openChannel("sftp");
+            channel.connect();
+    
+            channel.put(zipFile.getPath(), path + zipFile.getName());
+        } finally {
+            if (channel != null) {
+                channel.exit();
+                channel.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
+        }
     }
-
+    
     public void ftps() throws Exception {
 
         FileInputStream zipFileStream = new FileInputStream(zipFile);
