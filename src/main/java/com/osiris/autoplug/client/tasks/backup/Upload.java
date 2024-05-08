@@ -39,23 +39,23 @@ public class Upload {
 
     public void sftp(String rsa) throws JSchException, SftpException {
         JSch jSch = new JSch();
-
-        //HostKey verification
-        byte[] key = Base64.getDecoder().decode(rsa);
+    
+        // HostKey verification
+        byte[] key = rsa.getBytes(); // Convert RSA key content to bytes
         HostKey hostKey1 = new HostKey(host, key);
         jSch.getHostKeyRepository().add(hostKey1, null);
-
-        //Connect
+    
+        // Connect
         Session session = jSch.getSession(user, host, port);
         session.setPassword(password);
         session.connect();
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
-
-        //Upload
+    
+        // Upload
         channel.put(zipFile.getPath(), path + this.zipFile.getName());
-
-        //Disconnect
+    
+        // Disconnect
         channel.exit();
         session.disconnect();
     }
