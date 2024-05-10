@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -12,6 +12,7 @@ import com.osiris.autoplug.client.network.online.connections.*;
 import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -53,7 +54,9 @@ public class ConMain extends DefaultConnection {
         } catch (Exception e) {
             AL.warn(e);
             isDone = true;
-            return false;
+            if (e instanceof InvalidKeyException)
+                return false; // Abort directly since no valid key exists
+            // else we continue below and retry the connection
         }
         super.setAndStartAsync(() -> {
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -52,7 +52,8 @@ public class SystemConfig extends MyYaml {
         timestamp_last_backup = put(name, "timestamp-last-backup-task");
 
         autoplug_web_ssl = put(name, "autoplug-web-ssl").setDefValues("true").setComments("If localhost is used below, remember to set this to false too!");
-        autoplug_web_ip = put(name, "autoplug-web-ip").setDefValues("144.91.78.158").setComments("Set to localhost to test on the local server.");
+        autoplug_web_ip = put(name, "autoplug-web-ip").setDefValues("144.91.78.158").setComments("Set to localhost to test on the local server.",
+                "Otherwise set to 144.91.78.158 or autoplug.one to connect with the default production server (remember to enable autoplug-web-ssl in this case too).");
         autoplug_web_port = put(name, "autoplug-web-port").setDefValues("35555");
 
         autoplug_plugin_key = put(name, "autoplug-plugin-key");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -28,6 +28,7 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Must be extended by each connection.
  */
 public class DefaultConnection implements AutoCloseable {
+    public static final String NO_KEY = "NO_KEY";
     public final byte conType;
     public byte errorCode = 0;
     public Socket socket;
@@ -116,8 +118,8 @@ public class DefaultConnection implements AutoCloseable {
         isClosing.set(false);
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
-                serverKey.equals("NO_KEY"))
-            throw new Exception("No valid key provided." +
+                serverKey.equals(NO_KEY))
+            throw new InvalidKeyException("No valid key provided." +
                     " Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file." +
                     " Enter '.con reload' to retry.");
         while (true) {
