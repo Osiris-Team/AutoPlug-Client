@@ -1,3 +1,11 @@
+<!--
+  ~ Copyright (c) 2024 Osiris-Team.
+  ~ All rights reserved.
+  ~
+  ~ This software is copyrighted work, licensed under the terms
+  ~ of the MIT-License. Consult the "LICENSE" file for details.
+  -->
+
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="run-jar" type="JarApplication">
     <option name="JAR_PATH" value="$PROJECT_DIR$/AP-TEST-SERVER/AutoPlug-Client.jar" />
