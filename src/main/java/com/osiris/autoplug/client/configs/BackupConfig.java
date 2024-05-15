@@ -111,8 +111,10 @@ public class BackupConfig extends MyYaml {
         backup_upload_password = put(name, "upload", "password");
         backup_upload_path = put(name, "upload", "path").setComments(
                 "Set the folder, in which the backup should be stored.");
-        backup_upload_rsa = put(name, "upload", "rsa-key").setComments(
-                "Leave this field blank when using FTPS.");
+        backup_upload_rsa = put(name, "upload", "rsa-key-path").setComments(
+                "Leave this field blank when using FTPS.",
+                "Otherwise enter a relative or absolute path to the file containing the key.",
+                "Usually the path is something like this: /home/username/.ssh/id_rsa");
 
         save();
         unlockFile();

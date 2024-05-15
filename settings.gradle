@@ -1,1 +1,43 @@
 rootProject.name = 'AutoPlug-Client'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'org.kordamp.gradle:enforcer-gradle-plugin:0.13.0'
+    }
+}
+apply plugin: 'org.kordamp.gradle.enforcer'
+
+/*
+ Fails when the same dependency exists more than once, with different versions or if it's a SNAPSHOT.
+ If that is the case specify/add that dependency in <dependenciesManagement> (transitive dependency) above,
+ with a version that is compatible with all other dependencies, or
+ try to find an alternative dependency with similar functionality.
+ Note that having this check is crucial to avoid runtime "method not found" errors that will lead to crashes
+ and/or unexpected behaviour.
+  */
+enforce {
+    rule(enforcer.rules.DependencyConvergence) { r ->
+        r.enabled
+        r.enforcerLevel
+        r.phases
+        r.failOnDynamicVersions
+        r.failOnChangingVersions
+        r.failOnNonReproducibleResolution
+        r.activateDependencyLocking
+        r.deactivateDependencyLocking
+    }
+    rule(enforcer.rules.ForceDependencies) { r ->
+        r.dependencies.add('net.java.dev.jna:jna:5.14.0')
+        r.dependencies.add('net.java.dev.jna:jna-platform:5.14.0')
+        r.dependencies.add('commons-io:commons-io:2.16.1')
+        r.dependencies.add('com.github.Osiris-Team:jansi:2.4.2')
+        r.dependencies.add('org.jetbrains:annotations:23.0.0')
+        r.dependencies.add('org.jetbrains.kotlin:kotlin-stdlib:1.9.23')
+        r.dependencies.add('org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23')
+        r.dependencies.add('org.slf4j:slf4j-api:2.0.13')
+    }
+}

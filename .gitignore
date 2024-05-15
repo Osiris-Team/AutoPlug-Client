@@ -17,8 +17,17 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-# Eclipse Gradle plugin generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
+# IDEA
+**/.idea/
+**/*.iml
+
+# Visual Studio Code
+**/.vscode/
+
+# MacOS
+.DS_Store
+
+# Eclipse
+.settings
 .classpath
+.project

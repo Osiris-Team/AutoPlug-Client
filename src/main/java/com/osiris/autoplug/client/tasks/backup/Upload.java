@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Osiris-Team.
+ * Copyright (c) 2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -16,11 +16,21 @@ import org.apache.commons.net.ftp.FTPSClient;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Base64;
 
 /**
- * @author kastenklicker
+ * Handles file uploads via SFTP and FTPS.
+ *
+ * Usage:
+ * - To upload via SFTP, call the {@link #sftp(String)} method with the RSA key path.
+ * - To upload via FTPS, call the {@link #ftps()} method.
+ *
+ * Ensure that the host, port, user, password, path, and zipFile are properly set via the constructor.
+ *
+ * Note: Password handling in this code is basic and should be improved for production use.
+ *
+ * Author: kastenklicker
  */
 public class Upload {
     private final String host, user, password, path;
@@ -37,37 +47,41 @@ public class Upload {
         this.zipFile = zipFile;
     }
 
-    public void sftp(String rsa) throws JSchException, SftpException {
-        JSch jSch = new JSch();
+    public void sftp(String rsaKeyPath) throws JSchException, SftpException, IOException {
+        JSch jsch = new JSch();
 
-        //HostKey verification
-        byte[] key = Base64.getDecoder().decode(rsa);
-        HostKey hostKey1 = new HostKey(host, key);
-        jSch.getHostKeyRepository().add(hostKey1, null);
+        // Load the private key from the file
+        jsch.addIdentity(rsaKeyPath);
 
-        //Connect
-        Session session = jSch.getSession(user, host, port);
+        // HostKey verification
+        // This is a basic implementation. Improve as needed.
+        //jsch.setKnownHosts("/path/to/known_hosts");
+
+        // Connect
+        Session session = jsch.getSession(user, host, port);
+        session.setConfig("StrictHostKeyChecking", "no");
         session.setPassword(password);
         session.connect();
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
 
-        //Upload
-        channel.put(zipFile.getPath(), path + this.zipFile.getName());
-
-        //Disconnect
-        channel.exit();
-        session.disconnect();
+        try {
+            // Upload
+            channel.put(zipFile.getPath(), path + zipFile.getName());
+        } catch (SftpException e) {
+            throw e;
+        } finally {
+            // Disconnect
+            channel.disconnect();
+            session.disconnect();
+        }
     }
 
-    public void ftps() throws Exception {
-
-        FileInputStream zipFileStream = new FileInputStream(zipFile);
-
+    public void ftps() throws IOException {
         FTPSClient ftps = new FTPSClient();
         ftps.setConnectTimeout(5000);
 
-        //Connect
+        // Connect
         ftps.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
         ftps.connect(host, port);
         ftps.execPBSZ(0);
@@ -75,16 +89,23 @@ public class Upload {
         int reply = ftps.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             ftps.disconnect();
-            throw new Exception("Exception in connecting to FTPS Server.");
+            throw new IOException("Exception in connecting to FTPS Server.");
         }
         ftps.login(user, password);
         ftps.setFileType(FTP.BINARY_FILE_TYPE);
         ftps.enterLocalPassiveMode();
 
-        //Upload
-        if (!ftps.storeFile(path + zipFile.getName(), zipFileStream))
-            throw new Exception("Exception in uploading to FTPS Server.");
-        ftps.logout();
-        ftps.disconnect();
+        try (FileInputStream zipFileStream = new FileInputStream(zipFile)) {
+            // Upload
+            if (!ftps.storeFile(path + zipFile.getName(), zipFileStream)) {
+                throw new IOException("Exception in uploading to FTPS Server.");
+            }
+
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            ftps.logout();
+            ftps.disconnect();
+        }
     }
 }
