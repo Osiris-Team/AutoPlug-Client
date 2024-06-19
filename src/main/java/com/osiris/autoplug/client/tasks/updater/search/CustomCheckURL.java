@@ -48,8 +48,22 @@ public class CustomUpdateCheck {
             } 
 
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            if (new File(installPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
-                code = 1;
+            String[] pluginVersionComponents = plugin.getVersion().split("\\.");
+            String[] latestVersionComponents = latest.split("\\.");
+
+            for (int i = 0; i < Math.min(pluginVersionComponents.length, latestVersionComponents.length); i++) {
+                 int pluginComponent = Integer.parseInt(pluginVersionComponents[i]);
+                 int latestComponent = Integer.parseInt(latestVersionComponents[i]);
+
+                 if (pluginComponent < latestComponent) {
+        // plugin.getVersion() is smaller than latest
+                     code = 1;
+                     break;
+                 } else if (pluginComponent > latestComponent) {
+        // plugin.getVersion() is greater than latest
+                     break;
+                 }
+             }
             
         } catch (Exception e) {
             exception = e;
