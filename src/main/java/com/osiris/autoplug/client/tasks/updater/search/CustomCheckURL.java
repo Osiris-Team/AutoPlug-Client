@@ -24,14 +24,14 @@ public class CustomUpdateCheck {
         }
     }
 
-    public SearchResult doCustomCheck(MinecraftPlugin plugin, String mcVersion) {
+    public SearchResult doCustomCheck(MinecraftPlugin plugin) {
         SearchResult sr;
         if (plugin.getCustomCheckURL != "FORCE") {
-            sr = checkUpdate(plugin, mcVersion)
+            sr = checkUpdate(plugin)
         };
     }
 
-    private SearchResult checkUpdate(MinecraftPlugin plugin, String mcVersion) {
+    private SearchResult checkUpdate(MinecraftPlugin plugin) {
 
         String url = plugin.getCustomCheckURL();
         url = new UtilsURL().clean(url);
@@ -45,17 +45,7 @@ public class CustomUpdateCheck {
             try {
                 release = Json.getAsJsonArray(url)
                         .get(0).getAsJsonObject();
-            } catch (Exception e) {
-                if (!isInt(id)) { // Try another url, with slug replaced _ with -
-                    url = baseUrl + "/project/" + id.replace("_", "-")
-                            + "/version?loaders=[\"" +
-                            loader + "\"]" + (forceLatest ? "" : "&game_versions=[\"" + mcVersion + "\"]");
-                    AL.debug(this.getClass(), url);
-                    release = Json.getAsJsonArray(url)
-                            .get(0).getAsJsonObject();
-                } else
-                    throw e;
-            }
+            } 
 
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             if (new File(installPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
