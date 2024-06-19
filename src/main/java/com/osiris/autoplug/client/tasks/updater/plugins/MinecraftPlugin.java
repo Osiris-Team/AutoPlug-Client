@@ -19,6 +19,7 @@ public class MinecraftPlugin {
     private int bukkitId;
     private boolean ignoreContentType;
     private String customDownloadURL;
+    private String customCheckURL;
     private String githubRepoName;
     private String githubAssetName;
     private String jenkinsProjectUrl;
