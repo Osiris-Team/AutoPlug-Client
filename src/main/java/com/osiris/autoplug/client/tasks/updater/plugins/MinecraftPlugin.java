@@ -174,6 +174,14 @@ public class MinecraftPlugin {
         this.customDownloadURL = customDownloadURL;
     }
 
+    public String getCustomCheckURL() {
+        return customCheckURL;
+    }
+
+    public void setCustomCheckURL(String customCheckURL) {
+        this.customCheckURL = customCheckURL;
+    }
+
     public String toPrintString() {
         return "name='" + name + "' version='" + version + "' author='" + author + "' path='" + installationPath + "'";
     }
