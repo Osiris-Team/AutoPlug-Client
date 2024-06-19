@@ -282,6 +282,7 @@ installedPlugin.setGithubRepoName(githubRepoName.asString());
         setMax(includedSize);
 
         // TODO USE THIS FOR RESULT REPORT
+        int sizeCustomPlugins = 0;
         int sizeJenkinsPlugins = 0;
         int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
@@ -304,7 +305,10 @@ installedPlugin.setGithubRepoName(githubRepoName.asString());
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
+                if (pl.getCustomCheckUrl() != null) { // Custome Check
+                    sizeCustomPlugins++;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckUTL(pl)));
+                } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
                     sizeJenkinsPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
                 } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
