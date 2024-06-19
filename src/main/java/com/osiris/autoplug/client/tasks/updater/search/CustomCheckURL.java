@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ModrinthAPI {
-    private final String baseUrl = "https://api.modrinth.com/v2";
+public class CustomUpdateCheck {
 
     private boolean isInt(String s) {
         try {
@@ -25,21 +24,7 @@ public class ModrinthAPI {
         }
     }
 
-
-    /**
-     * Requires a modrithId (chars or number), or curseforgeId (no number, but chars).
-     * If the id contains chars its usually the mods slugs.
-     */
-    public SearchResult searchUpdateMod(InstalledModLoader modLoader, MinecraftMod mod, String mcVersion) {
-        if (mod.modrinthId == null && !isInt(mod.curseforgeId)) mod.modrinthId = mod.curseforgeId; // Slug
-        SearchResult res = searchUpdate((modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge"),mod.modrinthId,mcVersion, mod.installationPath, mod.forceLatest);
-        res.mod = mod;
-        return res;
-    }
-    public SearchResult searchUpdatePlugin(MinecraftPlugin plugin, String mcVersion) { //TODO: probably don't hardcode spigot and papermc
-        return searchUpdate("spigot\",\"paper", plugin.getModrinthId(), mcVersion, plugin.getInstallationPath(), false);
-    }
-    private SearchResult searchUpdate(String loader, String id, String mcVersion, String installPath, boolean forceLatest) {
+    private SearchResult checkUpdate(MinecraftPlugin plugin, String mcVersion) {
 
         String url = baseUrl + "/project/" + id + "/version?loaders=[\"" + loader + "\"]&game_versions=[\"" + mcVersion + "\"]";
         url = new UtilsURL().clean(url);
