@@ -24,6 +24,13 @@ public class CustomUpdateCheck {
         }
     }
 
+    public SearchResult doCustomCheck(MinecraftPlugin plugin, String mcVersion) {
+        SearchResult sr;
+        if (plugin.getCustomCheckURL != "FORCE") {
+            sr = checkUpdate(plugin, mcVersion)
+        };
+    }
+
     private SearchResult checkUpdate(MinecraftPlugin plugin, String mcVersion) {
 
         String url = plugin.getCustomCheckURL();
@@ -34,10 +41,6 @@ public class CustomUpdateCheck {
         String downloadUrl = null;
         byte code = 0;
         try {
-            if (id == null)
-                throw new Exception("Modrinth-id is null!"); // Modrinth id can be slug or actual id
-
-            AL.debug(this.getClass(), url);
             JsonObject release;
             try {
                 release = Json.getAsJsonArray(url)
