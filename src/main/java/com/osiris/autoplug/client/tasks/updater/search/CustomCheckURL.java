@@ -26,7 +26,7 @@ public class CustomUpdateCheck {
 
     private SearchResult checkUpdate(MinecraftPlugin plugin, String mcVersion) {
 
-        String url = baseUrl + "/project/" + id + "/version?loaders=[\"" + loader + "\"]&game_versions=[\"" + mcVersion + "\"]";
+        String url = plugin.getCustomCheckURL();
         url = new UtilsURL().clean(url);
         Exception exception = null;
         String latest = null;
