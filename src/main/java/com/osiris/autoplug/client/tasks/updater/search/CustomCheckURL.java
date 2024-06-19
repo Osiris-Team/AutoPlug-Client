@@ -1,4 +1,4 @@
-package com.osiris.autoplug.client.tasks.updater.mods;
+package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
