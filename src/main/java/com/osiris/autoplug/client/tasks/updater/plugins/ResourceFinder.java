@@ -20,6 +20,7 @@ import com.osiris.autoplug.client.tasks.updater.search.bukkit.BukkitSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByAuthor;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByName;
+import com.osiris.autoplug.client.tasks.updater.search.CustomCheckURL;
 
 public class ResourceFinder {
 
@@ -116,6 +117,12 @@ public class ResourceFinder {
     public SearchResult findByJenkinsUrl(MinecraftPlugin plugin) {
         SearchResult sr = new JenkinsSearch().search(plugin.getJenkinsProjectUrl(), plugin.getJenkinsArtifactName(), plugin.getJenkinsBuildId());
         plugin.setPremium(sr.isPremium);
+        sr.plugin = plugin;
+        return sr;
+    }
+
+    public SearchResult findByCustomCheckURL(MinecraftPlugin plugin) {
+        SearchResult sr = new 
         sr.plugin = plugin;
         return sr;
     }
