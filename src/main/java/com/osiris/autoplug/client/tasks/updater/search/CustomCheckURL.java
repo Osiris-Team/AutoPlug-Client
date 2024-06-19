@@ -50,13 +50,7 @@ public class CustomUpdateCheck {
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             if (new File(installPath).lastModified() < Instant.parse(release.get("date_published").getAsString()).toEpochMilli())
                 code = 1;
-            JsonObject releaseDownload = release.getAsJsonArray("files").get(0).getAsJsonObject();
-            downloadUrl = releaseDownload.get("url").getAsString();
-            try {
-                String fileName = releaseDownload.get("filename").getAsString();
-                type = fileName.substring(fileName.lastIndexOf("."));
-            } catch (Exception e) {
-            }
+            
         } catch (Exception e) {
             exception = e;
             code = 2;
