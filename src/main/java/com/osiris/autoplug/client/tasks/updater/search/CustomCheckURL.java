@@ -29,7 +29,7 @@ public class CustomUpdateCheck {
         if (plugin.getCustomCheckURL != "FORCE") {
             sr = checkUpdate(plugin)
         } else {
-            sr = new SearchResult(null, 1, "9.9.9", null, ".jar", null, null, false);
+            sr = new SearchResult(null, 1, "latest", null, ".jar", null, null, false);
         };
         return sr;
     }
