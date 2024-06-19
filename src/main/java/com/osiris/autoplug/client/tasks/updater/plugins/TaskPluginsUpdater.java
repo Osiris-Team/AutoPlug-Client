@@ -307,7 +307,7 @@ installedPlugin.setGithubRepoName(githubRepoName.asString());
                 setStatus("Initialising update check for  " + pl.getName() + "...");
                 if (pl.getCustomCheckUrl() != null) { // Custome Check
                     sizeCustomPlugins++;
-                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckUTL(pl)));
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(pl)));
                 } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
                     sizeJenkinsPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
