@@ -212,7 +212,10 @@ public class TaskPluginsUpdater extends BThread {
                 installedPlugin.setBukkitId(bukkitId.asInt());
                 installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
                 installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
-                installedPlugin.setGithubRepoName(githubRepoName.asString());
+          
+installedPlugin.setCustomCheckURL(customCheckURL.asString());
+         
+installedPlugin.setGithubRepoName(githubRepoName.asString());
                 installedPlugin.setGithubAssetName(githubAssetName.asString());
                 installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
