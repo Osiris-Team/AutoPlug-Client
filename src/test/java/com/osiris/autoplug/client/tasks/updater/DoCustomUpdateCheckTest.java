@@ -9,7 +9,7 @@ class TestCustomUpdateCheck {
     @Test
     void test {
       MinecraftPlugin pl = new MinecraftPlugin();
-      pl.customCheckURL = "";
+      pl.customCheckURL = "https://api.modrinth.com/v2/project/chunky/version";
       SearchResult sr = new CustomUpdateCheck().doCustomCheck(pl);
       assertTrue(expected, actual);
     }
