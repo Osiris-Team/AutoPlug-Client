@@ -6,7 +6,11 @@ import com.osiris.autoplug.client.tasks.updater.search.CustomUpdateCheck;
 
 
 class TestCustomUpdateCheck {
+    @Test
+    void test {
       MinecraftPlugin pl = new MinecraftPlugin();
       pl.customCheckURL = 
       SearchResult sr = new CustomUpdateCheck().doCustomCheck(pl);
+      assertTrue(expected, actual);
+    }
 }
