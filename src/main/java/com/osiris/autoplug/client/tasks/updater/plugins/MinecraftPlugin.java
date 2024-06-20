@@ -9,23 +9,23 @@
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
 public class MinecraftPlugin {
-    private boolean isPremium;
-    private String configPath;
-    private String installationPath;
-    private String name;
-    private String version;
-    private String author;
-    private int spigotId;
-    private int bukkitId;
-    private boolean ignoreContentType;
-    private String customDownloadURL;
-    private String customCheckURL;
-    private String githubRepoName;
-    private String githubAssetName;
-    private String jenkinsProjectUrl;
-    private String jenkinsArtifactName;
-    private int jenkinsBuildId;
-    private String modrinthId;
+    public boolean isPremium;
+    public String configPath;
+    public String installationPath;
+    public String name;
+    public String version;
+    public String author;
+    public int spigotId;
+    public int bukkitId;
+    public boolean ignoreContentType;
+    public String customDownloadURL;
+    public String customCheckURL;
+    public String githubRepoName;
+    public String githubAssetName;
+    public String jenkinsProjectUrl;
+    public String jenkinsArtifactName;
+    public int jenkinsBuildId;
+    public String modrinthId;
     public String forceUpdate;
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
