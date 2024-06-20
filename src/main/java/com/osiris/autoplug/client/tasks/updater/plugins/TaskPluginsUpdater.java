@@ -147,6 +147,7 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                YamlSection forceUpdate = pluginsConfig.put(name, plName, "force-update");
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -221,6 +222,8 @@ installedPlugin.setGithubRepoName(githubRepoName.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
                 installedPlugin.setModrinthId(modrinthId.asString());
+
+installedPlugin.forceUpdate = forceUpdate;
 
                 // Check for missing plugin details in plugin.yml
                 if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
@@ -487,6 +490,9 @@ installedPlugin.setGithubRepoName(githubRepoName.asString());
         String resultSpigotId = result.getSpigotId();
         String resultBukkitId = result.getBukkitId();
         if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
+
+        if (pl.forceUpdate.equals("true"))
+            code = 1;
 
         if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
