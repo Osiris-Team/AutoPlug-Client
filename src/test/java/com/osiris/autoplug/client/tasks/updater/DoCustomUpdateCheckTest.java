@@ -9,7 +9,7 @@ class TestCustomUpdateCheck {
     @Test
     void test {
       MinecraftPlugin pl = new MinecraftPlugin();
-      pl.customCheckURL = 
+      pl.customCheckURL = "";
       SearchResult sr = new CustomUpdateCheck().doCustomCheck(pl);
       assertTrue(expected, actual);
     }
