@@ -1,1 +1,3 @@
-//placholder text
+
+package com.osiris.autoplug.client.tasks.updater;
+
