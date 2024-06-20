@@ -25,16 +25,6 @@ public class CustomUpdateCheck {
     }
 
     public SearchResult doCustomCheck(MinecraftPlugin plugin) {
-        SearchResult sr;
-        if (plugin.getCustomCheckURL != "FORCE") {
-            sr = checkUpdate(plugin)
-        } else {
-            sr = new SearchResult(null, 1, "0.0.0", null, ".jar", null, null, false);
-        };
-        return sr;
-    }
-
-    private SearchResult checkUpdate(MinecraftPlugin plugin) {
 
         String url = plugin.getCustomCheckURL();
         url = new UtilsURL().clean(url);
@@ -72,6 +62,9 @@ public class CustomUpdateCheck {
             exception = e;
             code = 2;
         }
+        
+        if (downloadUrl == null && plugin.customDownloadURL != null)
+            downloadUrl = plugin.customDownloadUrl;
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
         result.setException(exception);
         return result;
