@@ -26,6 +26,7 @@ public class MinecraftPlugin {
     private String jenkinsArtifactName;
     private int jenkinsBuildId;
     private String modrinthId;
+    public String forceUpdate;
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.installationPath = installationPath;
