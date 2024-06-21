@@ -34,7 +34,7 @@ enforce {
         r.dependencies.add('net.java.dev.jna:jna:5.14.0')
         r.dependencies.add('net.java.dev.jna:jna-platform:5.14.0')
         r.dependencies.add('commons-io:commons-io:2.16.1')
-        r.dependencies.add('com.github.Osiris-Team:jansi:2.4.2')
+        r.dependencies.add('com.github.Osiris-Team:jansi:2.4.5')
         r.dependencies.add('org.jetbrains:annotations:23.0.0')
         r.dependencies.add('org.jetbrains.kotlin:kotlin-stdlib:1.9.23')
         r.dependencies.add('org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23')

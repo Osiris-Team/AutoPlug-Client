@@ -69,7 +69,7 @@ dependencies {
     // Also used in jsch https://github.com/mwiede/jsch/blob/master/pom.xml
     implementation 'commons-io:commons-io:2.16.1'
     // Also used in jsch https://github.com/mwiede/jsch/blob/master/pom.xml
-    implementation 'com.github.Osiris-Team:jansi:2.4.2'
+    implementation 'com.github.Osiris-Team:jansi:2.4.5'
     implementation 'org.jetbrains:annotations:23.0.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.23' // Also used in okhttp
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23' // Also used in okhttp
