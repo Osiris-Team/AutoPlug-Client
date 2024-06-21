@@ -122,7 +122,7 @@ public class ResourceFinder {
     }
 
     public SearchResult findByCustomCheckURL(MinecraftPlugin plugin) {
-        SearchResult sr = new CustomUpdateCheck().doCustomCheck(plugin);
+        SearchResult sr = new CustomCheckURL().doCustomCheck(plugin);
         sr.plugin = plugin;
         return sr;
     }

@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class CustomUpdateCheck {
+public class CustomCheckURL {
+
+    public CustomCheckURL(){}
 
     private boolean isInt(String s) {
         try {
@@ -38,7 +40,9 @@ public class CustomUpdateCheck {
             try {
                 release = Json.getAsJsonArray(url)
                         .get(0).getAsJsonObject();
-            } 
+            } catch (Exception e) {
+                throw e;
+            }
 
             latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             String[] pluginVersionComponents = plugin.getVersion().split("\\.");
@@ -64,7 +68,7 @@ public class CustomUpdateCheck {
         }
         
         if (downloadUrl == null && plugin.customDownloadURL != null)
-            downloadUrl = plugin.customDownloadUrl;
+            downloadUrl = plugin.customDownloadURL;
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
         result.setException(exception);
         return result;

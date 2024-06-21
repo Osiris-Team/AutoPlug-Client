@@ -213,17 +213,14 @@ public class TaskPluginsUpdater extends BThread {
                 installedPlugin.setBukkitId(bukkitId.asInt());
                 installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
                 installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
-          
-installedPlugin.setCustomCheckURL(customCheckURL.asString());
-         
-installedPlugin.setGithubRepoName(githubRepoName.asString());
+                installedPlugin.setCustomCheckURL(customCheckURL.asString());
+                installedPlugin.setGithubRepoName(githubRepoName.asString());
                 installedPlugin.setGithubAssetName(githubAssetName.asString());
                 installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
                 installedPlugin.setModrinthId(modrinthId.asString());
-
-installedPlugin.forceUpdate = forceUpdate;
+                installedPlugin.forceUpdate = forceUpdate.asString();
 
                 // Check for missing plugin details in plugin.yml
                 if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
@@ -308,7 +305,7 @@ installedPlugin.forceUpdate = forceUpdate;
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.getCustomCheckUrl() != null) { // Custome Check
+                if (pl.customCheckURL != null) { // Custome Check
                     sizeCustomPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(pl)));
                 } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
