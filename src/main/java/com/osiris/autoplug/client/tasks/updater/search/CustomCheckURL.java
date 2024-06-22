@@ -44,7 +44,30 @@ public class CustomCheckURL {
                 throw e;
             }
 
-            latest = release.get("version_number").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
+            String[] versionNaming = {"version_number", "version"};
+
+            for (String naming : versionNaming) {
+                if (release.has(naming)) {
+                    String version = release.get(naming).getAsString().replaceAll("[^0-9.]", "");
+                    if (!version.isEmpty()) {
+                        latest = version;
+                        break;
+                    }
+                }
+            }
+
+            String[] downloadNaming = {"download_url", "download", "file", "download_file"};
+
+            for (String naming : downloadNaming) {
+                if (release.has(naming)) {
+                    String durl = release.get(naming).getAsString();
+                    if (!durl.isEmpty()) {
+                        downloadUrl = durl;
+                        break;
+                    }
+                }
+            }
+
             String[] pluginVersionComponents = plugin.getVersion().split("\\.");
             String[] latestVersionComponents = latest.split("\\.");
 
@@ -67,8 +90,8 @@ public class CustomCheckURL {
             code = 2;
         }
         
-        if (downloadUrl == null && plugin.customDownloadURL != null)
-            downloadUrl = plugin.customDownloadURL;
+        if (downloadUrl == null && plugin.customDownloadURL == null)
+            code = 2;
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
         result.setException(exception);
         return result;
