@@ -16,7 +16,7 @@ java {
 
 // Important for AutoPlugs Self-Updater!
 // Generates a autoplug.properties file inside the generated jar file, with the stuff inside <properties>
-def generateAutoplugProperties = task('generateAutoplugProperties') {
+def generateAutoplugProperties = task('generateAutoplugProperties', dependsOn: build) {
     def propertiesFile = file("$buildDir/resources/main/autoplug.properties")
     outputs.file(propertiesFile)
 
