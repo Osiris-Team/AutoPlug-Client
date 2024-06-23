@@ -3,10 +3,18 @@ plugins {
     id 'java'
 }
 
+/*
+ * Copyright (c) 2024 Osiris-Team.
+ * All rights reserved.
+ *
+ * This software is copyrighted work, licensed under the terms
+ * of the MIT-License. Consult the "LICENSE" file for details.
+ */
+
 // Important for AutoPlugs Self-Updater!
-// Also take look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
+// Also take a look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
 group = 'com.osiris.autoplug.client'
-version = '8.0.3'
+version = '8.1.5'
 description = 'Responsible for all the main actions.'
 
 java {
@@ -16,7 +24,7 @@ java {
 
 // Important for AutoPlugs Self-Updater!
 // Generates a autoplug.properties file inside the generated jar file, with the stuff inside <properties>
-def generateAutoplugProperties = task('generateAutoplugProperties') {
+task generateAutoplugProperties {
     def propertiesFile = file("$buildDir/resources/main/autoplug.properties")
     outputs.file(propertiesFile)
 
@@ -74,7 +82,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.23' // Also used in okhttp
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23' // Also used in okhttp
     // To remove this annoying warning, add the dependency below:
-    //	SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    //  SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
     //  SLF4J: Defaulting to no-operation (NOP) logger implementation
     //  SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
@@ -84,26 +92,26 @@ dependencies {
 
     // https://github.com/Osiris-Team/AutoPlug-Core
     implementation 'com.github.Osiris-Team:jlib:18.0'
-    
+
     implementation 'com.github.Osiris-Team:Dyml:9.8.3'
     implementation 'com.github.Osiris-Team:Better-Thread:5.1.2'
     implementation 'com.github.Osiris-Team:Better-Layout:1.4.0'
     implementation 'com.github.Osiris-Team:jProcesses2:2.1.9'
-    
+
     // For getting hardware info
     implementation 'com.github.oshi:oshi-core:6.4.0'
-    
+
     // Needed for working with .zip and .jar files, in the Plugins-Updater
     implementation 'net.lingala.zip4j:zip4j:2.11.3'
-    
+
     // Needed for working with .tar.gz files, in the Java-Updater
     implementation 'org.rauschig:jarchivelib:1.2.0'
-    
+
     implementation 'org.jetbrains:annotations:13.0'
-    
+
     // Extra terminal stuff
     implementation 'org.jline:jline-reader:3.20.0'
-    
+
     // Requests
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
@@ -112,20 +120,20 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-net/commons-net
     implementation 'commons-net:commons-net:3.9.0'
-    
+
     // https://mvnrepository.com/artifact/com.jcraft/jsch
     implementation 'com.github.mwiede:jsch:0.2.17'
-    
+
     // Quartz Core
     implementation 'org.quartz-scheduler:quartz:2.3.2'
 
     implementation 'org.tomlj:tomlj:1.0.0'
-    
+
     // For GUI of tray icon
     implementation 'com.formdev:flatlaf:2.2'
-    
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-    
+
     // For Server Updater
     implementation 'me.hsgamer:mc-server-updater-lib:3.4.0'
 }
@@ -139,3 +147,7 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+// Ensure compileTestJava depends on generateAutoplugProperties
+compileTestJava {
+    dependsOn generateAutoplugProperties
+}

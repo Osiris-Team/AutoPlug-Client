@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -23,7 +23,7 @@ public class GithubSearch {
 
 
         Exception exception = null;
-        byte resultCode = 0;
+        SearchResult.Type resultType = SearchResult.Type.UP_TO_DATE;
         String downloadUrl = null;
         String downloadType = ".jar";
         String latestVersion = null;
@@ -34,7 +34,7 @@ public class GithubSearch {
             if (latestVersion != null)
                 latestVersion = latestVersion.replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
             if (Version.isLatestBigger(version, latestVersion == null ? "0" : latestVersion)) {
-                resultCode = 1;
+                resultType = SearchResult.Type.UPDATE_AVAILABLE;
                 // Contains JsonObjects sorted by their asset-names lengths, from smallest to longest.
                 // The following does that sorting.
                 List<JsonObject> sortedArtifactObjects = new ArrayList<>();
@@ -84,10 +84,10 @@ public class GithubSearch {
             }
         } catch (Exception e) {
             exception = e;
-            resultCode = 2;
+            resultType = SearchResult.Type.API_ERROR;
         }
 
-        SearchResult rs = new SearchResult(null, resultCode, latestVersion, downloadUrl, downloadType, null, null, false);
+        SearchResult rs = new SearchResult(null, resultType, latestVersion, downloadUrl, downloadType, null, null, false);
         rs.setException(exception);
         rs.fileName = fileName;
         return rs;

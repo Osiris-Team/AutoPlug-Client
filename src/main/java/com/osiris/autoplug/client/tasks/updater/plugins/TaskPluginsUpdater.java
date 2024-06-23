@@ -140,6 +140,7 @@ public class TaskPluginsUpdater extends BThread {
                 //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                 YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
                 YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
+                YamlSection forceUpdate = pluginsConfig.put(name, plName, "force-update").setDefValues("false");
                 YamlSection customCheckURL = pluginsConfig.put(name, plName, "custom-check-url");
                 YamlSection customDownloadURL = pluginsConfig.put(name, plName, "custom-download-url");
                 YamlSection githubRepoName = pluginsConfig.put(name, plName, "alternatives", "github", "repo-name");
@@ -147,7 +148,6 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
-                YamlSection forceUpdate = pluginsConfig.put(name, plName, "force-update");
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -220,7 +220,7 @@ public class TaskPluginsUpdater extends BThread {
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
                 installedPlugin.setModrinthId(modrinthId.asString());
-                installedPlugin.forceUpdate = forceUpdate.asString();
+                installedPlugin.forceUpdate = forceUpdate.asBoolean();
 
                 // Check for missing plugin details in plugin.yml
                 if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
@@ -305,7 +305,7 @@ public class TaskPluginsUpdater extends BThread {
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.customCheckURL != null) { // Custome Check
+                if (pl.customCheckURL != null) { // Custom Check
                     sizeCustomPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(pl)));
                 } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
@@ -352,27 +352,27 @@ public class TaskPluginsUpdater extends BThread {
                 SearchResult result = finishedFuture.get();
                 results.add(result);
                 MinecraftPlugin pl = result.getPlugin();
-                byte code = result.getResultCode();
+                SearchResult.Type code = result.type;
                 String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
                 String latest = result.getLatestVersion(); // The latest version as String
                 String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
                 String resultSpigotId = result.getSpigotId();
                 String resultBukkitId = result.getBukkitId();
                 this.setStatus("Checked '" + pl.getName() + "' plugin (" + results.size() + "/" + includedSize + ")");
-                if (code == 0 || code == 1) {
+                if (code == SearchResult.Type.UP_TO_DATE || code == SearchResult.Type.UPDATE_AVAILABLE) {
 
-                    if (code == 1 && pl.isPremium())
+                    if (code == SearchResult.Type.UPDATE_AVAILABLE && pl.isPremium())
                         getWarnings().add(new BWarning(this,
                                 result.getPlugin().getName() + " (" + result.getLatestVersion() + ") is a premium plugin and thus not supported by the regular plugin updater!"));
                     else
                         doDownloadLogic(pl, result);
 
-                } else if (code == 2)
+                } else if (code == SearchResult.Type.API_ERROR)
                     if (result.getException() != null)
                         getWarnings().add(new BWarning(this, result.getException(), "There was an api-error for " + pl.getName() + "!"));
                     else
                         getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + pl.getName() + "!")));
-                else if (code == 3)
+                else if (code == SearchResult.Type.RESOURCE_NOT_FOUND)
                     getWarnings().add(new BWarning(this, new Exception("Plugin " + pl.getName() + " was not found by the search-algorithm! Specify an id in the /autoplug/plugins.yml file.")));
                 else
                     getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
@@ -423,10 +423,10 @@ public class TaskPluginsUpdater extends BThread {
                     throw new Exception("This should not happen! Please report to the devs!");
 
                 if (finishedDownloadTask.isDownloadSuccessful())
-                    matchingResult.setResultCode((byte) 5);
+                    matchingResult.type = SearchResult.Type.UPDATE_DOWNLOADED;
 
                 if (finishedDownloadTask.isInstallSuccessful()) {
-                    matchingResult.setResultCode((byte) 6);
+                    matchingResult.type = SearchResult.Type.UPDATE_INSTALLED;
                     YamlSection jenkinsBuildId = pluginsConfig.get(
                             pluginsConfigName, finishedDownloadTask.getPlName(), "alternatives", "jenkins", "build-id");
                     jenkinsBuildId.setValues(String.valueOf(finishedDownloadTask.searchResult.jenkinsId));
@@ -480,7 +480,7 @@ public class TaskPluginsUpdater extends BThread {
     }
 
     private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {
-        byte code = result.getResultCode();
+        SearchResult.Type code = result.type;
         String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
         String latest = result.getLatestVersion(); // The latest version as String
         String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
@@ -488,11 +488,10 @@ public class TaskPluginsUpdater extends BThread {
         String resultBukkitId = result.getBukkitId();
         if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
 
-        if (pl.forceUpdate != null && code == 0)
-            if (pl.forceUpdate.equals("true"))
-            code = 1;
+        if (pl.forceUpdate && code == SearchResult.Type.UP_TO_DATE)
+            code = SearchResult.Type.UPDATE_AVAILABLE;
 
-        if (code == 0) {
+        if (code == SearchResult.Type.UP_TO_DATE) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {
             updatesAvailable++;

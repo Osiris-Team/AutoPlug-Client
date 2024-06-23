@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -12,9 +12,9 @@ public class MinecraftPlugin {
     public boolean isPremium;
     public String configPath;
     public String installationPath;
-    public String name;
-    public String version;
-    public String author;
+    private String name;
+    private String version;
+    private String author;
     public int spigotId;
     public int bukkitId;
     public boolean ignoreContentType;
@@ -26,7 +26,7 @@ public class MinecraftPlugin {
     public String jenkinsArtifactName;
     public int jenkinsBuildId;
     public String modrinthId;
-    public String forceUpdate;
+    public boolean forceUpdate;
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.installationPath = installationPath;

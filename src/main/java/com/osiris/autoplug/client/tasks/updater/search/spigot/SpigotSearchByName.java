@@ -72,9 +72,9 @@ public class SpigotSearchByName {
         AL.debug(this.getClass(), "[" + plugin.getName() + "] No match found for " + plName + "!");
         SearchResult result;
         if (exception != null)
-            result = new SearchResult(plugin, (byte) 2, null, null, null, null, null, false);
+            result = new SearchResult(plugin, SearchResult.Type.API_ERROR, null, null, null, null, null, false);
         else
-            result = new SearchResult(plugin, (byte) 3, null, null, null, null, null, false);
+            result = new SearchResult(plugin, SearchResult.Type.RESOURCE_NOT_FOUND, null, null, null, null, null, false);
         result.similarPlugins = similarPlugins;
         result.setException(exception);
         return result;

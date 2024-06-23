@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -50,9 +50,10 @@ public class PluginsConfig extends MyYaml {
                         "    #### Note that only one id is necessary, provided both for demonstration purposes.\n" +
                         "    spigot-id: 871 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### You can find it directly in the url. Example URLs id is 78414. Example URL: https://www.spigotmc.org/resources/autoplug-automatic-plugin-updater.78414/\n " +
                         "    bukkit-id: 93271 #### Gets found by AutoPlugs' smart search algorithm and set in a check or can be set by you #### Is the 'Project-ID' and can be found on the plugins bukkit site inside of the 'About' box at the right.\n " +
-                        "    custom-check-url: #### (FEATURE NOT WORKING YET) Must link to a yaml or json file that contains at least these fields: name, author, version (of the plugin)\n" +
+                        "    custom-check-url: #### Must link to a json file which contains a list/array of plugin versions where each item/object contains specific keys for version (\"version_number\", \"version\") and download URL (\"download_url\", \"download\", \"file\", \"download_file\").\n" +
                         "    custom-download-url: #### Must be a static url to the plugins latest jar file.\n" +
                         "    ignore-content-type: false #### When downloading a file the file host is asked for the file-type which must be .jar, when true this check is not performed.\n" +
+                        "    force-update: false #### If true, downloads the update every time even if its already on the latest version.\n" +
                         "    alternatives: #### below both alternatives are used for demonstration purposes, make sure to use only one)\n" +
                         "      github: \n" +
                         "        repo-name: EssentialsX/Essentials #### Provided by you #### Can be found in its url: https://github.com/EssentialsX/Essentials\n" +

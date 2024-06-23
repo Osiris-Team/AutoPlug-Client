@@ -13,6 +13,7 @@ import com.osiris.autoplug.client.tasks.updater.mods.CurseForgeAPI;
 import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.mods.ModrinthAPI;
+import com.osiris.autoplug.client.tasks.updater.search.CustomCheckURL;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
@@ -20,7 +21,6 @@ import com.osiris.autoplug.client.tasks.updater.search.bukkit.BukkitSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByAuthor;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByName;
-import com.osiris.autoplug.client.tasks.updater.search.CustomCheckURL;
 
 public class ResourceFinder {
 
@@ -54,7 +54,7 @@ public class ResourceFinder {
         // TODO actualy do search by name, since currently it still searches by id
         SearchResult sr = new ModrinthAPI().searchUpdateMod(modLoader, mod, mcVersion);
 
-        if (sr == null || sr.getResultCode() == 2 || sr.getResultCode() == 3) {
+        if (sr == null || sr.type == SearchResult.Type.API_ERROR || sr.type == SearchResult.Type.RESOURCE_NOT_FOUND) {
             //Couldn't find author or resource via first search
             //Do alternative search:
             sr = new CurseForgeAPI().searchUpdate(modLoader, mod, mcVersion, checkNameForModLoader);
@@ -121,8 +121,14 @@ public class ResourceFinder {
         return sr;
     }
 
+    public SearchResult findByCustomCheckURL(MinecraftMod mod) {
+        SearchResult sr = new CustomCheckURL().doCustomCheck(mod.customCheckURL, mod.getVersion());
+        sr.mod = mod;
+        return sr;
+    }
+
     public SearchResult findByCustomCheckURL(MinecraftPlugin plugin) {
-        SearchResult sr = new CustomCheckURL().doCustomCheck(plugin);
+        SearchResult sr = new CustomCheckURL().doCustomCheck(plugin.customCheckURL, plugin.getVersion());
         sr.plugin = plugin;
         return sr;
     }

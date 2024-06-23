@@ -98,6 +98,8 @@ public class TaskModsUpdater extends BThread {
                 YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
                 YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                 YamlSection forceLatest = modsConfig.put(name, plName, "force-latest").setDefValues("false");
+                YamlSection forceUpdate = modsConfig.put(name, plName, "force-update").setDefValues("false");
+                YamlSection customCheckURL = modsConfig.put(name, plName, "custom-check-url");
                 YamlSection customDownloadURL = modsConfig.put(name, plName, "custom-download-url");
                 YamlSection githubRepoUrl = modsConfig.put(name, plName, "alternatives", "github", "repo-name");
                 YamlSection githubAssetName = modsConfig.put(name, plName, "alternatives", "github", "asset-name");
@@ -115,12 +117,14 @@ public class TaskModsUpdater extends BThread {
                 installedMod.curseforgeId = (curseforgeId.asString());
                 installedMod.ignoreContentType = (ignoreContentType.asBoolean());
                 installedMod.forceLatest = (forceLatest.asBoolean());
+                installedMod.customCheckURL = (customCheckURL.asString());
                 installedMod.customDownloadURL = (customDownloadURL.asString());
                 installedMod.githubRepoName = (githubRepoUrl.asString());
                 installedMod.githubAssetName = (githubAssetName.asString());
                 installedMod.jenkinsProjectUrl = (jenkinsProjectUrl.asString());
                 installedMod.jenkinsArtifactName = (jenkinsArtifactName.asString());
                 installedMod.jenkinsBuildId = (jenkinsBuildId.asInt());
+                installedMod.forceUpdate = forceUpdate.asBoolean();
 
                 // Check for missing author in internal config
                 if ((installedMod.getVersion() == null)
@@ -179,6 +183,7 @@ public class TaskModsUpdater extends BThread {
         int sizemodrinthMods = 0;
         int sizeBukkitMods = 0;
         int sizeUnknownMods = 0;
+        int sizeCustomMods = 0;
 
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
@@ -195,7 +200,10 @@ public class TaskModsUpdater extends BThread {
                 includedMods) {
             try {
                 setStatus("Initialising update check for  " + mod.getName() + "...");
-                if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
+                if (mod.customCheckURL != null) { // Custom Check
+                    sizeCustomMods++;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(mod)));
+                } else if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
                     sizeJenkinsMods++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(mod)));
                 } else if (mod.githubRepoName != null) { // GITHUB MOD
@@ -229,21 +237,21 @@ public class TaskModsUpdater extends BThread {
                 SearchResult result = finishedFuture.get();
                 results.add(result);
                 MinecraftMod mod = result.mod;
-                byte code = result.getResultCode();
+                SearchResult.Type code = result.type;
                 String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
                 String latest = result.getLatestVersion(); // The latest version as String
                 String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
                 String resultModrinthId = mod.modrinthId;
                 String resultCurseForgeId = mod.curseforgeId;
                 this.setStatus("Checked '" + mod.getName() + "' mod (" + results.size() + "/" + includedSize + ")");
-                if (code == 0 || code == 1) {
+                if (code == SearchResult.Type.UP_TO_DATE || code == SearchResult.Type.UPDATE_AVAILABLE) {
                     doDownloadLogic(mod, result);
-                } else if (code == 2)
+                } else if (code == SearchResult.Type.API_ERROR)
                     if (result.getException() != null)
                         getWarnings().add(new BWarning(this, result.getException(), "There was an api-error for " + mod.getName() + "!"));
                     else
                         getWarnings().add(new BWarning(this, new Exception("There was an api-error for " + mod.getName() + "!")));
-                else if (code == 3)
+                else if (code == SearchResult.Type.RESOURCE_NOT_FOUND)
                     getWarnings().add(new BWarning(this, new Exception("Mod " + mod.getName() + " was not found by the search-algorithm! Specify an id in /autoplug/mods.yml file.")));
                 else
                     getWarnings().add(new BWarning(this, new Exception("Unknown error occurred! Code: " + code + "."), "Notify the developers. Fastest way is through discord (https://discord.gg/GGNmtCC)."));
@@ -290,10 +298,10 @@ public class TaskModsUpdater extends BThread {
                     throw new Exception("This should not happen! Please report to the devs!");
 
                 if (download.isDownloadSuccessful())
-                    matchingResult.setResultCode((byte) 5);
+                    matchingResult.type = SearchResult.Type.UPDATE_DOWNLOADED;
 
                 if (download.isInstallSuccessful()) {
-                    matchingResult.setResultCode((byte) 6);
+                    matchingResult.type = SearchResult.Type.UPDATE_INSTALLED;
                     YamlSection jenkinsBuildId = modsConfig.get(
                             modsConfigName, download.getPlName(), "alternatives", "jenkins", "build-id");
                     jenkinsBuildId.setValues(String.valueOf(download.searchResult.jenkinsId));
@@ -329,13 +337,16 @@ public class TaskModsUpdater extends BThread {
     }
 
     private void doDownloadLogic(@NotNull MinecraftMod mod, SearchResult result) {
-        byte code = result.getResultCode();
+        SearchResult.Type code = result.type;
         String type = result.getDownloadType(); // The file type to download (Note: When 'external' is returned nothing will be downloaded. Working on a fix for this!)
         String latest = result.getLatestVersion(); // The latest version as String
         String downloadUrl = result.getDownloadUrl(); // The download url for the latest version
         if (mod.customDownloadURL != null) downloadUrl = mod.customDownloadURL;
 
-        if (code == 0) {
+        if (mod.forceUpdate && code == SearchResult.Type.UP_TO_DATE)
+            code = SearchResult.Type.UPDATE_AVAILABLE;
+
+        if (code == SearchResult.Type.UP_TO_DATE) {
             //getSummary().add("Mod " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
         } else {
             updatesAvailable++;

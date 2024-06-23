@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Osiris-Team.
+ * Copyright (c) 2022-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -43,7 +43,7 @@ public class CurseForgeAPI {
         String latest = null;
         String type = ".jar";
         String downloadUrl = null;
-        byte code = 0;
+        SearchResult.Type resultType = SearchResult.Type.UP_TO_DATE;
         String modInfo = mod.getName() + "/" + (modLoader.isFabric || modLoader.isQuilt ? "fabric" : "forge");
         try {
             if (!isIdNumber) { // Determine project id, since we only got slug
@@ -133,7 +133,7 @@ public class CurseForgeAPI {
                 throw new Exception("Failed to determine latest mod version!", e);
             }
             if (new File(mod.installationPath).lastModified() < fileDateToMs(release.get("fileDate").getAsString()))
-                code = 1;
+                resultType = SearchResult.Type.UPDATE_AVAILABLE;
             downloadUrl = release.get("downloadUrl").getAsString();
             try {
                 String fileName = release.get("fileName").getAsString();
@@ -142,9 +142,9 @@ public class CurseForgeAPI {
             }
         } catch (Exception e) {
             exception = e;
-            code = 2;
+            resultType = SearchResult.Type.API_ERROR;
         }
-        SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
+        SearchResult result = new SearchResult(null, resultType, latest, downloadUrl, type, null, null, false);
         result.mod = mod;
         result.setException(exception);
         return result;

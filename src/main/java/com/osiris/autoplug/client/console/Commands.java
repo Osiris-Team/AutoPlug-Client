@@ -408,7 +408,7 @@ public final class Commands {
                         try{
                             int i = Integer.parseInt(input2.trim());
                             result.plugin = similarPlugins.get(i);
-                            result.resultCode = 1;
+                            result.type = SearchResult.Type.UPDATE_AVAILABLE;
                             break;
                         } catch (Exception e) {
                             AL.warn(e);
