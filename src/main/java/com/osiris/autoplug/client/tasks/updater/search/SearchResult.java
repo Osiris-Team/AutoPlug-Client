@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,7 +21,7 @@ import java.util.List;
 public class SearchResult {
 
     public static boolean isMatchFound(SearchResult sr) {
-        return sr != null && sr.getResultCode() != 2 && sr.getResultCode() != 3;
+        return sr != null && sr.type != Type.API_ERROR && sr.type != Type.RESOURCE_NOT_FOUND;
     }
 
     // TODO remove getters and setters and make everything public for easier future coding
@@ -35,12 +35,12 @@ public class SearchResult {
     public String bukkitId;
     public int jenkinsId;
     public boolean isPremium;
-    public byte resultCode;
+    public Type type;
     public Exception exception;
     public String fileName;
 
     /**
-     * @param resultCode    All codes: <br>
+     * @param type    All codes: <br>
      *                      0 = already on latest version. <br>
      *                      1 = update available. <br>
      *                      2 = api error. <br>
@@ -54,10 +54,10 @@ public class SearchResult {
      * @param spigotId      only !=null after an algorithm search where no id(spigot/bukkit) was provided.
      * @param bukkitId      only !=null after an algorithm search where no id(spigot/bukkit) was provided.
      */
-    public SearchResult(MinecraftPlugin plugin, byte resultCode, String latestVersion, String downloadUrl,
+    public SearchResult(MinecraftPlugin plugin, Type type, String latestVersion, String downloadUrl,
                         String downloadType, String spigotId, String bukkitId, boolean isPremium) {
         this.plugin = plugin;
-        this.resultCode = resultCode;
+        this.type = type;
         this.latestVersion = latestVersion;
         this.downloadUrl = downloadUrl;
         this.downloadType = downloadType;
@@ -67,11 +67,11 @@ public class SearchResult {
     }
 
     public boolean isUpdateAvailable() {
-        return resultCode == 1;
+        return type == SearchResult.Type.UPDATE_AVAILABLE;
     }
 
     public boolean isError() {
-        return resultCode == 2;
+        return type == Type.API_ERROR;
     }
 
     public boolean isPremium() {
@@ -80,14 +80,6 @@ public class SearchResult {
 
     public MinecraftPlugin getPlugin() {
         return plugin;
-    }
-
-    public byte getResultCode() {
-        return resultCode;
-    }
-
-    public void setResultCode(byte resultCode) {
-        this.resultCode = resultCode;
     }
 
     public Exception getException() {
@@ -116,5 +108,32 @@ public class SearchResult {
 
     public String getBukkitId() {
         return bukkitId;
+    }
+
+    /*
+     * @param resultCode    All codes: <br>
+     *                      0 = already on latest version. <br>
+     *                      1 = update available. <br>
+     *                      2 = api error. <br>
+     *                      3 = plugin not found (author not found). <br>
+     *                      4 = plugin was excluded. <br>
+     *                      5 = plugin update was downloaded. <br>
+     *                      6 = plugin update was installed. <br>
+     */
+    public enum Type {
+        UP_TO_DATE(0),
+        UPDATE_AVAILABLE(1),
+        API_ERROR(2),
+        RESOURCE_NOT_FOUND(3),
+        RESOURCE_EXCLUDED(4),
+        UPDATE_DOWNLOADED(5),
+        UPDATE_INSTALLED(6);
+
+
+        public int id = 0;
+
+        Type(int id) {
+            this.id = id;
+        }
     }
 }

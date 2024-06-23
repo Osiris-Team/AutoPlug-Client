@@ -53,6 +53,7 @@ public class PluginsConfig extends MyYaml {
                         "    custom-check-url: #### Must link to a json file which contains a list/array of plugin versions where each item/object contains specific keys for version (\"version_number\", \"version\") and download URL (\"download_url\", \"download\", \"file\", \"download_file\").\n" +
                         "    custom-download-url: #### Must be a static url to the plugins latest jar file.\n" +
                         "    ignore-content-type: false #### When downloading a file the file host is asked for the file-type which must be .jar, when true this check is not performed.\n" +
+                        "    force-update: false #### If true, downloads the update every time even if its already on the latest version.\n" +
                         "    alternatives: #### below both alternatives are used for demonstration purposes, make sure to use only one)\n" +
                         "      github: \n" +
                         "        repo-name: EssentialsX/Essentials #### Provided by you #### Can be found in its url: https://github.com/EssentialsX/Essentials\n" +

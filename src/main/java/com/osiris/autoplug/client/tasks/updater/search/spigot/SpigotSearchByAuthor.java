@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -65,9 +65,9 @@ public class SpigotSearchByAuthor {
         AL.debug(this.getClass(), "[" + plugin.getName() + "] No match found for " + plName + "!");
         SearchResult result;
         if (exception != null)
-            result = new SearchResult(plugin, (byte) 2, null, null, null, null, null, false);
+            result = new SearchResult(plugin, SearchResult.Type.API_ERROR, null, null, null, null, null, false);
         else
-            result = new SearchResult(plugin, (byte) 3, null, null, null, null, null, false);
+            result = new SearchResult(plugin, SearchResult.Type.RESOURCE_NOT_FOUND, null, null, null, null, null, false);
         result.setException(exception);
         return result;
     }

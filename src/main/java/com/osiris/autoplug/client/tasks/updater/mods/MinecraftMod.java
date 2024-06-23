@@ -16,6 +16,7 @@ public class MinecraftMod {
     public int jenkinsBuildId;
     public boolean forceLatest;
     public String customCheckURL;
+    public boolean forceUpdate;
     private String name, author, version;
 
     public MinecraftMod(String installationPath, String name, String version,

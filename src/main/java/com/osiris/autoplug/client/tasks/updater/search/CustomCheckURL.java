@@ -32,7 +32,7 @@ public class CustomCheckURL {
         String latest = null;
         String type = ".jar";
         String downloadUrl = null;
-        byte code = 0;
+        SearchResult.Type code = SearchResult.Type.UP_TO_DATE;
         try {
             JsonObject release;
             try {
@@ -75,7 +75,7 @@ public class CustomCheckURL {
 
                  if (pluginComponent < latestComponent) {
         // plugin.getVersion() is smaller than latest
-                     code = 1;
+                     code = SearchResult.Type.UPDATE_AVAILABLE;
                      break;
                  } else if (pluginComponent > latestComponent) {
         // plugin.getVersion() is greater than latest
@@ -85,11 +85,11 @@ public class CustomCheckURL {
             
         } catch (Exception e) {
             exception = e;
-            code = 2;
+            code = SearchResult.Type.API_ERROR;
         }
 
         if (downloadUrl == null && url == null)
-            code = 2;
+            code = SearchResult.Type.API_ERROR;
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
         result.setException(exception);
         return result;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -21,7 +21,7 @@ public class JenkinsSearch {
 
     public SearchResult search(String project_url, String providedArtifactName, int build_id) {
         Exception exception = null;
-        byte resultCode = 0;
+        SearchResult.Type resultType = SearchResult.Type.UP_TO_DATE;
         String download_url = null;
         String downloadType = ".jar";
         String latestVersion = null;
@@ -33,7 +33,7 @@ public class JenkinsSearch {
             latest_build_id = json_last_successful_build.get("number").getAsInt();
             latestVersion = String.valueOf(latest_build_id);
             if (latest_build_id > build_id) {
-                resultCode = 1;
+                resultType = SearchResult.Type.UPDATE_AVAILABLE;
                 String buildUrl = json_last_successful_build.get("url").getAsString();
                 if (!buildUrl.endsWith("api/json"))
                     buildUrl = buildUrl + (buildUrl.endsWith("/") ? "" : "/") + "api/json";
@@ -87,10 +87,10 @@ public class JenkinsSearch {
             }
         } catch (Exception e) {
             exception = e;
-            resultCode = 2;
+            resultType = SearchResult.Type.API_ERROR;
         }
 
-        SearchResult rs = new SearchResult(null, resultCode, latestVersion, download_url, downloadType, null, null, false);
+        SearchResult rs = new SearchResult(null, resultType, latestVersion, download_url, downloadType, null, null, false);
         rs.setException(exception);
         rs.jenkinsId = latest_build_id;
         rs.fileName = fileName;

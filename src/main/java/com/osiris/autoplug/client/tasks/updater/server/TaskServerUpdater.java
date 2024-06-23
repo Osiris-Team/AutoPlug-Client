@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -93,12 +93,12 @@ public class TaskServerUpdater extends BThread {
             sr = new GithubSearch().search(updaterConfig.server_github_repo_name.asString(),
                     updaterConfig.server_github_asset_name.asString(),
                     updaterConfig.server_github_version.asString());
-            if (sr.resultCode == 0) {
+            if (sr.type == SearchResult.Type.UP_TO_DATE) {
                 setStatus("Your server is on the latest version!");
                 setSuccess(true);
                 return;
             }
-            if (sr.resultCode == 1) {
+            if (sr.type == SearchResult.Type.UPDATE_AVAILABLE) {
                 doInstallDependingOnProfile(updaterConfig.server_github_version, sr.latestVersion, sr.downloadUrl, sr.fileName);
             }
         } else {
@@ -106,12 +106,12 @@ public class TaskServerUpdater extends BThread {
                     updaterConfig.server_jenkins_artifact_name.asString(),
                     updaterConfig.server_jenkins_build_id.asInt());
 
-            if (sr.resultCode == 0) {
+            if (sr.type == SearchResult.Type.UP_TO_DATE) {
                 setStatus("Your server is on the latest version!");
                 setSuccess(true);
                 return;
             }
-            if (sr.resultCode == 1) {
+            if (sr.type == SearchResult.Type.UPDATE_AVAILABLE) {
                 doInstallDependingOnProfile(updaterConfig.server_jenkins_build_id, sr.latestVersion, sr.downloadUrl, sr.fileName);
             }
         }

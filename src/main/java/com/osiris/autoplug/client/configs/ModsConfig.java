@@ -46,6 +46,7 @@ public class ModsConfig extends MyYaml {
                         "curseforge-id: Is also called 'Project-ID' and can be found on the mods curseforge site inside of the 'About' box at the right.\n" +
                         "ignore-content-type: If true, does not check if the downloaded file is of type jar or zip, and downloads it anyway.\n" +
                         "force-latest: If true, does not search for updates compatible with this Minecraft version and simply picks the latest release.\n" +
+                        "force-update: If true, downloads the update every time even if its already on the latest version.\n" +
                         "custom-check-url: #### Must link to a json file which contains a list/array of plugin versions where each item/object contains specific keys for version (\"version_number\", \"version\") and download URL (\"download_url\", \"download\", \"file\", \"download_file\").\n" +
                         "custom-download-url: must be a static url to the mods latest jar file.\n" +
                         "alternatives.github.repo-name: Example: 'EssentialsX/Essentials' (can be found in its url: https://github.com/EssentialsX/Essentials)\n" +
