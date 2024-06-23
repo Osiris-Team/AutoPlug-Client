@@ -34,16 +34,15 @@ public class CustomCheckURL {
         String downloadUrl = null;
         SearchResult.Type code = SearchResult.Type.UP_TO_DATE;
         try {
+            JsonElement response = Json.get(url);
             JsonObject release;
-            try {
-                release = Json.getAsJsonArray(url)
-                        .get(0).getAsJsonObject();
-            } catch (Exception e) {
-                try {
-                    release = Json.getAsJsonObject(url);
-                } catch (Exception ex){
-                    throw ex;
-                }
+
+            if (response.isJsonArray()) {
+                release = response.getAsJsonArray().get(0).getAsJsonObject();
+            } else if (response.isJsonObject()) {
+                release = response.getAsJsonObject();
+            } else {
+                throw new IllegalArgumentException("Invalid JSON response format");
             }
 
             String[] versionNaming = {"version_number", "version"};
