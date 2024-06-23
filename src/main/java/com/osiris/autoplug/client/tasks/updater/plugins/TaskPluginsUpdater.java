@@ -488,7 +488,8 @@ public class TaskPluginsUpdater extends BThread {
         String resultBukkitId = result.getBukkitId();
         if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
 
-        if (pl.forceUpdate.equals("true") && code == 0)
+        if (pl.forceUpdate != null && code == 0)
+            if (pl.forceUpdate.equals("true"))
             code = 1;
 
         if (code == 0) {
