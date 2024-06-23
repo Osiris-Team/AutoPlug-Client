@@ -41,7 +41,7 @@ public class CustomCheckURL {
             } catch (Exception e) {
                 try {
                     release = Json.getAsJsonObject(url);
-                } catch (Exeption ex){
+                } catch (Exception ex){
                     throw ex;
                 }
             }
