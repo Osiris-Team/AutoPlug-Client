@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2024 Osiris-Team.
+ * All rights reserved.
+ *
+ * This software is copyrighted work, licensed under the terms
+ * of the MIT-License. Consult the "LICENSE" file for details.
+ */
+
 package com.osiris.autoplug.client.tasks.updater.search;
 
 import com.google.gson.JsonObject;
-import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
-import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.jlib.json.Json;
-import com.osiris.jlib.logger.AL;
-
-import java.io.File;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class CustomCheckURL {
@@ -26,9 +26,7 @@ public class CustomCheckURL {
         }
     }
 
-    public SearchResult doCustomCheck(MinecraftPlugin plugin) {
-
-        String url = plugin.getCustomCheckURL();
+    public SearchResult doCustomCheck(String url, String currentVersion) {
         url = new UtilsURL().clean(url);
         Exception exception = null;
         String latest = null;
@@ -68,7 +66,7 @@ public class CustomCheckURL {
                 }
             }
 
-            String[] pluginVersionComponents = plugin.getVersion().split("\\.");
+            String[] pluginVersionComponents = currentVersion.split("\\.");
             String[] latestVersionComponents = latest.split("\\.");
 
             for (int i = 0; i < Math.min(pluginVersionComponents.length, latestVersionComponents.length); i++) {
@@ -89,8 +87,8 @@ public class CustomCheckURL {
             exception = e;
             code = 2;
         }
-        
-        if (downloadUrl == null && plugin.customDownloadURL == null)
+
+        if (downloadUrl == null && url == null)
             code = 2;
         SearchResult result = new SearchResult(null, code, latest, downloadUrl, type, null, null, false);
         result.setException(exception);

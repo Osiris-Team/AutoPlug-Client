@@ -98,6 +98,7 @@ public class TaskModsUpdater extends BThread {
                 YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
                 YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                 YamlSection forceLatest = modsConfig.put(name, plName, "force-latest").setDefValues("false");
+                YamlSection customCheckURL = modsConfig.put(name, plName, "custom-check-url");
                 YamlSection customDownloadURL = modsConfig.put(name, plName, "custom-download-url");
                 YamlSection githubRepoUrl = modsConfig.put(name, plName, "alternatives", "github", "repo-name");
                 YamlSection githubAssetName = modsConfig.put(name, plName, "alternatives", "github", "asset-name");
@@ -115,6 +116,7 @@ public class TaskModsUpdater extends BThread {
                 installedMod.curseforgeId = (curseforgeId.asString());
                 installedMod.ignoreContentType = (ignoreContentType.asBoolean());
                 installedMod.forceLatest = (forceLatest.asBoolean());
+                installedMod.customCheckURL = (customCheckURL.asString());
                 installedMod.customDownloadURL = (customDownloadURL.asString());
                 installedMod.githubRepoName = (githubRepoUrl.asString());
                 installedMod.githubAssetName = (githubAssetName.asString());
@@ -179,6 +181,7 @@ public class TaskModsUpdater extends BThread {
         int sizemodrinthMods = 0;
         int sizeBukkitMods = 0;
         int sizeUnknownMods = 0;
+        int sizeCustomMods = 0;
 
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
@@ -195,7 +198,10 @@ public class TaskModsUpdater extends BThread {
                 includedMods) {
             try {
                 setStatus("Initialising update check for  " + mod.getName() + "...");
-                if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
+                if (mod.customCheckURL != null) { // Custom Check
+                    sizeCustomMods++;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(mod)));
+                } else if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
                     sizeJenkinsMods++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(mod)));
                 } else if (mod.githubRepoName != null) { // GITHUB MOD

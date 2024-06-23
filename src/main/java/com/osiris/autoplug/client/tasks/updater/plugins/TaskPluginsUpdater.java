@@ -305,7 +305,7 @@ public class TaskPluginsUpdater extends BThread {
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.customCheckURL != null) { // Custome Check
+                if (pl.customCheckURL != null) { // Custom Check
                     sizeCustomPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(pl)));
                 } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN

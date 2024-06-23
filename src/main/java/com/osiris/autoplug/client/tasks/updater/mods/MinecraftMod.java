@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Osiris-Team.
+ * Copyright (c) 2022-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -15,6 +15,7 @@ public class MinecraftMod {
     public String jenkinsProjectUrl, jenkinsArtifactName;
     public int jenkinsBuildId;
     public boolean forceLatest;
+    public String customCheckURL;
     private String name, author, version;
 
     public MinecraftMod(String installationPath, String name, String version,
