@@ -41,7 +41,11 @@ public class CustomCheckURL {
                 release = Json.getAsJsonArray(url)
                         .get(0).getAsJsonObject();
             } catch (Exception e) {
-                throw e;
+                try {
+                    release = Json.getAsJsonObject(url);
+                } catch (Exeption ex){
+                    throw ex;
+                }
             }
 
             String[] versionNaming = {"version_number", "version"};
