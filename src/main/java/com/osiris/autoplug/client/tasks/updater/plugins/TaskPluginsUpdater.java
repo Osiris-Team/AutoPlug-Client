@@ -147,6 +147,7 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection jenkinsProjectUrl = pluginsConfig.put(name, plName, "alternatives", "jenkins", "project-url");
                 YamlSection jenkinsArtifactName = pluginsConfig.put(name, plName, "alternatives", "jenkins", "artifact-name");
                 YamlSection jenkinsBuildId = pluginsConfig.put(name, plName, "alternatives", "jenkins", "build-id").setDefValues("0");
+                YamlSection forceUpdate = pluginsConfig.put(name, plName, "force-update");
 
                 // The plugin devs can add their spigot/bukkit ids to their plugin.yml files
                 if (installedPlugin.getSpigotId() != 0 && spigotId.asString() != null && spigotId.asInt() == 0) // Don't update the value, if the user has already set it
@@ -212,12 +213,14 @@ public class TaskPluginsUpdater extends BThread {
                 installedPlugin.setBukkitId(bukkitId.asInt());
                 installedPlugin.setIgnoreContentType(ignoreContentType.asBoolean());
                 installedPlugin.setCustomDownloadURL(customDownloadURL.asString());
+                installedPlugin.setCustomCheckURL(customCheckURL.asString());
                 installedPlugin.setGithubRepoName(githubRepoName.asString());
                 installedPlugin.setGithubAssetName(githubAssetName.asString());
                 installedPlugin.setJenkinsProjectUrl(jenkinsProjectUrl.asString());
                 installedPlugin.setJenkinsArtifactName(jenkinsArtifactName.asString());
                 installedPlugin.setJenkinsBuildId(jenkinsBuildId.asInt());
                 installedPlugin.setModrinthId(modrinthId.asString());
+                installedPlugin.forceUpdate = forceUpdate.asString();
 
                 // Check for missing plugin details in plugin.yml
                 if (jenkinsArtifactName.asString() != null && jenkinsProjectUrl.asString() != null)
@@ -279,6 +282,7 @@ public class TaskPluginsUpdater extends BThread {
         setMax(includedSize);
 
         // TODO USE THIS FOR RESULT REPORT
+        int sizeCustomPlugins = 0;
         int sizeJenkinsPlugins = 0;
         int sizeGithubPlugins = 0;
         int sizeSpigotPlugins = 0;
@@ -301,7 +305,10 @@ public class TaskPluginsUpdater extends BThread {
                 includedPlugins) {
             try {
                 setStatus("Initialising update check for  " + pl.getName() + "...");
-                if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
+                if (pl.customCheckURL != null) { // Custome Check
+                    sizeCustomPlugins++;
+                    activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(pl)));
+                } else if (pl.getJenkinsProjectUrl() != null) { // JENKINS PLUGIN
                     sizeJenkinsPlugins++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByJenkinsUrl(pl)));
                 } else if (pl.getGithubRepoName() != null) { // GITHUB PLUGIN
@@ -480,6 +487,9 @@ public class TaskPluginsUpdater extends BThread {
         String resultSpigotId = result.getSpigotId();
         String resultBukkitId = result.getBukkitId();
         if (pl.getCustomDownloadURL() != null) downloadUrl = pl.getCustomDownloadURL();
+
+        if (pl.forceUpdate.equals("true") && code == 0)
+            code = 1;
 
         if (code == 0) {
             //getSummary().add("Plugin " +pl.getName()+ " is already on the latest version (" + pl.getVersion() + ")"); // Only for testing right now
