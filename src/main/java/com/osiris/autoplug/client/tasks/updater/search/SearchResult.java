@@ -121,18 +121,18 @@ public class SearchResult {
      *                      6 = plugin update was installed. <br>
      */
     public enum Type {
-        UP_TO_DATE(0),
-        UPDATE_AVAILABLE(1),
-        API_ERROR(2),
-        RESOURCE_NOT_FOUND(3),
-        RESOURCE_EXCLUDED(4),
-        UPDATE_DOWNLOADED(5),
-        UPDATE_INSTALLED(6);
+        UP_TO_DATE((byte) 0),
+        UPDATE_AVAILABLE((byte) 1),
+        API_ERROR((byte) 2),
+        RESOURCE_NOT_FOUND((byte) 3),
+        RESOURCE_EXCLUDED((byte) 4),
+        UPDATE_DOWNLOADED((byte) 5),
+        UPDATE_INSTALLED((byte) 6);
 
 
-        public int id = 0;
+        public byte id = 0;
 
-        Type(int id) {
+        Type(byte id) {
             this.id = id;
         }
     }
