@@ -38,9 +38,17 @@ public class CustomCheckURL {
             JsonObject release;
 
             if (response.isJsonArray()) {
-                release = response.getAsJsonArray().get(0).getAsJsonObject();
+                try {
+                    release = response.getAsJsonArray().get(0).getAsJsonObject();
+                } catch (Exception e) {
+                    throw e;
+                }
             } else if (response.isJsonObject()) {
-                release = response.getAsJsonObject();
+                try {
+                    release = response.getAsJsonObject();
+                } catch (Exception e) {
+                    throw e;
+                }
             } else {
                 throw new IllegalArgumentException("Invalid JSON response format");
             }
