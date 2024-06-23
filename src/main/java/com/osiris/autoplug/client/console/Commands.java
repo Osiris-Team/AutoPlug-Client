@@ -64,6 +64,8 @@ public final class Commands {
             Objects.requireNonNull(command);
             command = command.trim();
             first = Character.toString(command.charAt(0));
+        } catch (StringIndexOutOfBoundsException e) {
+            return false;
         } catch (Exception e) {
             AL.warn("Failed to read command '" + command + "'! Enter .help for all available commands!", e);
             return false;
