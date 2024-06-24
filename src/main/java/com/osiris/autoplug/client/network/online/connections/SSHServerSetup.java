@@ -70,13 +70,18 @@ public class SSHServerSetup {
         start();
     }
 
-    public boolean isRunning() {
+    public boolean channelActive() {
         return sshd != null && sshd.isOpen();
     }
 
-    public boolean isClosed() {
-        return sshd == null || !sshd.isOpen();
+    public boolean isRunning() {
+        boolean isNotNull = sshd != null;
+        boolean isStarted = isNotNull && sshd.isStarted();
+        AL.info("SSHD is not null: " + isNotNull);
+        AL.info("SSHD is started: " + isStarted);
+        return isNotNull && isStarted;
     }
+    
 
     private void setupServer(int port, String authMethod, Path allowedKeysPath, Path serverPrivateKeyPath, String username, String password) {
         sshd.setPort(port);

@@ -8,9 +8,12 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
+import com.osiris.jlib.logger.AL;
+import com.osiris.autoplug.client.Main;
 
 import java.io.IOException;
 
@@ -28,7 +31,25 @@ public class SSHConfig extends MyYaml {
         super(System.getProperty("user.dir") + "/autoplug/ssh.yml");
 
         addSingletonConfigFileEventListener(e -> {
+            try {
+                Main.sshServerSetup.stop();
+                Main.sshThread.join();
+            } catch (Exception e1) {
+                AL.error("Failed to stop SSH Server!", e1);
+            }
+            if (enabled.asBoolean()) {
+                Main.sshServerSetup = new SSHServerSetup();
+                Main.sshThread = new Thread(() -> {
+                    try {
+                        Main.sshServerSetup.start();
+                    } catch (Exception e1) {
+                        AL.error("Failed to start SSH Server!", e1);
+                    }
+                });
+                Main.sshThread.start();
+            }
         });
+        
 
         lockFile();
         load();

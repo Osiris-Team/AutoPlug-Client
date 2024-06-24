@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.console;
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
@@ -28,6 +29,8 @@ import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
+import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
@@ -58,6 +61,8 @@ public final class Commands {
      * @param command An AutoPlug command like .help for example.
      */
     public static boolean execute(@NotNull String command) {
+
+
 
         String first = "";
         try {
@@ -108,6 +113,10 @@ public final class Commands {
                     AL.info(".check server | Checks for server updates (.cs)");
                     AL.info(".check plugins | Checks for plugins updates (.cp)");
                     AL.info(".check mods | Checks for mods updates (.cm)");
+                    AL.info("");
+                    AL.info(".ssh stop | Stops the SSH-Server");
+                    AL.info(".ssh start | Starts the SSH-Server");
+                    AL.info(".ssh restart | Restarts the SSH-Server");
 
                     AL.info("");
                     return true;
@@ -282,6 +291,57 @@ public final class Commands {
                     backupTask.start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
+                } else if (command.equals(".ssh stop")) {
+                    try {
+                        Main.sshServerSetup.stop();
+                        Main.sshThread.join();
+                        return true;
+                    } catch (Exception e1) {
+                        AL.error("Failed to stop SSH Server!", e1);
+                    }
+                    return false;
+                } else if (command.equals(".ssh start")) {
+                    SSHConfig sshConfig = new SSHConfig();
+                    boolean ssh_enabled = sshConfig.enabled.asBoolean();
+                    if (ssh_enabled) {
+                        Main.sshServerSetup = new SSHServerSetup();
+                        Main.sshThread = new Thread(() -> {
+                            try {
+                                Main.sshServerSetup.start();
+                            } catch (Exception e1) {
+                                AL.error("Failed to start SSH-Server!", e1);
+                            }
+                        });
+                        Main.sshThread.start();
+                        return true;
+                    } else {
+                        AL.info("SSH Server is disabled in the config. To start it, set 'enabled' to true in the ssh.yml file.");
+                        return false;
+                    }
+                } else if (command.equals(".ssh restart")) {
+                    try {
+                        Main.sshServerSetup.stop();
+                        Main.sshThread.join();
+                    } catch (Exception e1) {
+                        AL.error("Failed to stop SSH Server!", e1);
+                    }
+                    SSHConfig sshConfig = new SSHConfig();
+                    boolean ssh_enabled = sshConfig.enabled.asBoolean();
+                    if (ssh_enabled) {
+                        Main.sshServerSetup = new SSHServerSetup();
+                        Main.sshThread = new Thread(() -> {
+                            try {
+                                Main.sshServerSetup.start();
+                            } catch (Exception e1) {
+                                AL.error("Failed to start SSH Server!", e1);
+                            }
+                        });
+                        Main.sshThread.start();
+                        return true;
+                    } else {
+                        AL.info("SSH Server is disabled in the config. To start it, set 'enabled' to true in the ssh.yml file.");
+                        return false;
+                    }
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;

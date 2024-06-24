@@ -15,7 +15,6 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.ui.MainWindow;
@@ -43,6 +42,8 @@ public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON;
     private static ConsoleOutputCapturer capturer;
+    public static Thread sshThread;
+    public static SSHServerSetup sshServerSetup = new SSHServerSetup();
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
     /**
@@ -282,25 +283,19 @@ public class Main {
             CON = new ConMain();
             CON.open();
 
-            SSHServerSetup sshServerSetup = new SSHServerSetup();
 
-            boolean ssh_enabled = sshConfig.enabled.asBoolean();
-            Thread sshThread = new Thread(() -> {
+            sshThread = new Thread(() -> {
                 try {
                     sshServerSetup.start();
                 } catch (Exception e) {
                     AL.warn("Failed to start SSH server", e);
                 }
             });
+
+            boolean ssh_enabled = sshConfig.enabled.asBoolean();
             if (ssh_enabled) {
                 AL.info("Starting SSH thread");
                 sshThread.start();
-            }
-
-            try {
-                sshServerSetup.stop();
-            } catch (IOException e) {
-                AL.warn("Failed to stop SSH server", e);
             }
 
             // Console output capture thread
