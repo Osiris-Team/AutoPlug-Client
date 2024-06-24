@@ -1,0 +1,45 @@
+# This workflow will build a Java project with Gradle, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-graalvm@v1
+        with:
+          java-version: '17'
+          distribution: 'graalvm'
+          cache: 'gradle'
+
+      - name: Build with Gradle
+        shell: pwsh
+        run: .\gradlew.bat build shadowJar --no-daemon
+
+      - name: Show files.
+        run: |
+          echo Showing current directory:
+          ls
+          echo Showing ./build directory:
+          ls ./build
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Release"
+          files: |
+            ./build/*.tar.gz
+            ./build/*.zip
+            ./build/*.jar
+            ./build/libs/*.exe
