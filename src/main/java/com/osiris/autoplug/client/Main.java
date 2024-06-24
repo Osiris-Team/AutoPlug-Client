@@ -313,7 +313,6 @@ public class Main {
                         if (!newOutput.isEmpty()) {
                             // Other stuff that requires a clone of the console can go here
                             if (ssh_enabled) {
-                                AL.info("Beginning SSH console mirroring");
                                 SSHServerConsoleReceive.broadcastToAll(newOutput);
                             }
                         }
