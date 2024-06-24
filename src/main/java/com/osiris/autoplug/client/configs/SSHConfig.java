@@ -47,17 +47,17 @@ public class SSHConfig extends MyYaml {
                 "#######################################################################################################################",
                 "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
         
-        enabled = put(name, "ssh-console", "enabled").setDefValues("false")
+        enabled = put(name, "enabled").setDefValues("false")
             .setComments(
                 "Enables a SSH console for remote access to AutoPlug.",
                 "You can connect to it via any SSH client like Putty, a custom script, or the built-in SSH client in Windows, Linux distros, MacOS, etc.");
 
-        port = put(name, "ssh-console", "port").setDefValues("22")
+        port = put(name, "port").setDefValues("22")
             .setComments(
                 "The port the SSH console listens on.",
                 "The default port is 22. Change it if you have a different port setup in your network, are hosting one or more other SSH-based services on the same port, or are otherwise using the default port for something else.");
 
-        auth_method = put(name, "ssh-console", "auth-method").setDefValues("key-only")
+        auth_method = put(name, "auth-method").setDefValues("key-only")
             .setComments(
                 "Select the authentication method for the SSH console.",
                 "Available options: 'user-pass-only', 'key-only', 'user-pass-key'.",
@@ -65,7 +65,7 @@ public class SSHConfig extends MyYaml {
                 "key-only: Requires a public key to connect. Requires the allowed-keys-path field below.",
                 "user-pass-key: Requires either a username and password or a public key to connect. Requires all fields below.");
 
-        allowed_keys_path = put(name, "ssh-console", "allowed-keys-path")
+        allowed_keys_path = put(name, "allowed-keys-path")
             .setComments(
                 "The .txt file containing the public keys that are allowed to connect to the SSH console.",
                 "The file must contain one public key per line.",
@@ -76,7 +76,7 @@ public class SSHConfig extends MyYaml {
                 "The genereated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a ____.pub file, which contains the public key.");
         
-        server_private_key = put(name, "ssh-console", "server-private-key").setDefValues("./autoplug/key.pem")
+        server_private_key = put(name, "server-private-key").setDefValues("./autoplug/key.pem")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
                 "The file must be in the OpenSSH format.",
@@ -84,10 +84,10 @@ public class SSHConfig extends MyYaml {
                 "The genereated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a file with no extension, which contains the private key.");
 
-        username = put(name, "ssh-console", "username").setDefValues("autoplug")
+        username = put(name, "username").setDefValues("autoplug")
             .setComments("The username required to connect to the SSH console.");
 
-        password = put(name, "ssh-console", "password")
+        password = put(name, "password")
             .setComments(
                 "The password is not encrypted and can be seen in plain text in this file.",
                 "It is recommended to change it to a secure password.");
