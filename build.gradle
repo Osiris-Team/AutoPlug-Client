@@ -136,13 +136,6 @@ dependencies {
 
     // For Server Updater
     implementation 'me.hsgamer:mc-server-updater-lib:3.4.0'
-
-<<<<<<< HEAD
-    // For SSH 
-=======
-    // SSH Server
-    implementation 'org.apache.sshd:sshd-core:2.7.0'
->>>>>>> 43d35ab8b140314a55a7eeeb0d42added2403c5b
 }
 
 // Responsible for running all tests before building.
