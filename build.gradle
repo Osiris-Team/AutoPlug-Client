@@ -70,10 +70,6 @@ repositories {
 }
 
 dependencies {
-
-    // For SSH
-    implementation 'org.apache.sshd:sshd-core:2.7.0'
-
     // To make sure transitive dependencies do not include an older version. This must stay at the top.
     // See settings.gradle for converged/enforced transitive dependencies
     implementation 'net.java.dev.jna:jna:5.14.0' // Also used in jsch https://github.com/mwiede/jsch/blob/master/pom.xml
