@@ -14,7 +14,7 @@ plugins {
 // Important for AutoPlugs Self-Updater!
 // Also take a look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
 group = 'com.osiris.autoplug.client'
-version = '8.1.5'
+version = '8.1.6'
 description = 'Responsible for all the main actions.'
 
 java {
@@ -70,10 +70,6 @@ repositories {
 }
 
 dependencies {
-
-    // For SSH
-    implementation 'org.apache.sshd:sshd-core:2.7.0'
-
     // To make sure transitive dependencies do not include an older version. This must stay at the top.
     // See settings.gradle for converged/enforced transitive dependencies
     implementation 'net.java.dev.jna:jna:5.14.0' // Also used in jsch https://github.com/mwiede/jsch/blob/master/pom.xml
@@ -140,6 +136,9 @@ dependencies {
 
     // For Server Updater
     implementation 'me.hsgamer:mc-server-updater-lib:3.4.0'
+
+    // SSH Server
+    implementation 'org.apache.sshd:sshd-core:2.7.0'
 }
 
 // Responsible for running all tests before building.
