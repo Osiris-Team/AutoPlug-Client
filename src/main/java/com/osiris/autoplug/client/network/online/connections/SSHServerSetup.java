@@ -28,34 +28,23 @@ public class SSHServerSetup {
 
     public void start() throws Exception {
         sshd = SshServer.setUpDefaultServer();
-
         SSHConfig sshConfig = new SSHConfig();
 
         int port = sshConfig.port.asInt();
-        String auth_method = sshConfig.auth_method.asString();
-        String allowed_keys_path = sshConfig.allowed_keys_path.asString();
-        String server_private_key = sshConfig.server_private_key.asString();
+        String authMethod = sshConfig.auth_method.asString();
+        Path allowedKeysPath = Path.of(sshConfig.allowed_keys_path.asString());
+        Path serverPrivateKeyPath = Path.of(sshConfig.server_private_key.asString());
         String username = sshConfig.username.asString();
         String password = sshConfig.password.asString();
 
-        sshd.setPort(port);
-
-        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Path.of(server_private_key)));
-
-        if (auth_method.equals("user-pass-only")) {
-            sshd.setPasswordAuthenticator(getPasswordAuthenticator(username, password));
-        } else if (auth_method.equals("key-only")) {
-            sshd.setPublickeyAuthenticator(getPublickeyAuthenticator(Path.of(allowed_keys_path)));
-        } else if (auth_method.equals("user-pass-key")) {
-            sshd.setPasswordAuthenticator(getPasswordAuthenticator(username, password));
-            sshd.setPublickeyAuthenticator(getPublickeyAuthenticator(Path.of(allowed_keys_path)));
+        try {
+            setupServer(port, authMethod, allowedKeysPath, serverPrivateKeyPath, username, password);
+            sshd.start();
+            AL.info("SSH server started on port " + port + " with auth method: " + authMethod);
+        } catch (Exception e) {
+            AL.error("Failed to start SSH server: " + e.getMessage(), e);
+            stop();
         }
-
-        sshd.setCommandFactory(new SSHServerConsoleFactory());
-        sshd.setShellFactory(channel -> new SSHServerConsoleReceive());
-
-        sshd.start();
-        AL.info("SSH server started on port " + port + " with auth method: " + auth_method);
     }
 
     public void close() throws IOException {
@@ -85,6 +74,29 @@ public class SSHServerSetup {
         return sshd == null || !sshd.isOpen();
     }
 
+    private void setupServer(int port, String authMethod, Path allowedKeysPath, Path serverPrivateKeyPath, String username, String password) {
+        sshd.setPort(port);
+        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(serverPrivateKeyPath));
+
+        switch (authMethod) {
+            case "user-pass-only":
+                sshd.setPasswordAuthenticator(getPasswordAuthenticator(username, password));
+                break;
+            case "key-only":
+                sshd.setPublickeyAuthenticator(getPublickeyAuthenticator(allowedKeysPath));
+                break;
+            case "user-pass-key":
+                sshd.setPasswordAuthenticator(getPasswordAuthenticator(username, password));
+                sshd.setPublickeyAuthenticator(getPublickeyAuthenticator(allowedKeysPath));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid authentication method: " + authMethod);
+        }
+
+        sshd.setCommandFactory(new SSHServerConsoleFactory());
+        sshd.setShellFactory(channel -> new SSHServerConsoleReceive());
+    }
+
     private static PasswordAuthenticator getPasswordAuthenticator(String username, String password) {
         return (inputUsername, inputPassword, session) ->
                 username.equals(inputUsername) && password.equals(inputPassword);
@@ -95,9 +107,7 @@ public class SSHServerSetup {
             try {
                 List<String> lines = Files.readAllLines(authorizedKeysPath);
                 for (String line : lines) {
-                    if (line.trim().isEmpty() || line.startsWith("#")) {
-                        continue;
-                    }
+                    if (line.trim().isEmpty() || line.startsWith("#")) continue;
                     AuthorizedKeyEntry entry = AuthorizedKeyEntry.parseAuthorizedKeyEntry(line);
                     PublicKey authorizedKey = entry.resolvePublicKey(null, null);
                     if (KeyUtils.compareKeys(authorizedKey, key)) {
@@ -105,7 +115,7 @@ public class SSHServerSetup {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                AL.warn("Error reading authorized keys: " + e.getMessage());
             }
             return false;
         };
