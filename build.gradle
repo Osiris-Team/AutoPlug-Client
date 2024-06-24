@@ -14,11 +14,7 @@ plugins {
 // Important for AutoPlugs Self-Updater!
 // Also take a look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
 group = 'com.osiris.autoplug.client'
-<<<<<<< HEAD
 version = '8.1.5'
-=======
-version = '8.1.6'
->>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
 description = 'Responsible for all the main actions.'
 
 java {
@@ -74,17 +70,10 @@ repositories {
 }
 
 dependencies {
-<<<<<<< HEAD
-
-
 
     // For SSH
     implementation 'org.apache.sshd:sshd-core:2.7.0'
 
-
-
-=======
->>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
     // To make sure transitive dependencies do not include an older version. This must stay at the top.
     // See settings.gradle for converged/enforced transitive dependencies
     implementation 'net.java.dev.jna:jna:5.14.0' // Also used in jsch https://github.com/mwiede/jsch/blob/master/pom.xml
