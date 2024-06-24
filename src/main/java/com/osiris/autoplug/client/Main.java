@@ -298,25 +298,32 @@ public class Main {
                 sshThread.start();
             }
 
-            // Console output capture thread
-            capturer = new ConsoleOutputCapturer();
-            capturer.start();
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        String newOutput = capturer.getNewOutput();
-                        if (!newOutput.isEmpty()) {
-                            // Other stuff that requires a clone of the console can go here
-                            if (ssh_enabled) {
-                                SSHServerConsoleReceive.broadcastToAll(newOutput);
+            /*
+             * This is the console output capturer.
+             * It can be used to capture the console output and send it *somewhere*
+             * For now, it sends it to all running SSH clients, which is why is it is only enabled when SSH is enabled.
+             * Remove this check if you want to use the capturer for more than just SSH.
+             */
+            if (ssh_enabled) {
+                capturer = new ConsoleOutputCapturer();
+                capturer.start();
+                new Thread(() -> {
+                    while (true) {
+                        try {
+                            String newOutput = capturer.getNewOutput();
+                            if (!newOutput.isEmpty()) {
+                                // Other stuff that requires a clone of the console can go here
+                                if (ssh_enabled) {
+                                    SSHServerConsoleReceive.broadcastToAll(newOutput);
+                                }
                             }
+                            Thread.sleep(500); // Update the output every _ ms | 500 to minimize CPU usage
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                         }
-                        Thread.sleep(500); // Update the output every _ ms | 500 to minimize CPU usage
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
                     }
-                }
-            }).start();
+                }).start();
+            }
 
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
