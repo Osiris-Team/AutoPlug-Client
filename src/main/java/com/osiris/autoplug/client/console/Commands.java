@@ -64,9 +64,12 @@ public final class Commands {
             Objects.requireNonNull(command);
             command = command.trim();
             first = Character.toString(command.charAt(0));
+<<<<<<< HEAD
         } catch (StringIndexOutOfBoundsException e) {
             AL.info("Enter .help for all available commands!");
             return false;
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
         } catch (Exception e) {
             AL.warn("Failed to read command '" + command + "'! Enter .help for all available commands!", e);
             return false;

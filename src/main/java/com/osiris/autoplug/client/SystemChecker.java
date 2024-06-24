@@ -17,7 +17,10 @@ import java.net.URL;
 
 public class SystemChecker {
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
     public void checkReadWritePermissions() throws Exception {
         try {
             File test = new File(System.getProperty("user.dir") + "/read-write-test.txt");
@@ -81,7 +84,10 @@ public class SystemChecker {
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to the AutoPlug-Logger!", e);
             }
+<<<<<<< HEAD
             
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
         }, "Shutdown-Thread"));
     }
 }

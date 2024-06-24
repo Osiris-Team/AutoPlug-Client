@@ -397,11 +397,15 @@ public final class Server {
                 os.write((command + System.lineSeparator()).getBytes(StandardCharsets.UTF_8));//TERMINAL.writer().write(command + System.lineSeparator());
             os.flush();
         } else {
+<<<<<<< HEAD
             if (command != null && !command.isEmpty()){
                 AL.warn("Failed to submit command '" + command + "' because server is not running! Use '.start' to start the server.");
             } else {
                 AL.warn("Server is not running! Use '.start' to start the server.");
             }
+=======
+            AL.warn("Failed to submit command '" + command + "' because server is not running!");
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
         }
     }
 

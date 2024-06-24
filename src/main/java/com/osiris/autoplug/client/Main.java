@@ -15,8 +15,11 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+<<<<<<< HEAD
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
 import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.*;
 import com.osiris.dyml.Yaml;
@@ -28,8 +31,11 @@ import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
 import java.io.FileWriter;
+<<<<<<< HEAD
 import java.io.IOException;
 import java.io.PrintStream;
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
@@ -41,7 +47,10 @@ public class Main {
     // Do not init fields directly here, but instead in main() after logger was initialised
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON;
+<<<<<<< HEAD
     private static ConsoleOutputCapturer capturer;
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
     /**
@@ -51,7 +60,10 @@ public class Main {
      *              - test: enables test mode <br>
      */
     public static void main(String[] _args) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
         List<String> args = new ArrayList<>();
         if (_args != null)
             Collections.addAll(args, _args);
@@ -276,6 +288,7 @@ public class Main {
             CON = new ConMain();
             CON.open();
 
+<<<<<<< HEAD
 
             SSHServerSetup sshServerSetup = new SSHServerSetup();
             Thread sshThread = new Thread(() -> {
@@ -310,6 +323,8 @@ public class Main {
                 }
             }).start();
 
+=======
+>>>>>>> 36158801efa9b494f6b6fbe443acaee837e9eb9b
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
             AL.info("Enter .help for a list of all commands.");
