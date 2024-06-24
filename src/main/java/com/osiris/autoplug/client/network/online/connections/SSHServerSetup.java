@@ -8,15 +8,19 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.SSHConfig;
+import com.osiris.jlib.logger.AL;
+
+import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
+import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
+import org.apache.sshd.server.command.Command;
+import org.apache.sshd.server.command.CommandFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
-import org.apache.sshd.common.config.keys.KeyUtils;
-import com.osiris.jlib.logger.AL;
-import java.io.IOException;
+import org.apache.sshd.server.channel.ChannelSession;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PublicKey;
@@ -93,7 +97,12 @@ public class SSHServerSetup {
                 throw new IllegalArgumentException("Invalid authentication method: " + authMethod);
         }
 
-        sshd.setCommandFactory(new SSHServerConsoleFactory());
+        sshd.setCommandFactory(new CommandFactory() {
+            @Override
+            public Command createCommand(ChannelSession channel, String command) {
+                return new SSHServerConsoleReceive();
+            }
+        });
         sshd.setShellFactory(channel -> new SSHServerConsoleReceive());
     }
 

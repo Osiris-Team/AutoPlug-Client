@@ -8,7 +8,6 @@
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.console.Commands;
-import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.LogFileWriter;
 import com.osiris.autoplug.client.Main;
@@ -63,18 +62,23 @@ public class SSHServerConsoleReceive implements Command {
     @Override
     public void start(ChannelSession channel, Environment env) throws IOException {
         AL.info("SSH session started.");
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setName("SSHConsoleThread-" + t.getId()); // Name thread
+            t.setDaemon(true);
+            return t;
+        });
         out.write("Welcome to AutoPlug SSH Console!\r\n".getBytes(StandardCharsets.UTF_8));
         out.flush();
-
+    
         activeConnections.add(this);
-
+    
         executor.submit(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
                 StringBuilder commandBuffer = new StringBuilder();
                 int c;
                 while ((c = reader.read()) != -1) {
-                    if (c == '\r' || c == '\n') { 
+                    if (c == '\r' || c == '\n') {
                         if (commandBuffer.length() > 0) {
                             String userInput = commandBuffer.toString().trim();
                             out.write("\r\n".getBytes(StandardCharsets.UTF_8));
@@ -101,46 +105,62 @@ public class SSHServerConsoleReceive implements Command {
             } catch (IOException e) {
                 AL.warn(e);
             } finally {
-                try {
-                    out.flush();
-                } catch (IOException e) {
-                    AL.warn(e);
-                } finally {
-                    activeConnections.remove(this);
-                    exitCallback.onExit(0);
-                }
+                cleanup(); // Ensure cleanup
             }
         });
+    }
+    
+    private void cleanup() {
+        activeConnections.remove(this);
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdownNow();
+        }
+        try {
+            if (out != null) out.close();
+            if (err != null) err.close();
+            if (in != null) in.close();
+        } catch (IOException e) {
+            AL.warn(e);
+        }
+        exitCallback.onExit(0);
     }
 
     private void handleUserInput(String userInput) {
         try {
             boolean isAutoPlugCommand = Commands.execute(userInput);
             if (isAutoPlugCommand) {
-                try {
-                    LogFileWriter.writeToLog(userInput);
-                } catch (Exception e) {
-                    AL.warn(e, "Failed to write command to log file.");
-                }
+                LogFileWriter.writeToLog(userInput); // Log command
             } else {
                 if (Server.isRunning()) {
-                    Server.submitCommand(userInput);
+                    Server.submitCommand(sanitizeUserInput(userInput)); // Submit sanitized input
                 } else {
-                    AL.warn("Failed to submit command '" + userInput + "' because server is not running!");
+                    AL.warn("Server is not running!");
                 }
             }
-
         } catch (Exception e) {
             AL.warn(e);
         }
     }
+    
+    private String sanitizeUserInput(String input) {
+        return input.replaceAll("[^a-zA-Z0-9 ]", "").trim(); // Sanitize input
+    }
 
     public void broadcast(String message) {
         try {
-            out.write((message).getBytes(StandardCharsets.UTF_8));
+            if (!message.endsWith("\n")) {
+                message += "\n";
+            }
+            out.write(message.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {
             AL.warn(e);
+        }
+    }
+    
+    public static void broadcastToAll(String message) {
+        for (SSHServerConsoleReceive connection : activeConnections) {
+            connection.broadcast(message);
         }
     }
 
@@ -150,14 +170,5 @@ public class SSHServerConsoleReceive implements Command {
             executor.shutdownNow();
         }
         activeConnections.remove(this);
-    }
-
-    public static void broadcastToAll(String message) { // this is for sending messages to all active connections
-        for (SSHServerConsoleReceive connection : activeConnections) {
-            if (!message.toString().endsWith("\n")) {
-                message += "\n";
-            }
-            connection.broadcast(message);
-        }
     }
 }
