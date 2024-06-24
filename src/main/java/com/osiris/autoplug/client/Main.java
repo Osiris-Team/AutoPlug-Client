@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.ui.MainWindow;
@@ -278,6 +279,8 @@ public class Main {
 
 
             SSHServerSetup sshServerSetup = new SSHServerSetup();
+            SSHConfig sshConfig = new SSHConfig();
+            boolean ssh_enabled = sshConfig.enabled.asBoolean();
             Thread sshThread = new Thread(() -> {
                 try {
                     sshServerSetup.start();
@@ -285,7 +288,10 @@ public class Main {
                     AL.warn("Failed to start SSH server", e);
                 }
             });
-            sshThread.start();
+            if (ssh_enabled) {
+                AL.info("Starting SSH thread");
+                sshThread.start();
+            }
 
             try {
                 sshServerSetup.stop();
@@ -293,7 +299,7 @@ public class Main {
                 AL.warn("Failed to stop SSH server", e);
             }
 
-            // Capture console output and broadcast to SSH connections
+            // Console output capture thread
             capturer = new ConsoleOutputCapturer();
             capturer.start();
             new Thread(() -> {
@@ -301,9 +307,13 @@ public class Main {
                     try {
                         String newOutput = capturer.getNewOutput();
                         if (!newOutput.isEmpty()) {
-                            SSHServerConsoleReceive.broadcastToAll(newOutput);
+                            // Other stuff that requires a clone of the console can go here
+                            if (ssh_enabled) {
+                                AL.info("Beginning SSH console mirroring");
+                                SSHServerConsoleReceive.broadcastToAll(newOutput);
+                            }
                         }
-                        Thread.sleep(500); // Adjust as necessary
+                        Thread.sleep(500); // Update the output every _ ms | 500 to minimize CPU usage
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }

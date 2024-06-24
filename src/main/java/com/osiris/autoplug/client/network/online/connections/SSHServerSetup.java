@@ -31,18 +31,12 @@ public class SSHServerSetup {
 
         SSHConfig sshConfig = new SSHConfig();
 
-        boolean enabled = sshConfig.enabled.asBoolean();
         int port = sshConfig.port.asInt();
         String auth_method = sshConfig.auth_method.asString();
         String allowed_keys_path = sshConfig.allowed_keys_path.asString();
         String server_private_key = sshConfig.server_private_key.asString();
         String username = sshConfig.username.asString();
         String password = sshConfig.password.asString();
-
-        if (!enabled) {
-            AL.info("SSH server is disabled in the config file.");
-            return;
-        }
 
         sshd.setPort(port);
 
