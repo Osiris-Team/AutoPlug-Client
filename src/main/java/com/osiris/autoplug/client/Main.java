@@ -229,8 +229,13 @@ public class Main {
             utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
+            SSHConfig sshConfig = new SSHConfig();
+            utilsConfig.checkForDeprecatedSections(sshConfig);
+            allModules.addAll(sshConfig.getAllInEdit());
+
             PluginsConfig pluginsConfig = new PluginsConfig();
             ModsConfig modsConfig = new ModsConfig();
+
 
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Checked configs, took " + (System.currentTimeMillis() - now) + "ms");
@@ -277,9 +282,6 @@ public class Main {
             CON = new ConMain();
             CON.open();
 
-
-            SSHServerSetup sshServerSetup = new SSHServerSetup();
-            SSHConfig sshConfig = new SSHConfig();
             boolean ssh_enabled = sshConfig.enabled.asBoolean();
             Thread sshThread = new Thread(() -> {
                 try {
