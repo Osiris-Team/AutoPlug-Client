@@ -8,24 +8,21 @@
 
 package com.osiris.autoplug.client.tasks.updater.search;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.osiris.autoplug.client.utils.UtilsURL;
 import com.osiris.jlib.json.Json;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 
 public class CustomCheckURL {
 
     public CustomCheckURL(){}
-
-    private boolean isInt(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public SearchResult doCustomCheck(String url, String currentVersion) {
         url = new UtilsURL().clean(url);
@@ -36,25 +33,18 @@ public class CustomCheckURL {
         SearchResult.Type code = SearchResult.Type.UP_TO_DATE;
         try {
             JsonElement response = Json.get(url);
-            JsonObject release;
+            List<String> latestVersions = new ArrayList<>();
+            List<String> downloadUrls = new ArrayList<>();
+            traverseJson("", response, (key, value) -> {
+                String s1 = getLatestVersionIfValid(key, value);
+                if (!s1.isEmpty()) latestVersions.add(s1);
 
-            if (response.isJsonArray()) {
-                try {
-                    latest = traverseJsonArray(response.getAsJsonArray(), (byte) 0);
-                    downloadUrl = traverseJsonArray(response.getAsJsonArray(), (byte) 1);
-                } catch (Exception e) {
-                    throw e;
-                }
-            } else if (response.isJsonObject()) {
-                try {
-                    latest = traverseJsonObject(response.getAsJsonObject(), (byte) 0);
-                    downloadUrl = traverseJsonObject(response.getAsJsonObject(), (byte) 1);
-                } catch (Exception e) {
-                    throw e;
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid JSON response format");
-            }
+                String s2 = getDownloadUrlIfValid(key, value);
+                if (!s2.isEmpty()) downloadUrls.add(s2);
+            });
+
+            if (!latestVersions.isEmpty()) latest = latestVersions.get(0);
+            if (!downloadUrls.isEmpty()) downloadUrl = downloadUrls.get(0);
 
             String[] pluginVersionComponents = currentVersion.split("\\.");
             String[] latestVersionComponents = latest.split("\\.");
@@ -85,72 +75,40 @@ public class CustomCheckURL {
         return result;
     }
 
-    private String getLatestVersionFromRe(JsonObject release){
-
-            String[] versionNaming = {"version_number", "version"};
-            String latest = null;
-
-            for (String naming : versionNaming) {
-                if (release.has(naming)) {
-                    String version = release.get(naming).getAsString().replaceAll("[^0-9.]", "");
-                    if (!version.isEmpty()) {
-                        latest = version;
-                        break;
-                    }
-                }
-            }
-            return latest;
+    /**
+     * Returns empty string if not valid.
+     */
+    private String getLatestVersionIfValid(String key, String value) {
+        if (key.equals("version_number") || key.equals("version"))
+            return value.replaceAll("[^0-9.]", "");
+        else return "";
     }
 
-    private String getDownloadFromRe(JsonObject release){
-
-            String[] downloadNaming = {"download_url", "download", "file", "download_file"};
-            String downloadUrl = null;
-
-            for (String naming : downloadNaming) {
-                if (release.has(naming)) {
-                    String durl = release.get(naming).getAsString();
-                    if (!durl.isEmpty()) {
-                        downloadUrl = durl;
-                        break;
-                    }
-                }
-            }
-            return downloadUrl;
+    /**
+     * Returns empty string if not valid.
+     */
+    private String getDownloadUrlIfValid(String key, String value) {
+        if (key.equals("download_url") || key.equals("download") || key.equals("file") || key.equals("download_file"))
+            return value;
+        else return "";
     }
 
-    private String traverseJsonArray(JsonArray jsonArray, byte lookingFor) {
-        String r = null;
-        for (JsonElement element : jsonArray) {
-            if (element.isJsonObject()) {
-                r = traverseJsonObject(element.getAsJsonObject(),lookingFor);
-            } else if (element.isJsonArray()) {
-                r = traverseJsonArray(element.getAsJsonArray(),lookingFor);
+    public static void traverseJson(String key, JsonElement element, BiConsumer<String, String> code) {
+        if (element.isJsonObject()) {
+            JsonObject obj = element.getAsJsonObject();
+            for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                traverseJson(entry.getKey(), entry.getValue(), code);
             }
-            if (r != null)
-            break;
-        }
-        return r;
-    }
-
-    private String traverseJsonObject(JsonObject jsonObject, byte lookingFor) {
-        String r = null;
-        for (String key : jsonObject.keySet()) {
-            JsonElement element = jsonObject.get(key);
-            if (element.isJsonObject()) {
-                r = traverseJsonObject(element.getAsJsonObject(),lookingFor);
-            } else if (element.isJsonArray()) {
-                r = traverseJsonArray(element.getAsJsonArray(),lookingFor);
+        } else if (element.isJsonArray()) {
+            JsonArray array = element.getAsJsonArray();
+            for (JsonElement item : array) {
+                traverseJson(key, item, code);
             }
-            if (r != null)
-            break;
-        }
-
-        if (lookingFor == 0) {
-            r = getLatestVersionFromRe(jsonObject.getAsJsonObject());
-        } else if (lookingFor == 1) {
-            r = getDownloadFromRe(jsonObject.getAsJsonObject());
-        }
-        return r;
+        } else if (element.isJsonNull()) {
+            code.accept(key, "");
+        } else if (element.isJsonPrimitive()) {
+            code.accept(key, element.getAsString());
+        } else
+            throw new IllegalArgumentException("Invalid JSON response format");
     }
 }
