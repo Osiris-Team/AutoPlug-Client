@@ -15,6 +15,8 @@ import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
+import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.ui.MainWindow;
 import com.osiris.autoplug.client.utils.*;
 import com.osiris.dyml.Yaml;
@@ -26,6 +28,8 @@ import org.fusesource.jansi.AnsiConsole;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
@@ -37,6 +41,7 @@ public class Main {
     // Do not init fields directly here, but instead in main() after logger was initialised
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON;
+    private static ConsoleOutputCapturer capturer;
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
     /**
@@ -46,6 +51,7 @@ public class Main {
      *              - test: enables test mode <br>
      */
     public static void main(String[] _args) {
+
         List<String> args = new ArrayList<>();
         if (_args != null)
             Collections.addAll(args, _args);
@@ -269,6 +275,40 @@ public class Main {
 
             CON = new ConMain();
             CON.open();
+
+
+            SSHServerSetup sshServerSetup = new SSHServerSetup();
+            Thread sshThread = new Thread(() -> {
+                try {
+                    sshServerSetup.start();
+                } catch (Exception e) {
+                    AL.warn("Failed to start SSH server", e);
+                }
+            });
+            sshThread.start();
+
+            try {
+                sshServerSetup.stop();
+            } catch (IOException e) {
+                AL.warn("Failed to stop SSH server", e);
+            }
+
+            // Capture console output and broadcast to SSH connections
+            capturer = new ConsoleOutputCapturer();
+            capturer.start();
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        String newOutput = capturer.getNewOutput();
+                        if (!newOutput.isEmpty()) {
+                            SSHServerConsoleReceive.broadcastToAll(newOutput);
+                        }
+                        Thread.sleep(500); // Adjust as necessary
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }).start();
 
             AL.info("Initialised successfully.");
             AL.info("| ------------------------------------------- |");
