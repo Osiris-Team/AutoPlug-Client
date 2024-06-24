@@ -1,0 +1,30 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [ opened, labeled ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Oracle GraalVM for JDK 17
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '17'
+        distribution: 'graalvm'
+    - name: Build with Gradle
+      run: ./gradlew shadowJar build -x test --no-daemon
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AutoPlug-Client
+        path: AP-TEST-SERVER/AutoPlug-Client.jar
