@@ -282,7 +282,7 @@ public class Main {
             CON = new ConMain();
             CON.open();
 
-            SSHServerSetup sshServerSetup = new SSHServer
+            SSHServerSetup sshServerSetup = new SSHSer
 
             boolean ssh_enabled = sshConfig.enabled.asBoolean();
             Thread sshThread = new Thread(() -> {
