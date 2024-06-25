@@ -145,6 +145,37 @@ public class SSHConfig extends MyYaml {
             auth_method.setValues(correction);
         }
 
+        // Validate 'allowed_keys_path' field
+        String allowedKeysPathValue = allowed_keys_path.asString();
+        if (allowedKeysPathValue.isBlank() && !authMethodValue.equals("key-only")) {
+            String correction = allowed_keys_path.getDefValue().asString();
+            AL.warn("Config error -> " + allowed_keys_path.getKeys() + " must not be blank. Applied default!");
+            allowed_keys_path.setValues(correction);
+        }
+
+        // Validate 'server_private_key' field
+        String serverPrivateKeyValue = server_private_key.asString();
+        if (serverPrivateKeyValue.isBlank() && !authMethodValue.equals("user-pass-only")) {
+            String correction = server_private_key.getDefValue().asString();
+            AL.warn("Config error -> " + server_private_key.getKeys() + " must not be blank. Applied default!");
+            server_private_key.setValues(correction);
+        }
+
+        // Validate 'username' field
+        String usernameValue = username.asString();
+        if (usernameValue.isBlank() && !authMethodValue.equals("key-only")) {
+            String correction = username.getDefValue().asString();
+            AL.warn("Config error -> " + username.getKeys() + " must not be blank. Applied default!");
+            username.setValues(correction);
+        }
+
+        // Validate 'password' field
+        String passwordValue = password.asString();
+        if (passwordValue.isBlank() && !authMethodValue.equals("key-only")) {
+            String correction = password.getDefValue().asString();
+            AL.warn("Config error -> " + password.getKeys() + " must not be blank. Applied default!");
+            password.setValues(correction);
+        }
         return this;
     }
 }
