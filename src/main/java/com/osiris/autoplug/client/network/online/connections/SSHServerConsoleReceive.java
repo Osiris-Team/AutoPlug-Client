@@ -75,8 +75,8 @@ public class SSHServerConsoleReceive implements Command {
         out.write("┌───────────────────────────────────────┐\r\n".getBytes(StandardCharsets.UTF_8));
         out.write("│  Welcome to the AutoPlug SSH Console  │\r\n".getBytes(StandardCharsets.UTF_8));
         out.write("│                                       │\r\n".getBytes(StandardCharsets.UTF_8));
-        out.write("│      The AutoPlug SSH Console is      │\r\n".getBytes(StandardCharsets.UTF_8));
-        out.write("│   brought to you by _z03 on Discord   │\r\n".getBytes(StandardCharsets.UTF_8));
+        out.write("│             Programmed by             │\r\n".getBytes(StandardCharsets.UTF_8));
+        out.write("│           Discord user _zo3           │\r\n".getBytes(StandardCharsets.UTF_8));
         out.write("└───────────────────────────────────────┘\r\n".getBytes(StandardCharsets.UTF_8));
         out.flush();
 
