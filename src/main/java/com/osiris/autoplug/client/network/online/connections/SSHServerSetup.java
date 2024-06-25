@@ -28,9 +28,14 @@ import java.util.List;
 
 public class SSHServerSetup {
 
-    private SshServer sshd;
+    private static SshServer sshd;
 
-    public void start() throws Exception {
+    public static void start() throws Exception {
+        if (sshd != null && sshd.isOpen()) {
+            AL.warn("SSH server is already running.");
+            return;
+        }
+
         sshd = SshServer.setUpDefaultServer();
         SSHConfig sshConfig = new SSHConfig();
 
@@ -47,40 +52,42 @@ public class SSHServerSetup {
             AL.info("SSH server started on port " + port + " with auth method: " + authMethod);
         } catch (Exception e) {
             AL.warn("Failed to start SSH server!", e);
+            stop(); // Ensure any partial initialization is cleaned up
         }
     }
 
-    public void close() throws IOException {
+    public static void stop() throws IOException {
         if (sshd != null) {
-            sshd.close();
-            AL.info("SSH server closed.");
+            try {
+                sshd.stop(true); // Gracefully stop the server
+                AL.info("SSH server stopped.");
+            } catch (IOException e) {
+                AL.warn("Failed to stop SSH server! Details: " + e.getMessage(), e);
+                throw e;
+            } finally {
+                sshd = null; // Ensure sshd is set to null after stopping
+            }
+        } else {
+            AL.warn("Attempted to stop SSH server, but it was already null.");
         }
     }
 
-    public void stop() throws IOException {
-        if (sshd != null) {
-            sshd.stop();
-            AL.info("SSH server stopped.");
-        }
-    }
-
-    public void restart() throws Exception {
+    public static void restart() throws Exception {
         stop();
         start();
     }
 
-    public boolean channelActive() {
+    public static boolean channelActive() {
         return sshd != null && sshd.isOpen();
     }
 
-    public boolean isRunning() {
+    public static boolean isRunning() {
         boolean isNotNull = sshd != null;
         boolean isStarted = isNotNull && sshd.isStarted();
         return isNotNull && isStarted;
     }
-    
 
-    private void setupServer(int port, String authMethod, Path allowedKeysPath, Path serverPrivateKeyPath, String username, String password) {
+    private static void setupServer(int port, String authMethod, Path allowedKeysPath, Path serverPrivateKeyPath, String username, String password) {
         sshd.setPort(port);
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(serverPrivateKeyPath));
 

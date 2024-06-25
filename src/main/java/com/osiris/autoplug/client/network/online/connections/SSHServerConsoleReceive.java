@@ -205,7 +205,7 @@ public class SSHServerConsoleReceive implements Command {
                 if (Server.isRunning()) {
                     Server.submitCommand(userInput);
                 } else {
-                    AL.warn("Server is not running!");
+                    AL.warn("Failed to submit command '" + userInput + "' because server is not running! Use '.start' to start the server.");
                 }
             }
         } catch (Exception e) {

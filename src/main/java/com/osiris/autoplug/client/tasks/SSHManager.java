@@ -11,19 +11,25 @@ package com.osiris.autoplug.client.tasks;
 import java.io.IOException;
 
 import com.osiris.autoplug.client.configs.SSHConfig;
+import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
+import com.osiris.autoplug.client.utils.ConsoleOutputCapturer;
 import com.osiris.jlib.logger.AL;
 
 public class SSHManager {
     private static SSHManager instance;
     private Thread sshThread;
+    private Thread consoleCaptureThread;
     private SSHServerSetup sshServerSetup;
     private SSHConfig sshConfig;
+    private ConsoleOutputCapturer capturer;
 
     private SSHManager(SSHConfig config) throws IOException {
         this.sshConfig = config;
         this.sshServerSetup = new SSHServerSetup();
+        this.capturer = new ConsoleOutputCapturer();
         createThread();
+        createConsoleCaptureThread();
     }
 
     public static SSHManager getInstance(SSHConfig config) throws IOException {
@@ -49,7 +55,24 @@ public class SSHManager {
         });
     }
 
-    public boolean start() {
+    private void createConsoleCaptureThread() {
+        consoleCaptureThread = new Thread(() -> {
+            capturer.start();
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    String newOutput = capturer.getNewOutput();
+                    if (!newOutput.isEmpty()) {
+                        SSHServerConsoleReceive.broadcastToAll(newOutput);
+                    }
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+    }
+
+    synchronized public boolean start() {
         AL.info("Starting SSH Server...");
         if (isRunning()) {
             AL.info("SSH Server is already running!");
@@ -59,9 +82,12 @@ public class SSHManager {
             if (sshConfig.enabled.asBoolean()) {
                 if (sshThread.getState() == Thread.State.NEW) {
                     sshThread.start();
+                    consoleCaptureThread.start();
                 } else if (sshThread.getState() == Thread.State.TERMINATED) {
                     createThread();
+                    createConsoleCaptureThread();
                     sshThread.start();
+                    consoleCaptureThread.start();
                 }
                 return true;
             } else {
@@ -74,15 +100,18 @@ public class SSHManager {
         }
     }
 
-    public boolean stop() {
+    synchronized public boolean stop() {
         AL.info("Stopping SSH Server...");
         if (!isRunning()) {
             AL.info("SSH Server is not running!");
             return true;
         }
         try {
+            capturer.stop();  // Stop the capturer
             sshServerSetup.stop();
             sshThread.join();
+            consoleCaptureThread.interrupt();
+            consoleCaptureThread.join();
             return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -92,7 +121,9 @@ public class SSHManager {
         }
         return false;
     }
+
     public boolean isRunning() {
         return sshServerSetup.isRunning();
     }
 }
+
