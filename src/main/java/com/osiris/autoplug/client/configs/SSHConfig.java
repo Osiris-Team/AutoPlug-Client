@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.configs;
 
 import java.io.IOException;
 
+import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
@@ -18,7 +19,6 @@ import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.exceptions.YamlWriterException;
-import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.jlib.logger.AL;
 
 public class SSHConfig extends MyYaml {
@@ -46,7 +46,6 @@ public class SSHConfig extends MyYaml {
             }
         });
         
-
         lockFile();
         load();
         String name = getFileNameWithoutExt();
@@ -116,6 +115,36 @@ public class SSHConfig extends MyYaml {
 
     @Override
     public Yaml validateValues() {
+        // Validate 'enabled' field
+        String enabledValue = enabled.asString();
+        if (!enabledValue.equals("true") && !enabledValue.equals("false")) {
+            String correction = enabled.getDefValue().asString();
+            AL.warn("Config error -> " + enabled.getKeys() + " must be: true or false. Applied default!");
+            enabled.setValues(correction);
+        }
+
+        // Validate 'port' field
+        try {
+            int portValue = Integer.parseInt(port.asString());
+            if (portValue < 1 || portValue > 65535) {
+                int correction = Integer.parseInt(port.getDefValue().asString());
+                AL.warn("Config error -> " + port.getKeys() + " must be between 1 and 65535. Applied default!");
+                port.setValues(String.valueOf(correction));
+            }
+        } catch (NumberFormatException e) {
+            int correction = Integer.parseInt(port.getDefValue().asString());
+            AL.warn("Config error -> " + port.getKeys() + " must be a valid integer. Applied default!");
+            port.setValues(String.valueOf(correction));
+        }
+
+        // Validate 'auth_method' field
+        String authMethodValue = auth_method.asString();
+        if (!authMethodValue.equals("user-pass-only") && !authMethodValue.equals("key-only") && !authMethodValue.equals("user-pass-key")) {
+            String correction = auth_method.getDefValue().asString();
+            AL.warn("Config error -> " + auth_method.getKeys() + " must be: user-pass-only, key-only, or user-pass-key. Applied default!");
+            auth_method.setValues(correction);
+        }
+
         return this;
     }
 }
