@@ -88,82 +88,90 @@ public class SSHServerConsoleReceive implements Command {
                 int cursorPosition = 0;
                 int c;
                 while ((c = reader.read()) != -1) {
-                    if (c == '\r' || c == '\n') {
-                        if (commandBuffer.length() > 0) {
-                            String userInput = commandBuffer.toString().trim();
-                            out.write("\r\n".getBytes(StandardCharsets.UTF_8));
-                            out.flush();
-                            AL.info("Received SSH command: " + userInput);
-                            commandHistory.add(userInput);
-                            historyIndex = commandHistory.size();
-                            commandBuffer.setLength(0);
-                            cursorPosition = 0;
-                            handleUserInput(userInput);
-                        }
-                    } else if (c == 3) {
-                        exitCallback.onExit(0, "Connection closed by user.");
-                        break;
-                    } else if (c == 127 || c == 8) { // Backspace
-                        if (cursorPosition > 0 && commandBuffer.length() > 0) {
-                            commandBuffer.deleteCharAt(cursorPosition - 1);
-                            cursorPosition--;
-                            redrawLine(out, commandBuffer, cursorPosition);
-                        }
-                    } else if (c == 27) {
-                        reader.mark(2);
-                        int next1 = reader.read();
-                        int next2 = reader.read();
-                        if (next1 == '[') {
-                            switch (next2) {
-                                case 'A': // Up arrow - Load previous command from history
-                                    if (historyIndex > 0) {
-                                        historyIndex--;
-                                        loadFromHistory(commandBuffer, historyIndex);
-                                        cursorPosition = commandBuffer.length();
-                                        redrawLine(out, commandBuffer, cursorPosition);
-                                    }
-                                    break;
-                                case 'B': // Down arrow - Load next command from history
-                                    if (historyIndex < commandHistory.size() - 1) {
-                                        historyIndex++;
-                                        loadFromHistory(commandBuffer, historyIndex);
-                                        cursorPosition = commandBuffer.length();
-                                        redrawLine(out, commandBuffer, cursorPosition);
-                                    } else if (historyIndex == commandHistory.size() - 1) {
-                                        historyIndex++;
-                                        commandBuffer.setLength(0);
-                                        cursorPosition = 0;
-                                        redrawLine(out, commandBuffer, cursorPosition);
-                                    }
-                                    break;
-                                case 'C': // Right arrow - Move cursor right
-                                    if (cursorPosition < commandBuffer.length()) {
-                                        cursorPosition++;
-                                        out.write(c);
-                                        out.write(next1);
-                                        out.write(next2);
-                                        out.flush();
-                                    }
-                                    break;
-                                case 'D': // Left arrow - Move cursor left
-                                    if (cursorPosition > 0) {
-                                        cursorPosition--;
-                                        out.write(c);
-                                        out.write(next1);
-                                        out.write(next2);
-                                        out.flush();
-                                    }
-                                    break;
-                                default:
-                                    reader.reset();
-                                    break;
+                    switch (c) {
+                        case '\r':
+                        case '\n':
+                            if (commandBuffer.length() > 0) {
+                                String userInput = commandBuffer.toString().trim();
+                                out.write("\r\n".getBytes(StandardCharsets.UTF_8));
+                                out.flush();
+                                AL.debug(SSHServerConsoleReceive.class, "Received SSH command: " + userInput);
+                                commandHistory.add(userInput);
+                                historyIndex = commandHistory.size();
+                                commandBuffer.setLength(0);
+                                cursorPosition = 0;
+                                handleUserInput(userInput);
                             }
-                        }
-                    } else {
-                        commandBuffer.insert(cursorPosition, (char) c);
-                        cursorPosition++;
-                        redrawLine(out, commandBuffer, cursorPosition);
+                            break;
+                        case 3: // Ctrl+C
+                            exitCallback.onExit(0, "Connection closed by user.");
+                            break;
+                        case 127: // Backspace
+                        case 8: // Backspace
+                            if (cursorPosition > 0 && commandBuffer.length() > 0) {
+                                commandBuffer.deleteCharAt(cursorPosition - 1);
+                                cursorPosition--;
+                                redrawLine(out, commandBuffer, cursorPosition);
+                            }
+                            break;
+                        case 27: // Escape sequence
+                            reader.mark(2);
+                            int next1 = reader.read();
+                            int next2 = reader.read();
+                            if (next1 == '[') {
+                                switch (next2) {
+                                    case 'A': // Up arrow
+                                        if (historyIndex > 0) {
+                                            historyIndex--;
+                                            loadFromHistory(commandBuffer, historyIndex);
+                                            cursorPosition = commandBuffer.length();
+                                            redrawLine(out, commandBuffer, cursorPosition);
+                                        }
+                                        break;
+                                    case 'B': // Down arrow
+                                        if (historyIndex < commandHistory.size() - 1) {
+                                            historyIndex++;
+                                            loadFromHistory(commandBuffer, historyIndex);
+                                            cursorPosition = commandBuffer.length();
+                                            redrawLine(out, commandBuffer, cursorPosition);
+                                        } else if (historyIndex == commandHistory.size() - 1) {
+                                            historyIndex++;
+                                            commandBuffer.setLength(0);
+                                            cursorPosition = 0;
+                                            redrawLine(out, commandBuffer, cursorPosition);
+                                        }
+                                        break;
+                                    case 'C': // Right arrow
+                                        if (cursorPosition < commandBuffer.length()) {
+                                            cursorPosition++;
+                                            out.write(c);
+                                            out.write(next1);
+                                            out.write(next2);
+                                            out.flush();
+                                        }
+                                        break;
+                                    case 'D': // Left arrow
+                                        if (cursorPosition > 0) {
+                                            cursorPosition--;
+                                            out.write(c);
+                                            out.write(next1);
+                                            out.write(next2);
+                                            out.flush();
+                                        }
+                                        break;
+                                    default:
+                                        reader.reset();
+                                        break;
+                                }
+                            }
+                            break;
+                        default:
+                            commandBuffer.insert(cursorPosition, (char) c);
+                            cursorPosition++;
+                            redrawLine(out, commandBuffer, cursorPosition);
+                            break;
                     }
+
                 }
             } catch (IOException e) {
                 AL.warn(e);
