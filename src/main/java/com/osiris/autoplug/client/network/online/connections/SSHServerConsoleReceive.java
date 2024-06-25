@@ -195,7 +195,7 @@ public class SSHServerConsoleReceive implements Command {
                 LogFileWriter.writeToLog(userInput); // Log command
             } else {
                 if (Server.isRunning()) {
-                    Server.submitCommand(sanitizeUserInput(userInput)); // Submit sanitized input
+                    Server.submitCommand(userInput);
                 } else {
                     AL.warn("Server is not running!");
                 }
@@ -203,10 +203,6 @@ public class SSHServerConsoleReceive implements Command {
         } catch (Exception e) {
             AL.warn(e);
         }
-    }
-
-    private String sanitizeUserInput(String input) {
-        return input.replaceAll("[^a-zA-Z0-9 ]", "").trim(); // Sanitize input
     }
 
     private void redrawLine(OutputStream out, StringBuilder commandBuffer, int cursorPosition) throws IOException {
