@@ -190,14 +190,15 @@ public class SSHServerConsoleReceive implements Command {
 
     private void handleUserInput(String userInput) {
         try {
-            if (Commands.execute(userInput)) {
-                try {
-                    LogFileWriter.writeToLog("\n\n" + user_input + "\n\n");
-                } catch (Exception e) {
-                    AL.warn(e, "Failed to write command to log file.");
-                }
+            boolean isAutoPlugCommand = Commands.execute(userInput);
+            if (isAutoPlugCommand) {
+                LogFileWriter.writeToLog(userInput); // Log command
             } else {
-                Server.submitCommand(user_input);
+                if (Server.isRunning()) {
+                    Server.submitCommand(sanitizeUserInput(userInput)); // Submit sanitized input
+                } else {
+                    AL.warn("Server is not running!");
+                }
             }
         } catch (Exception e) {
             AL.warn(e);
