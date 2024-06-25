@@ -8,10 +8,30 @@
 
 package com.osiris.autoplug.client.console;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Scanner;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
@@ -29,25 +49,12 @@ import com.osiris.autoplug.client.tasks.updater.plugins.TaskPluginsUpdater;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.tasks.updater.self.TaskSelfUpdater;
 import com.osiris.autoplug.client.tasks.updater.server.TaskServerUpdater;
-import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.jlib.logger.AL;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
 
 /**
  * Listens for input started with .
@@ -292,56 +299,12 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    try {
-                        Main.sshServerSetup.stop();
-                        Main.sshThread.join();
-                        return true;
-                    } catch (Exception e1) {
-                        AL.error("Failed to stop SSH Server!", e1);
-                    }
-                    return false;
+                    return Main.SSHManager.stop();
                 } else if (command.equals(".ssh start")) {
-                    SSHConfig sshConfig = new SSHConfig();
-                    boolean ssh_enabled = sshConfig.enabled.asBoolean();
-                    if (ssh_enabled) {
-                        Main.sshServerSetup = new SSHServerSetup();
-                        Main.sshThread = new Thread(() -> {
-                            try {
-                                Main.sshServerSetup.start();
-                            } catch (Exception e1) {
-                                AL.error("Failed to start SSH-Server!", e1);
-                            }
-                        });
-                        Main.sshThread.start();
-                        return true;
-                    } else {
-                        AL.info("SSH Server is disabled in the config. To start it, set 'enabled' to true in the ssh.yml file.");
-                        return false;
-                    }
+                    return Main.SSHManager.start();
                 } else if (command.equals(".ssh restart")) {
-                    try {
-                        Main.sshServerSetup.stop();
-                        Main.sshThread.join();
-                    } catch (Exception e1) {
-                        AL.error("Failed to stop SSH Server!", e1);
-                    }
-                    SSHConfig sshConfig = new SSHConfig();
-                    boolean ssh_enabled = sshConfig.enabled.asBoolean();
-                    if (ssh_enabled) {
-                        Main.sshServerSetup = new SSHServerSetup();
-                        Main.sshThread = new Thread(() -> {
-                            try {
-                                Main.sshServerSetup.start();
-                            } catch (Exception e1) {
-                                AL.error("Failed to start SSH Server!", e1);
-                            }
-                        });
-                        Main.sshThread.start();
-                        return true;
-                    } else {
-                        AL.info("SSH Server is disabled in the config. To start it, set 'enabled' to true in the ssh.yml file.");
-                        return false;
-                    }
+                    Main.SSHManager.stop();
+                    return Main.SSHManager.start();
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
@@ -350,8 +313,10 @@ public final class Commands {
                 AL.warn("Error at execution of '" + command + "' command!", e);
                 return true;
             }
-        } else
+        } else {
+            AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
             return false;
+        }
     }
 
     public static List<String> findJavaInstallations() {

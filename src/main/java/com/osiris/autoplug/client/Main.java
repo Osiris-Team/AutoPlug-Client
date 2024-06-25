@@ -9,33 +9,50 @@
 package com.osiris.autoplug.client;
 
 
-import com.osiris.autoplug.client.configs.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.fusesource.jansi.AnsiConsole;
+
+import com.osiris.autoplug.client.configs.BackupConfig;
+import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.LoggerConfig;
+import com.osiris.autoplug.client.configs.ModsConfig;
+import com.osiris.autoplug.client.configs.PluginsConfig;
+import com.osiris.autoplug.client.configs.RestarterConfig;
+import com.osiris.autoplug.client.configs.SSHConfig;
+import com.osiris.autoplug.client.configs.SharedFilesConfig;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.Commands;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
-import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
+import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.ui.MainWindow;
-import com.osiris.autoplug.client.utils.*;
+import com.osiris.autoplug.client.utils.ConsoleOutputCapturer;
+import com.osiris.autoplug.client.utils.GD;
+import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
+import com.osiris.autoplug.client.utils.UpdateCheckerThread;
+import com.osiris.autoplug.client.utils.UtilsConfig;
+import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsLists;
+import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.MessageFormatter;
 import com.osiris.jprocesses2.ProcessUtils;
-import org.fusesource.jansi.AnsiConsole;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     // Do not init fields directly here, but instead in main() after logger was initialised
@@ -43,6 +60,10 @@ public class Main {
     public static ConMain CON;
     private static ConsoleOutputCapturer capturer;
     public static Thread sshThread;
+    public static SSHConfig sshConfig;
+    public static SSHManager SSHManager = new SSHManager();
+
+
     public static SSHServerSetup sshServerSetup = new SSHServerSetup();
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
@@ -237,7 +258,6 @@ public class Main {
             PluginsConfig pluginsConfig = new PluginsConfig();
             ModsConfig modsConfig = new ModsConfig();
 
-
             utilsConfig.printAllModulesToDebugExceptServerKey(allModules, generalConfig.server_key.asString());
             AL.info("Checked configs, took " + (System.currentTimeMillis() - now) + "ms");
 
@@ -284,19 +304,8 @@ public class Main {
             CON.open();
 
 
-            sshThread = new Thread(() -> {
-                try {
-                    sshServerSetup.start();
-                } catch (Exception e) {
-                    AL.warn("Failed to start SSH server", e);
-                }
-            });
-
-            boolean ssh_enabled = sshConfig.enabled.asBoolean();
-            if (ssh_enabled) {
-                AL.info("Starting SSH thread");
-                sshThread.start();
-            }
+            // Start the SSH server
+            SSHManager.start();
 
             /*
              * This is the console output capturer.
@@ -304,6 +313,7 @@ public class Main {
              * For now, it sends it to all running SSH clients, which is why is it is only enabled when SSH is enabled.
              * Remove this check if you want to use the capturer for more than just SSH.
              */
+            boolean ssh_enabled = sshConfig.enabled.asBoolean();
             if (ssh_enabled) {
                 capturer = new ConsoleOutputCapturer();
                 capturer.start();
@@ -313,9 +323,7 @@ public class Main {
                             String newOutput = capturer.getNewOutput();
                             if (!newOutput.isEmpty()) {
                                 // Other stuff that requires a clone of the console can go here
-                                if (ssh_enabled) {
-                                    SSHServerConsoleReceive.broadcastToAll(newOutput);
-                                }
+                                SSHServerConsoleReceive.broadcastToAll(newOutput);
                             }
                             Thread.sleep(500); // Update the output every _ ms | 500 to minimize CPU usage
                         } catch (InterruptedException e) {
@@ -357,6 +365,59 @@ public class Main {
 
         } catch (Exception e) {
             AL.error(e.getMessage(), e);
+        }
+    }
+
+    public static class SSHManager {
+        private Thread sshThread;
+        private SSHServerSetup sshServerSetup = new SSHServerSetup();
+
+        public SSHManager() {
+            createThread();
+        }
+
+        private void createThread() {
+            sshThread = new Thread(() -> {
+                try {
+                    sshServerSetup.start();
+                } catch (Exception e) {
+                    AL.warn("Failed to start SSH server", e);
+                }
+            });
+        }
+
+        public boolean start() {
+            try {
+                SSHConfig sshConfig = new SSHConfig();
+                if (sshConfig.enabled.asBoolean()) {
+                    if (sshThread.getState() == Thread.State.NEW) {
+                        sshThread.start();
+                    } else if (sshThread.getState() == Thread.State.TERMINATED) {
+                        createThread();
+                        sshThread.start();
+                    }
+                    return true;
+                }
+                return false;
+            } catch (Exception e) {
+                AL.error("Failed to start SSH Server!", e);
+                return false;
+            }
+        }
+
+        public boolean stop() {
+            try {
+                sshServerSetup.stop();
+                sshThread.join();
+                createThread();  // Recreate the thread after stopping
+                return true;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Proper handling of InterruptedException
+                AL.error("Thread was interrupted", e);
+            } catch (Exception e) {
+                AL.error("Failed to stop SSH Server!", e);
+            }
+            return false;
         }
     }
 
