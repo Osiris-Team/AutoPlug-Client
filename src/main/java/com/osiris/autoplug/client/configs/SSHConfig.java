@@ -10,7 +10,6 @@ package com.osiris.autoplug.client.configs;
 
 import java.io.IOException;
 
-import com.osiris.autoplug.client.Main;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
@@ -19,8 +18,12 @@ import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.autoplug.client.tasks.SSHManager;
+import com.osiris.jlib.logger.AL;
 
 public class SSHConfig extends MyYaml {
+
+    public static SSHManager sshManager;
     
     public YamlSection enabled;
     public YamlSection port;
@@ -34,8 +37,13 @@ public class SSHConfig extends MyYaml {
         super(System.getProperty("user.dir") + "/autoplug/ssh.yml");
 
         addSingletonConfigFileEventListener(e -> {
-            Main.SSHManager.stop();
-            Main.SSHManager.start();
+            try {
+                SSHManager sshManager = SSHManager.getInstance(this);
+                sshManager.stop();
+                sshManager.start();
+            } catch (IOException ex) {
+                AL.warn("Failed to start SSHManager!", ex);
+            }
         });
         
 
@@ -54,8 +62,9 @@ public class SSHConfig extends MyYaml {
                 "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC",
                 " ",
                 "#######################################################################################################################",
+                "Uses apache sshd 2.13.0 internally, make sure it doesn't contain vulnerabilities before using here: https://mvnrepository.com/artifact/org.apache.sshd/sshd-core",
                 "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
-        
+
         enabled = put(name, "enabled").setDefValues("false")
             .setComments(
                 "Enables a SSH console for remote access to AutoPlug.",

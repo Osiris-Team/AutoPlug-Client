@@ -31,11 +31,13 @@ import org.jetbrains.annotations.NotNull;
 
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
+import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
@@ -61,6 +63,10 @@ import com.osiris.jlib.logger.AL;
  * List the server with .help
  */
 public final class Commands {
+    
+    
+    public static SSHManager sshManager;
+
 
     /**
      * Returns true if the provided String is a AutoPlug command.
@@ -86,6 +92,8 @@ public final class Commands {
 
         if (first.equals(".")) {
             try {
+                SSHConfig sshConfig = new SSHConfig();
+                SSHManager sshManager = SSHManager.getInstance(sshConfig);
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
@@ -299,12 +307,15 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    return Main.SSHManager.stop();
+                    sshManager.stop();
+                    return true;
                 } else if (command.equals(".ssh start")) {
-                    return Main.SSHManager.start();
+                    sshManager.start();
+                    return true;
                 } else if (command.equals(".ssh restart")) {
-                    Main.SSHManager.stop();
-                    return Main.SSHManager.start();
+                    sshManager.stop();
+                    sshManager.start();
+                    return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;

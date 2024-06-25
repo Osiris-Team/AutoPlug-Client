@@ -46,8 +46,7 @@ public class SSHServerSetup {
             sshd.start();
             AL.info("SSH server started on port " + port + " with auth method: " + authMethod);
         } catch (Exception e) {
-            AL.error("Failed to start SSH server: " + e.getMessage(), e);
-            stop();
+            AL.warn("Failed to start SSH server!", e);
         }
     }
 
@@ -77,8 +76,6 @@ public class SSHServerSetup {
     public boolean isRunning() {
         boolean isNotNull = sshd != null;
         boolean isStarted = isNotNull && sshd.isStarted();
-        AL.info("SSHD is not null: " + isNotNull);
-        AL.info("SSHD is started: " + isStarted);
         return isNotNull && isStarted;
     }
     
