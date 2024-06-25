@@ -313,8 +313,7 @@ public final class Commands {
                 AL.warn("Error at execution of '" + command + "' command!", e);
                 return true;
             }
-        } else {
-            AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
+        } else { // Is not an AP command - should be sent to the server
             return false;
         }
     }
