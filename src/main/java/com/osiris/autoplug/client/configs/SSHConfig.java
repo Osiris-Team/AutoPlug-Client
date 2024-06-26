@@ -60,8 +60,7 @@ public class SSHConfig extends MyYaml {
                 "If there are any questions or you just want chat, join our Discord: https://discord.gg/GGNmtCC",
                 " ",
                 "#######################################################################################################################",
-                "Uses apache sshd 2.13.0 internally, make sure it doesn't contain vulnerabilities before using here: https://mvnrepository.com/artifact/org.apache.sshd/sshd-core",
-                "Note: Changes to this file probably require you to enter '.con reload' to have affect.");
+                "Uses apache sshd 2.13.0 internally, make sure it doesn't contain vulnerabilities before using here: https://mvnrepository.com/artifact/org.apache.sshd/sshd-core");
 
         enabled = put(name, "enabled").setDefValues("false")
             .setComments(
