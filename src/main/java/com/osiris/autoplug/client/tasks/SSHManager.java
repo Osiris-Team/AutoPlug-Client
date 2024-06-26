@@ -95,14 +95,23 @@ public class SSHManager {
     }
 
     public static synchronized boolean stop() {
-        AL.info("Stopping SSH Server...");
+        return stop(false);  // Calls the overloaded stop method with is_final set to false
+    }
+
+    public static synchronized boolean stop(boolean is_final) {
         if (!isRunning()) {
             AL.info("SSH Server is not running!");
             return true;
         }
         try {
-            capturer.stop();  // Stop the capturer
-            sshServerSetup.stop();
+            capturer.stop();
+            if (is_final) {
+                AL.info("Closing SSH Server...");
+                sshServerSetup.close();  // Use close instead of stop if final
+            } else {
+                AL.info("Stopping SSH Server...");
+                sshServerSetup.stop();
+            }
             sshThread.join();
             consoleCaptureThread.interrupt();
             consoleCaptureThread.join();

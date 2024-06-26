@@ -72,6 +72,16 @@ public class SSHServerSetup {
         }
     }
 
+    public static void close() {
+        if (sshd != null) {
+            sshd.close(false);
+            AL.info("SSH server closed.");
+            sshd = null;
+        } else {
+            AL.warn("Attempted to close SSH server, but it was already null.");
+        }
+    }
+
     public static void restart() throws Exception {
         stop();
         start();

@@ -15,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 
+import com.osiris.autoplug.client.tasks.SSHManager;
+
 public class SystemChecker {
 
 
@@ -69,6 +71,12 @@ public class SystemChecker {
                 if (Server.isRunning()) Server.stop();
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to stopping the server!", e);
+            }
+
+            try {
+                SSHManager.stop(true); // uses sshd.close() instead of sshd.stop()
+            } catch (Exception e) {
+                AL.warn("Error during shutdown, related to stopping the SSH-Server!", e);
             }
 
             try {
