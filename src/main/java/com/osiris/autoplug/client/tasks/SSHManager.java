@@ -93,11 +93,7 @@ public class SSHManager {
             return false;
         }
     }
-
-    public static synchronized boolean stop() {
-        return stop(false);  // Calls the overloaded stop method with is_final set to false
-    }
-
+    
     public static synchronized boolean stop(boolean is_final) {
         if (!isRunning()) {
             AL.info("SSH Server is not running!");

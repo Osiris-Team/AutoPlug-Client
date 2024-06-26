@@ -306,13 +306,13 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    SSHManager.stop();
+                    SSHManager.stop(false);
                     return true;
                 } else if (command.equals(".ssh start")) {
                     SSHManager.start();
                     return true;
                 } else if (command.equals(".ssh restart")) {
-                    SSHManager.stop();
+                    SSHManager.stop(false);
                     SSHManager.start();
                     return true;
                 } else if (command.equals(".testssh")) { // This may look like it does nothing, but it's actually so the SSHServerTest can send something and have an expected output.

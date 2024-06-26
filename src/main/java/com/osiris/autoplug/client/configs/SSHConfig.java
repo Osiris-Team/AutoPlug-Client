@@ -38,7 +38,7 @@ public class SSHConfig extends MyYaml {
 
         addSingletonConfigFileEventListener(e -> {
             try {
-                SSHManager.stop();
+                SSHManager.stop(false);
                 SSHManager.start();
             } catch (Exception ex) {
                 AL.warn("Failed to start SSHManager!", ex);
