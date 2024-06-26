@@ -93,7 +93,6 @@ public final class Commands {
         if (first.equals(".")) {
             try {
                 SSHConfig sshConfig = new SSHConfig();
-                SSHManager sshManager = SSHManager.getInstance(sshConfig);
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
@@ -307,14 +306,14 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    sshManager.stop();
+                    SSHManager.stop();
                     return true;
                 } else if (command.equals(".ssh start")) {
-                    sshManager.start();
+                    SSHManager.start();
                     return true;
                 } else if (command.equals(".ssh restart")) {
-                    sshManager.stop();
-                    sshManager.start();
+                    SSHManager.stop();
+                    SSHManager.start();
                     return true;
                 } else if (command.equals(".testssh")) { // This may look like it does nothing, but it's actually so the SSHServerTest can send something and have an expected output.
                     AL.info("OK");

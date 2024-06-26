@@ -17,33 +17,27 @@ import com.osiris.autoplug.client.utils.ConsoleOutputCapturer;
 import com.osiris.jlib.logger.AL;
 
 public class SSHManager {
-    private static SSHManager instance;
-    private Thread sshThread;
-    private Thread consoleCaptureThread;
-    private SSHServerSetup sshServerSetup;
-    private SSHConfig sshConfig;
-    private ConsoleOutputCapturer capturer;
+    private static Thread sshThread;
+    private static Thread consoleCaptureThread;
+    private static SSHServerSetup sshServerSetup;
+    private static SSHConfig sshConfig;
+    private static ConsoleOutputCapturer capturer;
 
-    private SSHManager(SSHConfig config) throws IOException {
-        this.sshConfig = config;
-        this.sshServerSetup = new SSHServerSetup();
-        this.capturer = new ConsoleOutputCapturer();
-        createThread();
-        createConsoleCaptureThread();
-    }
-
-    public static SSHManager getInstance(SSHConfig config) throws IOException {
-        if (instance == null) {
-            synchronized (SSHManager.class) {
-                if (instance == null) {
-                    instance = new SSHManager(config);
-                }
-            }
+    static {
+        try {
+            sshConfig = new SSHConfig();
+            sshServerSetup = new SSHServerSetup();
+            capturer = new ConsoleOutputCapturer();
+            createThread();
+            createConsoleCaptureThread();
+        } catch (IOException e) {
+            AL.warn("Failed to initialize SSHManager", e);
+        } catch (Exception e) {
+            AL.warn("Unexpected exception during SSHManager initialization", e);
         }
-        return instance;
     }
 
-    private void createThread() throws IOException {
+    private static void createThread() throws IOException {
         sshThread = new Thread(() -> {
             try {
                 sshServerSetup.start();
@@ -55,7 +49,7 @@ public class SSHManager {
         });
     }
 
-    private void createConsoleCaptureThread() {
+    private static void createConsoleCaptureThread() {
         consoleCaptureThread = new Thread(() -> {
             capturer.start();
             while (!Thread.currentThread().isInterrupted()) {
@@ -72,7 +66,7 @@ public class SSHManager {
         });
     }
 
-    synchronized public boolean start() {
+    public static synchronized boolean start() {
         AL.info("Starting SSH Server...");
         if (isRunning()) {
             AL.info("SSH Server is already running!");
@@ -100,7 +94,7 @@ public class SSHManager {
         }
     }
 
-    synchronized public boolean stop() {
+    public static synchronized boolean stop() {
         AL.info("Stopping SSH Server...");
         if (!isRunning()) {
             AL.info("SSH Server is not running!");
@@ -122,8 +116,7 @@ public class SSHManager {
         return false;
     }
 
-    public boolean isRunning() {
+    public static boolean isRunning() {
         return sshServerSetup.isRunning();
     }
 }
-
