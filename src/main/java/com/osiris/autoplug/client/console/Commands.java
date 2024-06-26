@@ -316,6 +316,9 @@ public final class Commands {
                     sshManager.stop();
                     sshManager.start();
                     return true;
+                } else if (command.equals(".testssh")) { // This may look like it does nothing, but it's actually so the SSHServerTest can send something and have an expected output.
+                    AL.info("OK");
+                    return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
