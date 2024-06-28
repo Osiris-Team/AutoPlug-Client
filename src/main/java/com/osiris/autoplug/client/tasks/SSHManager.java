@@ -28,7 +28,7 @@ public class SSHManager {
             sshConfig = new SSHConfig();
             sshServerSetup = new SSHServerSetup();
             capturer = new ConsoleOutputCapturer();
-            createThread();
+            createSSHThread();
             createConsoleCaptureThread();
         } catch (IOException e) {
             AL.warn("Failed to initialize SSHManager", e);
@@ -37,7 +37,7 @@ public class SSHManager {
         }
     }
 
-    private static void createThread() throws IOException {
+    private static void createSSHThread() {
         sshThread = new Thread(() -> {
             try {
                 sshServerSetup.start();
@@ -66,26 +66,19 @@ public class SSHManager {
         });
     }
 
-    public static synchronized boolean start() {
-        AL.info("Starting SSH Server...");
+    public static synchronized boolean start(boolean force) {
         if (isRunning()) {
             AL.info("SSH Server is already running!");
             return true;
         }
         try {
-            if (sshConfig.enabled.asBoolean()) {
-                if (sshThread.getState() == Thread.State.NEW) {
-                    sshThread.start();
-                    consoleCaptureThread.start();
-                } else if (sshThread.getState() == Thread.State.TERMINATED) {
-                    createThread();
-                    createConsoleCaptureThread();
-                    sshThread.start();
-                    consoleCaptureThread.start();
-                }
+            if (sshConfig.enabled.asBoolean() || force) {
+                createSSHThread();
+                createConsoleCaptureThread();
+                sshThread.start();
+                consoleCaptureThread.start();
                 return true;
             } else {
-                AL.info("SSH Server is disabled in the config!");
                 return false;
             }
         } catch (Exception e) {
@@ -94,20 +87,14 @@ public class SSHManager {
         }
     }
     
-    public static synchronized boolean stop(boolean is_final) {
+    public static synchronized boolean stop() {
         if (!isRunning()) {
             AL.info("SSH Server is not running!");
             return true;
         }
         try {
             capturer.stop();
-            if (is_final) {
-                AL.info("Closing SSH Server...");
-                sshServerSetup.close();  // Use close instead of stop if final
-            } else {
-                AL.info("Stopping SSH Server...");
-                sshServerSetup.stop();
-            }
+            sshServerSetup.stop();
             sshThread.join();
             consoleCaptureThread.interrupt();
             consoleCaptureThread.join();

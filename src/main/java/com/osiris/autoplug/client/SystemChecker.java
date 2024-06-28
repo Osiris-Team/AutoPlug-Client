@@ -74,7 +74,7 @@ public class SystemChecker {
             }
 
             try {
-                SSHManager.stop(true); // uses sshd.close() instead of sshd.stop()
+                SSHManager.stop();
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to stopping the SSH-Server!", e);
             }

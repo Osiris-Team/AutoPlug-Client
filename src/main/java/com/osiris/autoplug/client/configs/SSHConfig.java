@@ -38,8 +38,8 @@ public class SSHConfig extends MyYaml {
 
         addSingletonConfigFileEventListener(e -> {
             try {
-                SSHManager.stop(false);
-                SSHManager.start();
+                SSHManager.stop();
+                SSHManager.start(false);
             } catch (Exception ex) {
                 AL.warn("Failed to start SSHManager!", ex);
             }
@@ -91,7 +91,7 @@ public class SSHConfig extends MyYaml {
                 "The genereated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a ____.pub file, which contains the public key.");
         
-        server_private_key = put(name, "server-private-key").setDefValues("./autoplug/key.pem")
+        server_private_key = put(name, "server-private-key")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
                 "The file must be in the OpenSSH format.",
@@ -124,7 +124,7 @@ public class SSHConfig extends MyYaml {
         // Validate 'port' field
         try {
             int portValue = Integer.parseInt(port.asString());
-            if (portValue < 1 || portValue > 65535) {
+            if (enabledValue.equals("true") && portValue < 1 || portValue > 65535) {
                 int correction = Integer.parseInt(port.getDefValue().asString());
                 AL.warn("Config error -> " + port.getKeys() + " must be between 1 and 65535. Applied default!");
                 port.setValues(String.valueOf(correction));
@@ -137,7 +137,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'auth_method' field
         String authMethodValue = auth_method.asString();
-        if (!authMethodValue.equals("user-pass-only") && !authMethodValue.equals("key-only") && !authMethodValue.equals("user-pass-key")) {
+        if (enabledValue.equals("true") && !authMethodValue.equals("user-pass-only") && !authMethodValue.equals("key-only") && !authMethodValue.equals("user-pass-key")) {
             String correction = auth_method.getDefValue().asString();
             AL.warn("Config error -> " + auth_method.getKeys() + " must be: user-pass-only, key-only, or user-pass-key. Applied default!");
             auth_method.setValues(correction);
@@ -145,7 +145,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'allowed_keys_path' field
         String allowedKeysPathValue = allowed_keys_path.asString();
-        if (allowedKeysPathValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && allowedKeysPathValue.isBlank() && !authMethodValue.equals("key-only")) {
             String correction = allowed_keys_path.getDefValue().asString();
             AL.warn("Config error -> " + allowed_keys_path.getKeys() + " must not be blank. Applied default!");
             allowed_keys_path.setValues(correction);
@@ -153,7 +153,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'server_private_key' field
         String serverPrivateKeyValue = server_private_key.asString();
-        if (serverPrivateKeyValue.isBlank() && !authMethodValue.equals("user-pass-only")) {
+        if (enabledValue.equals("true") && serverPrivateKeyValue.isBlank() && !authMethodValue.equals("user-pass-only")) {
             String correction = server_private_key.getDefValue().asString();
             AL.warn("Config error -> " + server_private_key.getKeys() + " must not be blank. Applied default!");
             server_private_key.setValues(correction);
@@ -161,7 +161,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'username' field
         String usernameValue = username.asString();
-        if (usernameValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && usernameValue.isBlank() && !authMethodValue.equals("key-only")) {
             String correction = username.getDefValue().asString();
             AL.warn("Config error -> " + username.getKeys() + " must not be blank. Applied default!");
             username.setValues(correction);
@@ -169,7 +169,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'password' field
         String passwordValue = password.asString();
-        if (passwordValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && passwordValue.isBlank() && !authMethodValue.equals("key-only")) {
             String correction = password.getDefValue().asString();
             AL.warn("Config error -> " + password.getKeys() + " must not be blank. Applied default!");
             password.setValues(correction);

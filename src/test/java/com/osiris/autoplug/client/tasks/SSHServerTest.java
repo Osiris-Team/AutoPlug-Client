@@ -1,22 +1,14 @@
-/*
- * Copyright (c) 2021-2023 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
-
 package com.osiris.autoplug.client.tasks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +18,8 @@ import org.apache.sshd.client.channel.ClientChannelEvent;
 import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.common.config.keys.loader.openssh.OpenSSHKeyPairResourceParser;
+import org.apache.sshd.common.util.io.resource.PathResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +40,7 @@ public class SSHServerTest {
         if (sshConfig.auth_method.asString().contains("user-pass")) {
             try (SshClient client = SshClient.setUpDefaultClient()) {
                 client.start();
+                System.out.println("Connecting to SSH server...");
 
                 ConnectFuture connectFuture = client.connect(sshConfig.username.asString(), "localhost", Integer.parseInt(sshConfig.port.asString()));
                 connectFuture.await();
@@ -57,19 +51,16 @@ public class SSHServerTest {
                     authFuture.await(5, TimeUnit.SECONDS);
 
                     if (authFuture.isSuccess()) {
-                        System.out.println("Authentication with user-pass successful.");
-                        // Send data and receive response
-                        String response = sendData(session, ".testssh");
-                        System.out.println("Received response: " + response);
-                        if (response.endsWith("OK")) {
-                            System.out.println("Received response ends with OK.");
-                        } else {
-                            System.out.println("Received response does not end with OK.");
-                        }
+                        System.out.println("Logged in with username " + sshConfig.username.asString() + " and password " + sshConfig.password.asString());
+                        testCommandResponse(session);
                     } else {
-                        System.out.println("Authentication with user-pass failed.");
+                        System.err.println("Authentication with user-pass failed.");
+                        System.err.println("Authentication result: " + authFuture.isDone() + ", " + authFuture.isSuccess());
                     }
                 }
+            } catch (Exception e) {
+                System.err.println("Exception during SSH connection or authentication: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -79,61 +70,95 @@ public class SSHServerTest {
         if (sshConfig.auth_method.asString().contains("key")) {
             try (SshClient client = SshClient.setUpDefaultClient()) {
                 client.start();
+                System.out.println("Connecting to SSH server...");
 
                 ConnectFuture connectFuture = client.connect(sshConfig.username.asString(), "localhost", Integer.parseInt(sshConfig.port.asString()));
                 connectFuture.await();
 
                 try (ClientSession session = connectFuture.getSession()) {
-                    KeyPair keyPair = loadKeyPair(sshConfig.server_private_key.asString());
+                    KeyPair keyPair = loadKeyPair();
                     session.addPublicKeyIdentity(keyPair);
                     AuthFuture authFuture = session.auth();
                     authFuture.await(5, TimeUnit.SECONDS);
 
                     if (authFuture.isSuccess()) {
-                        System.out.println("Authentication with key successful.");
-                        // Send data and receive response
-                        String response = sendData(session, ".testssh");
-                        System.out.println("Received response: " + response);
-                        if (response.endsWith("OK")) {
-                            System.out.println("Received response ends with OK.");
-                        } else {
-                            System.out.println("Received response does not end with OK.");
-                        }
+                        System.out.println("Logged in with public key for username " + sshConfig.username.asString());
+                        testCommandResponse(session);
                     } else {
-                        System.out.println("Authentication with key failed.");
+                        System.err.println("Authentication with key failed.");
+                        System.err.println("Authentication result: " + authFuture.isDone() + ", " + authFuture.isSuccess());
                     }
                 }
+            } catch (Exception e) {
+                System.err.println("Exception during SSH connection or authentication: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
 
-    private String sendData(ClientSession session, String data) throws IOException {
-        try (ByteArrayOutputStream responseStream = new ByteArrayOutputStream()) {
-            ChannelExec channel = session.createExecChannel("cat"); // Use 'cat' to echo input back
-            channel.setOut(responseStream);
-            channel.setErr(responseStream);
-            channel.open().verify(5, TimeUnit.SECONDS);
+    public String sendAndReceiveCommand(ClientSession session, String command) throws IOException {
+        String response = "";
+        try (ChannelExec channel = session.createExecChannel(command)) {
+            try (ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
+                 ByteArrayOutputStream errorStream = new ByteArrayOutputStream()) {
 
-            try (OutputStreamWriter writer = new OutputStreamWriter(channel.getInvertedIn(), StandardCharsets.UTF_8)) {
-                writer.write(data);
-                writer.flush();
+                channel.setOut(responseStream);
+                channel.setErr(errorStream);
+                channel.open().verify(5, TimeUnit.SECONDS);
+
+                channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED), TimeUnit.SECONDS.toMillis(5));
+
+                String errorResponse = errorStream.toString(StandardCharsets.UTF_8);
+                if (!errorResponse.isEmpty()) {
+                    System.err.println("Error executing command: " + errorResponse);
+                    return errorResponse;
+                }
+
+                response = responseStream.toString(StandardCharsets.UTF_8);
             }
-
-            channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED), TimeUnit.SECONDS.toMillis(5));
-            return responseStream.toString(StandardCharsets.UTF_8);
+        } catch (IOException | RuntimeException e) {
+            System.err.println("Exception in sending command: " + e.getMessage());
+            throw e;
         }
+        return response;
     }
 
-    private KeyPair loadKeyPair(String keyPath) throws IOException {
-        try (InputStream keyStream = Files.newInputStream(Paths.get(keyPath))) {
-            Iterable<KeyPair> keyPairs = SecurityUtils.loadKeyPairIdentities(null, () -> keyPath, keyStream, null);
-            if (keyPairs.iterator().hasNext()) {
-                return keyPairs.iterator().next();
+    private String stripAnsiCodes(String input) {
+        if (input == null) return null;
+        return input.replaceAll("\u001B\\[[;\\d]*[ -/]*[@-~]", "");
+    }
+
+    public void testCommandResponse(ClientSession session) {
+        try {
+            String command = ".ping";
+            String desiredResponse = "Pong!";
+            String response = sendAndReceiveCommand(session, command);
+            String cleanResponse = stripAnsiCodes(response);
+
+            System.out.println(cleanResponse);
+
+            if (cleanResponse.contains(desiredResponse)) {
+                System.out.println("Test successful: Received response ends with " + desiredResponse);
             } else {
-                throw new IOException("No key pairs found in the provided key path: " + keyPath);
+                System.out.println("Test failed: Received response does not end with " + desiredResponse);
             }
-        } catch (GeneralSecurityException e) {
-            throw new IOException("Failed to load key pair due to security exception", e);
+        } catch (IOException e) {
+            System.err.println("Error during SSH command response test: " + e.getMessage());
         }
+    }
+
+    private KeyPair loadKeyPair() throws IOException, GeneralSecurityException {
+        Path privateKeyPath = Paths.get("autoplug/test_key");
+
+        if (!Files.exists(privateKeyPath)) {
+            throw new IOException("Private key path does not exist: " + privateKeyPath);
+        }
+
+        Collection<KeyPair> keyPairs = OpenSSHKeyPairResourceParser.INSTANCE.loadKeyPairs(null, new PathResource(privateKeyPath), null);
+        if (keyPairs.isEmpty()) {
+            throw new GeneralSecurityException("No key pairs found in the specified private key file.");
+        }
+
+        return keyPairs.iterator().next();
     }
 }

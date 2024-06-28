@@ -96,6 +96,7 @@ public final class Commands {
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".ping | Responds with 'Pong!' as a way to test if AutoPlug is running.");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
                     AL.info(".con reload | Closes and reconnects all connections (.cr)");
@@ -306,17 +307,17 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    SSHManager.stop(false);
+                    SSHManager.stop();
                     return true;
                 } else if (command.equals(".ssh start")) {
-                    SSHManager.start();
+                    SSHManager.start(true);
                     return true;
                 } else if (command.equals(".ssh restart")) {
-                    SSHManager.stop(false);
-                    SSHManager.start();
+                    SSHManager.stop();
+                    SSHManager.start(true);
                     return true;
-                } else if (command.equals(".testssh")) { // This may look like it does nothing, but it's actually so the SSHServerTest can send something and have an expected output.
-                    AL.info("OK");
+                } else if (command.equals(".ping")) { // This is used for the SSH test, as well as for users to test if AutoPlug is running.
+                    AL.info("Pong!");
                     return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");

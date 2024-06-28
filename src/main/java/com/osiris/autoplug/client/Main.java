@@ -293,7 +293,7 @@ public class Main {
                 AL.warn(e);
             }
             
-            SSHManager.start();
+            SSHManager.start(false);
 
             CON = new ConMain();
             CON.open();

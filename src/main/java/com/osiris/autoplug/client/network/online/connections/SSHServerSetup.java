@@ -58,27 +58,9 @@ public class SSHServerSetup {
 
     public static void stop() throws IOException {
         if (sshd != null) {
-            try {
-                sshd.stop(true); // Gracefully stop the server
-                AL.info("SSH server stopped.");
-            } catch (IOException e) {
-                AL.warn("Failed to stop SSH server! Details: " + e.getMessage(), e);
-                throw e;
-            } finally {
-                sshd = null; // Ensure sshd is set to null after stopping
-            }
-        } else {
-            AL.warn("Attempted to stop SSH server, but it was already null.");
-        }
-    }
-
-    public static void close() {
-        if (sshd != null) {
             sshd.close(false);
             AL.info("SSH server closed.");
             sshd = null;
-        } else {
-            AL.warn("Attempted to close SSH server, but it was already null.");
         }
     }
 
