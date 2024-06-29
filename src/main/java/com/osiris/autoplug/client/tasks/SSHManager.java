@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.tasks;
 
 import java.io.IOException;
 
+import org.jetbrains.annotations.Nullable;
 import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
@@ -17,25 +18,14 @@ import com.osiris.autoplug.client.utils.ConsoleOutputCapturer;
 import com.osiris.jlib.logger.AL;
 
 public class SSHManager {
+    @Nullable
     private static Thread sshThread;
+    @Nullable
     private static Thread consoleCaptureThread;
+    @Nullable
     private static SSHServerSetup sshServerSetup;
-    private static SSHConfig sshConfig;
+    @Nullable
     private static ConsoleOutputCapturer capturer;
-
-    static {
-        try {
-            sshConfig = new SSHConfig();
-            sshServerSetup = new SSHServerSetup();
-            capturer = new ConsoleOutputCapturer();
-            createSSHThread();
-            createConsoleCaptureThread();
-        } catch (IOException e) {
-            AL.warn("Failed to initialize SSHManager", e);
-        } catch (Exception e) {
-            AL.warn("Unexpected exception during SSHManager initialization", e);
-        }
-    }
 
     private static void createSSHThread() {
         sshThread = new Thread(() -> {
@@ -67,6 +57,16 @@ public class SSHManager {
     }
 
     public static synchronized boolean start(boolean force) {
+        SSHConfig sshConfig;
+        try {
+            sshConfig = new SSHConfig();
+            sshServerSetup = new SSHServerSetup();
+            capturer = new ConsoleOutputCapturer();
+        } catch (Exception e) {
+            AL.warn("Failed to initialize components", e);
+            return false;
+        }
+
         if (isRunning()) {
             AL.info("SSH Server is already running!");
             return true;
@@ -109,6 +109,6 @@ public class SSHManager {
     }
 
     public static boolean isRunning() {
-        return sshServerSetup.isRunning();
+        return sshServerSetup != null && sshServerSetup.isRunning();
     }
 }

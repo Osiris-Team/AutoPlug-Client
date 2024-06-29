@@ -72,13 +72,6 @@ public class SystemChecker {
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to stopping the server!", e);
             }
-
-            try {
-                SSHManager.stop();
-            } catch (Exception e) {
-                AL.warn("Error during shutdown, related to stopping the SSH-Server!", e);
-            }
-
             try {
                 if (AL.isStarted) {
                     AL.info("See you soon!");
