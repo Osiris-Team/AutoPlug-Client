@@ -141,10 +141,6 @@ dependencies {
     // Before updating this dependency, make sure there are no vulnerabilities
     // https://mvnrepository.com/artifact/org.apache.sshd/sshd-core
     implementation 'org.apache.sshd:sshd-core:2.13.0' // 2.13.0 has NO vulnerabilities
-
-    // SSH Testing
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
 }
 
 // Responsible for running all tests before building.
