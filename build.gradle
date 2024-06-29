@@ -140,7 +140,7 @@ dependencies {
     // For SSH
     // Before updating this dependency, make sure there are no vulnerabilities
     // https://mvnrepository.com/artifact/org.apache.sshd/sshd-core
-    implementation 'org.apache.sshd:sshd-core:2.13.0' // 2.13.0 has NO vulnerabilities
+    implementation 'org.apache.sshd:sshd-core:2.13.0'
 }
 
 // Responsible for running all tests before building.
