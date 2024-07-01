@@ -11,6 +11,7 @@ package com.osiris.autoplug.client.tasks;
 import java.io.IOException;
 
 import org.jetbrains.annotations.Nullable;
+
 import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
@@ -57,6 +58,11 @@ public class SSHManager {
     }
 
     public static synchronized boolean start(boolean force) {
+        if (isRunning()) {
+            AL.info("SSH Server is already running!");
+            return true;
+        }
+        
         SSHConfig sshConfig;
         try {
             sshConfig = new SSHConfig();
@@ -67,10 +73,6 @@ public class SSHManager {
             return false;
         }
 
-        if (isRunning()) {
-            AL.info("SSH Server is already running!");
-            return true;
-        }
         try {
             if (sshConfig.enabled.asBoolean() || force) {
                 createSSHThread();
