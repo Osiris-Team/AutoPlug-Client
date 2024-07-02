@@ -14,7 +14,7 @@ plugins {
 // Important for AutoPlugs Self-Updater!
 // Also take a look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
 group = 'com.osiris.autoplug.client'
-version = '8.2.0'
+version = '8.2.1'
 description = 'Responsible for all the main actions.'
 
 java {
