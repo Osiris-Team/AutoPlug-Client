@@ -15,7 +15,10 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 
+import com.osiris.autoplug.client.tasks.SSHManager;
+
 public class SystemChecker {
+
 
     public void checkReadWritePermissions() throws Exception {
         try {
@@ -69,7 +72,6 @@ public class SystemChecker {
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to stopping the server!", e);
             }
-
             try {
                 if (AL.isStarted) {
                     AL.info("See you soon!");
@@ -80,6 +82,7 @@ public class SystemChecker {
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to the AutoPlug-Logger!", e);
             }
+            
         }, "Shutdown-Thread"));
     }
 }

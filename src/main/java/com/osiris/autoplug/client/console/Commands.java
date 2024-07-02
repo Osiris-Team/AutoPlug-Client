@@ -8,13 +8,36 @@
 
 package com.osiris.autoplug.client.console;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Scanner;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
+import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConSendPrivateDetails;
 import com.osiris.autoplug.client.network.online.connections.ConSendPublicDetails;
 import com.osiris.autoplug.client.tasks.BeforeServerStartupTasks;
+import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.autoplug.client.tasks.backup.TaskBackup;
 import com.osiris.autoplug.client.tasks.updater.java.TaskJavaUpdater;
 import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
@@ -34,23 +57,16 @@ import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.jlib.logger.AL;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
 
 /**
  * Listens for input started with .
  * List the server with .help
  */
 public final class Commands {
+    
+    
+    public static SSHManager sshManager;
+
 
     /**
      * Returns true if the provided String is a AutoPlug command.
@@ -59,11 +75,16 @@ public final class Commands {
      */
     public static boolean execute(@NotNull String command) {
 
+
+
         String first = "";
         try {
             Objects.requireNonNull(command);
             command = command.trim();
             first = Character.toString(command.charAt(0));
+        } catch (StringIndexOutOfBoundsException e) {
+            AL.info("Enter .help for all available commands!");
+            return false;
         } catch (Exception e) {
             AL.warn("Failed to read command '" + command + "'! Enter .help for all available commands!", e);
             return false;
@@ -71,9 +92,11 @@ public final class Commands {
 
         if (first.equals(".")) {
             try {
+                SSHConfig sshConfig = new SSHConfig();
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".ping | Responds with 'Pong!' as a way to test if AutoPlug is running.");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
                     AL.info(".con reload | Closes and reconnects all connections (.cr)");
@@ -105,6 +128,10 @@ public final class Commands {
                     AL.info(".check server | Checks for server updates (.cs)");
                     AL.info(".check plugins | Checks for plugins updates (.cp)");
                     AL.info(".check mods | Checks for mods updates (.cm)");
+                    AL.info("");
+                    AL.info(".ssh stop | Stops the SSH-Server");
+                    AL.info(".ssh start | Starts the SSH-Server");
+                    AL.info(".ssh restart | Restarts the SSH-Server");
 
                     AL.info("");
                     return true;
@@ -279,6 +306,19 @@ public final class Commands {
                     backupTask.start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
+                } else if (command.equals(".ssh stop")) {
+                    SSHManager.stop();
+                    return true;
+                } else if (command.equals(".ssh start")) {
+                    SSHManager.start(true);
+                    return true;
+                } else if (command.equals(".ssh restart")) {
+                    SSHManager.stop();
+                    SSHManager.start(true);
+                    return true;
+                } else if (command.equals(".ping")) { // This is used for the SSH test, as well as for users to test if AutoPlug is running.
+                    AL.info("Pong!");
+                    return true;
                 } else {
                     AL.info("Command '" + command + "' not found! Enter .help or .h for all available commands!");
                     return true;
@@ -287,8 +327,9 @@ public final class Commands {
                 AL.warn("Error at execution of '" + command + "' command!", e);
                 return true;
             }
-        } else
+        } else { // Is not an AP command - should be sent to the server
             return false;
+        }
     }
 
     public static List<String> findJavaInstallations() {

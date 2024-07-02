@@ -136,6 +136,11 @@ dependencies {
 
     // For Server Updater
     implementation 'me.hsgamer:mc-server-updater-lib:3.4.0'
+
+    // For SSH
+    // Before updating this dependency, make sure there are no vulnerabilities
+    // https://mvnrepository.com/artifact/org.apache.sshd/sshd-core
+    implementation 'org.apache.sshd:sshd-core:2.13.0'
 }
 
 // Responsible for running all tests before building.

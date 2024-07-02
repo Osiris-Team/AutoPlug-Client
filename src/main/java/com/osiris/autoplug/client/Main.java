@@ -9,34 +9,55 @@
 package com.osiris.autoplug.client;
 
 
-import com.osiris.autoplug.client.configs.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.fusesource.jansi.AnsiConsole;
+
+import com.osiris.autoplug.client.configs.BackupConfig;
+import com.osiris.autoplug.client.configs.GeneralConfig;
+import com.osiris.autoplug.client.configs.LoggerConfig;
+import com.osiris.autoplug.client.configs.ModsConfig;
+import com.osiris.autoplug.client.configs.PluginsConfig;
+import com.osiris.autoplug.client.configs.RestarterConfig;
+import com.osiris.autoplug.client.configs.SSHConfig;
+import com.osiris.autoplug.client.configs.SharedFilesConfig;
+import com.osiris.autoplug.client.configs.UpdaterConfig;
+import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.console.Commands;
 import com.osiris.autoplug.client.console.ThreadUserInput;
 import com.osiris.autoplug.client.managers.SyncFilesManager;
 import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
+import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.autoplug.client.ui.MainWindow;
-import com.osiris.autoplug.client.utils.*;
+import com.osiris.autoplug.client.utils.GD;
+import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
+import com.osiris.autoplug.client.utils.UpdateCheckerThread;
+import com.osiris.autoplug.client.utils.UtilsConfig;
+import com.osiris.autoplug.client.utils.UtilsJar;
+import com.osiris.autoplug.client.utils.UtilsLists;
+import com.osiris.autoplug.client.utils.UtilsNative;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jlib.logger.MessageFormatter;
 import com.osiris.jprocesses2.ProcessUtils;
-import org.fusesource.jansi.AnsiConsole;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 
 public class Main {
     // Do not init fields directly here, but instead in main() after logger was initialised
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON;
+    public static SSHManager sshManager;
+
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
     /**
@@ -46,6 +67,7 @@ public class Main {
      *              - test: enables test mode <br>
      */
     public static void main(String[] _args) {
+
         List<String> args = new ArrayList<>();
         if (_args != null)
             Collections.addAll(args, _args);
@@ -222,6 +244,10 @@ public class Main {
             utilsConfig.checkForDeprecatedSections(sharedFilesConfig);
             allModules.addAll(sharedFilesConfig.getAllInEdit());
 
+            SSHConfig sshConfig = new SSHConfig();
+            utilsConfig.checkForDeprecatedSections(sshConfig);
+            allModules.addAll(sshConfig.getAllInEdit());
+
             PluginsConfig pluginsConfig = new PluginsConfig();
             ModsConfig modsConfig = new ModsConfig();
 
@@ -266,6 +292,8 @@ public class Main {
             } catch (Exception e) {
                 AL.warn(e);
             }
+            
+            SSHManager.start(false);
 
             CON = new ConMain();
             CON.open();
@@ -304,5 +332,4 @@ public class Main {
             AL.error(e.getMessage(), e);
         }
     }
-
 }
