@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,15 +8,14 @@
 
 package com.osiris.autoplug.client.tasks;
 
-import java.io.IOException;
-
-import org.jetbrains.annotations.Nullable;
-
 import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.network.online.connections.SSHServerConsoleReceive;
 import com.osiris.autoplug.client.network.online.connections.SSHServerSetup;
 import com.osiris.autoplug.client.utils.ConsoleOutputCapturer;
 import com.osiris.jlib.logger.AL;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
 
 public class SSHManager {
     @Nullable
@@ -24,14 +23,12 @@ public class SSHManager {
     @Nullable
     private static Thread consoleCaptureThread;
     @Nullable
-    private static SSHServerSetup sshServerSetup;
-    @Nullable
     private static ConsoleOutputCapturer capturer;
 
     private static void createSSHThread() {
         sshThread = new Thread(() -> {
             try {
-                sshServerSetup.start();
+                SSHServerSetup.start();
             } catch (IOException e) {
                 AL.warn("IOException occurred while starting SSH server", e);
             } catch (Exception e) {
@@ -66,7 +63,6 @@ public class SSHManager {
         SSHConfig sshConfig;
         try {
             sshConfig = new SSHConfig();
-            sshServerSetup = new SSHServerSetup();
             capturer = new ConsoleOutputCapturer();
         } catch (Exception e) {
             AL.warn("Failed to initialize components", e);
@@ -96,7 +92,7 @@ public class SSHManager {
         }
         try {
             capturer.stop();
-            sshServerSetup.stop();
+            SSHServerSetup.stop();
             sshThread.join();
             consoleCaptureThread.interrupt();
             consoleCaptureThread.join();
@@ -111,6 +107,6 @@ public class SSHManager {
     }
 
     public static boolean isRunning() {
-        return sshServerSetup != null && sshServerSetup.isRunning();
+        return SSHServerSetup.isRunning();
     }
 }

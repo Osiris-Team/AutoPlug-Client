@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -9,17 +9,17 @@ package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.jlib.logger.AL;
-
 import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.command.CommandFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.server.channel.ChannelSession;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,8 +41,8 @@ public class SSHServerSetup {
 
         int port = sshConfig.port.asInt();
         String authMethod = sshConfig.auth_method.asString();
-        Path allowedKeysPath = Path.of(sshConfig.allowed_keys_path.asString());
-        Path serverPrivateKeyPath = Path.of(sshConfig.server_private_key.asString());
+        Path allowedKeysPath = new File(sshConfig.allowed_keys_path.asString()).toPath();
+        Path serverPrivateKeyPath = new File(sshConfig.server_private_key.asString()).toPath();
         String username = sshConfig.username.asString();
         String password = sshConfig.password.asString();
 

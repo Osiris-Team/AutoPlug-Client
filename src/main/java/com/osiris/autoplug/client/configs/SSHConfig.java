@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,22 +8,15 @@
 
 package com.osiris.autoplug.client.configs;
 
-import java.io.IOException;
-
 import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.NotLoadedException;
-import com.osiris.dyml.exceptions.YamlReaderException;
-import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
 
-public class SSHConfig extends MyYaml {
+import java.io.IOException;
 
-    public static SSHManager sshManager;
+public class SSHConfig extends MyYaml {
     
     public YamlSection enabled;
     public YamlSection port;
@@ -145,7 +138,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'allowed_keys_path' field
         String allowedKeysPathValue = allowed_keys_path.asString();
-        if (enabledValue.equals("true") && allowedKeysPathValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
             String correction = allowed_keys_path.getDefValue().asString();
             AL.warn("Config error -> " + allowed_keys_path.getKeys() + " must not be blank. Applied default!");
             allowed_keys_path.setValues(correction);
@@ -153,7 +146,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'server_private_key' field
         String serverPrivateKeyValue = server_private_key.asString();
-        if (enabledValue.equals("true") && serverPrivateKeyValue.isBlank() && !authMethodValue.equals("user-pass-only")) {
+        if (enabledValue.equals("true") && !authMethodValue.equals("user-pass-only")) {
             String correction = server_private_key.getDefValue().asString();
             AL.warn("Config error -> " + server_private_key.getKeys() + " must not be blank. Applied default!");
             server_private_key.setValues(correction);
@@ -161,7 +154,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'username' field
         String usernameValue = username.asString();
-        if (enabledValue.equals("true") && usernameValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
             String correction = username.getDefValue().asString();
             AL.warn("Config error -> " + username.getKeys() + " must not be blank. Applied default!");
             username.setValues(correction);
@@ -169,7 +162,7 @@ public class SSHConfig extends MyYaml {
 
         // Validate 'password' field
         String passwordValue = password.asString();
-        if (enabledValue.equals("true") && passwordValue.isBlank() && !authMethodValue.equals("key-only")) {
+        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
             String correction = password.getDefValue().asString();
             AL.warn("Config error -> " + password.getKeys() + " must not be blank. Applied default!");
             password.setValues(correction);

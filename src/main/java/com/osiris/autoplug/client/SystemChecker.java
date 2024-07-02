@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Osiris-Team.
+ * Copyright (c) 2021-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -8,14 +8,13 @@
 
 package com.osiris.autoplug.client;
 
+import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.jlib.logger.AL;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
-
-import com.osiris.autoplug.client.tasks.SSHManager;
 
 public class SystemChecker {
 
@@ -75,13 +74,19 @@ public class SystemChecker {
             try {
                 if (AL.isStarted) {
                     AL.info("See you soon!");
-                    new AL().stop();
+                    AL.stop();
                 } else {
                     System.out.println("See you soon!");
                 }
             } catch (Exception e) {
                 AL.warn("Error during shutdown, related to the AutoPlug-Logger!", e);
             }
+            try {
+                SSHManager.stop();
+            } catch (Exception e) {
+                AL.warn("Error during shutdown, related to stopping the server!", e);
+            }
+
             
         }, "Shutdown-Thread"));
     }
