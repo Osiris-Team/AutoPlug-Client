@@ -106,67 +106,6 @@ public class SSHConfig extends MyYaml {
 
     @Override
     public Yaml validateValues() {
-        // Validate 'enabled' field
-        String enabledValue = enabled.asString();
-        if (!enabledValue.equals("true") && !enabledValue.equals("false")) {
-            String correction = enabled.getDefValue().asString();
-            AL.warn("Config error -> " + enabled.getKeys() + " must be: true or false. Applied default!");
-            enabled.setValues(correction);
-        }
-
-        // Validate 'port' field
-        try {
-            int portValue = Integer.parseInt(port.asString());
-            if (enabledValue.equals("true") && portValue < 1 || portValue > 65535) {
-                int correction = Integer.parseInt(port.getDefValue().asString());
-                AL.warn("Config error -> " + port.getKeys() + " must be between 1 and 65535. Applied default!");
-                port.setValues(String.valueOf(correction));
-            }
-        } catch (NumberFormatException e) {
-            int correction = Integer.parseInt(port.getDefValue().asString());
-            AL.warn("Config error -> " + port.getKeys() + " must be a valid integer. Applied default!");
-            port.setValues(String.valueOf(correction));
-        }
-
-        // Validate 'auth_method' field
-        String authMethodValue = auth_method.asString();
-        if (enabledValue.equals("true") && !authMethodValue.equals("user-pass-only") && !authMethodValue.equals("key-only") && !authMethodValue.equals("user-pass-key")) {
-            String correction = auth_method.getDefValue().asString();
-            AL.warn("Config error -> " + auth_method.getKeys() + " must be: user-pass-only, key-only, or user-pass-key. Applied default!");
-            auth_method.setValues(correction);
-        }
-
-        // Validate 'allowed_keys_path' field
-        String allowedKeysPathValue = allowed_keys_path.asString();
-        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
-            String correction = allowed_keys_path.getDefValue().asString();
-            AL.warn("Config error -> " + allowed_keys_path.getKeys() + " must not be blank. Applied default!");
-            allowed_keys_path.setValues(correction);
-        }
-
-        // Validate 'server_private_key' field
-        String serverPrivateKeyValue = server_private_key.asString();
-        if (enabledValue.equals("true") && !authMethodValue.equals("user-pass-only")) {
-            String correction = server_private_key.getDefValue().asString();
-            AL.warn("Config error -> " + server_private_key.getKeys() + " must not be blank. Applied default!");
-            server_private_key.setValues(correction);
-        }
-
-        // Validate 'username' field
-        String usernameValue = username.asString();
-        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
-            String correction = username.getDefValue().asString();
-            AL.warn("Config error -> " + username.getKeys() + " must not be blank. Applied default!");
-            username.setValues(correction);
-        }
-
-        // Validate 'password' field
-        String passwordValue = password.asString();
-        if (enabledValue.equals("true") && !authMethodValue.equals("key-only")) {
-            String correction = password.getDefValue().asString();
-            AL.warn("Config error -> " + password.getKeys() + " must not be blank. Applied default!");
-            password.setValues(correction);
-        }
         return this;
     }
 }
