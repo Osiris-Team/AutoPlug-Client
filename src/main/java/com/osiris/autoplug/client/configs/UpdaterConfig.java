@@ -38,7 +38,7 @@ public class UpdaterConfig extends MyYaml {
     public YamlSection server_updater_profile;
     public YamlSection server_software;
     public YamlSection server_steamcmd_login;
-    public YamlSection server_version;
+    public YamlSection server_updater_version;
     public YamlSection server_build_id;
     public YamlSection server_skip_hash_check;
     public YamlSection server_github_repo_name;
@@ -154,7 +154,7 @@ public class UpdaterConfig extends MyYaml {
         server_steamcmd_login = put(name, "server-updater", "steam-cmd-login")
                 .setComments("Some games require you to be logged in. Add your username and password, separated by a space below (<username> <password>).",
                         "Note that SteamGuard must be disabled.");
-        server_version = put(name, "server-updater", "version").setComments(
+        server_updater_version = put(name, "server-updater", "version").setComments(
                 "If left empty, taken from general.yml, if also empty, taken from server jar.\n" +
                         "A list of supported versions can be found in the links below:\n" +
                         "- Minecraft versions: https://papermc.io/api/v2/projects/paper | https://papermc.io/api/v2/projects/waterfall | https://papermc.io/api/v2/projects/travertine | https://papermc.io/api/v2/projects/velocity | https://purpur.pl3x.net/downloads | https://fabricmc.net/use/installer\n" +
@@ -196,7 +196,7 @@ public class UpdaterConfig extends MyYaml {
         plugins_updater_profile = put(name, "plugins-updater", "profile").setDefValues("AUTOMATIC");
         plugins_updater_path = put(name, "plugins-updater", "path").setDefValues("./plugins");
         plugins_updater_version = put(name, "plugins-updater", "version").setComments("The Minecraft version to check and download plugins for.",
-                "If left empty, taken from general.yml, if also empty, taken from server jar.",
+                "If left empty, taken from server-updater.version above, if also empty, taken from general.yml, if also empty, taken from server jar.",
                 "Currently only relevant for Modrinth plugins.");
         plugins_updater_async = put(name, "plugins-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
@@ -216,7 +216,7 @@ public class UpdaterConfig extends MyYaml {
         mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
         mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
         mods_updater_version = put(name, "mods-updater", "version").setComments("The Minecraft version to check and download mods for.",
-                "If left empty, taken from general.yml, if also empty, taken from server jar.");
+                "If left empty, taken from server-updater.version above, if also empty, taken from general.yml, if also empty, taken from server jar.");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Osiris-Team.
+ * Copyright (c) 2022-2024 Osiris-Team.
  * All rights reserved.
  *
  * This software is copyrighted work, licensed under the terms
@@ -35,7 +35,7 @@ class TaskServerUpdaterTest {
         updaterConfig.server_updater.setValues("true");
         updaterConfig.server_updater_profile.setValues("AUTOMATIC");
         updaterConfig.server_software.setValues(serverSoftware);
-        updaterConfig.server_version.setValues(version);
+        updaterConfig.server_updater_version.setValues(version);
         updaterConfig.server_build_id.setValues("");
         updaterConfig.save();
         new TaskServerUpdater("ServerUpdater", maMan.manager)

@@ -299,6 +299,7 @@ public class TaskPluginsUpdater extends BThread {
         UpdaterConfig updaterConfig = new UpdaterConfig();
 
         String mcVersion = updaterConfig.plugins_updater_version.asString();
+        if (mcVersion == null) updaterConfig.server_updater_version.asString();
         if (mcVersion == null) mcVersion = Server.getMCVersion();
 
         for (MinecraftPlugin pl :

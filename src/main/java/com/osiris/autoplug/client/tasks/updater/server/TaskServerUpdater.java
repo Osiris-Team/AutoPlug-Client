@@ -59,7 +59,7 @@ public class TaskServerUpdater extends BThread {
         profile = updaterConfig.server_updater_profile.asString();
         serverSoftware = updaterConfig.server_software.asString();
 
-        serverVersion = updaterConfig.server_version.asString();
+        serverVersion = updaterConfig.server_updater_version.asString();
         if (serverVersion == null) serverVersion = new GeneralConfig().server_version.asString();
         if (serverVersion == null) serverVersion = new UtilsMinecraft().getInstalledVersion();
         if (serverVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());

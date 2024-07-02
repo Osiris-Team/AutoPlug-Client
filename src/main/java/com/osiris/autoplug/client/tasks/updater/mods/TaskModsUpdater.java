@@ -187,6 +187,7 @@ public class TaskModsUpdater extends BThread {
 
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
+        if (mcVersion == null) updaterConfig.server_updater_version.asString();
         if (mcVersion == null) mcVersion = Server.getMCVersion();
 
         ExecutorService executorService;
