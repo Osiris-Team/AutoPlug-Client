@@ -14,7 +14,7 @@ plugins {
 // Important for AutoPlugs Self-Updater!
 // Also take a look at the generateAutoplugProperties task where these properties get turned into the actual autoplug.properties file.
 group = 'com.osiris.autoplug.client'
-version = '8.2.1'
+version = '8.2.2'
 description = 'Responsible for all the main actions.'
 
 java {
@@ -99,7 +99,7 @@ dependencies {
     implementation 'com.github.Osiris-Team:jProcesses2:2.1.9'
 
     // For getting hardware info
-    implementation 'com.github.oshi:oshi-core:6.4.0'
+    implementation 'com.github.oshi:oshi-core:6.6.1'
 
     // Needed for working with .zip and .jar files, in the Plugins-Updater
     implementation 'net.lingala.zip4j:zip4j:2.11.3'
