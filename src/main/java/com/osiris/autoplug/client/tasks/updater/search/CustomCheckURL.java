@@ -60,8 +60,8 @@ public class CustomCheckURL {
             String[] latestVersionComponents = latest.split("\\.");
 
             for (int i = 0; i < Math.min(pluginVersionComponents.length, latestVersionComponents.length); i++) {
-                 int pluginComponent = Integer.parseInt(pluginVersionComponents[i]);
-                 int latestComponent = Integer.parseInt(latestVersionComponents[i]);
+                 long pluginComponent = Long.parseLong(pluginVersionComponents[i]);
+                 long latestComponent = Long.parseLong(latestVersionComponents[i]);
 
                  if (pluginComponent < latestComponent) {
         // plugin.getVersion() is smaller than latest
