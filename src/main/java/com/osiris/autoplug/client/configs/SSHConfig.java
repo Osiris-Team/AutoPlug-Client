@@ -8,18 +8,13 @@
 
 package com.osiris.autoplug.client.configs;
 
-import java.io.IOException;
-
 import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalKeyException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.NotLoadedException;
-import com.osiris.dyml.exceptions.YamlReaderException;
-import com.osiris.dyml.exceptions.YamlWriterException;
+import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
+
+import java.io.IOException;
 
 public class SSHConfig extends MyYaml {
     
