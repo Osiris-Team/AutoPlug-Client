@@ -10,6 +10,8 @@ package com.osiris.autoplug.client.configs;
 
 import java.io.IOException;
 
+import org.jline.utils.OSUtils;
+
 import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -69,8 +71,6 @@ public class SSHConfig extends MyYaml {
             .setComments(
                 "The port the SSH console listens on.",
                 "The default port is 22. Change it if you have a different port setup in your network, are hosting one or more other services on the same port, or are otherwise wanting to use the SSH service on a different port.",
-                "Example:",
-                "port: 22",
                 "Notice: You will likely need to open this port in your firewall settings to allow incoming connections, as well as port-forward it in your router settings if you are hosting the server on a local network.");
 
         auth_method = put(name, "auth-method").setDefValues("key-only")
@@ -79,9 +79,7 @@ public class SSHConfig extends MyYaml {
                 "Available options: 'user-pass-only', 'key-only', 'user-pass-key'.",
                 "user-pass-only: Requires a username and password to connect. Requires the username and password fields below.",
                 "key-only: Requires a public key to connect. Requires the allowed-keys-path field below.",
-                "user-pass-key: Requires either a username and password or a public key to connect. Requires all fields below.",
-                "Example:",
-                "auth-method: key-only");
+                "user-pass-key: Requires either a username and password or a public key to connect. Requires all fields below.");
 
         allowed_keys_path = put(name, "allowed-keys-path").setDefValues("./autoplug/allowed_ssh_keys.txt")
             .setComments(
@@ -93,11 +91,11 @@ public class SSHConfig extends MyYaml {
                 "Create keys with 'ssh-keygen -t rsa -b 4096' and add them to the file.",
                 "The generated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a .pub file, which contains the public key.",
-                "Example:",
-                "allowed-keys-path: ./autoplug/allowed_ssh_keys.txt",
                 "Example connection command: `ssh -i /path/to/private/key username@server-ip-address`");
         
-        server_private_key = put(name, "server-private-key").setDefValues(System.getProperty("user.dir") + "./ssh/id_rsa")
+
+        String sshPath = OSUtils.IS_WINDOWS ? "%USERPROFILE%\\.ssh\\id_rsa" : "~/.ssh/id_rsa";
+        server_private_key = put("server-private-key")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
                 "The file must be in the OpenSSH format.",
@@ -105,17 +103,15 @@ public class SSHConfig extends MyYaml {
                 "The generated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a file with no extension, which contains the private key.",
                 "In the same directory as the private key, there will also need to be a file with the same name and a .pub extension, which contains the public key.",
+                "NOTICE: The .ssh directory is not present by default, and must be created via the usage of the 'ssh-keygen' command.",
                 "Example:",
-                "server-private-key: " + System.getProperty("user.dir") + "./ssh/id_rsa",
-                "NOTICE: The .ssh directory is not present by default, and must be created via the usage of the 'ssh-keygen' command.");
+                "server-private-key: " + sshPath);
 
         username = put(name, "username").setDefValues("autoplug")
             .setComments(
                 "The username required to connect to the SSH console.",
                 "This username must be unique and not used by any other SSH-based services on the host machine.",
-                "This will be the username used to connect to the SSH console (`ssh username@host`).",
-                "Example:",
-                "username: minecraft-server");
+                "This will be the username used to connect to the SSH console (`ssh username@host`).");
 
         password = put(name, "password")
             .setComments(
