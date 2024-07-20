@@ -70,7 +70,8 @@ public class SSHConfig extends MyYaml {
                 "The port the SSH console listens on.",
                 "The default port is 22. Change it if you have a different port setup in your network, are hosting one or more other services on the same port, or are otherwise wanting to use the SSH service on a different port.",
                 "Example:",
-                "port: 22");
+                "port: 22",
+                "Notice: You will likely need to open this port in your firewall settings to allow incoming connections, as well as port-forward it in your router settings if you are hosting the server on a local network.");
 
         auth_method = put(name, "auth-method").setDefValues("key-only")
             .setComments(
