@@ -60,6 +60,6 @@ public class UtilsTest {
     public static void initLogger() {
         File logFile = new File(System.getProperty("user.dir") + "/logs/latest.log");
         logFile.getParentFile().mkdirs();
-        new AL().start("AL", true, logFile, false);
+        new AL().start("AL", true, logFile, false, false);
     }
 }

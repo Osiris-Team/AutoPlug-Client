@@ -137,6 +137,7 @@ public class Main {
             AL.start(autoplug_label.asString(),
                     debug.asBoolean(), // must be a new Yaml and not the LoggerConfig
                     GD.AP_LATEST_LOG,
+                    true,
                     force_ansi.asBoolean()
             );
             AL.mirrorSystemStreams(GD.FILE_OUT, GD.FILE_ERR_OUT);
