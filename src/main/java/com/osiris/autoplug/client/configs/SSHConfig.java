@@ -10,8 +10,6 @@ package com.osiris.autoplug.client.configs;
 
 import java.io.IOException;
 
-import org.jline.utils.OSUtils;
-
 import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
