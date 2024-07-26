@@ -93,8 +93,6 @@ public class SSHConfig extends MyYaml {
                 "The generated file will be a .pub file, which contains the public key.",
                 "Example connection command: `ssh -i /path/to/private/key username@server-ip-address`");
         
-
-        String sshPath = OSUtils.IS_WINDOWS ? "%USERPROFILE%\\.ssh\\id_rsa" : "~/.ssh/id_rsa";
         server_private_key = put("server-private-key")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
@@ -105,7 +103,7 @@ public class SSHConfig extends MyYaml {
                 "In the same directory as the private key, there will also need to be a file with the same name and a .pub extension, which contains the public key.",
                 "NOTICE: The .ssh directory is not present by default, and must be created via the usage of the 'ssh-keygen' command.",
                 "Example:",
-                "server-private-key: " + sshPath);
+                "server-private-key: ./autoplug/id_rsa");
 
         username = put(name, "username").setDefValues("autoplug")
             .setComments(
