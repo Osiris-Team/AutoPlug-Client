@@ -91,7 +91,7 @@ public class SSHConfig extends MyYaml {
                 "The generated file will be a .pub file, which contains the public key.",
                 "Example connection command: `ssh -i /path/to/private/key username@server-ip-address`");
         
-        server_private_key = put("server-private-key")
+        server_private_key = put(name, "server-private-key")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
                 "The file must be in the OpenSSH format.",
