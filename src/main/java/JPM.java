@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.2.3";
+        this.version = "8.2.4";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -56,7 +56,7 @@ class ThisProject extends JPM.Project {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23");
         implementation("org.slf4j:slf4j-api:2.0.13");
         implementation("org.slf4j:slf4j-nop:2.0.13");
-        implementation("com.github.Osiris-Team:jlib:18.4");
+        implementation("com.github.Osiris-Team:jlib:18.6");
         implementation("com.github.Osiris-Team:Dyml:9.8.3");
         implementation("com.github.Osiris-Team:Better-Thread:5.1.2");
         implementation("com.github.Osiris-Team:Better-Layout:1.4.0");
@@ -93,6 +93,12 @@ class ThisProject extends JPM.Project {
         String jarName = project.artifactId+".jar";
         Files.copy(new File(cwd+"/target/"+jarName).toPath(),
                 new File(testServerDir+"/"+jarName).toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+
+        File testServerDir2 = new File(cwd+"/AP-TEST-SERVER/AP-TEST-SERVER-LIVE");
+        testServerDir2.mkdirs();
+        Files.copy(new File(cwd+"/target/"+jarName).toPath(),
+                new File(testServerDir2+"/"+jarName).toPath(),
                 StandardCopyOption.REPLACE_EXISTING);
         if(args.contains("andRun")){
             Process result = new ProcessBuilder("java", "-jar", jarName).directory(testServerDir).inheritIO().start();

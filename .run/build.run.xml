@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="build" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="java ./src/main/java/JPM.java andRun" />
+    <option name="SCRIPT_TEXT" value="java ./src/main/java/JPM.java" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/build.bat" />
     <option name="SCRIPT_OPTIONS" value="" />
