@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.2.4";
+        this.version = "8.2.5";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -86,7 +86,12 @@ class ThisProject extends JPM.Project {
         File cwd = new File(System.getProperty("user.dir"));
         ThisProject project = new ThisProject(args);
         project.generatePom();
-        JPM.executeMaven("clean", "package", "-DskipTests");
+
+        List<String> mavenArgs = new ArrayList<>();
+        mavenArgs.add("clean");
+        mavenArgs.add("package");
+        if(!args.contains("test")) mavenArgs.add("-DskipTests");
+        JPM.executeMaven(mavenArgs.toArray(new String[0]));
 
         File testServerDir = new File(cwd+"/AP-TEST-SERVER");
         testServerDir.mkdirs();

@@ -22,8 +22,8 @@ jobs:
       with:
         java-version: '17'
         distribution: 'graalvm'
-    - name: Build with Gradle
-      run: ./gradlew shadowJar build -x test --no-daemon
+    - name: Build with 1JPM
+      run: java ./src/main/java/JPM.java
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:

@@ -21,9 +21,8 @@ jobs:
           distribution: 'graalvm'
           cache: 'gradle'
 
-      - name: Build with Gradle
-        shell: pwsh
-        run: .\gradlew.bat build shadowJar --no-daemon
+      - name: Build with 1JPM
+        run: java ./src/main/java/JPM.java
 
       - name: Show files.
         run: |

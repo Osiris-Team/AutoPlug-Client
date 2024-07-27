@@ -13,7 +13,8 @@
  import com.google.gson.JsonObject;
  import com.osiris.autoplug.client.utils.UtilsURL;
  import com.osiris.jlib.json.Json;
- 
+ import com.osiris.jlib.search.Version;
+
  import java.util.ArrayList;
  import java.util.List;
  import java.util.Map;
@@ -45,23 +46,9 @@
  
              if (!latestVersions.isEmpty()) latest = latestVersions.get(0);
              if (!downloadUrls.isEmpty()) downloadUrl = downloadUrls.get(0);
- 
-             String[] pluginVersionComponents = currentVersion.split("\\.");
-             String[] latestVersionComponents = latest.split("\\.");
- 
-             for (int i = 0; i < Math.min(pluginVersionComponents.length, latestVersionComponents.length); i++) {
-                  int pluginComponent = Integer.parseInt(pluginVersionComponents[i]);
-                  int latestComponent = Integer.parseInt(latestVersionComponents[i]);
- 
-                  if (pluginComponent < latestComponent) {
-         // plugin.getVersion() is smaller than latest
-                      code = SearchResult.Type.UPDATE_AVAILABLE;
-                      break;
-                  } else if (pluginComponent > latestComponent) {
-         // plugin.getVersion() is greater than latest
-                      break;
-                  }
-              }
+
+             if(latest == null) latest = "";
+             if(Version.isFirstBigger(latest, currentVersion)) code = SearchResult.Type.UPDATE_AVAILABLE;
              
          } catch (Exception e) {
              exception = e;
