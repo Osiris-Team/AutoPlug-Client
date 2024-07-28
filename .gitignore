@@ -17,3 +17,6 @@
 .settings
 .classpath
 .project
+/.mvn/
+mvnw.cmd
+mvnw
