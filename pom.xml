@@ -11,11 +11,11 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>AutoPlug-Client</artifactId>
-    <version>8.2.6</version>
+    <version>8.2.7</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
-        <version>8.2.6</version>
+        <version>8.2.7</version>
         <main-class>com.osiris.autoplug.client.Main</main-class>
         <slf4j.version>2.0.13</slf4j.version>
         <name>AutoPlug-Client</name>
@@ -295,27 +295,20 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.osiris.autoplug.client.Main</mainClass>
-                        </manifest>
-                    </archive>
                     <finalName>AutoPlug-Client</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -341,6 +334,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                         <id>resource-bundles</id>
                         <phase>package</phase>
                         <goals>
+                            <goal>resource-bundle</goal>
                             <goal>test-resource-bundle</goal>
                         </goals>
                         <configuration>
