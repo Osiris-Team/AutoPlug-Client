@@ -11,11 +11,11 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>AutoPlug-Client</artifactId>
-    <version>8.2.7</version>
+    <version>8.2.10</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
-        <version>8.2.7</version>
+        <version>8.2.10</version>
         <main-class>com.osiris.autoplug.client.Main</main-class>
         <slf4j.version>2.0.13</slf4j.version>
         <name>AutoPlug-Client</name>
@@ -63,7 +63,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             <dependency>
                 <groupId>com.github.Osiris-Team</groupId>
                 <artifactId>jansi</artifactId>
-                <version>2.4.6</version>
+                <version>2.4.2</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -126,7 +126,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
         <dependency>
             <groupId>com.github.Osiris-Team</groupId>
             <artifactId>jansi</artifactId>
-            <version>2.4.6</version>
+            <version>2.4.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

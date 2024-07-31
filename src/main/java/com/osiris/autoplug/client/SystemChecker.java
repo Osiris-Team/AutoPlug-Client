@@ -69,8 +69,21 @@ public class SystemChecker {
             try {
                 if (Server.isRunning()) Server.stop();
             } catch (Exception e) {
-                AL.warn("Error during shutdown, related to stopping the server!", e);
+                System.err.println("Error during shutdown, related to stopping the server!");
+                e.printStackTrace();
+                System.err.println("Error during shutdown, related to stopping the server!");
             }
+
+            try {
+                if (AL.isStarted)
+                    SSHManager.stop();
+            } catch (Exception e) {
+                System.out.println("Error during shutdown, related to stopping the SSH server!");
+                e.printStackTrace();
+                System.out.println("Error during shutdown, related to stopping the SSH server!");
+            }
+
+            // Stop Logger last
             try {
                 if (AL.isStarted) {
                     AL.info("See you soon!");
@@ -79,15 +92,10 @@ public class SystemChecker {
                     System.out.println("See you soon!");
                 }
             } catch (Exception e) {
-                AL.warn("Error during shutdown, related to the AutoPlug-Logger!", e);
+                System.err.println("Error during shutdown, related to the AutoPlug-Logger!");
+                e.printStackTrace();
+                System.err.println("Error during shutdown, related to the AutoPlug-Logger!");
             }
-            try {
-                SSHManager.stop();
-            } catch (Exception e) {
-                AL.warn("Error during shutdown, related to stopping the server!", e);
-            }
-
-            
         }, "Shutdown-Thread"));
     }
 }
