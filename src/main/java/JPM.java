@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.2.10";
+        this.version = "8.2.11";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -38,7 +38,7 @@ class ThisProject extends JPM.Project {
         forceImplementation("net.java.dev.jna:jna:5.14.0");
         forceImplementation("net.java.dev.jna:jna-platform:5.14.0");
         forceImplementation("commons-io:commons-io:2.16.1");
-        forceImplementation("com.github.Osiris-Team:jansi:2.4.2");
+        forceImplementation("com.github.Osiris-Team:jansi:2.4.6");
         forceImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.23");
         forceImplementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23");
         forceImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21");
@@ -51,7 +51,7 @@ class ThisProject extends JPM.Project {
         implementation("net.java.dev.jna:jna:5.14.0");
         implementation("net.java.dev.jna:jna-platform:5.14.0");
         implementation("commons-io:commons-io:2.16.1");
-        implementation("com.github.Osiris-Team:jansi:2.4.2");
+        implementation("com.github.Osiris-Team:jansi:2.4.6");
         implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.23");
         implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23");
         implementation("org.slf4j:slf4j-api:2.0.13");

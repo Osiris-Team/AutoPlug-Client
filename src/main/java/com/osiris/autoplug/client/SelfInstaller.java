@@ -23,6 +23,9 @@ import java.util.*;
 public class SelfInstaller {
 
     /**
+     * Note that this RELIES on running this jar via a start script that ends with "pause"
+     * since otherwise the actual terminal and the jar will fight for the user input.
+     *
      * If this method is called, it means that the current jars location (working dir)
      * is in the /autoplug/downloads directory and we need to install it.
      * For that we take the parent directory (which should be the server root)
