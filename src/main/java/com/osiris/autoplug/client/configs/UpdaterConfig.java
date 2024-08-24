@@ -144,7 +144,9 @@ public class UpdaterConfig extends MyYaml {
         put(name, "server-updater").setCountTopLineBreaks(1);
         server_updater = put(name, "server-updater", "enable").setDefValues("true");
 
-        server_updater_profile = put(name, "server-updater", "profile").setDefValues("AUTOMATIC");
+        server_updater_profile = put(name, "server-updater", "profile").setDefValues("AUTOMATIC").setComments(
+                "Note that your servers jar/executable NAME will not be updated, even if set to AUTOMATIC, to increase compatibility with external scripts or other programs.",
+                "The actual content/file will update though, thus rename it to something like server.jar, and do not include version info to prevent confusion.");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
                         "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric," +
