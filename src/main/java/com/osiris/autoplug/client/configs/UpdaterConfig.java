@@ -149,8 +149,9 @@ public class UpdaterConfig extends MyYaml {
                 "The actual content/file will update though, thus rename it to something like server.jar, and do not include version info to prevent confusion.");
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
-                        "- Minecraft (paper, waterfall, travertine, velocity, purpur, fabric," +
-                        "spigot, bungeecord, patina, pufferfish, mirai, pearl, windspigot)\n" +
+                        "- Minecraft (paper, travertine, waterfall, velocity, folia, pandaspigot, purpur, bungeecord, " +
+                        "spigot, patina, pufferfish, fabric, fabric-dev, spongevanilla, spongevanilla-recommended, " +
+			"spongeforge, spongeforge-recommended, mohist, plazma, kaiiju, divine, leaf, leaves, luminol)\n" +
                         "- Any Steam game (enter the app-id below, go to https://steamdb.info/ and search for: \"<game-name> server\" to find the app-id)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_steamcmd_login = put(name, "server-updater", "steam-cmd-login")
