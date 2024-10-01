@@ -72,7 +72,7 @@ class ThisProject extends JPM.Project {
         implementation("org.quartz-scheduler:quartz:2.3.2");
         implementation("org.tomlj:tomlj:1.0.0");
         implementation("com.formdev:flatlaf:2.2");
-        implementation("me.hsgamer:mc-server-updater-lib:3.4.0");
+        implementation("me.hsgamer:mc-server-updater-lib:3.7.0");
         implementation("org.apache.sshd:sshd-core:2.13.0");
 
         testImplementation("org.junit.jupiter:junit-jupiter:5.9.2");
