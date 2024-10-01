@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/AP-TEST-SERVER/AutoPlug-Client.jar" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/AP-TEST-SERVER" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2" />
+  </configuration>
+</component>
