@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.2.12";
+        this.version = "8.3.0";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";

@@ -84,10 +84,14 @@ public class SSHManager {
             return false;
         }
     }
+
+    public static boolean stop() {
+        return stop(false);
+    }
     
-    public static synchronized boolean stop() {
+    public static synchronized boolean stop(boolean printInfo) {
         if (!isRunning()) {
-            AL.info("SSH Server is not running!");
+            if(printInfo) AL.info("SSH Server is not running!");
             return true;
         }
         try {

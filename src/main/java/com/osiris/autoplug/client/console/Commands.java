@@ -307,13 +307,13 @@ public final class Commands {
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
                 } else if (command.equals(".ssh stop")) {
-                    SSHManager.stop();
+                    SSHManager.stop(true);
                     return true;
                 } else if (command.equals(".ssh start")) {
                     SSHManager.start(true);
                     return true;
                 } else if (command.equals(".ssh restart")) {
-                    SSHManager.stop();
+                    SSHManager.stop(true);
                     SSHManager.start(true);
                     return true;
                 } else if (command.equals(".ping")) { // This is used for the SSH test, as well as for users to test if AutoPlug is running.
