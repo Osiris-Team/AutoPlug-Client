@@ -28,11 +28,11 @@ public class UtilsTest {
     }
 
     public static void init() throws IOException {
-        initDefaults();
         initLogger();
+        initDefaults();
     }
 
-    public static void initDefaults() throws IOException {
+    private static void initDefaults() throws IOException {
         GD.VERSION = "AutoPlug-Client Test-Version";
         GD.WORKING_DIR = new File(System.getProperty("user.dir") + "/test");
         System.setProperty("user.dir", GD.WORKING_DIR.getAbsolutePath());
@@ -57,7 +57,7 @@ public class UtilsTest {
         if (!serverJar.exists()) serverJar.createNewFile();
     }
 
-    public static void initLogger() {
+    private static void initLogger() {
         File logFile = new File(System.getProperty("user.dir") + "/logs/latest.log");
         logFile.getParentFile().mkdirs();
         new AL().start("AL", true, logFile, false, false);

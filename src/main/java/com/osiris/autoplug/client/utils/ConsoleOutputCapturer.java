@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class ConsoleOutputCapturer {
@@ -54,7 +55,12 @@ public class ConsoleOutputCapturer {
     }
 
     public String getNewOutput() {
-        String newOutput = baos.toString(StandardCharsets.UTF_8);
+        String newOutput = null;
+        try {
+            newOutput = baos.toString(StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); // Never should be thrown
+        }
         baos.reset();
         return newOutput;
     }
