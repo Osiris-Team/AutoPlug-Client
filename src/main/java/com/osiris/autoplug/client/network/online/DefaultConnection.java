@@ -118,6 +118,7 @@ public class DefaultConnection implements AutoCloseable {
         isClosing.set(false);
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
+                serverKey.equals("null") ||
                 serverKey.equals(NO_KEY))
             throw new InvalidKeyException("No valid key provided." +
                     " Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file." +
