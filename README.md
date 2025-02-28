@@ -28,6 +28,9 @@ Premium [AutoPlug-Web](https://autoplug.one) features:
 - Staff Access
 - Plugin details database
 
+## Status
+Community driven development, meaning the lead developer will not develop new features and rely on pull requests by others, except for security issues and critical bugs.
+
 ## Community projects
 
 - Docker support: https://github.com/lkkuma/AutoPlug-Client-Docker
