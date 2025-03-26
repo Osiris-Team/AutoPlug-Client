@@ -41,7 +41,6 @@ public class TaskPluginDownload extends BThread {
     private final File finalDestination;
     private final File deleteDestination;
     private final boolean isPremium;
-    public MinecraftPlugin plugin;
     public SearchResult searchResult;
     private File destinationFile;
     private boolean isDownloadSuccessful;

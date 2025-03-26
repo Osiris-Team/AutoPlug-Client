@@ -517,7 +517,6 @@ public class TaskPluginsUpdater extends BThread {
                         if (userProfile.equals(manualProfile)) {
                             File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + pl.getName() + "[" + latest + "].jar");
                             TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, downloadUrl, pl.getIgnoreContentType(), userProfile, cache_dest);
-                            task.plugin = pl;
                             task.searchResult = result;
                             downloadTasksList.add(task);
                             task.start();
@@ -525,7 +524,6 @@ public class TaskPluginsUpdater extends BThread {
                             File oldPl = new File(pl.getInstallationPath());
                             File dest = new File(GD.WORKING_DIR + "/plugins/" + pl.getName() + "-LATEST-" + "[" + latest + "]" + ".jar");
                             TaskPluginDownload task = new TaskPluginDownload("PluginDownloader", getManager(), pl.getName(), latest, downloadUrl, pl.getIgnoreContentType(), userProfile, dest, oldPl);
-                            task.plugin = pl;
                             task.searchResult = result;
                             downloadTasksList.add(task);
                             task.start();
