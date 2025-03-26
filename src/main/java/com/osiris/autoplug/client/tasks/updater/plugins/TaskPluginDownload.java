@@ -8,10 +8,10 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
+import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.StringComparator;
-import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.jlib.UtilsFiles;
 import com.osiris.jlib.logger.AL;
@@ -32,7 +32,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 
 
-public class TaskPluginDownload extends BThread {
+public class TaskPluginDownload extends TaskDownloadBase {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -86,7 +86,7 @@ public class TaskPluginDownload extends BThread {
                               String url, boolean ignoreContentType, String profile,
                               File finalDestination, File deleteDestination,
                               boolean isPremium) {
-        super(name, manager);
+        super(name, manager, url, finalDestination, ignoreContentType);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;

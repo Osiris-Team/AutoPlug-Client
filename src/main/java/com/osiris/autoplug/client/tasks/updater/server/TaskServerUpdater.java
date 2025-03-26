@@ -12,7 +12,7 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.tasks.updater.TaskDownload;
+import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
@@ -127,7 +127,7 @@ public class TaskServerUpdater extends BThread {
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
+            TaskDownloadBase download = new TaskDownloadBase("ServerDownloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {
@@ -150,7 +150,7 @@ public class TaskServerUpdater extends BThread {
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + onlineFileName);
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownload download = new TaskDownload("ServerDownloader", getManager(), downloadUrl, cache_dest);
+            TaskDownloadBase download = new TaskDownloadBase("ServerDownloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {

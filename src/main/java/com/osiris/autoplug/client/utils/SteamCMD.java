@@ -9,7 +9,7 @@
 package com.osiris.autoplug.client.utils;
 
 import com.osiris.autoplug.client.configs.UpdaterConfig;
-import com.osiris.autoplug.client.tasks.updater.TaskDownload;
+import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
 import com.osiris.autoplug.client.utils.io.AsyncReader;
 import com.osiris.autoplug.client.utils.terminal.AsyncTerminal;
 import com.osiris.betterthread.BThreadManager;
@@ -68,7 +68,7 @@ public class SteamCMD {
             destDir.mkdirs();
             destExe.delete();
             BThreadManager man = new BThreadManager();
-            TaskDownload download = new TaskDownload("Download", man, steamcmdUrl, destArchive, true);
+            TaskDownloadBase download = new TaskDownloadBase("Download", man, steamcmdUrl, destArchive, true);
             download.start();
             while (!download.isFinished()) {
                 Thread.sleep(100);

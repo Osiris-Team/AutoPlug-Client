@@ -8,9 +8,9 @@
 
 package com.osiris.autoplug.client.tasks.updater.mods;
 
+import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.jlib.logger.AL;
 import okhttp3.OkHttpClient;
@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class TaskModDownload extends BThread {
+public class TaskModDownload extends TaskDownloadBase {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -39,12 +39,6 @@ public class TaskModDownload extends BThread {
     private File destinationFile;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
-
-    public TaskModDownload(String name, BThreadManager manager,
-                           String plName, String plLatestVersion,
-                           String url, String profile, File finalDest) {
-        this(name, manager, plName, plLatestVersion, url, false, profile, finalDest, null);
-    }
 
     public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
@@ -78,7 +72,7 @@ public class TaskModDownload extends BThread {
                            String url, boolean ignoreContentType, String profile,
                            File finalDestination, File deleteDestination,
                            boolean isPremium) {
-        super(name, manager);
+        super(name, manager, url, finalDestination, ignoreContentType);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;

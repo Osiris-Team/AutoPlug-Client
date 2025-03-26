@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
-public class TaskDownload extends BThread {
+public class TaskDownloadBase extends BThread {
     private String url;
     private File destinationFile;
     private boolean ignoreContentType;
@@ -39,11 +39,11 @@ public class TaskDownload extends BThread {
      * @param url     the download-url.
      * @param dest    the downloads final destination.
      */
-    public TaskDownload(String name, BThreadManager manager, String url, File dest) {
+    public TaskDownloadBase(String name, BThreadManager manager, String url, File dest) {
         this(name, manager, url, dest, false, (String[]) null);
     }
 
-    public TaskDownload(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
+    public TaskDownloadBase(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
         this.destinationFile = dest;
@@ -51,7 +51,7 @@ public class TaskDownload extends BThread {
         this.allowedSubContentTypes = allowedSubContentTypes;
     }
 
-    private TaskDownload(String name, BThreadManager manager) {
+    private TaskDownloadBase(String name, BThreadManager manager) {
         super(name, manager);
     }
 
