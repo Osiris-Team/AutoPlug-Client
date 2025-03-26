@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client;
 
+// Refactoring Smells, both Implementation Smells and Design Smells.
 
 import java.io.File;
 import java.io.FileWriter;
