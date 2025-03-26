@@ -54,9 +54,11 @@ public class ResourceFinder {
         // TODO actualy do search by name, since currently it still searches by id
         SearchResult sr = new ModrinthAPI().searchUpdateMod(modLoader, mod, mcVersion);
 
-        if (sr == null || sr.type == SearchResult.Type.API_ERROR || sr.type == SearchResult.Type.RESOURCE_NOT_FOUND) {
-            //Couldn't find author or resource via first search
-            //Do alternative search:
+        boolean isErrorOrNotFound = sr == null ||
+                sr.type == SearchResult.Type.API_ERROR ||
+                sr.type == SearchResult.Type.RESOURCE_NOT_FOUND;
+
+        if (isErrorOrNotFound) {
             sr = new CurseForgeAPI().searchUpdate(modLoader, mod, mcVersion, checkNameForModLoader);
         }
 
