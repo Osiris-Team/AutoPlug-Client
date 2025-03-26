@@ -46,6 +46,8 @@ public class TaskPluginDownload extends BThread {
     private File destinationFile;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
+    private String[] allowedSubContentTypes;
+
 
     public TaskPluginDownload(String name, BThreadManager manager,
                               String plName, String plLatestVersion,
@@ -94,6 +96,7 @@ public class TaskPluginDownload extends BThread {
         this.deleteDestination = deleteDestination;
         this.ignoreContentType = ignoreContentType;
         this.isPremium = isPremium;
+        this.allowedSubContentTypes = null;
     }
 
     @Override
@@ -140,23 +143,12 @@ public class TaskPluginDownload extends BThread {
         ResponseBody body = null;
         try {
             if (response.code() != 200)
-                throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
+                validateResponseCode(response);
 
             body = response.body();
-            if (body == null)
-                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of null response body!");
-            else if (body.contentType() == null)
-                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of null content type!");
-            else if (!body.contentType().type().equals("application"))
-                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid content type: " + body.contentType().type());
-            else if (!ignoreContentType && (
-                    !body.contentType().subtype().equals("java-archive")
-                            && !body.contentType().subtype().equals("jar")
-                            && !body.contentType().subtype().equals("zip") // Zip/Tar support
-                            && !body.contentType().subtype().equals("x-gtar") // Zip/Tar support
-                            && !body.contentType().subtype().equals("octet-stream")
-            ))
-                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+            validateResponseBody(body);
+            validateContentType(body);
+
             // Zip/Tar support
             boolean isZip = false, isTar = false;
             if (body.contentType().subtype().equals("zip")) {
@@ -231,6 +223,60 @@ public class TaskPluginDownload extends BThread {
             response.close();
             throw e;
         }
+    }
+
+    /**
+     * Throws exception if the HTTP response code is not 200.
+     */
+    private void validateResponseCode(Response response) throws Exception {
+        if (response.code() != 200) {
+            throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
+        }
+    }
+
+    /**
+     * Throws exception if the response body is null.
+     */
+    private void validateResponseBody(ResponseBody body) throws Exception {
+        if (body == null) {
+            throw new Exception("Download failed: response body is null!");
+        }
+    }
+
+    /**
+     * Throws exception if content type is missing or invalid.
+     */
+    private void validateContentType(ResponseBody body) throws Exception {
+        if (body.contentType() == null) {
+            throw new Exception("Download failed: content type is null!");
+        }
+
+        String mainType = body.contentType().type();
+        String subType = body.contentType().subtype();
+
+        if (!mainType.equals("application")) {
+            throw new Exception("Download failed: unsupported content type: " + mainType);
+        }
+
+        if (!ignoreContentType && !isAllowedSubType(subType)) {
+            throw new Exception("Download failed: unsupported sub-content type: " + subType);
+        }
+    }
+
+    /**
+     * Returns true if the subtype is allowed.
+     */
+    private boolean isAllowedSubType(String subType) {
+        String[] allowedDefaults = new String[] {
+                "java-archive", "jar", "zip", "x-gtar", "octet-stream"
+        };
+
+        if (Arrays.asList(allowedDefaults).contains(subType)) return true;
+
+        if (allowedSubContentTypes != null && Arrays.asList(allowedSubContentTypes).contains(subType))
+            return true;
+
+        return false;
     }
 
     public String getPlName() {
