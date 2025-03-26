@@ -110,14 +110,14 @@ public class ResourceFinder {
     }
 
     public SearchResult findByGithubUrl(MinecraftPlugin plugin) {
-        SearchResult sr = new GithubSearch().search(plugin.getGithubRepoName(), plugin.getGithubAssetName(), plugin.getVersion());
+        SearchResult sr = new GithubSearch().search(plugin.getSourceInfo().getGithubRepoName(), plugin.getSourceInfo().getGithubAssetName(), plugin.getVersion());
         plugin.setPremium(sr.isPremium);
         sr.plugin = plugin;
         return sr;
     }
 
     public SearchResult findByJenkinsUrl(MinecraftPlugin plugin) {
-        SearchResult sr = new JenkinsSearch().search(plugin.getJenkinsProjectUrl(), plugin.getJenkinsArtifactName(), plugin.getJenkinsBuildId());
+        SearchResult sr = new JenkinsSearch().search(plugin.getSourceInfo().getJenkinsProjectUrl(), plugin.getSourceInfo().getJenkinsArtifactName(), plugin.getSourceInfo().getJenkinsBuildId());
         plugin.setPremium(sr.isPremium);
         sr.plugin = plugin;
         return sr;

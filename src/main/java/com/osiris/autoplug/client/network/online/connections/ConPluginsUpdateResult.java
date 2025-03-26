@@ -100,25 +100,25 @@ public class ConPluginsUpdateResult extends DefaultConnection {
             else
                 out.writeUTF(result.getBukkitId());
 
-            if (result.plugin.getGithubRepoName() == null)
+            if (result.plugin.getSourceInfo().getGithubRepoName() == null)
                 out.writeUTF("null");
             else
-                out.writeUTF(result.plugin.getGithubRepoName());
+                out.writeUTF(result.plugin.getSourceInfo().getGithubRepoName());
 
-            if (result.plugin.getGithubAssetName() == null)
+            if (result.plugin.getSourceInfo().getGithubAssetName() == null)
                 out.writeUTF("null");
             else
-                out.writeUTF(result.plugin.getGithubAssetName());
+                out.writeUTF(result.plugin.getSourceInfo().getGithubAssetName());
 
-            if (result.plugin.getJenkinsProjectUrl() == null)
+            if (result.plugin.getSourceInfo().getJenkinsProjectUrl() == null)
                 out.writeUTF("null");
             else
-                out.writeUTF(result.plugin.getJenkinsProjectUrl());
+                out.writeUTF(result.plugin.getSourceInfo().getJenkinsProjectUrl());
 
-            if (result.plugin.getJenkinsArtifactName() == null)
+            if (result.plugin.getSourceInfo().getJenkinsArtifactName() == null)
                 out.writeUTF("null");
             else
-                out.writeUTF(result.plugin.getJenkinsArtifactName());
+                out.writeUTF(result.plugin.getSourceInfo().getJenkinsArtifactName());
         }
 
         out.writeInt(excludedPlugins.size());

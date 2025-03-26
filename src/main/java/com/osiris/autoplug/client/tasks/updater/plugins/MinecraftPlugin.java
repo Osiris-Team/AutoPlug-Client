@@ -12,21 +12,19 @@ public class MinecraftPlugin {
     public boolean isPremium;
     public String configPath;
     public String installationPath;
+
     private String name;
     private String version;
     private String author;
+
     public int spigotId;
     public int bukkitId;
     public boolean ignoreContentType;
     public String customDownloadURL;
     public String customCheckURL;
-    public String githubRepoName;
-    public String githubAssetName;
-    public String jenkinsProjectUrl;
-    public String jenkinsArtifactName;
-    public int jenkinsBuildId;
-    public String modrinthId;
     public boolean forceUpdate;
+
+    private PluginSourceInfo sourceInfo = new PluginSourceInfo();
 
     public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
         this.installationPath = installationPath;
@@ -36,37 +34,8 @@ public class MinecraftPlugin {
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customDownloadURL = customDownloadURL;
+        this.sourceInfo = new PluginSourceInfo();
     }
-
-    public String getJenkinsProjectUrl() {
-        return jenkinsProjectUrl;
-    }
-
-    public void setJenkinsProjectUrl(String jenkinsProjectUrl) {
-        this.jenkinsProjectUrl = jenkinsProjectUrl;
-    }
-
-    public String getJenkinsArtifactName() {
-        return jenkinsArtifactName;
-    }
-
-    public void setJenkinsArtifactName(String jenkinsArtifactName) {
-        this.jenkinsArtifactName = jenkinsArtifactName;
-    }
-
-    public int getJenkinsBuildId() {
-        return jenkinsBuildId;
-    }
-
-    public void setJenkinsBuildId(int jenkinsBuildId) {
-        this.jenkinsBuildId = jenkinsBuildId;
-    }
-
-    public String getModrinthId() {
-        return modrinthId;
-    }
-
-    public void setModrinthId(String modrinthId) { this.modrinthId = modrinthId; }
 
     public String getConfigPath() {
         return configPath;
@@ -80,27 +49,16 @@ public class MinecraftPlugin {
         return ignoreContentType;
     }
 
+    public PluginSourceInfo getSourceInfo() {
+        return sourceInfo;
+    }
+
+
     /**
      * Example: Osiris-Team/AutoPlug-Client
      *
      * @return
      */
-    public String getGithubRepoName() {
-        return githubRepoName;
-    }
-
-    public void setGithubRepoName(String githubRepoName) {
-        this.githubRepoName = githubRepoName;
-    }
-
-    public String getGithubAssetName() {
-        return githubAssetName;
-    }
-
-    public void setGithubAssetName(String githubAssetName) {
-        this.githubAssetName = githubAssetName;
-    }
-
     public boolean isPremium() {
         return isPremium;
     }

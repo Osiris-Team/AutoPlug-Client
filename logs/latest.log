@@ -1,0 +1,3 @@
+[26-03-2025 18:28:06][AL][DEBUG][AL] Started Logger(AL)
+[26-03-2025 18:28:06][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/autoplug/general.yml
+[26-03-2025 18:28:06][AL][DEBUG][ModrinthAPI] https://api.modrinth.com/v2/project/a8UoyV2h/version?loaders=[%22spigot%22,%22paper%22]&game_versions=[%221.21.1%22]

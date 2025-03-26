@@ -409,16 +409,16 @@ public final class Commands {
                 AL.warn("The github format must be <author>/<name> (and optional <asset-name>).");
                 return false;
             }
-            plugin.setGithubRepoName(split[0]);
-            if(split.length >= 2) plugin.setGithubAssetName(split[1]);
-            else plugin.setGithubAssetName(split[0].split("/")[1]);
+            plugin.getSourceInfo().setGithubRepoName(split[0]);
+            if(split.length >= 2) plugin.getSourceInfo().setGithubAssetName(split[1]);
+            else plugin.getSourceInfo().setGithubAssetName(split[0].split("/")[1]);
             result = new ResourceFinder().findByGithubUrl(plugin);
         }
         repo = "modrinth";
         if(input.startsWith(repo)){
             MinecraftPlugin plugin2 = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
                     tempName, "0", "", 0, 0, "");
-            plugin2.setModrinthId(input.replace(repo, "").trim());
+            plugin2.getSourceInfo().setModrinthId(input.replace(repo, "").trim());
             result = new ResourceFinder().findPluginByModrinthId(plugin2, mcVersion);
         }
         /*

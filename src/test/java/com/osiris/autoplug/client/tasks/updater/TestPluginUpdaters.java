@@ -35,7 +35,7 @@ class TestPluginUpdaters {
     void testModrinth() throws IOException {
         UtilsTest.init();
         MinecraftPlugin pl = new MinecraftPlugin("./plugins/", "BMMarker", "0.0.0", "Miraculixx", 0, 0, null);
-        pl.modrinthId = "a8UoyV2h";
+        pl.getSourceInfo().setModrinthId( "a8UoyV2h");
         SearchResult sr = new ModrinthAPI().searchUpdatePlugin(pl, "1.21.1");
         assertSame(SearchResult.Type.UPDATE_AVAILABLE, sr.type);
     }
