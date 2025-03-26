@@ -26,7 +26,7 @@ import java.util.Random;
 
 public class TaskDownload extends BThread {
     private String url;
-    private File dest;
+    private File destinationFile;
     private boolean ignoreContentType;
     private String[] allowedSubContentTypes;
 
@@ -46,7 +46,7 @@ public class TaskDownload extends BThread {
     public TaskDownload(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
-        this.dest = dest;
+        this.destinationFile = dest;
         this.ignoreContentType = ignoreContentType;
         this.allowedSubContentTypes = allowedSubContentTypes;
     }
@@ -59,7 +59,7 @@ public class TaskDownload extends BThread {
     public void runAtStart() throws Exception {
         super.runAtStart();
 
-        final String fileName = dest.getName();
+        final String fileName = destinationFile.getName();
         setStatus("Downloading " + fileName + "... (0mb/0mb)");
         AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
 
@@ -71,40 +71,40 @@ public class TaskDownload extends BThread {
         ResponseBody body = null;
         try {
             if (response.code() != 200)
-                throw new Exception("Download of '" + dest.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
 
             body = response.body();
             if (body == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of null response body!");
             else if (!ignoreContentType && body.contentType() == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed due to null content type!");
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed due to null content type!");
             else if (!ignoreContentType && !body.contentType().type().equals("application"))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid content type: " + body.contentType().type());
             else if (!ignoreContentType && !body.contentType().subtype().equals("java-archive")
                     && !body.contentType().subtype().equals("jar")
                     && !body.contentType().subtype().equals("octet-stream")) {
                 if (allowedSubContentTypes == null)
-                    throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                    throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
                 if (!Arrays.asList(allowedSubContentTypes).contains(body.contentType().subtype()))
-                    throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                    throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
             }
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
 
             BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(dest);
+            FileOutputStream fos = new FileOutputStream(destinationFile);
             BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
             byte[] data = new byte[1024];
             long downloadedFileSize = 0;
-            int x = 0;
-            while ((x = in.read(data, 0, 1024)) >= 0) {
-                downloadedFileSize += x;
+            int byteRead = 0;
+            while ((byteRead = in.read(data, 0, 1024)) >= 0) {
+                downloadedFileSize += byteRead;
 
                 setStatus("Downloading " + fileName + "... (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
                 setNow(downloadedFileSize);
 
-                bout.write(data, 0, x);
+                bout.write(data, 0, byteRead);
             }
 
             setStatus("Downloaded " + fileName + " (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
@@ -128,7 +128,7 @@ public class TaskDownload extends BThread {
      */
     public boolean compareWithMD5(String expectedHash) {
         expectedHash = expectedHash.trim();
-        final String myHash = UtilsCrypto.fastMD5(dest).trim();
+        final String myHash = UtilsCrypto.fastMD5(destinationFile).trim();
         boolean result = myHash.equals(expectedHash);
         AL.debug(this.getClass(), "Comparing hashes (MD5). Is equal? " +
                 result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");
@@ -144,7 +144,7 @@ public class TaskDownload extends BThread {
      */
     public boolean compareWithSHA256(String expectedHash) {
         expectedHash = expectedHash.trim().toLowerCase();
-        final String myHash = UtilsCrypto.fastSHA256(dest).trim().toLowerCase();
+        final String myHash = UtilsCrypto.fastSHA256(destinationFile).trim().toLowerCase();
         boolean result = myHash.equals(expectedHash);
         AL.debug(this.getClass(), "Comparing hashes (SHA-256). Is equal? " +
                 result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");

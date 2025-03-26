@@ -31,12 +31,12 @@ public class TaskModDownload extends BThread {
     private final String url;
     private final boolean ignoreContentType;
     private final String profile;
-    private final File finalDest;
-    private final File deleteDest;
+    private final File finalDestination;
+    private final File deleteDestination;
     private final boolean isPremium;
     public MinecraftMod mod;
     public SearchResult searchResult;
-    private File dest;
+    private File destinationFile;
     private boolean isDownloadSuccessful;
     private boolean isInstallSuccessful;
 
@@ -63,28 +63,28 @@ public class TaskModDownload extends BThread {
      * @param url               the download-url.
      * @param ignoreContentType should the HTTP contenttype headers be ignored?
      * @param profile           the users mod updater profile. NOTIFY, MANUAL or AUTOMATIC.
-     * @param finalDest         the final download destination.
-     * @param deleteDest        the file that should be deleted on a successful download. If null nothing gets deleted.
+     * @param finalDestination the final download destination.
+     * @param deleteDestination the file that should be deleted on a successful download. If null nothing gets deleted.
      */
     public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, boolean ignoreContentType, String profile,
-                           File finalDest, File deleteDest) {
-        this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDest, deleteDest, false);
+                           File finalDestination, File deleteDestination) {
+        this(name, manager, plName, plLatestVersion, url, ignoreContentType, profile, finalDestination, deleteDestination, false);
     }
 
     public TaskModDownload(String name, BThreadManager manager,
                            String plName, String plLatestVersion,
                            String url, boolean ignoreContentType, String profile,
-                           File finalDest, File deleteDest,
+                           File finalDestination, File deleteDestination,
                            boolean isPremium) {
         super(name, manager);
         this.plName = plName;
         this.plLatestVersion = plLatestVersion;
         this.url = url;
         this.profile = profile;
-        this.finalDest = finalDest;
-        this.deleteDest = deleteDest;
+        this.finalDestination = finalDestination;
+        this.deleteDestination = deleteDestination;
         this.ignoreContentType = ignoreContentType;
         this.isPremium = isPremium;
     }
@@ -102,11 +102,11 @@ public class TaskModDownload extends BThread {
         } else {
             download();
             isDownloadSuccessful = true;
-            AL.debug(this.getClass(), "Installing mod into " + finalDest.getAbsolutePath());
-            if (finalDest.exists()) finalDest.delete();
-            finalDest.createNewFile();
-            if (deleteDest != null && deleteDest.exists()) deleteDest.delete();
-            FileUtils.copyFile(dest, finalDest);
+            AL.debug(this.getClass(), "Installing mod into " + finalDestination.getAbsolutePath());
+            if (finalDestination.exists()) finalDestination.delete();
+            finalDestination.createNewFile();
+            if (deleteDestination != null && deleteDestination.exists()) deleteDestination.delete();
+            FileUtils.copyFile(destinationFile, finalDestination);
             isInstallSuccessful = true;
             setStatus("Installed update for " + plName + " successfully!");
         }
@@ -117,12 +117,12 @@ public class TaskModDownload extends BThread {
         File dir = new File(GD.WORKING_DIR + "/autoplug/downloads");
         if (!dir.exists()) dir.mkdirs();
 
-        dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].jar");
-        AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + url + "'");
-        if (dest.exists()) dest.delete();
-        dest.createNewFile();
+        destinationFile = new File(dir + "/" + plName + "-[" + plLatestVersion + "].jar");
+        AL.debug(this.getClass(), "Downloading " + destinationFile.getName() + " to '" + destinationFile.getAbsolutePath() + "' from '" + url + "'");
+        if (destinationFile.exists()) destinationFile.delete();
+        destinationFile.createNewFile();
 
-        final String fileName = dest.getName();
+        final String fileName = destinationFile.getName();
         setStatus("Downloading " + fileName + "... (0kb/0kb)");
 
         Request request = new Request.Builder().url(url)
@@ -137,23 +137,23 @@ public class TaskModDownload extends BThread {
 
             body = response.body();
             if (body == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of null response body!");
             else if (body.contentType() == null)
-                throw new Exception("Download of '" + dest.getName() + "' failed because of null content type!");
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of null content type!");
             else if (!body.contentType().type().equals("application"))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid content type: " + body.contentType().type());
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid content type: " + body.contentType().type());
             else if (!ignoreContentType && (
                     !body.contentType().subtype().equals("java-archive")
                             && !body.contentType().subtype().equals("jar")
                             && !body.contentType().subtype().equals("octet-stream")
             ))
-                throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
+                throw new Exception("Download of '" + destinationFile.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
             setMax(completeFileSize);
 
             BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(dest);
+            FileOutputStream fos = new FileOutputStream(destinationFile);
             BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
             byte[] data = new byte[1024];
             long downloadedFileSize = 0;
@@ -196,15 +196,15 @@ public class TaskModDownload extends BThread {
     }
 
     public File getFinalDest() {
-        return finalDest;
+        return finalDestination;
     }
 
     public File getDeleteDest() {
-        return deleteDest;
+        return deleteDestination;
     }
 
     public File getDownloadDest() {
-        return dest;
+        return destinationFile;
     }
 
     public boolean isDownloadSuccessful() {
