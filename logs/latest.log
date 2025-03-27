@@ -1,3 +1,27 @@
-[26-03-2025 18:28:06][AL][DEBUG][AL] Started Logger(AL)
-[26-03-2025 18:28:06][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/autoplug/general.yml
-[26-03-2025 18:28:06][AL][DEBUG][ModrinthAPI] https://api.modrinth.com/v2/project/a8UoyV2h/version?loaders=[%22spigot%22,%22paper%22]&game_versions=[%221.21.1%22]
+[27-03-2025 12:32:53][AL][DEBUG][AL] Started Logger(AL)
+[27-03-2025 12:32:53][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/autoplug/general.yml
+[27-03-2025 12:32:53][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/general.yml
+[27-03-2025 12:32:54][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/3239/download
+[27-03-2025 12:32:54][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/52109/download
+[27-03-2025 12:32:54][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/23767/download
+[27-03-2025 12:32:54][AL][DEBUG][PluginsConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/plugins.yml
+[27-03-2025 12:32:54][AL][DEBUG][UpdaterConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/updater.yml
+[27-03-2025 12:32:55][AL][INFO] Select the target software AutoPlug was installed on.
+[27-03-2025 12:32:55][AL][INFO] Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.
+[27-03-2025 12:32:55][AL][INFO] Please enter a valid option and press enter:
+[27-03-2025 12:32:56][AL][INFO] plugins.yml (ENTRY_MODIFY): Internal values updated.
+[27-03-2025 12:32:56][AL][INFO] updater.yml (ENTRY_MODIFY): Internal values updated.
+[27-03-2025 12:32:59][AL][INFO] Time took to finish download tasks: 4,705 seconds!
+[27-03-2025 12:32:59][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/autoplug/general.yml
+[27-03-2025 12:32:59][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/test/autoplug/general.yml
+[27-03-2025 12:32:59][AL][DEBUG][ModrinthAPI] https://api.modrinth.com/v2/project/a8UoyV2h/version?loaders=[%22spigot%22,%22paper%22]&game_versions=[%221.21.1%22]
+[27-03-2025 12:32:59][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/test/test/autoplug/general.yml
+[27-03-2025 12:33:01][AL][INFO] Select the target software AutoPlug was installed on.
+[27-03-2025 12:33:01][AL][INFO] Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.
+[27-03-2025 12:33:01][AL][INFO] Please enter a valid option and press enter:
+[27-03-2025 12:33:01][AL][INFO] Select the target software AutoPlug was installed on.
+[27-03-2025 12:33:01][AL][INFO] Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.
+[27-03-2025 12:33:01][AL][INFO] Please enter a valid option and press enter:
+[27-03-2025 12:33:02][AL][INFO] Select the target software AutoPlug was installed on.
+[27-03-2025 12:33:02][AL][INFO] Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.
+[27-03-2025 12:33:02][AL][INFO] Please enter a valid option and press enter:

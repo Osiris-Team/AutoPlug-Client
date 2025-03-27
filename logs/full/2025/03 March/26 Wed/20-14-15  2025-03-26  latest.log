@@ -1,0 +1,21 @@
+[26-03-2025 20:13:51][AL][DEBUG][AL] Started Logger(AL)
+[26-03-2025 20:13:51][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/autoplug/general.yml
+[26-03-2025 20:13:51][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/general.yml
+[26-03-2025 20:13:52][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/3239/download
+[26-03-2025 20:13:52][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/23767/download
+[26-03-2025 20:13:52][AL][DEBUG][TaskPluginDownload] Downloading TestPlugin.jar from: https://api.spiget.org/v2/resources/52109/download
+[26-03-2025 20:13:52][AL][DEBUG][PluginsConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/plugins.yml
+[26-03-2025 20:13:52][AL][DEBUG][UpdaterConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/autoplug/updater.yml
+[26-03-2025 20:13:53][AL][INFO] Select the target software AutoPlug was installed on.
+[26-03-2025 20:13:53][AL][INFO] Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.
+[26-03-2025 20:13:53][AL][INFO] Please enter a valid option and press enter:
+[26-03-2025 20:13:58][AL][INFO] Time took to finish download tasks: 6,143 seconds!
+[26-03-2025 20:13:58][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/autoplug/general.yml
+[26-03-2025 20:13:58][AL][DEBUG][SteamCMD] Installing SteamCMD, this might take a bit...
+[26-03-2025 20:13:58][AL][DEBUG][TaskDownloadBase] Downloading steamcmd_osx.tar.gz from: https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz
+[26-03-2025 20:13:59][AL][DEBUG][SteamCMD] Downloaded steamcmd_osx.tar.gz (2mb/2mb)
+[26-03-2025 20:13:59][AL][DEBUG][SteamCMD] SteamCMD installed successfully at: /Users/apple/Downloads/AutoPlug-Client/test/test/test/autoplug/system/steamcmd/steamcmd.sh
+[26-03-2025 20:14:14][AL][DEBUG][SteamCMD] SteamCMD installed and setup successfully!
+[26-03-2025 20:14:14][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/test/autoplug/general.yml
+[26-03-2025 20:14:14][AL][DEBUG][ModrinthAPI] https://api.modrinth.com/v2/project/a8UoyV2h/version?loaders=[%22spigot%22,%22paper%22]&game_versions=[%221.21.1%22]
+[26-03-2025 20:14:15][AL][DEBUG][GeneralConfig] Listening for changes for /Users/apple/Downloads/AutoPlug-Client/test/test/test/test/test/autoplug/general.yml

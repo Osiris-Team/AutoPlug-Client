@@ -19,6 +19,7 @@ import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
+import com.osiris.autoplug.client.tasks.updater.UtilsUpdater;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsFile;
@@ -31,28 +32,21 @@ import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.json.exceptions.HttpErrorException;
-import com.osiris.jlib.sort.QuickSort;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.lang.reflect.Type;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class TaskPluginsUpdater extends BThread {
-    //private final PluginsUpdateResultConnection con;
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
     private final String automaticProfile = "AUTOMATIC";
-    private final int updatesDownloaded = 0;
     private final List<TaskPluginDownload> downloadTasksList = new ArrayList<>();
     @NotNull
     private final List<MinecraftPlugin> includedPlugins = new ArrayList<>();
@@ -65,9 +59,6 @@ public class TaskPluginsUpdater extends BThread {
     private UpdaterConfig updaterConfig;
     private String userProfile;
     private String pluginsConfigName;
-    private Socket online_socket;
-    private DataInputStream online_dis;
-    private DataOutputStream online_dos;
     private int updatesAvailable = 0;
     private GeneralConfig generalConfig;
 
@@ -137,7 +128,6 @@ public class TaskPluginsUpdater extends BThread {
                 YamlSection author = pluginsConfig.put(name, plName, "author").setDefValues(installedPlugin.getAuthor());
                 YamlSection spigotId = pluginsConfig.put(name, plName, "spigot-id").setDefValues("0");
                 YamlSection modrinthId = pluginsConfig.put(name, plName, "modrinth-id");
-                //YamlSection songodaId = new YamlSection(config, getModules(), name, plName,+".songoda-id", 0); // TODO WORK_IN_PROGRESS
                 YamlSection bukkitId = pluginsConfig.put(name, plName, "bukkit-id").setDefValues("0");
                 YamlSection ignoreContentType = pluginsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                 YamlSection forceUpdate = pluginsConfig.put(name, plName, "force-update").setDefValues("false");
@@ -166,12 +156,12 @@ public class TaskPluginsUpdater extends BThread {
                             JsonObject result = Json.post(GD.OFFICIAL_WEBSITE + "api/minecraft-plugin-details", request).getAsJsonObject();
                             Type typeOfSet = new TypeToken<HashSet<Entry>>() {
                             }.getType();
-                            Entry webSpigotId = getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                            Entry webBukkitId = getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                            Entry webGithubRepoName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                            Entry webGithubAssetName = getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                            Entry webJenkinsProjectUrl = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
-                            Entry webJenkinsArtifactName = getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webSpigotId = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("spigotId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webBukkitId = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("bukkitId").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webGithubRepoName = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("githubRepoName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webGithubAssetName = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("githubAssetName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webJenkinsProjectUrl = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsProjectUrl").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
+                            UtilsUpdater.Entry webJenkinsArtifactName = UtilsUpdater.getValidEntryWithMostUsages(gson.fromJson(result.get("jenkinsArtifactName").getAsString(), typeOfSet), updaterConfig.plugins_updater_web_database_min_usages.asInt());
 
                             // Fill missing id information
                             if (webSpigotId != null && (spigotId.asString() == null || spigotId.asInt() == 0))
@@ -457,27 +447,6 @@ public class TaskPluginsUpdater extends BThread {
             finish("Checked " + results.size() + "/" + includedSize + " plugins.");
         }
 
-    }
-
-    /**
-     * @return null if all keys of this map have usages below the minimum and
-     * the keys are "null" or "0".
-     */
-    private Entry getValidEntryWithMostUsages(HashSet<Entry> _set, int minUsages) {
-        Entry[] entries = new QuickSort().sort(_set.toArray(new Entry[0]), (thisEl, otherEl) -> {
-            int thisUsage = ((Entry) thisEl.obj).usage;
-            int otherUsage = ((Entry) otherEl.obj).usage;
-            return Integer.compare(thisUsage, otherUsage);
-        });
-        for (int i = entries.length - 1; i >= 0; i--) {
-            int usages = entries[i].usage;
-            // If the entry with most usages doesn't exceed the minimum we can directly return null
-            if (usages < minUsages) return null;
-            String key = entries[i].key;
-            if (!Objects.equals(key, "null") && !Objects.equals(key, "0"))
-                return entries[i];
-        }
-        return null;
     }
 
     private void doDownloadLogic(@NotNull MinecraftPlugin pl, SearchResult result) {

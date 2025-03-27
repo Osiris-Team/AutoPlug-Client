@@ -150,5 +150,4 @@ public class TaskDownloadBase extends BThread {
                 result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");
         return result;
     }
-
 }
