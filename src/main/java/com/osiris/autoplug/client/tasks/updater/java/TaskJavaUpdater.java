@@ -212,90 +212,120 @@ public class TaskJavaUpdater extends BThread {
 
         AL.debug(this.getClass(), "Update found " + currentBuildId + " -> " + latestBuildId);
         String profile = updaterConfig.java_updater_profile.asString();
-        if (profile.equals("NOTIFY")) {
-            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + ")!");
-        } else if (profile.equals("MANUAL")) {
-            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
 
-            // Download the file
-            // Typically the file is a .tar.gz file for linux or .zip file for windows
-            // We enter a .file extension, cause that gets replaced with either .tar.gz or .zip by the download task
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
-            TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
-            download.start();
+//        if (profile.equals("NOTIFY")) {
+//            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + ")!");
+//        } else if (profile.equals("MANUAL")) {
+//            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
+//
+//            // Download the file
+//            // Typically the file is a .tar.gz file for linux or .zip file for windows
+//            // We enter a .file extension, cause that gets replaced with either .tar.gz or .zip by the download task
+//            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
+//            TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
+//            download.start();
+//
+//            while (true) {
+//                Thread.sleep(500); // Wait until download is finished
+//                if (download.isFinished()) {
+//                    if (download.isSuccess()) {
+//                        setStatus("Java update downloaded. Checking hash...");
+//                        if (download.compareWithSHA256(checksum)) {
+//                            setStatus("Java update downloaded successfully.");
+//                            setSuccess(true);
+//                        } else {
+//                            setStatus("Downloaded Java update is broken. Nothing changed!");
+//                            setSuccess(false);
+//                        }
+//
+//                    } else {
+//                        setStatus("Java update failed!");
+//                        setSuccess(false);
+//                    }
+//                    break;
+//                }
+//            }
+//        } else {
+//            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
+//
+//            File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug/system/jre");
+//            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
+//            TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
+//            download.start();
+//
+//            while (true) {
+//                Thread.sleep(500);
+//                if (download.isFinished()) {
+//                    if (download.isSuccess()) {
+//                        setStatus("Java update downloaded. Checking hash...");
+//                        if (download.compareWithSHA256(checksum)) {
+//                            setStatus("Java update downloaded. Removing old installation...");
+//                            if (final_dir_dest.exists()) {
+//                                File[] files = final_dir_dest.listFiles();
+//                                if (files != null)
+//                                    for (File file :
+//                                            files) {
+//                                        if (file.isDirectory())
+//                                            FileUtils.deleteDirectory(file);
+//                                        else
+//                                            file.delete();
+//                                    }
+//                            }
+//                            final_dir_dest.mkdirs();
+//
+//                            Archiver archiver;
+//                            if (download.isTar())
+//                                archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR, CompressionType.GZIP);
+//                            else // A zip
+//                                archiver = ArchiverFactory.createArchiver(ArchiveFormat.ZIP);
+//
+//                            archiver.extract(download.getNewCacheDest(), final_dir_dest);
+//                            setStatus("Java update was installed successfully (" + currentBuildId + " -> " + latestBuildId + ")!");
+//                            updaterConfig.java_updater_build_id.setValues(String.valueOf(latestBuildId));
+//                            updaterConfig.save();
+//                            finish(true);
+//                        } else {
+//                            setStatus("Downloaded Java update is broken. Nothing changed!");
+//                            finish(false);
+//                        }
+//
+//                    } else {
+//                        setStatus("Java update failed!");
+//                        finish(false);
+//                    }
+//                    break;
+//                }
+//            }
+//        }
 
-            while (true) {
-                Thread.sleep(500); // Wait until download is finished
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Java update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(checksum)) {
-                            setStatus("Java update downloaded successfully.");
-                            setSuccess(true);
-                        } else {
-                            setStatus("Downloaded Java update is broken. Nothing changed!");
-                            setSuccess(false);
-                        }
-
-                    } else {
-                        setStatus("Java update failed!");
-                        setSuccess(false);
-                    }
-                    break;
-                }
-            }
-        } else {
-            setStatus("Update found (" + currentBuildId + " -> " + latestBuildId + "), started download!");
-
-            File final_dir_dest = new File(GD.WORKING_DIR + "/autoplug/system/jre");
-            File cache_dest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
-            TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cache_dest, osType);
-            download.start();
-
-            while (true) {
-                Thread.sleep(500);
-                if (download.isFinished()) {
-                    if (download.isSuccess()) {
-                        setStatus("Java update downloaded. Checking hash...");
-                        if (download.compareWithSHA256(checksum)) {
-                            setStatus("Java update downloaded. Removing old installation...");
-                            if (final_dir_dest.exists()) {
-                                File[] files = final_dir_dest.listFiles();
-                                if (files != null)
-                                    for (File file :
-                                            files) {
-                                        if (file.isDirectory())
-                                            FileUtils.deleteDirectory(file);
-                                        else
-                                            file.delete();
-                                    }
-                            }
-                            final_dir_dest.mkdirs();
-
-                            Archiver archiver;
-                            if (download.isTar())
-                                archiver = ArchiverFactory.createArchiver(ArchiveFormat.TAR, CompressionType.GZIP);
-                            else // A zip
-                                archiver = ArchiverFactory.createArchiver(ArchiveFormat.ZIP);
-
-                            archiver.extract(download.getNewCacheDest(), final_dir_dest);
-                            setStatus("Java update was installed successfully (" + currentBuildId + " -> " + latestBuildId + ")!");
-                            updaterConfig.java_updater_build_id.setValues(String.valueOf(latestBuildId));
-                            updaterConfig.save();
-                            finish(true);
-                        } else {
-                            setStatus("Downloaded Java update is broken. Nothing changed!");
-                            finish(false);
-                        }
-
-                    } else {
-                        setStatus("Java update failed!");
-                        finish(false);
-                    }
-                    break;
-                }
-            }
+        // Use strategy pattern instead of if-else chain
+        JavaUpdateStrategy strategy;
+        switch (profile) {
+            case "NOTIFY":
+                strategy = new NotifyUpdateStrategy();
+                break;
+            case "MANUAL":
+                strategy = new ManualUpdateStrategy();
+                break;
+            default:
+                strategy = new AutomaticUpdateStrategy();
         }
-    }
 
+        // File path required by Automatic strategy
+        File finalDirDest = new File(GD.WORKING_DIR + "/autoplug/system/jre");
+        File cacheDest = new File(GD.WORKING_DIR + "/autoplug/downloads/" + imageType + "-" + versionString + ".file");
+        TaskJavaDownload download = new TaskJavaDownload("JavaDownloader", getManager(), downloadURL, cacheDest, osType);
+
+        // Delegates behavior to strategy class
+        strategy.performUpdate(this,
+                String.valueOf(currentBuildId),
+                String.valueOf(latestBuildId),
+                versionString,
+                downloadURL,
+                checksum,
+                download,
+                finalDirDest,
+                imageType
+        );
+    }
 }
