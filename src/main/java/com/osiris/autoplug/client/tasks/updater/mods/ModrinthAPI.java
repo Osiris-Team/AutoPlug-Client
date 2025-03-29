@@ -43,7 +43,7 @@ public class ModrinthAPI {
         return res;
     }
     public SearchResult searchUpdatePlugin(MinecraftPlugin plugin, String mcVersion) { //TODO: probably don't hardcode spigot and papermc
-        return searchUpdate("spigot\",\"paper", plugin.getSourceInfo().getModrinthId(), mcVersion, plugin.getInstallationPath(), false);
+        return searchUpdate("spigot\",\"paper", plugin.getModrinthId(), mcVersion, plugin.getInstallationPath(), false);
     }
     private SearchResult searchUpdate(String loader, String id, String mcVersion, String installPath, boolean forceLatest) {
 
