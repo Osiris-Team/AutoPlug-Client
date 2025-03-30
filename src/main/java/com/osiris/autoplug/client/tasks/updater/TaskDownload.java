@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
-public class TaskDownloadBase extends BThread {
+public class TaskDownload extends BThread {
     private String url;
     private File destinationFile;
     private boolean ignoreContentType;
@@ -39,11 +39,11 @@ public class TaskDownloadBase extends BThread {
      * @param url     the download-url.
      * @param dest    the downloads final destination.
      */
-    public TaskDownloadBase(String name, BThreadManager manager, String url, File dest) {
+    public TaskDownload(String name, BThreadManager manager, String url, File dest) {
         this(name, manager, url, dest, false, (String[]) null);
     }
 
-    public TaskDownloadBase(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
+    public TaskDownload(String name, BThreadManager manager, String url, File dest, boolean ignoreContentType, String... allowedSubContentTypes) {
         this(name, manager);
         this.url = url;
         this.destinationFile = dest;
@@ -51,7 +51,7 @@ public class TaskDownloadBase extends BThread {
         this.allowedSubContentTypes = allowedSubContentTypes;
     }
 
-    private TaskDownloadBase(String name, BThreadManager manager) {
+    private TaskDownload(String name, BThreadManager manager) {
         super(name, manager);
     }
 
@@ -150,4 +150,5 @@ public class TaskDownloadBase extends BThread {
                 result + " Excepted: \"" + expectedHash + "\" Actual: \"" + myHash + "\"");
         return result;
     }
+
 }

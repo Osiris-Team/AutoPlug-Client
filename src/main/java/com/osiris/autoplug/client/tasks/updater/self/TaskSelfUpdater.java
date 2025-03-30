@@ -13,7 +13,7 @@ import com.osiris.autoplug.client.SelfInstaller;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
-import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
+import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.UtilsJar;
 import com.osiris.betterthread.BThread;
@@ -112,7 +112,7 @@ public class TaskSelfUpdater extends BThread {
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownloadBase download = new TaskDownloadBase("Downloader", getManager(), downloadUrl, cache_dest);
+            TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {
@@ -145,7 +145,7 @@ public class TaskSelfUpdater extends BThread {
             File cache_dest = new File(downloadsDir.getAbsolutePath() + "/" + installationFile.getName());
             if (cache_dest.exists()) cache_dest.delete();
             cache_dest.createNewFile();
-            TaskDownloadBase download = new TaskDownloadBase("Downloader", getManager(), downloadUrl, cache_dest);
+            TaskDownload download = new TaskDownload("Downloader", getManager(), downloadUrl, cache_dest);
             download.start();
 
             while (true) {

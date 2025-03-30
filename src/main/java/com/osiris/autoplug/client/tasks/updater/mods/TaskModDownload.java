@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.mods;
 
-import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
+import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterthread.BThreadManager;
@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class TaskModDownload extends TaskDownloadBase {
+public class TaskModDownload extends TaskDownload {
     private final String plName;
     private final String plLatestVersion;
     private final String url;

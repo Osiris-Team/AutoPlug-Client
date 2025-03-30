@@ -8,7 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.plugins;
 
-import com.osiris.autoplug.client.tasks.updater.TaskDownloadBase;
+import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.StringComparator;
@@ -32,7 +32,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 
 
-public class TaskPluginDownload extends TaskDownloadBase {
+public class TaskPluginDownload extends TaskDownload {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
