@@ -55,7 +55,11 @@ public class UtilsMinecraft {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 String filePath = entry.getName();
-                if (filePath.endsWith("version.json")) { // Support for regular mc servers
+                if (filePath.equals("folia.yml")) { // Check for Folia
+                    version = "Folia";
+                    found = true;
+                    // TODO: Determine how to specifically identify Folia version if needed from this file or another.
+                } else if (filePath.endsWith("version.json")) { // Support for regular mc servers
                     found = true;
                     version = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject().get("id").getAsString();
                 } else if (filePath.endsWith("install.properties") || filePath.endsWith("patch.properties")) { // Support for mc paper servers
@@ -127,7 +131,17 @@ public class UtilsMinecraft {
                         if (mSpigotId != null && mSpigotId.asString() != null) spigotId = mSpigotId.asInt();
                         if (mBukkitId != null && mBukkitId.asString() != null) bukkitId = mBukkitId.asInt();
 
-                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null));
+                        boolean isFoliaSupported = false;
+                        YamlSection foliaSupportedSection = ymlConfig.get("folia-supported");
+                        if (foliaSupportedSection != null) {
+                            try {
+                                isFoliaSupported = foliaSupportedSection.asBoolean();
+                            } catch (Exception e) {
+                                AL.warn("Invalid value for 'folia-supported' in plugin " + name + ", defaulting to false.", e);
+                            }
+                        }
+
+                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version.asString(), author, spigotId, bukkitId, null, isFoliaSupported));
                     } else if (filePath.endsWith("velocity-plugin.json")) {
                         found = true;
                         JsonObject jsonConfig = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
@@ -154,7 +168,7 @@ public class UtilsMinecraft {
                         if (mSpigotId != null && !mSpigotId.isJsonNull()) spigotId = mSpigotId.getAsInt();
                         if (mBukkitId != null && !mBukkitId.isJsonNull()) bukkitId = mBukkitId.getAsInt();
 
-                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version, author, spigotId, bukkitId, null));
+                        plugins.add(new MinecraftPlugin(jar.getPath(), name, version, author, spigotId, bukkitId, null, false)); // Folia support defaults to false for Velocity
                     }
                     if (found) break;
                 }

@@ -27,8 +27,9 @@ public class MinecraftPlugin {
     public int jenkinsBuildId;
     public String modrinthId;
     public boolean forceUpdate;
+    public boolean isFoliaSupported;
 
-    public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL) {
+    public MinecraftPlugin(String installationPath, String name, String version, String author, int spigotId, int bukkitId, String customDownloadURL, boolean isFoliaSupported) {
         this.installationPath = installationPath;
         setName(name);
         setVersion(version);
@@ -36,6 +37,7 @@ public class MinecraftPlugin {
         this.spigotId = spigotId;
         this.bukkitId = bukkitId;
         this.customDownloadURL = customDownloadURL;
+        this.isFoliaSupported = isFoliaSupported;
     }
 
     public String getJenkinsProjectUrl() {
@@ -186,5 +188,13 @@ public class MinecraftPlugin {
 
     public String toPrintString() {
         return "name='" + name + "' version='" + version + "' author='" + author + "' path='" + installationPath + "'";
+    }
+
+    public boolean isFoliaSupported() {
+        return isFoliaSupported;
+    }
+
+    public void setFoliaSupported(boolean foliaSupported) {
+        isFoliaSupported = foliaSupported;
     }
 }
