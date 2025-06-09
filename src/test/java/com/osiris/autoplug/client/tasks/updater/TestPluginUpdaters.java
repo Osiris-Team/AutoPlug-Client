@@ -24,7 +24,7 @@ class TestPluginUpdaters {
     @Test
     void testCustom() throws IOException {
         UtilsTest.init();
-        MinecraftPlugin pl = new MinecraftPlugin("./plugins/", "Chunky", "0.0.0", "pop4959", 0, 0, null);
+        MinecraftPlugin pl = new MinecraftPlugin("./plugins/", "Chunky", "0.0.0", "pop4959", 0, 0, null, false);
         pl.customCheckURL = "https://api.modrinth.com/v2/project/chunky/version";
         pl.customDownloadURL = "https://cdn.modrinth.com/data/fALzjamp/versions/dPliWter/Chunky-1.4.16.jar";
         SearchResult sr = new CustomCheckURL().doCustomCheck(pl.customCheckURL, pl.getVersion());
@@ -34,7 +34,7 @@ class TestPluginUpdaters {
     @Test
     void testModrinth() throws IOException {
         UtilsTest.init();
-        MinecraftPlugin pl = new MinecraftPlugin("./plugins/", "BMMarker", "0.0.0", "Miraculixx", 0, 0, null);
+        MinecraftPlugin pl = new MinecraftPlugin("./plugins/", "BMMarker", "0.0.0", "Miraculixx", 0, 0, null, false);
         pl.modrinthId = "a8UoyV2h";
         SearchResult sr = new ModrinthAPI().searchUpdatePlugin(pl, "1.21.1");
         assertSame(SearchResult.Type.UPDATE_AVAILABLE, sr.type);
