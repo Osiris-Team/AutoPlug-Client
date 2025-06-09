@@ -379,6 +379,18 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version> <!-- Use a version known to support JUnit 5 well -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.9.2</version> <!-- Align with project's JUnit version -->
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
         <!--Sometimes unfiltered resources cause unexpected behaviour, thus enable filtering.-->
         <resources>

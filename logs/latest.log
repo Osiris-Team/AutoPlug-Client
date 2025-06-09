@@ -1,0 +1,108 @@
+[09-06-2025 12:33:33][AL][DEBUG][AL] Started Logger(AL)
+[09-06-2025 12:33:33][AL][DEBUG][GeneralConfig] Listening for changes for /app/test/autoplug/general.yml
+[09-06-2025 12:33:33][AL][DEBUG][ModrinthAPI] https://api.modrinth.com/v2/project/a8UoyV2h/version?loaders=[%22spigot%22,%22paper%22]&game_versions=[%221.21.1%22]
+[09-06-2025 12:33:34][AL][DEBUG][GeneralConfig] Listening for changes for /app/test/test/autoplug/general.yml
+[09-06-2025 12:33:34][AL][DEBUG][GeneralConfig] Listening for changes for /app/test/test/test/autoplug/general.yml
+[09-06-2025 12:33:35][AL][DEBUG][TaskPluginDownload] Downloading Autorank-[LATEST].jar to '/app/test/test/test/autoplug/downloads/Autorank-[LATEST].jar' from 'https://api.spiget.org/v2/resources/3239/download'
+[09-06-2025 12:33:35][AL][DEBUG][TaskPluginDownload] Downloading UltimateChat-[LATEST].jar to '/app/test/test/test/autoplug/downloads/UltimateChat-[LATEST].jar' from 'https://api.spiget.org/v2/resources/23767/download'
+[09-06-2025 12:33:35][AL][DEBUG][TaskPluginDownload] Downloading ViaRewind-[LATEST].jar to '/app/test/test/test/autoplug/downloads/ViaRewind-[LATEST].jar' from 'https://api.spiget.org/v2/resources/52109/download'
+[09-06-2025 12:33:35][AL][DEBUG][PluginsConfig] Listening for changes for /app/test/test/test/autoplug/plugins.yml
+[09-06-2025 12:33:35][AL][DEBUG][UpdaterConfig] Listening for changes for /app/test/test/test/autoplug/updater.yml
+[09-06-2025 12:33:36][AL][INFO] Time took to finish download tasks: 1,622 seconds!
+[09-06-2025 12:33:48][AL][DEBUG][GeneralConfig] Listening for changes for /app/test/test/test/test/autoplug/general.yml
+[09-06-2025 12:33:48][AL][DEBUG][SteamCMD] Installing SteamCMD, this might take a bit...
+[09-06-2025 12:33:48][AL][DEBUG][TaskDownload] Downloading steamcmd_linux.tar.gz from: https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
+[09-06-2025 12:33:48][AL][DEBUG][SteamCMD] Downloaded steamcmd_linux.tar.gz (2mb/2mb)
+[09-06-2025 12:33:49][AL][DEBUG][SteamCMD] SteamCMD installed successfully at: /app/test/test/test/test/autoplug/system/steamcmd/steamcmd.sh
+[09-06-2025 12:33:49][AL][DEBUG][SteamCMD] SteamCMD installed and setup successfully!
+[09-06-2025 12:33:49][AL][DEBUG][UtilsMinecraft] Folia
+[09-06-2025 12:33:49][AL][WARN] ================================
+[09-06-2025 12:33:49][AL][WARN] Message: null
+[09-06-2025 12:33:49][AL][WARN] Details: zip file is empty
+[09-06-2025 12:33:49][AL][WARN] Type: java.util.zip.ZipException
+[09-06-2025 12:33:49][AL][WARN] Stacktrace:
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$Source.zerror(ZipFile.java:1781)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$Source.findEND(ZipFile.java:1562)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$Source.initCEN(ZipFile.java:1657)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$Source.<init>(ZipFile.java:1495)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$Source.get(ZipFile.java:1458)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile$CleanableResource.<init>(ZipFile.java:724)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile.<init>(ZipFile.java:251)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile.<init>(ZipFile.java:180)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.zip.ZipFile.<init>(ZipFile.java:194)
+[09-06-2025 12:33:49][AL][WARN] com.osiris.autoplug.client.utils.UtilsMinecraft.getInstalledVersion(UtilsMinecraft.java:52)
+[09-06-2025 12:33:49][AL][WARN] com.osiris.autoplug.client.utils.UtilsMinecraftTest.testNonJarFileReturnsNull(UtilsMinecraftTest.java:73)
+[09-06-2025 12:33:49][AL][WARN] java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.lang.reflect.Method.invoke(Method.java:580)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:727)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:217)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+[09-06-2025 12:33:49][AL][WARN] org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+[09-06-2025 12:33:49][AL][WARN] java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:147)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:127)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:90)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:55)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:102)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:54)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:86)
+[09-06-2025 12:33:49][AL][WARN] org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher.execute(DefaultLauncherSession.java:86)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+[09-06-2025 12:33:49][AL][WARN] org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[09-06-2025 12:33:49][AL][WARN] ================================
+[09-06-2025 12:33:49][AL][DEBUG][UtilsMinecraft] null
+[09-06-2025 12:33:49][AL][DEBUG][UtilsMinecraft] 1.18.2
+[09-06-2025 12:33:49][AL][DEBUG][UtilsMinecraft] 1.19.4
+[09-06-2025 12:33:49][AL][DEBUG][UtilsMinecraft] null

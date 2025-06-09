@@ -155,10 +155,12 @@ public class UtilsMinecraft {
                         JsonElement authorsRaw = jsonConfig.get("authors");
 
                         String author = null;
-                        if (authorRaw != null && !authorRaw.isJsonNull())
+                        if (authorRaw != null && !authorRaw.isJsonNull()) {
                             author = authorRaw.getAsString();
-                        else
-                            author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
+                        } else if (authorsRaw != null && !authorsRaw.isJsonNull() && authorsRaw.isJsonArray() && authorsRaw.getAsJsonArray().size() > 0) {
+                            // Ensure authorsRaw is not null, is an array, and has elements before accessing
+                            author = authorsRaw.getAsJsonArray().get(0).getAsString();
+                        } // If both are null or authorsRaw is empty, author remains null, which is acceptable.
 
                         // Also check for ids in the plugin.yml
                         int spigotId = 0;
