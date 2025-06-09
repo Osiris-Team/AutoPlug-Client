@@ -386,7 +386,7 @@ public final class Commands {
         File pluginsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.plugins_updater_path.asString());
 
         MinecraftPlugin plugin = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                tempName, "0", "", 0, 0, "");
+                tempName, "0", "", 0, 0, "", false);
 
         String mcVersion = updaterConfig.plugins_updater_version.asString();
         if (mcVersion == null) mcVersion = Server.getMCVersion();
@@ -394,13 +394,13 @@ public final class Commands {
         String repo = "spigot";
         if(input.startsWith(repo)){
             int spigotId = Integer.parseInt(input.replace(repo, "").trim());
-            result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, ""));
+            result = new ResourceFinder().findPluginBySpigotId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(), tempName, "0", "", spigotId, 0, "", false));
         }
         repo = "bukkit";
         if(input.startsWith(repo)){
             int bukkitId = Integer.parseInt(input.replace(repo, "").trim());
             result = new ResourceFinder().findPluginByBukkitId(new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                    tempName, "0", "", 0, bukkitId, ""));
+                    tempName, "0", "", 0, bukkitId, "", false));
         }
         repo = "github";
         if(input.startsWith(repo)){
@@ -417,7 +417,7 @@ public final class Commands {
         repo = "modrinth";
         if(input.startsWith(repo)){
             MinecraftPlugin plugin2 = new MinecraftPlugin(new File(pluginsDir + "/" + tempName).getAbsolutePath(),
-                    tempName, "0", "", 0, 0, "");
+                    tempName, "0", "", 0, 0, "", false);
             plugin2.setModrinthId(input.replace(repo, "").trim());
             result = new ResourceFinder().findPluginByModrinthId(plugin2, mcVersion);
         }

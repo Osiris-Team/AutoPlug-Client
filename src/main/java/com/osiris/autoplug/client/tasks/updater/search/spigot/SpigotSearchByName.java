@@ -54,7 +54,7 @@ public class SpigotSearchByName {
                     plAuthor = plAuthor.replaceAll("[^a-zA-Z]", "");
                     int plId = Integer.parseInt(jsonPlugin.get("id").getAsString());
 
-                    similarPlugins.add(new MinecraftPlugin(null, plName, plVersion, queryAuthor, plId, 0, null));
+                    similarPlugins.add(new MinecraftPlugin(null, plName, plVersion, queryAuthor, plId, 0, null, false));
 
                     double similarity = StringComparator.similarity(queryAuthor, plAuthor);
                     AL.debug(this.getClass(), "[" + plugin.getName() + "] Similarity between -> " + plAuthor + " and " + queryAuthor + " is: " + similarity);
