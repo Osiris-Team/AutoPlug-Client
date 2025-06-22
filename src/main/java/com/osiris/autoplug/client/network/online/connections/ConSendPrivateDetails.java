@@ -50,51 +50,46 @@ public class ConSendPrivateDetails extends DefaultConnection {
             float oneGigaHertzInHertz = 1000000000.0f;
             SystemInfo si = new SystemInfo();
             setAndStartAsync(() -> {
-                try {
-                    while (true) {
-                        // Hardware info:
-                        HardwareAbstractionLayer hal = si.getHardware();
-                        CentralProcessor cpu = hal.getProcessor();
-                        GlobalMemory memory = hal.getMemory();
-                        // Calc average frequency in mhz
-                        long currentFrq = 0;
-                        int i = 0;
-                        if (cpu != null) {
-                            for (long frq :
-                                    cpu.getCurrentFreq()) {
-                                currentFrq = currentFrq + frq;
-                                i++;
-                            }
-                            currentFrq = currentFrq / i;
+                while (true) {
+                    // Hardware info:
+                    HardwareAbstractionLayer hal = si.getHardware();
+                    CentralProcessor cpu = hal.getProcessor();
+                    GlobalMemory memory = hal.getMemory();
+                    // Calc average frequency in mhz
+                    long currentFrq = 0;
+                    int i = 0;
+                    if (cpu != null) {
+                        for (long frq :
+                                cpu.getCurrentFreq()) {
+                            currentFrq = currentFrq + frq;
+                            i++;
                         }
-
-                        if (cpu != null) {
-                            dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
-                            cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz);
-                            dos.writeFloat(Math.max(cpuMaxSpeed, cpuSpeed)); // Support for overclocking
-                            dos.writeByte((cpuUsage = (byte) Math.round(cpu.getSystemCpuLoad(1000) * 100)));
-                        } else {
-                            dos.writeFloat(0);
-                            dos.writeFloat(0);
-                            dos.writeByte((byte) 0);
-                        }
-
-
-                        if (memory != null) {
-                            dos.writeFloat((memAvailable = (memory.getAvailable() / oneGigaByteInBytes)));
-                            dos.writeFloat((memUsed = ((memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes)));
-                            dos.writeFloat((memTotal = (memory.getTotal() / oneGigaByteInBytes)));
-                        } else {
-                            dos.writeFloat(0);
-                            dos.writeFloat(0);
-                            dos.writeFloat(0);
-                        }
-
-                        Thread.sleep(5000);
+                        currentFrq = currentFrq / i;
                     }
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    throw e;
+
+                    if (cpu != null) {
+                        dos.writeFloat((cpuSpeed = (currentFrq / oneGigaHertzInHertz)));
+                        cpuMaxSpeed = (cpu.getMaxFreq() / oneGigaHertzInHertz);
+                        dos.writeFloat(Math.max(cpuMaxSpeed, cpuSpeed)); // Support for overclocking
+                        dos.writeByte((cpuUsage = (byte) Math.round(cpu.getSystemCpuLoad(1000) * 100)));
+                    } else {
+                        dos.writeFloat(0);
+                        dos.writeFloat(0);
+                        dos.writeByte((byte) 0);
+                    }
+
+
+                    if (memory != null) {
+                        dos.writeFloat((memAvailable = (memory.getAvailable() / oneGigaByteInBytes)));
+                        dos.writeFloat((memUsed = ((memory.getTotal() - memory.getAvailable()) / oneGigaByteInBytes)));
+                        dos.writeFloat((memTotal = (memory.getTotal() / oneGigaByteInBytes)));
+                    } else {
+                        dos.writeFloat(0);
+                        dos.writeFloat(0);
+                        dos.writeFloat(0);
+                    }
+
+                    Thread.sleep(5000);
                 }
             });
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");

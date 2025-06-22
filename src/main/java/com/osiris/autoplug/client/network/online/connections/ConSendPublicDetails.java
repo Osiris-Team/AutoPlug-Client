@@ -74,33 +74,28 @@ public class ConSendPublicDetails extends DefaultConnection {
             } else
                 port = webConfig.send_server_status_port.asInt();
             setAndStartAsync(() -> {
-                try {
-                    while (true) {
-                        // MC server related info:
-                        mineStat = new MineStat(host, port);
-                        // mineStat.isServerUp(); // Before, but deprecated now to support
-                        // mc proxies and other servers like steam game servers.
-                        // This has one caveat since the server might be running, but we
-                        // actually want to know if players can join it, since it might still be blocked
-                        // by the firewall or another network issue.
-                        isRunning = Server.isRunning();
-                        version = mineStat.getVersion();
-                        if (version != null)
-                            version = version.replaceAll("[a-zA-Z]", "").trim();
-                        else
-                            version = "-";
-                        currentPlayers = mineStat.getCurrentPlayers();
-                        maxPlayers = mineStat.getMaximumPlayers();
+                while (true) {
+                    // MC server related info:
+                    mineStat = new MineStat(host, port);
+                    // mineStat.isServerUp(); // Before, but deprecated now to support
+                    // mc proxies and other servers like steam game servers.
+                    // This has one caveat since the server might be running, but we
+                    // actually want to know if players can join it, since it might still be blocked
+                    // by the firewall or another network issue.
+                    isRunning = Server.isRunning();
+                    version = mineStat.getVersion();
+                    if (version != null)
+                        version = version.replaceAll("[a-zA-Z]", "").trim();
+                    else
+                        version = "-";
+                    currentPlayers = mineStat.getCurrentPlayers();
+                    maxPlayers = mineStat.getMaximumPlayers();
 
-                        dos.writeBoolean(isRunning);
-                        dos.writeLine(version);
-                        dos.writeInt(currentPlayers);
-                        dos.writeInt(maxPlayers);
-                        Thread.sleep(5000);
-                    }
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    throw e;
+                    dos.writeBoolean(isRunning);
+                    dos.writeLine(version);
+                    dos.writeInt(currentPlayers);
+                    dos.writeInt(maxPlayers);
+                    Thread.sleep(5000);
                 }
             });
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");

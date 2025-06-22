@@ -36,21 +36,16 @@ public class ConAutoPlugConsoleReceive extends DefaultConnection {
         if (new WebConfig().online_console.asBoolean()) {
             super.open();
             setAndStartAsync(() -> {
-                try {
-                    Socket socket = getSocket();
-                    socket.setSoTimeout(0);
-                    InputStream in = getSocket().getInputStream();
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                        String line;
-                        while (!socket.isClosed() && (line = reader.readLine()) != null) {
-                            AL.info("Received Web-Command for Console: " + line);
-                            if (!Commands.execute(line))
-                                Server.submitCommand(line);
-                        }
+                Socket socket = getSocket();
+                socket.setSoTimeout(0);
+                InputStream in = getSocket().getInputStream();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                    String line;
+                    while (!socket.isClosed() && (line = reader.readLine()) != null) {
+                        AL.info("Received Web-Command for Console: " + line);
+                        if (!Commands.execute(line))
+                            Server.submitCommand(line);
                     }
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    throw e;
                 }
             });
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");

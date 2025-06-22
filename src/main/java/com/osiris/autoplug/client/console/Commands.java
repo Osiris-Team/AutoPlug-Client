@@ -163,7 +163,7 @@ public final class Commands {
                     new BeforeServerStartupTasks();
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
-                    AL.info("Main connection: connected=" + Main.CON.isAlive() + " interrupted=" + Main.CON.isInterrupted() + " user/staff active=" + Main.CON.isUserActive.get());
+                    AL.info("Main connection: connected=" + Main.CON.isConnected() + " interrupted=" + Main.CON.isInterrupted() + " user/staff active=" + Main.CON.isUserActive.get());
                     AL.info(Main.CON.CON_PUBLIC_DETAILS.toString());
                     AL.info(Main.CON.CON_PRIVATE_DETAILS.toString());
                     AL.info(Main.CON.CON_CONSOLE_SEND.toString());
@@ -189,7 +189,7 @@ public final class Commands {
                     }
                     AL.info("Public-IP: " + ip);
                     AL.info("Device-/Local-IP: " + InetAddress.getLocalHost().getHostAddress());
-                    if (!conPublic.isAlive()) {
+                    if (!conPublic.isConnected()) {
                         AL.info(conPublic.getClass().getSimpleName() + " is not active, thus more information cannot be retrieved!");
                     } else {
                         AL.info("Details from " + conPublic.getClass().getSimpleName() + ":");

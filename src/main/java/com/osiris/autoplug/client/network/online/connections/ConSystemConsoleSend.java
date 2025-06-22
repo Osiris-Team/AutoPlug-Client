@@ -76,19 +76,9 @@ public class ConSystemConsoleSend extends DefaultConnection {
             send("Connected to AutoPlug-Web at " + new Date());
             send("Current working directory: " + GD.WORKING_DIR);
             asyncTerminal = new AsyncTerminal(null, line -> {
-                try {
-                    send(line);
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    AL.warn("Failed to send message to online console!", e);
-                }
+                send(line);
             }, errLine -> {
-                try {
-                    send(errLine);
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    AL.warn("Failed to send message to online console!", e);
-                }
+                send(errLine);
             });
 
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");

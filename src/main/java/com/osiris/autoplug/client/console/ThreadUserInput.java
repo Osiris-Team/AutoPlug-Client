@@ -49,7 +49,7 @@ public class ThreadUserInput extends Thread {
                     }
 
                     // Send to online console
-                    if (Main.CON.CON_CONSOLE_SEND.isAlive())
+                    if (Main.CON.CON_CONSOLE_SEND.isConnected())
                         try {
                             ConAutoPlugConsoleSend.send(user_input);
                         } catch (Exception e) {

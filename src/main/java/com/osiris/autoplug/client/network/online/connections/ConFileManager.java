@@ -42,34 +42,29 @@ public class ConFileManager extends DefaultConnection {
             dis = new UFDataIn(in);
 
             setAndStartAsync(() -> {
-                try {
-                    while (true) {
-                        byte requestType = dis.readByte(); // Blocks indefinitely
-                        getSocket().setSoTimeout(60000);
-                        if (requestType == 0) {
-                            doProtocolForSendingFileDetails();
-                        } else if (requestType == 1) {
-                            doProtocolForCreatingNewFile();
-                        } else if (requestType == 2) {
-                            doProtocolForDeletingFile();
-                        } else if (requestType == 3) {
-                            doProtocolForRenamingFile();
-                        } else if (requestType == 4) {
-                            doProtocolForSavingFile();
-                        } else if (requestType == 5) {
-                            doProtocolForReceivingUploadedFile();
-                        } else if (requestType == 6) {
-                            doProtocolForCopyOrCutFiles();
-                        } else if (requestType == 7) {
-                            doProtocolForSendingRoots();
-                        } else {
-                            AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
-                        }
-                        getSocket().setSoTimeout(0);
+                while (true) {
+                    byte requestType = dis.readByte(); // Blocks indefinitely
+                    getSocket().setSoTimeout(60000);
+                    if (requestType == 0) {
+                        doProtocolForSendingFileDetails();
+                    } else if (requestType == 1) {
+                        doProtocolForCreatingNewFile();
+                    } else if (requestType == 2) {
+                        doProtocolForDeletingFile();
+                    } else if (requestType == 3) {
+                        doProtocolForRenamingFile();
+                    } else if (requestType == 4) {
+                        doProtocolForSavingFile();
+                    } else if (requestType == 5) {
+                        doProtocolForReceivingUploadedFile();
+                    } else if (requestType == 6) {
+                        doProtocolForCopyOrCutFiles();
+                    } else if (requestType == 7) {
+                        doProtocolForSendingRoots();
+                    } else {
+                        AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
                     }
-                } catch (Exception e) {
-                    if (!Main.CON.isUserActive.get()) return; // Ignore after logout
-                    throw e;
+                    getSocket().setSoTimeout(0);
                 }
             });
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");

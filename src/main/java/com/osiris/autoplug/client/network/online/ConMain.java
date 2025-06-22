@@ -60,7 +60,7 @@ public class ConMain extends DefaultConnection {
         }
         super.setAndStartAsync(() -> {
             try {
-                if (!super.isAlive()) {
+                if (!super.isConnected()) {
                     AL.info("Authenticating server...");
                     super.open();
                     AL.info("Authentication success!");
@@ -77,17 +77,17 @@ public class ConMain extends DefaultConnection {
                         if (!isUserActiveOld) {
                             AL.debug(this.getClass(), "Owner/Staff is online/active.");
                             // User is online, so open secondary connections if they weren't already
-                            if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
+                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
                             CON_CONSOLE_RECEIVE.open();
-                            if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
+                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
                             CON_CONSOLE_SEND.open();
-                            if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
                             CON_SYSTEM_CONSOLE_RECEIVE.open();
-                            if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
+                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
                             CON_SYSTEM_CONSOLE_SEND.open();
-                            if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
+                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
                             CON_FILE_MANAGER.open();
-                            if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
                             CON_PRIVATE_DETAILS.open();
                             //if (!CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.open(); Only is used at restarts!
                         }
@@ -95,12 +95,12 @@ public class ConMain extends DefaultConnection {
                         if (isUserActiveOld) {
                             AL.debug(this.getClass(), "Owner/Staff is offline/inactive.");
                             // Close secondary connections when user is offline/logged out
-                            if (CON_CONSOLE_RECEIVE.isAlive()) CON_CONSOLE_RECEIVE.close();
-                            if (CON_CONSOLE_SEND.isAlive()) CON_CONSOLE_SEND.close();
-                            if (CON_SYSTEM_CONSOLE_RECEIVE.isAlive()) CON_SYSTEM_CONSOLE_RECEIVE.close();
-                            if (CON_SYSTEM_CONSOLE_SEND.isAlive()) CON_SYSTEM_CONSOLE_SEND.close();
-                            if (CON_FILE_MANAGER.isAlive()) CON_FILE_MANAGER.close();
-                            if (CON_PRIVATE_DETAILS.isAlive()) CON_PRIVATE_DETAILS.close();
+                            if (CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.close();
+                            if (CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.close();
+                            if (CON_SYSTEM_CONSOLE_RECEIVE.isConnected()) CON_SYSTEM_CONSOLE_RECEIVE.close();
+                            if (CON_SYSTEM_CONSOLE_SEND.isConnected()) CON_SYSTEM_CONSOLE_SEND.close();
+                            if (CON_FILE_MANAGER.isConnected()) CON_FILE_MANAGER.close();
+                            if (CON_PRIVATE_DETAILS.isConnected()) CON_PRIVATE_DETAILS.close();
                             //if (CON_PLUGINS_UPDATER.isConnected()) CON_PLUGINS_UPDATER.close(); Only is used at restarts!
                         }
                     }
@@ -161,7 +161,7 @@ public class ConMain extends DefaultConnection {
         }
 
         try {
-            if (CON_PUBLIC_DETAILS.isAlive())
+            if (CON_PUBLIC_DETAILS.isConnected())
                 CON_PUBLIC_DETAILS.close();
         } catch (Exception e1) {
             AL.warn(e1);
@@ -173,28 +173,28 @@ public class ConMain extends DefaultConnection {
      */
     public void closeTempCons() {
         try {
-            if (CON_CONSOLE_RECEIVE.isAlive())
+            if (CON_CONSOLE_RECEIVE.isConnected())
                 CON_CONSOLE_RECEIVE.close();
         } catch (Exception e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_CONSOLE_SEND.isAlive())
+            if (CON_CONSOLE_SEND.isConnected())
                 CON_CONSOLE_SEND.close();
         } catch (IOException e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_PRIVATE_DETAILS.isAlive())
+            if (CON_PRIVATE_DETAILS.isConnected())
                 CON_PRIVATE_DETAILS.close();
         } catch (Exception e1) {
             AL.warn(e1);
         }
 
         try {
-            if (CON_FILE_MANAGER.isAlive())
+            if (CON_FILE_MANAGER.isConnected())
                 CON_FILE_MANAGER.close();
         } catch (Exception e1) {
             AL.warn(e1);

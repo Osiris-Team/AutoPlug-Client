@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.network.online;
 
+import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
 import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleReceive;
@@ -18,6 +19,7 @@ import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.jlib.logger.AL;
 import com.osiris.jprocesses2.JProcess;
 import com.osiris.jprocesses2.ProcessUtils;
+import org.jetbrains.annotations.Nullable;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSession;
@@ -49,6 +51,10 @@ public class DefaultConnection implements AutoCloseable {
     public DataOutputStream out;
     public AtomicBoolean isClosing = new AtomicBoolean(false);
     private Thread thread;
+    /**
+     * Gets reset to null in {@link #_open()}
+     */
+    private @Nullable Exception latestThreadException = null;
 
 
     /**
@@ -78,8 +84,12 @@ public class DefaultConnection implements AutoCloseable {
      * that catches and ignores Exceptions caused by {@link #close()}.
      */
     public synchronized void setAndStartAsync(RunnableWithException runnable) {
-        if (this.thread != null)
-            this.thread.interrupt();
+        try{
+            if (this.thread != null)
+                this.thread.interrupt();
+        } catch (Exception e) {
+            AL.debug(this.getClass(), "An active & old connection thread has been interrupted for the sake of creating a new one, exception: "+ e.getMessage());
+        }
         // Save instances to make sure NOT to close the wrong ones later.
         Socket _socket = this.socket;
         InputStream _in = this.in;
@@ -87,8 +97,11 @@ public class DefaultConnection implements AutoCloseable {
         this.thread = new Thread(() -> {
             try {
                 runnable.run();
-            } catch (Exception e) { // Exceptions caused by close() are ignored
-                if (!isClosing.get()) AL.warn(e);
+            } catch (Exception e) {
+                latestThreadException = e;
+                // Do not log exceptions if we are closing or the user is inactive
+                if(isClosing.get() || !Main.CON.isUserActive.get()) AL.debug(this.getClass(), "Silent connection exception: "+e.getMessage());
+                else AL.warn(e);
                 try {
                     _close(Thread.currentThread(), _in, _out, _socket);
                 } catch (Exception ex) {
@@ -97,6 +110,7 @@ public class DefaultConnection implements AutoCloseable {
             }
         });
         this.thread.start();
+        AL.debug(this.getClass(), "setAndStartAsync: "+thread+" "+socket+" "+runnable);
     }
 
     public synchronized boolean open() throws Exception {
@@ -112,6 +126,7 @@ public class DefaultConnection implements AutoCloseable {
     }
 
     private synchronized int _open() throws Exception {
+        latestThreadException = null;
         isClosing.set(false);
         errorCode = 0;
         close();
@@ -250,7 +265,7 @@ public class DefaultConnection implements AutoCloseable {
         out = new DataOutputStream(output);
     }
 
-    public boolean isAlive() {
+    public boolean isConnected() {
         return socket != null && !socket.isClosed() && socket.isConnected();
     }
 
@@ -291,11 +306,13 @@ public class DefaultConnection implements AutoCloseable {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
-                "ssl=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
-                ", isAlive=" + isAlive() +
+                "isEncrypted=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
+                ", isConnected=" + isConnected() +
+                ", isThreadRunning=" + (thread != null && !thread.isInterrupted() && thread.isAlive()) +
+                ", latestThreadExceptionMessage=" + (latestThreadException != null ? latestThreadException.getMessage() : "empty") +
+                ", isClosing=" + isClosing.get() +
                 ", errorCode=" + errorCode +
                 ", socket=" + socket +
-                ", threadRunning=" + (thread != null && !thread.isInterrupted() && thread.isAlive()) +
                 '}';
     }
 
