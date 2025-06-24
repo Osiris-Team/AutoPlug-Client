@@ -73,6 +73,7 @@ class ThisProject extends JPM.Project {
         implementation("org.tomlj:tomlj:1.0.0");
         implementation("com.formdev:flatlaf:2.2");
         implementation("org.apache.sshd:sshd-core:2.13.0");
+        implementation("org.json:json:20250107");
 
         // Minecraft client:
         implementation("org.nanohttpd:nanohttpd:2.3.1");
