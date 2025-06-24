@@ -14,8 +14,10 @@ import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
+import me.hsgamer.mcserverupdater.UpdateBuilder;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 public class UpdaterConfig extends MyYaml {
 
@@ -147,11 +149,11 @@ public class UpdaterConfig extends MyYaml {
         server_updater_profile = put(name, "server-updater", "profile").setDefValues("AUTOMATIC").setComments(
                 "Note that your servers jar/executable NAME will not be updated, even if set to AUTOMATIC, to increase compatibility with external scripts or other programs.",
                 "The actual content/file will update though, thus rename it to something like server.jar, and do not include version info to prevent confusion.");
+        String serverSoftwareNames = String.join(" ", UpdateBuilder.getUpdaterNames());
+
         server_software = put(name, "server-updater", "software").setDefValues("paper").setComments(
                 "Select your favorite server software. Enter the name below. Supported software:\n" +
-                        "- Minecraft (paper, travertine, waterfall, velocity, folia, pandaspigot, purpur, bungeecord, " +
-                        "spigot, patina, pufferfish, fabric, fabric-dev, spongevanilla, spongevanilla-recommended, " +
-			"spongeforge, spongeforge-recommended, mohist, plazma, kaiiju, divine, leaf, leaves, luminol)\n" +
+                        "- Minecraft ("+serverSoftwareNames+")\n" +
                         "- Any Steam game (enter the app-id below, go to https://steamdb.info/ and search for: \"<game-name> server\" to find the app-id)\n" +
                         "Note: If you change this, also reset the \"build-id\" to 0 to guarantee correct update-detection.");
         server_steamcmd_login = put(name, "server-updater", "steam-cmd-login")
@@ -161,6 +163,7 @@ public class UpdaterConfig extends MyYaml {
                 "If left empty, taken from general.yml, if also empty, taken from server jar.\n" +
                         "A list of supported versions can be found in the links below:\n" +
                         "- Minecraft versions: https://papermc.io/api/v2/projects/paper | https://papermc.io/api/v2/projects/waterfall | https://papermc.io/api/v2/projects/travertine | https://papermc.io/api/v2/projects/velocity | https://purpur.pl3x.net/downloads | https://fabricmc.net/use/installer\n" +
+                        "- If not listed, you must google to get the project and find its latest version." +
                         "Enter \"latest\" as version to always fetch the latest release (major + minor).\n" +
                         "Pufferfish+ (and its purpur variant) are also supported by appending -plus and/or -purpur to the version.\n" +
                         "Note: Only update to a newer version if you are sure that all your essential plugins support that version.\n" +
