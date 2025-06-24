@@ -21,14 +21,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-public class HomePanel extends BLayout {
+public class ServerConsolePanel extends BLayout {
 
     public JLabel labelConsole = new JLabel("Console");
     public BLayout txtConsole;
     public HintTextField txtSendCommand = new HintTextField("Send command...");
     private final JButton execute;
 
-    public HomePanel(Container parent) {
+    public ServerConsolePanel(Container parent) {
         super(parent);
 
         execute = new JButton("Execute");

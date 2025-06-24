@@ -11,7 +11,6 @@ package com.osiris.autoplug.client.ui;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.osiris.autoplug.client.Target;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.client.utils.GD;
@@ -154,32 +153,14 @@ public class MainWindow extends JFrame {
             titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
             thisLy.addH(titleTray).delPadding().paddingTop();
 
-            JTabbedPane tabbedPane = new JTabbedPane();
-            thisLy.addV(tabbedPane).height(80).widthFull();
-            tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+            JTabbedPane mainTab = new JTabbedPane();
+            thisLy.addV(mainTab).height(80).widthFull();
+            mainTab.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
             // Tab panels/layouts
             try {
-                tabbedPane.addTab("Home", new HomePanel(tabbedPane));
-                if (GD.TARGET == Target.MINECRAFT_CLIENT) {
-                    MinecraftPluginsPanel minecraftMods = new MinecraftPluginsPanel(tabbedPane);
-                    tabbedPane.addTab("Mods", minecraftMods);
-                } else if (GD.TARGET == Target.MINECRAFT_SERVER) {
-                    MinecraftPluginsPanel minecraftPluginsPanel = new MinecraftPluginsPanel(tabbedPane);
-                    MinecraftModsPanel minecraftModsPanel = new MinecraftModsPanel(tabbedPane);
-                    tabbedPane.addTab("Plugins", minecraftPluginsPanel);
-                    tabbedPane.addTab("Mods", minecraftModsPanel);
-                } else if (GD.TARGET == Target.MINDUSTRY_SERVER) {
-                    MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
-                    tabbedPane.addTab("Mods", mindustryModsPanel);
-                } else if (GD.TARGET == Target.MINDUSTRY_CLIENT) {
-                    MindustryModsPanel mindustryModsPanel = new MindustryModsPanel(tabbedPane);
-                    tabbedPane.addTab("Mods", mindustryModsPanel);
-                } else { // Target.OTHER
-
-                }
-                SettingsPanel settingsPanel = new SettingsPanel(tabbedPane);
-                tabbedPane.addTab("Settings", settingsPanel);
+                mainTab.addTab("Server", new ServerPanel(mainTab));
+                mainTab.addTab("Client", new ClientPanel(mainTab));
                 //tabbedPane.addChangeListener(e -> selectedTabChanged());
             } catch (Exception e) {
                 AL.warn(e);

@@ -25,8 +25,8 @@ class ThisProject extends JPM.Project {
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
-        this.javaVersionSource = "8";
-        this.javaVersionTarget = "8";
+        this.javaVersionSource = "9";
+        this.javaVersionTarget = "9";
 
         // Add repositories
         addRepository("https://oss.sonatype.org/content/repositories/snapshots");
@@ -72,8 +72,11 @@ class ThisProject extends JPM.Project {
         implementation("org.quartz-scheduler:quartz:2.3.2");
         implementation("org.tomlj:tomlj:1.0.0");
         implementation("com.formdev:flatlaf:2.2");
-        implementation("me.hsgamer:mc-server-updater-lib:3.7.0");
         implementation("org.apache.sshd:sshd-core:2.13.0");
+
+        // Minecraft client:
+        implementation("org.nanohttpd:nanohttpd:2.3.1");
+        implementation("org.glavo.kala:kala-compress:1.27.1-1");
 
         testImplementation("org.junit.jupiter:junit-jupiter:5.9.2");
 
