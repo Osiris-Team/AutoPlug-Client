@@ -106,13 +106,17 @@ fixed quite easily by opening either `/autoplug/plugins.yml` or `/autoplug/mods.
 finding your plugin/mod in that file, and providing either a `spigot-id` or `bukkit-id` for the plugin, or
 in case of a mod a `modrinth-id` or `curseforge-id`.
 
-If the downloads on those pages do not return a .jar/.zip file, but for example forward to another page,
-you must use either use the `github` or `jenkins` alternative. If the plugin/mod developer has none
-of those available (which pretty much is never the case) its simply not possible to auto-update that plugin/mod.  
-Please see the top of the `plugins.yml`/`mods.yml` file for instructions and examples on filling these out.
+If the downloads on those pages do not return a .jar/.zip file directly, but for example forward to another page,
+you must use either use the `github` or `jenkins` alternative. Note that the github page must have releases that have the plugin/mod jar file attached.
+
+If the plugin/mod developer has none of those available (which pretty much is never the case), there is a last thing you can try, namely setting
+the `custom-check-url` and/or `custom-download-url`. Please see the top of the `plugins.yml`/`mods.yml` file for instructions and examples on filling these out.
+
+If nothing of the above works, its simply not possible to auto-update that plugin/mod, your best bet is then asking
+that specific developer to provide the releases on one of the mentioned pages.
 
 If you have a premium account and your server connected, AutoPlug will additionally check
-our database for additional info and fill it in, if that info is used by over 50 other servers too.
+the AutoPlug-Web database for missing info and fill it in (if that info is used by over 50 other servers).
 
 ## **Download of 'plugin/mod.jar' failed because of invalid content type: text**
 The download fails due to the download link redirecting to another page (see question above for details). 
