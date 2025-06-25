@@ -8,6 +8,8 @@
 
 package com.osiris.autoplug.client.configs;
 
+import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
+import com.osiris.autoplug.client.tasks.backup.BackupGoogleDrive;
 import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
@@ -18,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackupConfig extends MyYaml {
     private static final boolean isFileListenerRegistered = false;
@@ -38,12 +41,29 @@ public class BackupConfig extends MyYaml {
     public YamlSection backup_upload_password;
     public YamlSection backup_upload_path;
     public YamlSection backup_upload_rsa;
+    public YamlSection backup_upload_alternatives_google_drive;
+    public YamlSection backup_upload_alternatives_google_drive_enable;
+    public YamlSection backup_upload_alternatives_google_drive_client_id;
+    public YamlSection backup_upload_alternatives_google_drive_client_secret;
+    public YamlSection backup_upload_alternatives_google_drive_refresh_token;
 
+    public static final AtomicBoolean isGoogleDriveEnabled = new AtomicBoolean(false);
 
     public BackupConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         super(System.getProperty("user.dir") + "/autoplug/backup.yml");
 
         addSingletonConfigFileEventListener(e -> {
+            boolean newVal = this.backup_upload_alternatives_google_drive_enable.asBoolean();
+            if(isGoogleDriveEnabled.get() != newVal && newVal == true){
+                // Changed from false to true, meaning enabled, thus check if we need to do credential fetching
+                try{
+                    BackupGoogleDrive backupGoogleDrive = new BackupGoogleDrive();
+                    backupGoogleDrive.getCredentials(this);
+                } catch (Exception ex) {
+                    AL.warn(ex);
+                }
+            }
+            isGoogleDriveEnabled.set(newVal);
         });
 
         lockFile();
@@ -115,6 +135,31 @@ public class BackupConfig extends MyYaml {
                 "Leave this field blank when using FTPS.",
                 "Otherwise enter a relative or absolute path to the file containing the key.",
                 "Usually the path is something like this: /home/username/.ssh/id_rsa");
+
+        backup_upload_alternatives_google_drive = put(name, "upload", "alternatives", "google-drive").setComments("" +
+                "How This Works:\n" +
+                "1. You create OAuth credentials in your own Google Cloud Console\n" +
+                "2. You enter your Client ID and Client Secret in the sections below\n" +
+                "3. You get an URL to open with your browser and log in\n" +
+                "4. After authentication, a refresh token is saved for future use and to avoid repeating the steps shown below\n" +
+                "Google-Drive Setup:\n" +
+                "1. Create a project in Google Cloud Console (or use an existing one) and make sure the project_id is autoplug-client: https://developers.google.com/workspace/guides/create-project\n" +
+                "2. Enable the Google Drive API: https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com\n" +
+                "3. Create OAuth 2.0 login panel: https://console.cloud.google.com/auth/branding\n" +
+                "4. Create a Client (type \"Desktop app\"): https://console.cloud.google.com/auth/clients\n" +
+                "5. Add urn:ietf:wg:oauth:2.0:oob as authorized redirect URI\n" +
+                "6. Enter your Client ID and Client Secret into the sections below\n" +
+                "7. Set 'enable' to 'true' and save this file" +
+                "8. An URL should be shown in your console, open it via your browser and authenticate, then paste the code back into the console\n" +
+                "9. After authentication, the backups will be uploaded to your personal Google Drive\n" +
+                "!!!IMPORTANT!!! This file now contains data that must be kept secret, do not share with anyone!\n");
+        backup_upload_alternatives_google_drive_enable = put(name, "upload", "alternatives", "google-drive", "enable").setDefValues("false");
+        backup_upload_alternatives_google_drive_client_id = put(name, "upload", "alternatives", "google-drive", "client-id").setComments(
+                "Get this from Google Cloud Console after creating OAuth credentials.");
+        backup_upload_alternatives_google_drive_client_secret = put(name, "upload", "alternatives", "google-drive", "client-secret").setComments(
+                "Get this from Google Cloud Console after creating OAuth credentials.");
+        backup_upload_alternatives_google_drive_refresh_token = put(name, "upload", "alternatives", "google-drive", "refresh-token").setComments(
+                "This will be automatically obtained during first-time setup.");
 
         save();
         unlockFile();

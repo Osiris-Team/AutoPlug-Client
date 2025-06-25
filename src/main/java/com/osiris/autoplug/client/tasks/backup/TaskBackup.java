@@ -162,22 +162,31 @@ public class TaskBackup extends BThread {
 
                 setStatus("Uploading server-files backup...");
 
-                Upload upload = new Upload(config.backup_upload_host.asString(),
-                        config.backup_upload_port.asInt(),
-                        config.backup_upload_user.asString(),
-                        config.backup_upload_password.asString(),
-                        config.backup_upload_path.asString(),
-                        zip.getFile());
+                if(config.backup_upload_alternatives_google_drive_enable.asBoolean()){
+                    try{
+                        BackupGoogleDrive backupGoogleDrive = new BackupGoogleDrive();
+                        backupGoogleDrive.uploadToGoogleDrive(zip.getFile(), config);
+                    } catch (Exception e) {
+                        getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
+                    }
+                } else{
+                    Upload upload = new Upload(config.backup_upload_host.asString(),
+                            config.backup_upload_port.asInt(),
+                            config.backup_upload_user.asString(),
+                            config.backup_upload_password.asString(),
+                            config.backup_upload_path.asString(),
+                            zip.getFile());
 
-                String rsa = config.backup_upload_rsa.asString();
-                try {
-                    if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
-                    else upload.sftp(rsa.trim());
+                    String rsa = config.backup_upload_rsa.asString();
+                    try {
+                        if (rsa == null || rsa.trim().isEmpty()) upload.ftps();
+                        else upload.sftp(rsa.trim());
 
-                    if (config.backup_upload_delete_on_complete.asBoolean())
-                        zip.getFile().delete();
-                } catch (Exception e) {
-                    getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
+                        if (config.backup_upload_delete_on_complete.asBoolean())
+                            zip.getFile().delete();
+                    } catch (Exception e) {
+                        getWarnings().add(new BWarning(this, e, "Failed to upload backup."));
+                    }
                 }
 
                 if (getWarnings().size() > 0)

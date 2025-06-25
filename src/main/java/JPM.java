@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.3.2";
+        this.version = "8.3.3";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -74,6 +74,17 @@ class ThisProject extends JPM.Project {
         implementation("com.formdev:flatlaf:2.2");
         implementation("org.apache.sshd:sshd-core:2.13.0");
         implementation("org.json:json:20250107");
+
+        // Google Drive
+        implementation("com.google.api-client:google-api-client:2.0.0");
+        implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1");
+        implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0");
+        forceImplementation("com.google.http-client:google-http-client:1.42.0");
+        forceImplementation("org.apache.httpcomponents:httpcore:4.4.15");
+        forceImplementation("com.google.http-client:google-http-client-gson:1.42.1");
+        forceImplementation("com.google.guava:guava:31.1-jre");
+        forceImplementation("com.google.errorprone:error_prone_annotations:2.27.0");
+        forceImplementation("com.google.code.gson:gson:2.11.0");
 
         // Minecraft client:
         implementation("org.nanohttpd:nanohttpd:2.3.1");

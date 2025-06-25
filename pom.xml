@@ -11,11 +11,11 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>AutoPlug-Client</artifactId>
-    <version>8.3.2</version>
+    <version>8.3.3</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>9</java.version>
-        <version>8.3.2</version>
+        <version>8.3.3</version>
         <main-class>com.osiris.autoplug.client.Main</main-class>
         <slf4j.version>2.0.13</slf4j.version>
         <name>AutoPlug-Client</name>
@@ -100,6 +100,42 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>23.0.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client</artifactId>
+                <version>1.42.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.4.15</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client-gson</artifactId>
+                <version>1.42.1</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>31.1-jre</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.27.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.11.0</version>
                 <scope>compile</scope>
             </dependency>
         </dependencies>
@@ -259,6 +295,24 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20250107</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.34.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>v3-rev20220815-2.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
