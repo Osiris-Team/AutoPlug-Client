@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "8.3.3";
+        this.version = "8.3.4";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -45,6 +45,7 @@ class ThisProject extends JPM.Project {
         forceImplementation("org.slf4j:slf4j-api:2.0.13");
 
         forceImplementation("org.jline:jline:3.26.1");
+        forceImplementation("org.jline:jline-reader:3.20.0");
         forceImplementation("org.jetbrains:annotations:23.0.0");
 
         // Add dependencies
@@ -65,7 +66,6 @@ class ThisProject extends JPM.Project {
         implementation("net.lingala.zip4j:zip4j:2.11.3");
         implementation("org.rauschig:jarchivelib:1.2.0");
         implementation("org.jetbrains:annotations:23.0.0");
-        implementation("org.jline:jline-reader:3.20.0");
         implementation("commons-lang:commons-lang:2.6");
         implementation("commons-net:commons-net:3.9.0");
         implementation("com.github.mwiede:jsch:0.2.17");

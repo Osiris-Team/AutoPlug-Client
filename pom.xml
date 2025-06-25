@@ -103,6 +103,12 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline-reader</artifactId>
+                <version>3.20.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client</artifactId>
                 <version>1.42.0</version>
@@ -241,12 +247,6 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>23.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-reader</artifactId>
-            <version>3.20.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
