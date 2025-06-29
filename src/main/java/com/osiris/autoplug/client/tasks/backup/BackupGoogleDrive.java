@@ -33,19 +33,22 @@ public class BackupGoogleDrive {
     }
 
     public Credential getCredentials(BackupConfig config) throws Exception {
+        AL.info("Initializing Google Drive backup credentials...");
+
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
                 GsonFactory.getDefaultInstance(),
                 new InputStreamReader(new java.io.ByteArrayInputStream(
                         ("{\"installed\":{\"client_id\":\"" + config.backup_upload_alternatives_google_drive_client_id.asString() + "\"," +
-                                "\"project_id\":\"autoplug-client\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\"," +
+                                "\"project_id\":\""+config.backup_upload_alternatives_google_drive_project_id.asString()+"\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\"," +
                                 "\"token_uri\":\"https://oauth2.googleapis.com/token\"," +
                                 "\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\"," +
                                 "\"client_secret\":\"" + config.backup_upload_alternatives_google_drive_client_secret.asString() + "\"," +
-                                "\"redirect_uris\":[\"urn:ietf:wg:oauth:2.0:oob\"]}").getBytes())));
+                                "\"redirect_uris\":[\"http://localhost:8888/Callback\"]}").getBytes())));
 
         // Try to use refresh token if available
         if (config.backup_upload_alternatives_google_drive_refresh_token.asString() != null &&
                 !config.backup_upload_alternatives_google_drive_refresh_token.asString().isEmpty()) {
+            AL.info("Using existing refresh token for authentication...");
             TokenResponse response = new TokenResponse();
             response.setRefreshToken(config.backup_upload_alternatives_google_drive_refresh_token.asString());
             return new GoogleCredential.Builder()
@@ -56,37 +59,40 @@ public class BackupGoogleDrive {
                     .setFromTokenResponse(response);
         }
 
-        // Manual authorization flow
+        AL.info("No existing credentials found, starting new authentication flow...");
+
+        // Automatic authorization flow with local server
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
                 Collections.singleton(DriveScopes.DRIVE_FILE))
                 .setAccessType("offline")
                 .build();
 
-        String url = flow.newAuthorizationUrl()
-                .setRedirectUri("urn:ietf:wg:oauth:2.0:oob")
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                .setPort(8888)
                 .build();
 
-        AL.info("Please open this URL in your browser: " + url);
-        AL.info("After authorization, paste the code you received here and press enter:");
+        AL.info("Opening browser for Google authentication...");
+        AL.info("If browser doesn't open automatically, check your console for the URL");
 
-        // Read code from console input
-        String code = new java.util.Scanner(System.in).nextLine();
+        try {
+            Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
-        TokenResponse response = flow.newTokenRequest(code)
-                .setRedirectUri("urn:ietf:wg:oauth:2.0:oob")
-                .execute();
+            if (credential.getRefreshToken() != null) {
+                AL.info("Authentication successful! Saving refresh token for future use...");
+                config.backup_upload_alternatives_google_drive_refresh_token.setValues(credential.getRefreshToken());
+                config.save();
+            } else {
+                AL.warn("Authentication succeeded but no refresh token was received. You may need to re-authenticate later.");
+            }
 
-        Credential credential = flow.createAndStoreCredential(response, "user");
-
-        // Save refresh token for future use
-        if (credential.getRefreshToken() != null) {
-            config.backup_upload_alternatives_google_drive_refresh_token.setValues(credential.getRefreshToken());
-            config.save();
+            return credential;
+        } catch (Exception e) {
+            AL.warn("Google Drive authentication failed!", e);
+            throw e;
         }
-
-        return credential;
     }
+
 
     // Modify the uploadToGoogleDrive method
     public void uploadToGoogleDrive(java.io.File fileToUpload, BackupConfig config)

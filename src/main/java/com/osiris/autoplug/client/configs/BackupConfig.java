@@ -43,6 +43,7 @@ public class BackupConfig extends MyYaml {
     public YamlSection backup_upload_rsa;
     public YamlSection backup_upload_alternatives_google_drive;
     public YamlSection backup_upload_alternatives_google_drive_enable;
+    public YamlSection backup_upload_alternatives_google_drive_project_id;
     public YamlSection backup_upload_alternatives_google_drive_client_id;
     public YamlSection backup_upload_alternatives_google_drive_client_secret;
     public YamlSection backup_upload_alternatives_google_drive_refresh_token;
@@ -140,20 +141,24 @@ public class BackupConfig extends MyYaml {
                 "How This Works:\n" +
                 "1. You create OAuth credentials in your own Google Cloud Console\n" +
                 "2. You enter your Client ID and Client Secret in the sections below\n" +
-                "3. You get an URL to open with your browser and log in\n" +
-                "4. After authentication, a refresh token is saved for future use and to avoid repeating the steps shown below\n" +
+                "3. When enabled, your browser will automatically open for authentication\n" +
+                "4. After authentication, a refresh token is saved for future use\n" +
+                "\n" +
                 "Google-Drive Setup:\n" +
-                "1. Create a project in Google Cloud Console (or use an existing one) and make sure the project_id is autoplug-client: https://developers.google.com/workspace/guides/create-project\n" +
+                "1. Create a project in Google Cloud Console (or use an existing one) and enter its project_id below: https://developers.google.com/workspace/guides/create-project\n" +
                 "2. Enable the Google Drive API: https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com\n" +
                 "3. Create OAuth 2.0 login panel: https://console.cloud.google.com/auth/branding\n" +
                 "4. Create a Client (type \"Desktop app\"): https://console.cloud.google.com/auth/clients\n" +
-                "5. Add urn:ietf:wg:oauth:2.0:oob as authorized redirect URI\n" +
+                "5. Add http://localhost:8888/Callback as authorized redirect URI\n" +
                 "6. Enter your Client ID and Client Secret into the sections below\n" +
-                "7. Set 'enable' to 'true' and save this file" +
-                "8. An URL should be shown in your console, open it via your browser and authenticate, then paste the code back into the console\n" +
-                "9. After authentication, the backups will be uploaded to your personal Google Drive\n" +
-                "!!!IMPORTANT!!! This file now contains data that must be kept secret, do not share with anyone!\n");
+                "7. Set 'enable' to 'true' and save this file\n" +
+                "8. Your browser will automatically open for authentication, or you can find the URL in the console and open it manually\n" +
+                "9. After authentication, backups will be uploaded to your Google Drive\n" +
+                "\n" +
+                "!!!IMPORTANT!!! This file contains sensitive data - do not share it with anyone!\n");
         backup_upload_alternatives_google_drive_enable = put(name, "upload", "alternatives", "google-drive", "enable").setDefValues("false");
+        backup_upload_alternatives_google_drive_project_id = put(name, "upload", "alternatives", "google-drive", "project-id").setComments(
+                "Get this from Google Cloud Console after creating your project. You also use an existing project and enter its name/project-id here.").setDefValues("autoplug-client");
         backup_upload_alternatives_google_drive_client_id = put(name, "upload", "alternatives", "google-drive", "client-id").setComments(
                 "Get this from Google Cloud Console after creating OAuth credentials.");
         backup_upload_alternatives_google_drive_client_secret = put(name, "upload", "alternatives", "google-drive", "client-secret").setComments(

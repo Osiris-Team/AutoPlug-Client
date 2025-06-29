@@ -11,11 +11,11 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>AutoPlug-Client</artifactId>
-    <version>8.3.3</version>
+    <version>8.3.5</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>9</java.version>
-        <version>8.3.3</version>
+        <version>8.3.5</version>
         <main-class>com.osiris.autoplug.client.Main</main-class>
         <slf4j.version>2.0.13</slf4j.version>
         <name>AutoPlug-Client</name>
@@ -97,15 +97,15 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <version>23.0.0</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.jline</groupId>
                 <artifactId>jline-reader</artifactId>
                 <version>3.20.0</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>23.0.0</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
