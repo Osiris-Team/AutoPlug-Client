@@ -32,12 +32,17 @@ public class MainWindow extends JFrame {
      * There should always be only one instance of {@link MainWindow}.
      */
     public static MainWindow GET = null;
+    public static final Object lockUI = new Object();
     public TrayIcon trayIcon;
 
-    public MainWindow() throws Exception {
-        if (GET != null) return;
-        GET = this;
-        initTheme();
+    public MainWindow(GeneralConfig generalConfig) throws Exception {
+        synchronized (lockUI){
+            if (GET != null) {
+                GET.close(); // There should only be one, thus stop old
+            }
+            GET = this;
+        }
+        initTheme(generalConfig);
         start();
         this.addKeyListener(new KeyListener() {
             @Override

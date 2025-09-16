@@ -121,7 +121,7 @@ public class BackupConfig extends MyYaml {
                 "./plugins/WorldBorder"
         );
         backup_upload = put(name, "upload", "enable").setDefValues("false").setComments(
-                "Upload the newly generated backup zip to the FTPS/SFTP server.");
+                "Upload the newly generated backup zip to the FTPS/SFTP server or Google Drive.");
         backup_upload_delete_on_complete = put(name, "upload", "delete-on-complete").setDefValues("false").setComments(
                 "Deletes the newly generated backup zip, directly after uploading finishes.");
         backup_upload_host = put(name, "upload", "host").setComments(
@@ -144,7 +144,7 @@ public class BackupConfig extends MyYaml {
                 "3. When enabled, your browser will automatically open for authentication\n" +
                 "4. After authentication, a refresh token is saved for future use\n" +
                 "\n" +
-                "Google-Drive Setup:\n" +
+                "Google-Drive Setup (assuming your server is hosted on a regular PC, meaning your system has a GUI and web-browser):\n" +
                 "1. Create a project in Google Cloud Console (or use an existing one) and enter its project_id below: https://developers.google.com/workspace/guides/create-project\n" +
                 "2. Enable the Google Drive API: https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com\n" +
                 "3. Create OAuth 2.0 login panel: https://console.cloud.google.com/auth/branding\n" +
@@ -154,6 +154,10 @@ public class BackupConfig extends MyYaml {
                 "7. Set 'enable' to 'true' and save this file\n" +
                 "8. Your browser will automatically open for authentication, or you can find the URL in the console and open it manually\n" +
                 "9. After authentication, backups will be uploaded to your Google Drive\n" +
+                "\n" +
+                "Google-Drive Setup (assuming your server has no GUI and no web-browser, typical hosted linux server setup):\n" +
+                "1. Ensure you have done all the steps above at least once until step 5\n" +
+                "2. " +
                 "\n" +
                 "!!!IMPORTANT!!! This file contains sensitive data - do not share it with anyone!\n");
         backup_upload_alternatives_google_drive_enable = put(name, "upload", "alternatives", "google-drive", "enable").setDefValues("false");

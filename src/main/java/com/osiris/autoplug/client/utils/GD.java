@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -64,7 +65,7 @@ public class GD {
                 for (String comment : generalConfig.autoplug_target_software.getComments()) {
                     AL.info(comment);
                 }
-                AL.info("Please enter a valid option and press enter:");
+                AL.info("Please enter a valid option for target ("+ Arrays.stream(Target.values()).map(t -> " "+t.name()) +") and press enter:");
                 target = new Scanner(System.in).nextLine();
                 generalConfig.autoplug_target_software.setValues(target);
                 generalConfig.save();

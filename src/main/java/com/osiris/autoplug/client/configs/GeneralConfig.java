@@ -50,7 +50,8 @@ public class GeneralConfig extends MyYaml {
         addSingletonConfigFileEventListener(e -> {
 
             try {
-                GD.determineTarget(this);
+                // Saving this file in this event causes an infinite loop, thus don't
+                //GD.determineTarget(this);
             } catch (Exception ex) {
                 AL.warn(ex);
             }
@@ -66,7 +67,7 @@ public class GeneralConfig extends MyYaml {
             try {
                 if (this.autoplug_system_tray.asBoolean()) {
                     boolean firstStart = MainWindow.GET == null;
-                    new MainWindow();
+                    new MainWindow(this);
                     if (firstStart) AL.info("Started system-tray GUI.");
                 } else {
                     boolean isRunning = MainWindow.GET != null;
@@ -110,7 +111,8 @@ public class GeneralConfig extends MyYaml {
                 "If you have no GUI its recommended to install software like \"screen\" for virtual terminals and edit the script accordingly.");
         autoplug_target_software = put(name, "autoplug", "target-software").setComments(
                 "Select the target software AutoPlug was installed on.",
-                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.");
+                "Available options: MINECRAFT_CLIENT, MINECRAFT_SERVER, MINDUSTRY_SERVER, OTHER.",
+                "If value changed -> restart AutoPlug.");
         autoplug_system_tray = put(name, "autoplug", "system-tray", "enable").setDefValues("false");
         autoplug_system_tray_theme = put(name, "autoplug", "system-tray", "theme").setDefValues("light")
                 .setComments("Select between: light, dark and darcula.");

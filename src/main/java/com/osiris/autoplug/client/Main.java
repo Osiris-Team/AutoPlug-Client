@@ -268,7 +268,7 @@ public class Main {
             try {
                 if (generalConfig.autoplug_system_tray.asBoolean()) {
                     now = System.currentTimeMillis();
-                    new MainWindow();
+                    new MainWindow(generalConfig);
                     AL.info("Started system-tray GUI, took " + (System.currentTimeMillis() - now) + "ms");
                 }
             } catch (Exception e) {
