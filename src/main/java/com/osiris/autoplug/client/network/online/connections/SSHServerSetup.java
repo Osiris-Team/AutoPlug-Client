@@ -35,23 +35,38 @@ public class SSHServerSetup {
             AL.warn("SSH server is already running.");
             return;
         }
-
+    
         sshd = SshServer.setUpDefaultServer();
         SSHConfig sshConfig = new SSHConfig();
-
+    
         int port = sshConfig.port.asInt();
         String authMethod = sshConfig.auth_method.asString();
-        Path allowedKeysPath = new File(sshConfig.allowed_keys_path.asString()).toPath();
-        Path serverPrivateKeyPath = new File(sshConfig.server_private_key.asString()).toPath();
+        String allowedKeysRaw = sshConfig.allowed_keys_path.asString();
+        String privateKeyRaw = sshConfig.server_private_key.asString();
         String username = sshConfig.username.asString();
         String password = sshConfig.password.asString();
-
+    
+        // === Defensive checks ===
+        if (allowedKeysRaw == null || allowedKeysRaw.trim().isEmpty()) {
+            AL.warn("SSH config error: 'allowed-keys-path' is missing or empty!");
+            throw new IllegalArgumentException("Missing 'allowed-keys-path' in SSH config");
+        }
+        if (privateKeyRaw == null || privateKeyRaw.trim().isEmpty()) {
+            AL.warn("SSH config error: 'server-private-key' is missing or empty! "
+                    + "AutoPlug cannot start SSH without a valid key path.\n"
+                    + "Example fix:\n  server-private-key: ./autoplug/server_host_key.ser");
+            throw new IllegalArgumentException("Missing 'server-private-key' in SSH config");
+        }
+    
+        Path allowedKeysPath = new File(allowedKeysRaw).toPath();
+        Path serverPrivateKeyPath = new File(privateKeyRaw).toPath();
+    
         try {
             setupServer(port, authMethod, allowedKeysPath, serverPrivateKeyPath, username, password);
             sshd.start();
             AL.info("SSH server started on port " + port + " with auth method: " + authMethod);
         } catch (Exception e) {
-            AL.warn("Failed to start SSH server!", e);
+            AL.warn("Failed to start SSH server! Reason: " + e.getMessage(), e);
             stop(); // Ensure any partial initialization is cleaned up
         }
     }
