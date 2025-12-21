@@ -91,7 +91,7 @@ public class SSHConfig extends MyYaml {
                 "The generated file will be a .pub file, which contains the public key.",
                 "Example connection command: `ssh -i /path/to/private/key username@server-ip-address`");
         
-        server_private_key = put(name, "server-private-key").setDefValues("./autoplug/server_host_key.ser")
+        server_private_key = put(name, "server-private-key").setDefValues("./autoplug/system/ssh_private_server_key")
             .setComments(
                 "The private key used by the server to authenticate itself to the SSH console.",
                 "The file must be in the OpenSSH format.",
@@ -99,9 +99,7 @@ public class SSHConfig extends MyYaml {
                 "The generated file can be found in the .ssh directory of the user that created the key, unless a different path was specified.",
                 "The generated file will be a file with no extension, which contains the private key.",
                 "In the same directory as the private key, there will also need to be a file with the same name and a .pub extension, which contains the public key.",
-                "NOTICE: The .ssh directory is not present by default, and must be created via the usage of the 'ssh-keygen' command.",
-                "Example:",
-                "server-private-key: ./autoplug/id_rsa");
+                "NOTICE: The .ssh directory is not present by default, and must be created via the usage of the 'ssh-keygen' command.");
 
         username = put(name, "username").setDefValues("autoplug")
             .setComments(

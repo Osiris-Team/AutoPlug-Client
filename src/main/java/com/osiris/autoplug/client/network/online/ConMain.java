@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ConMain extends DefaultConnection {
     public final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
 
+
     // Secondary connections:
     public final ConAutoPlugConsoleReceive CON_CONSOLE_RECEIVE = new ConAutoPlugConsoleReceive();
     public final ConAutoPlugConsoleSend CON_CONSOLE_SEND = new ConAutoPlugConsoleSend();
