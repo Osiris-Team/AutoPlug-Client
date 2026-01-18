@@ -26,8 +26,8 @@ import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
-import me.hsgamer.mcserverupdater.UpdateBuilder;
-import me.hsgamer.mcserverupdater.UpdateStatus;
+import io.github.projectunified.mcserverupdater.UpdateBuilder;
+import io.github.projectunified.mcserverupdater.UpdateStatus;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

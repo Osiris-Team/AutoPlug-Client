@@ -14,7 +14,7 @@ import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
-import me.hsgamer.mcserverupdater.UpdateBuilder;
+import io.github.projectunified.mcserverupdater.UpdateBuilder;
 
 import java.io.IOException;
 import java.util.stream.Collectors;

@@ -112,7 +112,7 @@ public abstract class MyYaml extends Yaml {
             String preInfo = this.file.getName() + " (" + e.getWatchEventKind() + "): ";
             //AL.debug(this.getClass(), preInfo);
             if (e.isDeleteEvent())
-                AL.info(preInfo + "Deleted. Thus clean config with defaults will be created once ist needed.");
+                AL.info(preInfo + "Deleted. Thus clean config with defaults will be created once its needed.");
             if (e.isModifyEvent()) {
                 synchronized (filesAndPEvents) {
                     PSave p = filesAndPEvents.get(path);
