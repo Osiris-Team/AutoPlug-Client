@@ -5,7 +5,6 @@
  * This software is copyrighted work, licensed under the terms
  * of the MIT-License. Consult the "LICENSE" file for details.
  */
-
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.Main;
@@ -39,7 +38,7 @@ public class ConFileManager extends DefaultConnection {
             super.open();
             getSocket().setSoTimeout(0);
             dos = new UFDataOut(out);
-            dis = new UFDataIn(in);
+            dis = new UFDataIn(out, in);
 
             setAndStartAsync(() -> {
                 while (true) {

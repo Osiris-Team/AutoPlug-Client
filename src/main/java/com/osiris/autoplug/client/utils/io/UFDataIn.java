@@ -9,7 +9,6 @@
 package com.osiris.autoplug.client.utils.io;
 
 import com.osiris.jlib.logger.AL;
-import com.osiris.jlib.network.UFDataOut;
 
 import javax.naming.LimitExceededException;
 import java.io.*;
@@ -21,16 +20,20 @@ import java.util.Base64;
  */
 public class UFDataIn {
     private final DataInputStream dis;
+    private final OutputStream out;
 
-    public UFDataIn(InputStream inputStream) {
+    public UFDataIn(OutputStream out, InputStream inputStream) {
         this.dis = new DataInputStream(inputStream);
+        this.out = out;
     }
 
     public String readLine() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readUTF();
     }
 
     public boolean readBoolean() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readBoolean();
     }
 
@@ -44,7 +47,7 @@ public class UFDataIn {
     }
 
     /**
-     * @param file write receiving data to this file.
+     * @param file     write receiving data to this file.
      * @param maxBytes set to -1 if no limit wanted.
      */
     public void readFile(File file, long maxBytes) throws IOException, LimitExceededException {
@@ -57,7 +60,7 @@ public class UFDataIn {
      * @param out write receiving data to this stream.
      */
     public void readStream(OutputStream out) throws IOException {
-        try{
+        try {
             readStream(out, -1);
         } catch (LimitExceededException e) { // Not excepted to happen since no limit
             throw new RuntimeException(e);
@@ -69,6 +72,7 @@ public class UFDataIn {
      * @param maxBytes set to -1 if no limit wanted.
      */
     public void readStream(OutputStream out, long maxBytes) throws IOException, LimitExceededException {
+        this.out.flush(); // Ensure pending messages are sent before reading
         /*
          * Handling Non-Text Data: If the input stream
          *  contains binary data (like images or other non-text files),
@@ -98,22 +102,27 @@ public class UFDataIn {
     }
 
     public byte readByte() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readByte();
     }
 
     public short readShort() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readShort();
     }
 
     public int readInt() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readInt();
     }
 
     public long readLong() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readLong();
     }
 
     public float readFloat() throws IOException {
+        out.flush(); // Ensure pending messages are sent before reading
         return dis.readFloat();
     }
 
