@@ -1,294 +1,249 @@
-/*
- * Copyright (c) 2021-2024 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.DefaultConnection;
+import com.osiris.autoplug.client.network.online.NettyUtils;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.io.UFDataIn;
-import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.jlib.logger.AL;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ReplayingDecoder;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ConFileManager extends DefaultConnection {
-
-    @Nullable
-    private UFDataOut dos;
-    private UFDataIn dis;
+    private FileOutputStream tempFileOutputStream;
 
     public ConFileManager() {
-        super((byte) 5);  // Each connection has its own auth_id.
+        super((byte) 5);
     }
 
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().file_manager.asBoolean()) {
-            super.open();
-            getSocket().setSoTimeout(0);
-            dos = new UFDataOut(out);
-            dis = new UFDataIn(out, in);
+        if (!new WebConfig().file_manager.asBoolean()) return false;
+        super.open();
 
-            setAndStartAsync(() -> {
-                while (true) {
-                    byte requestType = dis.readByte(); // Blocks indefinitely
-                    getSocket().setSoTimeout(60000);
-                    if (requestType == 0) {
-                        doProtocolForSendingFileDetails();
-                    } else if (requestType == 1) {
-                        doProtocolForCreatingNewFile();
-                    } else if (requestType == 2) {
-                        doProtocolForDeletingFile();
-                    } else if (requestType == 3) {
-                        doProtocolForRenamingFile();
-                    } else if (requestType == 4) {
-                        doProtocolForSavingFile();
-                    } else if (requestType == 5) {
-                        doProtocolForReceivingUploadedFile();
-                    } else if (requestType == 6) {
-                        doProtocolForCopyOrCutFiles();
-                    } else if (requestType == 7) {
-                        doProtocolForSendingRoots();
-                    } else {
-                        AL.warn("Unknown file operation / Unknown request type (" + requestType + ").");
+        channel.pipeline().addLast(new ReplayingDecoder<Void>() {
+            int state = 0;
+            // 0 = Opcode, 1 = FileDetails WantsContent, 2 = SaveFile Chunk, 3 = UploadFile Chunk
+            File currentFile;
+
+            @Override
+            protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> outList) {
+                try {
+                    if (state == 0) {
+                        byte op = in.readByte();
+                        if (op == 0) { // Get File Details
+                            String path = NettyUtils.readUTF(in);
+                            currentFile = path.isEmpty() ? GD.WORKING_DIR : new File(path);
+                            Executors.newSingleThreadExecutor().submit(() -> sendFileDetailsAndChildren(currentFile));
+                            if (!currentFile.isDirectory()) {
+                                state = 1;
+                            }
+                        }
+                        else if (op == 1) { // Create
+                            String path = NettyUtils.readUTF(in);
+                            boolean isDir = in.readBoolean();
+                            Executors.newSingleThreadExecutor().submit(() -> doCreate(path, isDir));
+                        }
+                        else if (op == 2) { // Delete
+                            int count = in.readInt();
+                            String[] paths = new String[count];
+                            for (int i = 0; i < count; i++) paths[i] = NettyUtils.readUTF(in);
+                            Executors.newSingleThreadExecutor().submit(() -> doDelete(paths));
+                        }
+                        else if (op == 3) { // Rename
+                            String path = NettyUtils.readUTF(in);
+                            String newName = NettyUtils.readUTF(in);
+                            Executors.newSingleThreadExecutor().submit(() -> doRename(path, newName));
+                        }
+                        else if (op == 4) { // Save File
+                            currentFile = new File(NettyUtils.readUTF(in));
+                            tempFileOutputStream = new FileOutputStream(currentFile);
+                            state = 2;
+                        }
+                        else if (op == 5) { // Receive Upload
+                            currentFile = new File(NettyUtils.readUTF(in));
+                            if (!currentFile.exists()) currentFile.createNewFile();
+                            tempFileOutputStream = new FileOutputStream(currentFile);
+                            state = 3;
+                        }
+                        else if (op == 6) { // Copy/Cut
+                            int count = in.readInt();
+                            boolean isCopy = in.readBoolean();
+                            String targetDir = NettyUtils.readUTF(in);
+                            String[] paths = new String[count];
+                            boolean[] isDirs = new boolean[count];
+                            for (int i = 0; i < count; i++) {
+                                paths[i] = NettyUtils.readUTF(in);
+                                isDirs[i] = in.readBoolean();
+                            }
+                            Executors.newSingleThreadExecutor().submit(() -> doCopyCut(paths, isDirs, isCopy, targetDir));
+                        }
+                        else if (op == 7) { // Roots
+                            Executors.newSingleThreadExecutor().submit(ConFileManager.this::sendRoots);
+                        }
+                        checkpoint();
                     }
-                    getSocket().setSoTimeout(0);
+                    else if (state == 1) { // Wait for Content Boolean
+                        boolean wantsContent = in.readBoolean();
+                        if (wantsContent) {
+                            Executors.newSingleThreadExecutor().submit(() -> {
+                                try {
+                                    sendFileContent(currentFile);
+                                } catch (IOException e) { AL.warn(e); }
+                            });
+                        }
+                        state = 0;
+                        checkpoint();
+                    }
+                    else if (state == 2) { // Save File Chunks
+                        String line = NettyUtils.readUTF(in);
+                        if (line.equals(NettyUtils.EOF)) {
+                            tempFileOutputStream.close();
+                            writeBool(true);
+                            state = 0;
+                        } else {
+                            tempFileOutputStream.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+                        }
+                        checkpoint();
+                    }
+                    else if (state == 3) { // Upload Chunks
+                        String line = NettyUtils.readUTF(in);
+                        if (line.equals(NettyUtils.EOF)) {
+                            tempFileOutputStream.close();
+                            writeBool(true);
+                            state = 0;
+                        } else {
+                            byte[] decoded = Base64.getDecoder().decode(line.getBytes(StandardCharsets.UTF_8));
+                            tempFileOutputStream.write(decoded);
+                        }
+                        checkpoint();
+                    }
+                } catch (Exception e) {
+                    AL.warn(e);
+                    writeBool(false);
+                    state = 0;
                 }
-            });
-            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
-            return true;
-        } else {
-            AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' not connected, because not enabled in the web-config.");
-            return false;
+            }
+
+            @Override
+            public void channelInactive(ChannelHandlerContext ctx) {
+                try { if (tempFileOutputStream != null) tempFileOutputStream.close(); } catch (Exception ignored) {}
+            }
+        });
+        return true;
+    }
+
+    private void writeBool(boolean val) {
+        if (channel != null && channel.isActive()) {
+            ByteBuf out = channel.alloc().buffer(1);
+            out.writeBoolean(val);
+            channel.writeAndFlush(out);
         }
     }
 
-    private void doProtocolForSendingRoots() throws IOException {
+    // Disk I/O Methods mapping exactly to original functionality:
+    private void sendRoots() {
         File[] roots = File.listRoots();
-        if (roots == null || roots.length == 0) {
-            dos.writeInt(0);
-        } else {
-            dos.writeInt(roots.length);
-            for (File f :
-                    roots) {
-                dos.writeLine(f.getAbsolutePath()); // For example "C:\" or "D:\" etc. on Windows
-            }
+        ByteBuf buf = channel.alloc().buffer();
+        if (roots == null || roots.length == 0) buf.writeInt(0);
+        else {
+            buf.writeInt(roots.length);
+            for (File f : roots) NettyUtils.writeUTF(buf, f.getAbsolutePath());
         }
+        channel.writeAndFlush(buf);
     }
 
-    private void doProtocolForCopyOrCutFiles() throws IOException {
-        int filesCount = dis.readInt();
-        boolean isCopy = dis.readBoolean();
-        File targetDir = new File(dis.readLine());
-        try {
-            for (int i = 0; i < filesCount; i++) {
-                File f = new File(dis.readLine());
-                boolean isDir = dis.readBoolean();
-                if (isCopy) // Make regular "copy" operation
-                    if (isDir)
-                        FileUtils.copyDirectory(f, new File(targetDir + "/" + f.getName()));
-                    else
-                        Files.copy(f.toPath(), new File(targetDir + "/" + f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                else {
-                    // Make "cut" operation, which means that the previous file gets deleted after copying to its new destination
-                    if (isDir) {
-                        FileUtils.copyDirectory(f, new File(targetDir + "/" + f.getName()));
-                        FileUtils.deleteDirectory(f);
-                    } else {
-                        Files.copy(f.toPath(), new File(targetDir + "/" + f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        f.delete();
-                    }
-                }
-            }
-            dos.writeBoolean(true);
-        } catch (Exception e) {
-            AL.warn(e);
-            dos.writeBoolean(false);
-            dos.writeLine("Critical error while copying/cutting a file! Check your servers log for further details: " + e.getMessage());
-        }
-    }
-
-    private void doProtocolForReceivingUploadedFile() throws IOException {
-        String filePath = dis.readLine();
-        File file = new File(filePath);
-        if (!file.exists()) file.createNewFile();
-        try (FileOutputStream fw = new FileOutputStream(file)) {
-            dis.readStream(fw);
-            dos.writeBoolean(true);
-        } catch (Exception e) {
-            AL.warn(e);
-            dos.writeBoolean(false);
-            dos.writeLine("Critical error while saving uploaded file! Check your servers log for further details: " + e.getMessage());
-        }
-    }
-
-    private void doProtocolForSavingFile() throws IOException {
-        File file = new File(dis.readLine());
-        try (BufferedWriter fw = new BufferedWriter(new FileWriter(file))) {
-            String line;
-            while ((line = dis.readLine()) != null && !line.equals("\u001a")) {
-                fw.write(line + "\n");
-                fw.flush();
-            }
-            dos.writeBoolean(true);
-        } catch (Exception e) {
-            AL.warn(e);
-            dos.writeBoolean(false);
-            dos.writeLine("Critical error while saving a file! Check your servers log for further details: " + e.getMessage());
-        }
-    }
-
-    private void doProtocolForRenamingFile() throws IOException {
-        File file = new File(dis.readLine());
-        File renamedFile = new File(file.getParentFile() + "/" + dis.readLine());
-        if (!file.renameTo(renamedFile)) { // If this fails try the hardcore way
-            if (!renamedFile.exists()) renamedFile.createNewFile();
-            Files.copy(file.toPath(), renamedFile.toPath());
-            file.delete();
-        }
-    }
-
-    private void doProtocolForDeletingFile() throws IOException {
-        try {
-            int filesCount = dis.readInt();
-            for (int i = 0; i < filesCount; i++) {
-                FileUtils.forceDelete(new File(dis.readLine()));
-                dos.writeBoolean(true);
-            }
-        } catch (Exception e) {
-            AL.warn(e);
-            dos.writeBoolean(false);
-            dos.writeLine("Critical error during file delete! Check your servers log for further details: " + e.getMessage());
-        }
-    }
-
-    private void doProtocolForCreatingNewFile() throws IOException {
-        File f = new File(dis.readLine());
-        boolean isDir = dis.readBoolean();
-        try {
-            if (f.exists()) {
-                dos.writeBoolean(false);
-                dos.writeLine("File/Directory already exists! Nothing changed.");
-                return;
-            }
-            if (isDir) {
-                if (f.mkdirs())
-                    dos.writeBoolean(true);
-                else {
-                    dos.writeBoolean(false);
-                    dos.writeLine("Couldn't create directory '" + f.getName() + "'!");
-                }
-            } else { // File
-                if (f.getParentFile() != null) f.getParentFile().mkdirs(); // Create non-existent parent dirs if needed
-                if (f.createNewFile())
-                    dos.writeBoolean(true);
-                else {
-                    dos.writeBoolean(false);
-                    dos.writeLine("Couldn't create file '" + f.getName() + "'!");
-                }
-            }
-        } catch (Exception e) {
-            AL.warn(e);
-            dos.writeBoolean(false);
-            dos.writeLine(e.getMessage());
-        }
-    }
-
-    private void doProtocolForSendingFileDetails() throws IOException {
-        String filePath = null;
-        File requestedFile = null;
-        filePath = dis.readLine(); // Wait until we receive the files path
-        if (filePath.isEmpty()) requestedFile = GD.WORKING_DIR;
-        else requestedFile = new File(filePath);
-        sendFileDetails(requestedFile);
-        if (requestedFile.isDirectory()) {
-            File[] files = requestedFile.listFiles();
-            if (files == null) dos.writeInt(0);
+    private void sendFileDetailsAndChildren(File file) {
+        ByteBuf buf = channel.alloc().buffer();
+        encodeDetails(buf, file);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null) buf.writeInt(0);
             else {
-                dos.writeInt(files.length);
-
-                for (File f :
-                        files) { // Send directories first and then files
-                    if (f.isDirectory())
-                        sendFileDetails(f);
-                }
-                for (File f :
-                        files) {
-                    if (!f.isDirectory())
-                        sendFileDetails(f);
-                }
+                buf.writeInt(files.length);
+                for (File f : files) if (f.isDirectory()) encodeDetails(buf, f);
+                for (File f : files) if (!f.isDirectory()) encodeDetails(buf, f);
             }
-        } else { // Is not a dir
-            if (dis.readBoolean()) // Web checks the files size and responds with true if it wants its content
-                sendFileContent(requestedFile);
         }
+        channel.writeAndFlush(buf);
+    }
+
+    private void encodeDetails(ByteBuf buf, File file) {
+        NettyUtils.writeUTF(buf, file.getAbsolutePath());
+        buf.writeBoolean(file.isDirectory());
+        long length = file.length();
+        buf.writeLong(length);
+        if (length < 1000) NettyUtils.writeUTF(buf, length + "B");
+        else if (length < 1000000) NettyUtils.writeUTF(buf, length / 1000 + "kB");
+        else if (length < 1000000000) NettyUtils.writeUTF(buf, length / 1000000 + "MB");
+        else NettyUtils.writeUTF(buf, length / 1000000000 + "GB");
+        NettyUtils.writeUTF(buf, file.getName());
+        buf.writeLong(file.lastModified());
+        buf.writeBoolean(file.isHidden());
     }
 
     private void sendFileContent(File file) throws IOException {
-        //System.out.println("Sending file "+file);
-        dos.writeFile(file);
-        //ConMain.CON_FILE_CONTENT.sendFile(file);
+        try (FileInputStream in = new FileInputStream(file)) {
+            NettyUtils.writeStream(channel, in);
+        }
+    }
 
-
-             /*
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getOut()));
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    writer.write(line + "\n");
-                    writer.flush();
-                }
-                writer.write("\u001a\n");// EOF
-                writer.flush();
+    private void doCreate(String path, boolean isDir) {
+        try {
+            File f = new File(path);
+            if (f.exists()) { writeBool(false); return; }
+            if (isDir) writeBool(f.mkdirs());
+            else {
+                if (f.getParentFile() != null) f.getParentFile().mkdirs();
+                writeBool(f.createNewFile());
             }
-            */
-        //System.out.println("Sent file!");
+        } catch (Exception e) { writeBool(false); }
     }
 
-    private void sendFileDetails(File file) throws IOException {
-        dos.writeLine(file.getAbsolutePath());
-        dos.writeBoolean(file.isDirectory());
-        long length = file.length(); // In bytes
-        dos.writeLong(length);
-        if (length < 1000) // Smaller than 1kb
-            dos.writeLine(length + "B");
-        else if (length < 1000000) // Smaller than 1mb
-            dos.writeLine(length / 1000 + "kB");
-        else if (length < 1000000000) // Smaller than 1 gb
-            dos.writeLine(length / 1000000 + "MB");
-        else // Bigger than 1 gb
-            dos.writeLine(length / 1000000000 + "GB");
-        dos.writeLine(file.getName());
-        dos.writeLong(file.lastModified());
-        dos.writeBoolean(file.isHidden());
+    private void doDelete(String[] paths) {
+        try {
+            for (String path : paths) {
+                FileUtils.forceDelete(new File(path));
+                writeBool(true);
+            }
+        } catch (Exception e) { writeBool(false); }
     }
 
-    private void sendParentDirDetails(File file) throws IOException {
-        dos.writeLine(file.getAbsolutePath());
-        dos.writeBoolean(file.isDirectory());
-        long length = file.length(); // In bytes
-        dos.writeLong(length);
-        if (length < 1000) // Smaller than 1kb
-            dos.writeLine(length + "B");
-        else if (length < 1000000) // Smaller than 1mb
-            dos.writeLine(length / 1000 + "kB");
-        else if (length < 1000000000) // Smaller than 1 gb
-            dos.writeLine(length / 1000000 + "MB");
-        else // Bigger than 1 gb
-            dos.writeLine(length / 1000000000 + "GB");
-        dos.writeLine("...");
-        dos.writeLong(file.lastModified());
-        dos.writeBoolean(file.isHidden());
+    private void doRename(String path, String newName) {
+        try {
+            File f = new File(path);
+            File renamed = new File(f.getParentFile() + "/" + newName);
+            if (!f.renameTo(renamed)) {
+                if (!renamed.exists()) renamed.createNewFile();
+                Files.copy(f.toPath(), renamed.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                f.delete();
+            }
+        } catch (Exception e) { AL.warn(e); }
+    }
+
+    private void doCopyCut(String[] paths, boolean[] isDirs, boolean isCopy, String targetDir) {
+        try {
+            for (int i = 0; i < paths.length; i++) {
+                File f = new File(paths[i]);
+                File dest = new File(targetDir + "/" + f.getName());
+                if (isCopy) {
+                    if (isDirs[i]) FileUtils.copyDirectory(f, dest);
+                    else Files.copy(f.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    if (isDirs[i]) { FileUtils.copyDirectory(f, dest); FileUtils.deleteDirectory(f); }
+                    else { Files.copy(f.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING); f.delete(); }
+                }
+            }
+            writeBool(true);
+        } catch (Exception e) { writeBool(false); }
     }
 }

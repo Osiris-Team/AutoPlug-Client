@@ -163,7 +163,7 @@ public final class Commands {
                     new BeforeServerStartupTasks();
                     return true;
                 } else if (command.equals(".con info") || command.equals(".ci")) {
-                    AL.info("Main connection: connected=" + Main.CON.isConnected() + " interrupted=" + Main.CON.isInterrupted() + " user/staff active=" + Main.CON.isUserActive.get());
+                    AL.info("Main connection: connected=" + Main.CON.isConnected() + " user/staff active=" + Main.CON.isUserActive.get());
                     AL.info(Main.CON.CON_PUBLIC_DETAILS.toString());
                     AL.info(Main.CON.CON_PRIVATE_DETAILS.toString());
                     AL.info(Main.CON.CON_CONSOLE_SEND.toString());

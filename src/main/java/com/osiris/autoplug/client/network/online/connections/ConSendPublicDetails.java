@@ -8,17 +8,18 @@
 
 package com.osiris.autoplug.client.network.online.connections;
 
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.WebConfig;
 import com.osiris.autoplug.client.network.online.DefaultConnection;
+import com.osiris.autoplug.client.network.online.NettyUtils;
 import com.osiris.autoplug.client.utils.GD;
 import com.osiris.autoplug.client.utils.MineStat;
-import com.osiris.autoplug.client.utils.io.UFDataOut;
 import com.osiris.jlib.logger.AL;
+import io.netty.buffer.ByteBuf;
 
 import java.io.FileInputStream;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -41,11 +42,10 @@ public class ConSendPublicDetails extends DefaultConnection {
 
     @Override
     public boolean open() throws Exception {
-        if (new WebConfig().send_public_details.asBoolean()) {
+        WebConfig webConfig = new WebConfig();
+        if (webConfig.send_public_details.asBoolean()) {
             super.open();
-            getSocket().setSoTimeout(0);
-            UFDataOut dos = new UFDataOut(getOut());
-            WebConfig webConfig = new WebConfig();
+
             host = webConfig.send_server_status_ip.asString();
             if (webConfig.send_server_status_port.asString() == null) {
                 try { // Find port of server
@@ -71,33 +71,39 @@ public class ConSendPublicDetails extends DefaultConnection {
                 } catch (Exception e) {
                     AL.warn(e);
                 }
-            } else
+            } else {
                 port = webConfig.send_server_status_port.asInt();
-            setAndStartAsync(() -> {
-                while (true) {
-                    // MC server related info:
-                    mineStat = new MineStat(host, port);
-                    // mineStat.isServerUp(); // Before, but deprecated now to support
-                    // mc proxies and other servers like steam game servers.
-                    // This has one caveat since the server might be running, but we
-                    // actually want to know if players can join it, since it might still be blocked
-                    // by the firewall or another network issue.
-                    isRunning = Server.isRunning();
-                    version = mineStat.getVersion();
-                    if (version != null)
-                        version = version.replaceAll("[a-zA-Z]", "").trim();
-                    else
-                        version = "-";
-                    currentPlayers = mineStat.getCurrentPlayers();
-                    maxPlayers = mineStat.getMaximumPlayers();
+            }
 
-                    dos.writeBoolean(isRunning);
-                    dos.writeLine(version);
-                    dos.writeInt(currentPlayers);
-                    dos.writeInt(maxPlayers);
-                    Thread.sleep(5000);
-                }
-            });
+            // Schedule the repeating update loop via Netty's extremely efficient EventLoop
+            channel.eventLoop().scheduleAtFixedRate(() -> {
+                if (!isConnected()) return;
+
+                // MC server related info:
+                mineStat = new MineStat(host, port);
+                // mineStat.isServerUp(); // Before, but deprecated now to support
+                // mc proxies and other servers like steam game servers.
+                // This has one caveat since the server might be running, but we
+                // actually want to know if players can join it, since it might still be blocked
+                // by the firewall or another network issue.
+                isRunning = Server.isRunning();
+                version = mineStat.getVersion();
+                if (version != null)
+                    version = version.replaceAll("[a-zA-Z]", "").trim();
+                else
+                    version = "-";
+                currentPlayers = mineStat.getCurrentPlayers();
+                maxPlayers = mineStat.getMaximumPlayers();
+
+                ByteBuf dos = channel.alloc().buffer();
+                dos.writeBoolean(isRunning);
+                NettyUtils.writeUTF(dos, version);
+                dos.writeInt(currentPlayers);
+                dos.writeInt(maxPlayers);
+                channel.writeAndFlush(dos);
+
+            }, 0, 5, TimeUnit.SECONDS);
+
             AL.debug(this.getClass(), "Connection '" + this.getClass().getSimpleName() + "' connected.");
             return true;
         } else {

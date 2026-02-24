@@ -1,39 +1,21 @@
-/*
- * Copyright (c) 2021-2024 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
-
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.network.online.DefaultConnection;
+import com.osiris.autoplug.client.network.online.NettyUtils;
 import com.osiris.autoplug.client.tasks.updater.plugins.MinecraftPlugin;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
-import com.osiris.betterthread.BThread;
-import com.osiris.betterthread.BThreadManager;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ReplayingDecoder;
 
-import java.net.Socket;
 import java.util.List;
 
-/**
- * This is a temporary connection, which gets closed after
- * finishing its tasks.
- * It starts a {@link BThread} which is attached to the given {@link BThreadManager} (or creates a new Manager if null).
- */
 public class ConPluginsUpdateResult extends DefaultConnection {
     private final List<SearchResult> searchResults;
     private final List<MinecraftPlugin> excludedPlugins;
 
-    /**
-     * To send the provided information to AutoPlug-Web make sure to call {@link #open()}.
-     *
-     * @param searchResults   results from checking the included plugins.
-     * @param excludedPlugins plugins that were excluded from the check.
-     */
-    public ConPluginsUpdateResult(List<SearchResult> searchResults,
-                                  List<MinecraftPlugin> excludedPlugins) {
+    public ConPluginsUpdateResult(List<SearchResult> searchResults, List<MinecraftPlugin> excludedPlugins) {
         super((byte) 3);
         this.searchResults = searchResults;
         this.excludedPlugins = excludedPlugins;
@@ -42,106 +24,46 @@ public class ConPluginsUpdateResult extends DefaultConnection {
     @Override
     public boolean open() throws Exception {
         super.open();
-        Socket socket = getSocket();
-        socket.setSoTimeout(0);
-        sendResultsOfPluginCheck();
+
+        channel.pipeline().addLast(new ReplayingDecoder<Void>() {
+            @Override
+            protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> outList) throws Exception {
+                long msLeft = in.readLong();
+                if (msLeft != 0) {
+                    throw new Exception("Web cool-down is still active (" + (msLeft / 60000) + " minutes remaining).");
+                }
+
+                ByteBuf out = ctx.alloc().buffer();
+                out.writeInt(searchResults.size());
+                for (SearchResult r : searchResults) {
+                    NettyUtils.writeUTF(out, safeStr(r.getPlugin().getName()));
+                    NettyUtils.writeUTF(out, safeStr(r.getPlugin().getAuthor()));
+                    NettyUtils.writeUTF(out, safeStr(r.getPlugin().getVersion()));
+                    out.writeByte(r.type.id);
+                    NettyUtils.writeUTF(out, safeStr(r.getDownloadType()));
+                    NettyUtils.writeUTF(out, safeStr(r.getLatestVersion()));
+                    NettyUtils.writeUTF(out, safeStr(r.getDownloadUrl()));
+                    NettyUtils.writeUTF(out, r.getSpigotId() == null ? "0" : r.getSpigotId());
+                    NettyUtils.writeUTF(out, r.getBukkitId() == null ? "0" : r.getBukkitId());
+                    NettyUtils.writeUTF(out, safeStr(r.plugin.getGithubRepoName()));
+                    NettyUtils.writeUTF(out, safeStr(r.plugin.getGithubAssetName()));
+                    NettyUtils.writeUTF(out, safeStr(r.plugin.getJenkinsProjectUrl()));
+                    NettyUtils.writeUTF(out, safeStr(r.plugin.getJenkinsArtifactName()));
+                }
+
+                out.writeInt(excludedPlugins.size());
+                for (MinecraftPlugin ex : excludedPlugins) {
+                    NettyUtils.writeUTF(out, safeStr(ex.getName()));
+                    NettyUtils.writeUTF(out, safeStr(ex.getAuthor()));
+                    NettyUtils.writeUTF(out, safeStr(ex.getVersion()));
+                }
+
+                ctx.writeAndFlush(out).addListener(ChannelFutureListener.CLOSE);
+                ctx.pipeline().remove(this);
+            }
+        });
         return true;
     }
 
-
-    private void sendResultsOfPluginCheck() throws Exception {
-
-        long msLeft = in.readLong(); // 0 if the last plugins check was over 4 hours ago, else it returns the time left, till a new check is allowed
-        if (msLeft != 0)
-            throw new Exception("Failed to send update check result to web. Web cool-down is still active (" + (msLeft / 60000) + " minutes remaining).");
-
-        out.writeInt(searchResults.size());
-        for (SearchResult result :
-                searchResults) {
-            if (result.getPlugin().getName() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getPlugin().getName());
-
-            if (result.getPlugin().getAuthor() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getPlugin().getAuthor());
-
-            if (result.getPlugin().getVersion() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getPlugin().getVersion());
-
-            out.writeByte(result.type.id);
-
-            if (result.getDownloadType() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getDownloadType());
-
-            if (result.getLatestVersion() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getLatestVersion());
-
-            if (result.getDownloadUrl() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.getDownloadUrl());
-
-            if (result.getSpigotId() == null)
-                out.writeUTF("0");
-            else
-                out.writeUTF(result.getSpigotId());
-
-            if (result.getBukkitId() == null)
-                out.writeUTF("0");
-            else
-                out.writeUTF(result.getBukkitId());
-
-            if (result.plugin.getGithubRepoName() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.plugin.getGithubRepoName());
-
-            if (result.plugin.getGithubAssetName() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.plugin.getGithubAssetName());
-
-            if (result.plugin.getJenkinsProjectUrl() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.plugin.getJenkinsProjectUrl());
-
-            if (result.plugin.getJenkinsArtifactName() == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(result.plugin.getJenkinsArtifactName());
-        }
-
-        out.writeInt(excludedPlugins.size());
-        for (MinecraftPlugin excludedPl :
-                excludedPlugins) {
-            String plName = excludedPl.getName();
-            if (plName == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(plName);
-
-            String plAuthor = excludedPl.getAuthor();
-            if (plAuthor == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(plAuthor);
-
-            String plVersion = excludedPl.getVersion();
-            if (plAuthor == null)
-                out.writeUTF("null");
-            else
-                out.writeUTF(plVersion);
-        }
-
-    }
+    private String safeStr(String s) { return s == null ? "null" : s; }
 }

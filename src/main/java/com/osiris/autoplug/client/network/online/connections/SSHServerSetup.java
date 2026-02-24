@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2021-2024 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
 package com.osiris.autoplug.client.network.online.connections;
 
 import com.osiris.autoplug.client.configs.SSHConfig;
@@ -35,17 +28,17 @@ public class SSHServerSetup {
             AL.warn("SSH server is already running.");
             return;
         }
-    
+
         sshd = SshServer.setUpDefaultServer();
         SSHConfig sshConfig = new SSHConfig();
-    
+
         int port = sshConfig.port.asInt();
         String authMethod = sshConfig.auth_method.asString();
         String allowedKeysRaw = sshConfig.allowed_keys_path.asString();
         String privateKeyRaw = sshConfig.server_private_key.asString();
         String username = sshConfig.username.asString();
         String password = sshConfig.password.asString();
-    
+
         // === Defensive checks ===
         if (allowedKeysRaw == null || allowedKeysRaw.trim().isEmpty()) {
             AL.warn("SSH config error: 'allowed-keys-path' is missing or empty!");
@@ -57,10 +50,10 @@ public class SSHServerSetup {
                     + "Example fix:\n  server-private-key: ./autoplug/server_host_key.ser");
             throw new IllegalArgumentException("Missing 'server-private-key' in SSH config");
         }
-    
+
         Path allowedKeysPath = new File(allowedKeysRaw).toPath();
         Path serverPrivateKeyPath = new File(privateKeyRaw).toPath();
-    
+
         try {
             setupServer(port, authMethod, allowedKeysPath, serverPrivateKeyPath, username, password);
             sshd.start();
@@ -113,12 +106,7 @@ public class SSHServerSetup {
                 throw new IllegalArgumentException("Invalid authentication method: " + authMethod);
         }
 
-        sshd.setCommandFactory(new CommandFactory() {
-            @Override
-            public Command createCommand(ChannelSession channel, String command) {
-                return new SSHServerConsoleReceive();
-            }
-        });
+        sshd.setCommandFactory((channel, command) -> new SSHServerConsoleReceive());
         sshd.setShellFactory(channel -> new SSHServerConsoleReceive());
     }
 

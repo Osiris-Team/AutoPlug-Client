@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.utils.terminal;
 
 import com.osiris.autoplug.client.utils.io.AsyncReader;
+import com.osiris.jlib.logger.AL;
 import org.jline.utils.OSUtils;
 
 import java.io.File;
@@ -52,13 +53,17 @@ public class AsyncTerminal implements AutoCloseable {
         sendCommands(commands);
     }
 
-    public void sendCommands(String... commands) throws IOException {
-        if (commands != null)
-            for (String command :
-                    commands) {
-                out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
-                out.flush();
-            }
+    public void sendCommands(String... commands) {
+        try{
+            if (commands != null)
+                for (String command :
+                        commands) {
+                    out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
+                    out.flush();
+                }
+        } catch (Exception e) {
+            AL.warn(e);
+        }
     }
 
     @Override

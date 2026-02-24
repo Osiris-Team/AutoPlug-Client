@@ -21,7 +21,7 @@ class ThisProject extends JPM.Project {
         // Override default configurations
         this.groupId = "com.osiris.autoplug.client";
         this.artifactId = "AutoPlug-Client";
-        this.version = "9.0.2";
+        this.version = "10.0.0";
         this.mainClass = "com.osiris.autoplug.client.Main";
         this.jarName = "AutoPlug-Client-original.jar";
         this.fatJarName = "AutoPlug-Client.jar";
@@ -74,6 +74,7 @@ class ThisProject extends JPM.Project {
         implementation("com.formdev:flatlaf:2.2");
         implementation("org.apache.sshd:sshd-core:2.13.0");
         implementation("org.json:json:20250107");
+        implementation("io.netty:netty-all:4.1.101.Final");
 
         // Google Drive
         implementation("com.google.api-client:google-api-client:2.0.0");

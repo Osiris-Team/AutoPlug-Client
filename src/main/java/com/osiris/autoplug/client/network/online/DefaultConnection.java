@@ -1,322 +1,202 @@
-/*
- * Copyright (c) 2021-2024 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
-
 package com.osiris.autoplug.client.network.online;
 
-import com.osiris.autoplug.client.Main;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.SystemConfig;
-import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleReceive;
-import com.osiris.autoplug.client.network.online.connections.ConAutoPlugConsoleSend;
-import com.osiris.autoplug.client.network.online.connections.ConPluginsUpdateResult;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.autoplug.client.utils.UtilsLists;
 import com.osiris.jlib.logger.AL;
-import com.osiris.jprocesses2.JProcess;
-import com.osiris.jprocesses2.ProcessUtils;
-import org.jetbrains.annotations.Nullable;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Authenticates this client to the AutoPlug-Web server.
- * Must be extended by each connection.
- */
-public class DefaultConnection implements AutoCloseable {
+public abstract class DefaultConnection implements AutoCloseable {
     public static final String NO_KEY = "NO_KEY";
+    public static final EventLoopGroup GROUP = new NioEventLoopGroup(2); // Shared event loop
+
     public final byte conType;
     public byte errorCode = 0;
-    public Socket socket;
-    public InputStream input;
-    public OutputStream output;
-    public DataInputStream in;
-    public DataOutputStream out;
+    public Channel channel;
     public AtomicBoolean isClosing = new AtomicBoolean(false);
-    private Thread thread;
-    /**
-     * Gets reset to null in {@link #_open()}
-     */
-    private @Nullable Exception latestThreadException = null;
+    private boolean useSsl = false;
 
-
-    /**
-     * Creates a new secured connection to the AutoPlug server.
-     * Needs a connection type.
-     *
-     * @param con_type 0 = {@link ConMain}; <br>
-     *                 1 = {@link ConAutoPlugConsoleReceive}; <br>
-     *                 2 = {@link ConAutoPlugConsoleSend}; <br>
-     *                 3 = {@link ConPluginsUpdateResult}; <br>
-     * @throws Exception if authentication fails. Details are in the message.
-     */
     public DefaultConnection(byte con_type) {
         this.conType = con_type;
     }
 
-    /**
-     *
-     */
-    public void setSmartRunnable(RunnableWithException runnable) {
-
-    }
-
-    /**
-     * Interrupts the old thread and sets and starts a new thread.
-     * The provided runnable is encapsulated in another one inside a try/catch
-     * that catches and ignores Exceptions caused by {@link #close()}.
-     */
-    public synchronized void setAndStartAsync(RunnableWithException runnable) {
-        try{
-            if (this.thread != null)
-                this.thread.interrupt();
-        } catch (Exception e) {
-            AL.debug(this.getClass(), "An active & old connection thread has been interrupted for the sake of creating a new one, exception: "+ e.getMessage());
-        }
-        // Save instances to make sure NOT to close the wrong ones later.
-        Socket _socket = this.socket;
-        InputStream _in = this.in;
-        OutputStream _out = this.out;
-        this.thread = new Thread(() -> {
-            try {
-                runnable.run();
-            } catch (Exception e) {
-                latestThreadException = e;
-                // Do not log exceptions if we are closing or the user is inactive
-                if(isClosing.get() || !Main.CON.isUserActive.get()) AL.debug(this.getClass(), "Silent connection exception: "+e.getMessage());
-                else AL.warn(e);
-                try {
-                    _close(Thread.currentThread(), _in, _out, _socket);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
-        this.thread.start();
-        AL.debug(this.getClass(), "setAndStartAsync: "+thread+" "+socket+" "+runnable);
-    }
-
     public synchronized boolean open() throws Exception {
         AL.debug(this.getClass(), "open()");
-        _open();
-        if (errorCode == 2) { // Retry in 10 seconds because it might be
-            // that we just reconnected (there is a timeout of 5 seconds for the old connection until it gets closed)
-            Thread.sleep(10000); // at least 5 seconds
+        try {
             _open();
+        } catch (Exception e) {
+            // If the server thinks we are a duplicate (error 2), wait and retry once.
+            if (errorCode == 2) {
+                AL.debug(this.getClass(), "Server reports duplicate key. Waiting 10s for old session to clear...");
+                Thread.sleep(10000);
+                _open();
+            } else {
+                throw e;
+            }
         }
         throwError();
         return errorCode == 0;
     }
 
     private synchronized int _open() throws Exception {
-        latestThreadException = null;
         isClosing.set(false);
         errorCode = 0;
-        close();
-        isClosing.set(false);
-        String serverKey = new GeneralConfig().server_key.asString();
-        if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") ||
-                serverKey.equals("null") ||
-                serverKey.equals(NO_KEY))
-            throw new InvalidKeyException("No valid key provided." +
-                    " Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file." +
-                    " Enter '.con reload' to retry.");
-        while (true) {
-            SystemConfig systemConfig = new SystemConfig();
-            String ip = systemConfig.autoplug_web_ip.asString();
-            int port = systemConfig.autoplug_web_port.asInt();
-            AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
-            if (systemConfig.autoplug_web_ssl.asBoolean())
-                createSSLConnection(ip, port);
-            else {
-                createInsecureConnection(ip, port);
-            }
 
-            // DDOS protection
-            int punishment = in.readInt();
-            if (punishment == 0) {
-                AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connected to AutoPlug-Web successfully!");
-                break;
-            }
-
-            AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connection to AutoPlug-Web throttled! Retrying in " + punishment / 1000 + " second(s).");
-            Thread.sleep(punishment + 250); // + 250ms, just to be safe
+        // FIX: Ensure previous channel is completely closed synchronously before starting a new one.
+        if (channel != null && channel.isActive()) {
+            try {
+                channel.close().sync();
+            } catch (Exception ignored) {}
         }
 
-        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticating server with Server-Key...");
-        socket.setSoTimeout(60000);
-        out.writeUTF(serverKey); // Send server key
-        out.writeByte(conType); // Send connection type
-        this.errorCode = in.readByte(); // Get response
+        String serverKey = new GeneralConfig().server_key.asString();
+        if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") || serverKey.equals("null") || serverKey.equals(NO_KEY))
+            throw new InvalidKeyException("No valid key provided. Register your server at " + GD.OFFICIAL_WEBSITE);
+
+        // FIX: Trim whitespace to prevent invalid key errors
+        serverKey = serverKey.trim();
+        final String finalKey = serverKey;
+
+        SystemConfig systemConfig = new SystemConfig();
+        String ip = systemConfig.autoplug_web_ip.asString();
+        int port = systemConfig.autoplug_web_port.asInt();
+        useSsl = systemConfig.autoplug_web_ssl.asBoolean();
+
+        AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Connecting to AutoPlug-Web (" + ip + ":" + port + ")...");
+
+        CompletableFuture<Byte> authFuture = new CompletableFuture<>();
+
+        Bootstrap b = new Bootstrap();
+        b.group(GROUP)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        if (useSsl) {
+                            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+                            ch.pipeline().addLast(sslCtx.newHandler(ch.alloc(), ip, port));
+                        }
+                        // FIX: Replaced ReplayingDecoder with robust AuthHandler
+                        ch.pipeline().addLast(new AuthHandler(finalKey, conType, authFuture));
+                    }
+                });
+
+        try {
+            channel = b.connect(ip, port).sync().channel();
+            this.errorCode = authFuture.get(60, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            // Check for Throttling message passed from AuthHandler
+            if (e.getMessage() != null && e.getMessage().contains("Throttled")) {
+                int punishment = Integer.parseInt(e.getMessage().split(":")[1].trim());
+                AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Throttled! Retrying in " + punishment / 1000 + "s.");
+                Thread.sleep(punishment + 250);
+                return _open(); // Retry
+            }
+            throw e;
+        }
+
         return errorCode;
     }
 
     private void throwError() throws Exception {
-        switch (errorCode) {
-            case 0:
-                AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticated server successfully!");
-                break;
-            case 1:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No matching server key found! Register your server at " + GD.OFFICIAL_WEBSITE + ", get your server-key and add it to the /autoplug/general.yml config file. Enter '.con reload' to retry.");
-            case 2:
-                List<JProcess> list = new ArrayList<>();
-                Exception ex = null;
-                try {
-                    for (JProcess p : new ProcessUtils().getProcesses()) {
-                        if (p.name != null && p.name.toLowerCase().contains("autoplug")) {
-                            list.add(p);
-                        } else if (p.command != null && p.command.toLowerCase().contains("autoplug")) {
-                            list.add(p);
-                        }
-                    }
-                } catch (Exception e) {
-                    ex = e;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                if (!list.isEmpty()) {
-                    sb.append("Running processes (").append(list.size()).append(") with \"autoplug\" in name or start command: \n");
-                    for (JProcess p : list) {
-                        sb.append(p.name).append(" pid: ").append(p.pid).append(" command: ").append(p.command).append("\n");
-                    }
-                    sb.append("Make sure each of this processes has its own, unique server-key.");
-                }
-                if (ex != null) {
-                    sb.append("There was an error retrieving running process details: " + ex.getMessage() + " " + new UtilsLists().toString(Arrays.asList(ex.getStackTrace())));
-                }
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Another client with this server key is already connected!" +
-                        " Close that connection and restart AutoPlug. " + sb);
-            case 3:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Make sure that the primary connection is established before all the secondary connections!");
-            case 4:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Unknown connection type! Make sure that AutoPlug is up-to-date!");
-            case 5:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): No user account found for the provided server key!");
-            case 6:
-                String ip = in.readUTF();
-                String hostname = in.readUTF();
-                int port = in.readInt();
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "):" +
-                        " An already existing, registered, public server was found with the same ip and port! This server was set to private." +
-                        " Details: ip=" + ip + " hostname=" + hostname + " port=" + port);
-            case 7:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "):" +
-                        " A severe error occurred at AutoPlug-Web. Please notify the developers!");
-            default:
-                throw new Exception("[CON_TYPE: " + conType + "] Authentication failed (code:" + errorCode + "): Unknown error code " + errorCode + ". Make sure that AutoPlug is up-to-date!");
-        }
-    }
-
-    /**
-     * Connects to a server with SSL.
-     * After this you can use the get methods.
-     *
-     * @param host Server ip-address.
-     * @param port Server port.
-     * @throws Exception
-     */
-    public void createSSLConnection(String host, int port) throws Exception {
-        //SSLContext ctx = SSLContext.getInstance("TLSv1.3");
-        SocketFactory factory = SSLSocketFactory.getDefault();
-        socket = factory.createSocket(host, port);
-
-        //System.setProperty("javax.net.debug", "all");
-        ((SSLSocket) socket).setEnabledProtocols(
-                new String[]{"TLSv1.2"});
-        ((SSLSocket) socket).getSSLParameters().setEndpointIdentificationAlgorithm("HTTPS");
-
-        SSLSession session = ((SSLSocket) socket).getSession();
-        if (!session.isValid())
-            throw new Exception("SSLSession is not valid! An SSLSession may not be valid if the SSL/TLS connection" +
-                    " has been closed or if there has been an error during the SSL/TLS handshake process." +
-                    " It could also be invalid if the SSLSession has timed out due to inactivity. ");
-
-        AL.debug(DefaultConnection.class, "Valid SSL session created for con_type " + conType + ". Details: " + session);
-
-        input = socket.getInputStream();
-        output = socket.getOutputStream();
-        in = new DataInputStream(input);
-        out = new DataOutputStream(output);
-    }
-
-    public void createInsecureConnection(String host, int port) throws Exception {
-        AL.warn("Creating unencrypted connection, transmitted data can be read by a third-party.");
-        socket = new Socket(host, port);
-        input = socket.getInputStream();
-        output = socket.getOutputStream();
-        in = new DataInputStream(input);
-        out = new DataOutputStream(output);
+        if (errorCode == 0) AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Authenticated server successfully!");
+        else if (errorCode == 1) throw new Exception("Authentication failed: No matching server key found!");
+        else if (errorCode == 2) throw new Exception("Authentication failed: Another client with this key is already connected!");
+        else if (errorCode == 3) throw new Exception("Authentication failed: Main-Con must be established first!");
+        else throw new Exception("Authentication failed with unknown error code: " + errorCode);
     }
 
     public boolean isConnected() {
-        return socket != null && !socket.isClosed() && socket.isConnected();
-    }
-
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public InputStream getInput() {
-        return input;
-    }
-
-    public OutputStream getOutput() {
-        return output;
-    }
-
-    public DataInputStream getIn() {
-        return in;
-    }
-
-    public DataOutputStream getOut() {
-        return out;
+        return channel != null && channel.isActive();
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
+        AL.debug(this.getClass(), "close()");
         isClosing.set(true);
-        _close(thread, in, out, socket);
-    }
-
-    private void _close(Thread thread, InputStream in, OutputStream out, Socket socket) throws Exception {
-        AL.debug(this.getClass(), "_close()");
-        if (in != null) in.close();
-        if (out != null) out.close();
-        if (socket != null) socket.close();
-        if (thread != null) thread.interrupt(); // Close thread last, since it might be the current thread
+        if (channel != null && channel.isActive()) {
+            channel.close();
+        }
     }
 
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
-                "isEncrypted=" + (socket != null && socket instanceof SSLSocket ? "true" : "false") +
+                "isEncrypted=" + useSsl +
                 ", isConnected=" + isConnected() +
-                ", isThreadRunning=" + (thread != null && !thread.isInterrupted() && thread.isAlive()) +
-                ", latestThreadExceptionMessage=" + (latestThreadException != null ? latestThreadException.getMessage() : "empty") +
                 ", isClosing=" + isClosing.get() +
                 ", errorCode=" + errorCode +
-                ", socket=" + socket +
                 '}';
     }
 
-    public boolean isInterrupted() {
-        return thread != null && thread.isInterrupted();
+    /**
+     * Handshake Handler:
+     * 1. Reads Punishment (Int)
+     * 2. Writes Key (UTF) + Type (Byte)
+     * 3. Reads ErrorCode (Byte)
+     */
+    public static class AuthHandler extends ByteToMessageDecoder {
+        private final String key;
+        private final byte type;
+        private final CompletableFuture<Byte> future;
+        private boolean sentKey = false;
+
+        public AuthHandler(String key, byte type, CompletableFuture<Byte> future) {
+            this.key = key;
+            this.type = type;
+            this.future = future;
+        }
+
+        @Override
+        protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+            if (!sentKey) {
+                // Step 1: Read Punishment Integer (4 bytes)
+                if (in.readableBytes() < 4) return;
+
+                int punishment = in.readInt();
+                if (punishment > 0) {
+                    future.completeExceptionally(new Exception("Throttled:" + punishment));
+                    ctx.close();
+                    return;
+                }
+
+                // Step 2: Send Key + Type
+                ByteBuf buf = ctx.alloc().buffer();
+                NettyUtils.writeUTF(buf, key);
+                buf.writeByte(type);
+                ctx.writeAndFlush(buf);
+
+                sentKey = true;
+            } else {
+                // Step 3: Read Error Code Byte (1 byte)
+                if (in.readableBytes() < 1) return;
+
+                byte error = in.readByte();
+                ctx.pipeline().remove(this); // Handshake complete
+                future.complete(error);
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            future.completeExceptionally(cause);
+            ctx.close();
+        }
     }
 }

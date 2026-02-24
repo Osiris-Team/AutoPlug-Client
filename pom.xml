@@ -11,11 +11,11 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.osiris.autoplug.client</groupId>
     <artifactId>AutoPlug-Client</artifactId>
-    <version>9.0.2</version>
+    <version>10.0.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>9</java.version>
-        <version>9.0.2</version>
+        <version>10.0.0</version>
         <main-class>com.osiris.autoplug.client.Main</main-class>
         <slf4j.version>2.0.13</slf4j.version>
         <name>AutoPlug-Client</name>
@@ -295,6 +295,12 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20250107</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.101.Final</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
