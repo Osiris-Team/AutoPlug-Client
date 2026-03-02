@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.InvalidKeyException;
 import java.util.List;
@@ -100,9 +101,12 @@ public class ConMain extends DefaultConnection {
         return true;
     }
 
+    public @Nullable Thread reconnectThread = null;
+
     private void scheduleReconnect() {
         if (isClosing.get()) return;
-        new Thread(() -> {
+        if(reconnectThread != null) try{reconnectThread.interrupt();} catch (Exception e) {}
+        reconnectThread = new Thread(() -> {
             try {
                 AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
                 Thread.sleep(msUntilRetry);
@@ -111,7 +115,8 @@ public class ConMain extends DefaultConnection {
             } catch (Exception e) {
                 AL.warn("Reconnect error", e);
             }
-        }).start();
+        });
+        reconnectThread.start();
         close();
     }
 

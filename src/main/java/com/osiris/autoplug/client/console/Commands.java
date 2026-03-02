@@ -168,9 +168,17 @@ public final class Commands {
                     AL.info(Main.CON.CON_PRIVATE_DETAILS.toString());
                     AL.info(Main.CON.CON_CONSOLE_SEND.toString());
                     AL.info(Main.CON.CON_CONSOLE_RECEIVE.toString());
+                    AL.info(Main.CON.CON_SYSTEM_CONSOLE_SEND.toString());
+                    AL.info(Main.CON.CON_SYSTEM_CONSOLE_RECEIVE.toString());
                     AL.info(Main.CON.CON_FILE_MANAGER.toString());
                     return true;
                 } else if (command.equals(".con reload") || command.equals(".cr")) {
+                    if(Main.CON.reconnectThread != null){
+                        try{
+                            Main.CON.reconnectThread.interrupt();
+                        } catch (Exception e) {}
+                        AL.debug(Commands.class, "Stopped reconnect thread.");
+                    }
                     Main.CON.close();
                     AL.info("Closed connections, reconnecting in 10 seconds...");
                     Thread.sleep(10000);
