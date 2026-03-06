@@ -48,7 +48,6 @@ public class ConMain extends DefaultConnection {
             return false;
         }
 
-        // Add IdleStateHandler FIRST: Wait some seconds for a read. (0 means disable write/all idle checking)
         channel.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
         channel.pipeline().addLast(new ReplayingDecoder<Void>() {
             @Override
@@ -63,7 +62,6 @@ public class ConMain extends DefaultConnection {
                 try {
                     if (active && !isUserActiveOld) {
                         AL.debug(ConMain.class, "Owner/Staff is online/active.");
-                        // Offload to a virtual thread so Netty can keep working
                         Thread.startVirtualThread(() -> {
                             try {
                                 if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
@@ -101,23 +99,11 @@ public class ConMain extends DefaultConnection {
         return true;
     }
 
-    public @Nullable Thread reconnectThread = null;
-
-    private void scheduleReconnect() {
-        if (isClosing.get()) return;
-        if(reconnectThread != null) try{reconnectThread.interrupt();} catch (Exception e) {}
-        reconnectThread = new Thread(() -> {
-            try {
-                AL.warn("Connection problems! Reconnecting in " + msUntilRetry / 1000 + " seconds...");
-                Thread.sleep(msUntilRetry);
-                msUntilRetry += 30000;
-                if (!open()) scheduleReconnect();
-            } catch (Exception e) {
-                AL.warn("Reconnect error", e);
-            }
-        });
-        reconnectThread.start();
-        close();
+    @Override
+    protected int getReconnectDelay() {
+        int delay = msUntilRetry;
+        msUntilRetry += 30000;
+        return delay;
     }
 
     @Override

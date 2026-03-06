@@ -23,13 +23,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class DefaultConnection implements AutoCloseable {
     public static final String NO_KEY = "NO_KEY";
-    public static final EventLoopGroup GROUP = new NioEventLoopGroup(2); // Shared event loop
+    public static final EventLoopGroup GROUP = new NioEventLoopGroup(2);
 
     public final byte conType;
     public byte errorCode = 0;
     public Channel channel;
     public AtomicBoolean isClosing = new AtomicBoolean(false);
     private boolean useSsl = false;
+
+    public Thread reconnectThread = null;
 
     public DefaultConnection(byte con_type) {
         this.conType = con_type;
@@ -40,7 +42,6 @@ public abstract class DefaultConnection implements AutoCloseable {
         try {
             _open();
         } catch (Exception e) {
-            // If the server thinks we are a duplicate (error 2), wait and retry once.
             if (errorCode == 2) {
                 AL.debug(this.getClass(), "Server reports duplicate key. Waiting 10s for old session to clear...");
                 Thread.sleep(10000);
@@ -53,22 +54,45 @@ public abstract class DefaultConnection implements AutoCloseable {
         return errorCode == 0;
     }
 
+    protected int getReconnectDelay() {
+        return 30000;
+    }
+
+    protected synchronized void scheduleReconnect() {
+        if (isClosing.get()) return;
+
+        if (reconnectThread != null) {
+            try { reconnectThread.interrupt(); } catch (Exception ignored) {}
+        }
+
+        reconnectThread = new Thread(() -> {
+            try {
+                int delay = getReconnectDelay();
+                AL.warn(this.getClass().getSimpleName()+ " Connection problems! Reconnecting in " + delay / 1000 + " seconds...");
+                Thread.sleep(delay);
+
+                if (!open()) scheduleReconnect();
+            } catch (Exception e) {
+                AL.warn("Reconnect error", e);
+            }
+        });
+
+        reconnectThread.start();
+        close();
+    }
+
     private synchronized int _open() throws Exception {
         isClosing.set(false);
         errorCode = 0;
 
-        // FIX: Ensure previous channel is completely closed synchronously before starting a new one.
         if (channel != null && channel.isActive()) {
-            try {
-                channel.close().sync();
-            } catch (Exception ignored) {}
+            try { channel.close().sync(); } catch (Exception ignored) {}
         }
 
         String serverKey = new GeneralConfig().server_key.asString();
         if (serverKey == null || serverKey.equals("INSERT_KEY_HERE") || serverKey.equals("null") || serverKey.equals(NO_KEY))
             throw new InvalidKeyException("No valid key provided. Register your server at " + GD.OFFICIAL_WEBSITE);
 
-        // FIX: Trim whitespace to prevent invalid key errors
         serverKey = serverKey.trim();
         final String finalKey = serverKey;
 
@@ -88,12 +112,27 @@ public abstract class DefaultConnection implements AutoCloseable {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+
                         if (useSsl) {
-                            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+                            SslContext sslCtx = SslContextBuilder.forClient()
+                                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                                    .build();
                             ch.pipeline().addLast(sslCtx.newHandler(ch.alloc(), ip, port));
                         }
-                        // FIX: Replaced ReplayingDecoder with robust AuthHandler
+
                         ch.pipeline().addLast(new AuthHandler(finalKey, conType, authFuture));
+
+                        ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                            @Override
+                            public void channelInactive(ChannelHandlerContext ctx) {
+                                if (!isClosing.get()) scheduleReconnect();
+                            }
+
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                                if (!isClosing.get()) scheduleReconnect();
+                            }
+                        });
                     }
                 });
 
@@ -101,12 +140,11 @@ public abstract class DefaultConnection implements AutoCloseable {
             channel = b.connect(ip, port).sync().channel();
             this.errorCode = authFuture.get(60, TimeUnit.SECONDS);
         } catch (Exception e) {
-            // Check for Throttling message passed from AuthHandler
             if (e.getMessage() != null && e.getMessage().contains("Throttled")) {
                 int punishment = Integer.parseInt(e.getMessage().split(":")[1].trim());
                 AL.debug(this.getClass(), "[CON_TYPE: " + conType + "] Throttled! Retrying in " + punishment / 1000 + "s.");
                 Thread.sleep(punishment + 250);
-                return _open(); // Retry
+                return _open();
             }
             throw e;
         }
@@ -145,12 +183,6 @@ public abstract class DefaultConnection implements AutoCloseable {
                 '}';
     }
 
-    /**
-     * Handshake Handler:
-     * 1. Reads Punishment (Int)
-     * 2. Writes Key (UTF) + Type (Byte)
-     * 3. Reads ErrorCode (Byte)
-     */
     public static class AuthHandler extends ByteToMessageDecoder {
         private final String key;
         private final byte type;
@@ -165,8 +197,8 @@ public abstract class DefaultConnection implements AutoCloseable {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+
             if (!sentKey) {
-                // Step 1: Read Punishment Integer (4 bytes)
                 if (in.readableBytes() < 4) return;
 
                 int punishment = in.readInt();
@@ -176,7 +208,6 @@ public abstract class DefaultConnection implements AutoCloseable {
                     return;
                 }
 
-                // Step 2: Send Key + Type
                 ByteBuf buf = ctx.alloc().buffer();
                 NettyUtils.writeUTF(buf, key);
                 buf.writeByte(type);
@@ -184,11 +215,10 @@ public abstract class DefaultConnection implements AutoCloseable {
 
                 sentKey = true;
             } else {
-                // Step 3: Read Error Code Byte (1 byte)
                 if (in.readableBytes() < 1) return;
 
                 byte error = in.readByte();
-                ctx.pipeline().remove(this); // Handshake complete
+                ctx.pipeline().remove(this);
                 future.complete(error);
             }
         }
