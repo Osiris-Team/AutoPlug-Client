@@ -9,6 +9,8 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConSystemConsoleReceive extends DefaultConnection {
 
@@ -35,7 +37,7 @@ public class ConSystemConsoleReceive extends DefaultConnection {
                     AL.warn("Failed to execute '" + line + "' because there is no system terminal active.");
                     return;
                 }
-                Thread.startVirtualThread(() -> {
+                DefaultConnection.exec.submit(() -> {
                     ConSystemConsoleSend.asyncTerminal.sendCommands(line);
                 });
             }

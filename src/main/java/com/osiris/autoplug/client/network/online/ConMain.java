@@ -62,7 +62,7 @@ public class ConMain extends DefaultConnection {
                 try {
                     if (active && !isUserActiveOld) {
                         AL.debug(ConMain.class, "Owner/Staff is online/active.");
-                        Thread.startVirtualThread(() -> {
+                        DefaultConnection.exec.submit(() -> {
                             try {
                                 if (!CON_CONSOLE_RECEIVE.isConnected()) CON_CONSOLE_RECEIVE.open();
                                 if (!CON_CONSOLE_SEND.isConnected()) CON_CONSOLE_SEND.open();

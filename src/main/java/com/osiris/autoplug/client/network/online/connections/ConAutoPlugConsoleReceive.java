@@ -27,7 +27,7 @@ public class ConAutoPlugConsoleReceive extends DefaultConnection {
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, String line) {
                 if (!Commands.execute(line)) {
-                    Thread.startVirtualThread(() -> {
+                    DefaultConnection.exec.submit(() -> {
                         try {
                             Server.submitCommand(line);
                         } catch (Exception e) {

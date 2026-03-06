@@ -3,7 +3,7 @@
 
 
 
-AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM.java
+AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java//JPM.java
 
 
 
@@ -24,19 +24,23 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
     </properties>
     <repositories>
         <repository>
-            <id>osssonatypeorg</id>
+            <id>httpsrepo.maven.apache.orgmaven2</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>httpsoss.sonatype.orgcontentrepositoriessnapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
         <repository>
-            <id>jitpackio</id>
+            <id>httpsjitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>repopandalangorg</id>
+            <id>httpsrepo.panda-lang.org</id>
             <url>https://repo.panda-lang.org/</url>
         </repository>
         <repository>
-            <id>repocodemcio</id>
+            <id>httpsrepo.codemc.iorepositorymaven-public</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
     </repositories>
@@ -347,6 +351,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
+                    <release>9</release>
                     <source>9</source>
                     <target>9</target>
                 </configuration>
@@ -367,20 +372,27 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.osiris.autoplug.client.Main</mainClass>
+                        </manifest>
+                    </archive>
                     <finalName>AutoPlug-Client</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -419,7 +431,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java/JPM
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>enforce</id>

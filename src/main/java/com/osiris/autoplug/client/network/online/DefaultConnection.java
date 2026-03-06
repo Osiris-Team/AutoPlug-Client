@@ -18,10 +18,14 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class DefaultConnection implements AutoCloseable {
+    public static ExecutorService exec = Executors.newCachedThreadPool();
+
     public static final String NO_KEY = "NO_KEY";
     public static final EventLoopGroup GROUP = new NioEventLoopGroup(2);
 
