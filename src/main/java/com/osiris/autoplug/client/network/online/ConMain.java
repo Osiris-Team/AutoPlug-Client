@@ -5,6 +5,7 @@ import com.osiris.jlib.logger.AL;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,10 +26,16 @@ public class ConMain extends DefaultConnection {
     public boolean isDone = false; // So that the log isn't a mess because of the processes which start right after this.
     public AtomicBoolean isUserActive = new AtomicBoolean(false);
     public boolean isUserActiveOld = false;
-    public int msUntilRetry = 30000;
 
     public ConMain() {
         super((byte) 0);
+        CON_PUBLIC_DETAILS.conMain = this;
+        CON_CONSOLE_RECEIVE.conMain = this;
+        CON_CONSOLE_SEND.conMain = this;
+        CON_SYSTEM_CONSOLE_SEND.conMain = this;
+        CON_SYSTEM_CONSOLE_RECEIVE.conMain = this;
+        CON_PRIVATE_DETAILS.conMain = this;
+        CON_FILE_MANAGER.conMain = this;
     }
 
     @Override
@@ -38,7 +45,6 @@ public class ConMain extends DefaultConnection {
             super.open();
             AL.info("Authentication success!");
             CON_PUBLIC_DETAILS.open();
-            msUntilRetry = 30000;
             isDone = true;
         } catch (Exception e) {
             isDone = true;
@@ -86,6 +92,17 @@ public class ConMain extends DefaultConnection {
             }
 
             @Override
+            public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                if (evt instanceof IdleStateEvent) {
+                    AL.warn("Server connection timed out (no ping received). Assuming connection is dead.");
+                    // Closing the context will automatically trigger channelInactive() below and schedule a reconnect
+                    ctx.close();
+                } else {
+                    super.userEventTriggered(ctx, evt);
+                }
+            }
+
+            @Override
             public void channelInactive(ChannelHandlerContext ctx) {
                 if (!isClosing.get()) scheduleReconnect();
             }
@@ -97,13 +114,6 @@ public class ConMain extends DefaultConnection {
         });
 
         return true;
-    }
-
-    @Override
-    protected int getReconnectDelay() {
-        int delay = msUntilRetry;
-        msUntilRetry += 30000;
-        return delay;
     }
 
     @Override

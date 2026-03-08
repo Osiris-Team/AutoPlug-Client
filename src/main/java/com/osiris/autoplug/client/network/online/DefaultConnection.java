@@ -14,6 +14,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.InvalidKeyException;
 import java.util.List;
@@ -34,6 +35,11 @@ public abstract class DefaultConnection implements AutoCloseable {
     public Channel channel;
     public AtomicBoolean isClosing = new AtomicBoolean(false);
     private boolean useSsl = false;
+
+    @Nullable public ConMain conMain = null;
+    public boolean isSecondary(){
+        return conMain != null;
+    }
 
     public Thread reconnectThread = null;
 
@@ -58,8 +64,13 @@ public abstract class DefaultConnection implements AutoCloseable {
         return errorCode == 0;
     }
 
-    protected int getReconnectDelay() {
-        return 30000;
+    public int initalReconnectDelay = 2000;
+    public int additionalReconnectDelay = 30000;
+    public int currentReconnectDelay = initalReconnectDelay;
+    protected int getNewReconnectDelay() {
+        int delay = currentReconnectDelay;
+        currentReconnectDelay = currentReconnectDelay + additionalReconnectDelay; // For next time
+        return delay;
     }
 
     protected synchronized void scheduleReconnect() {
@@ -71,9 +82,16 @@ public abstract class DefaultConnection implements AutoCloseable {
 
         reconnectThread = new Thread(() -> {
             try {
-                int delay = getReconnectDelay();
+                int delay = getNewReconnectDelay();
                 AL.warn(this.getClass().getSimpleName()+ " Connection problems! Reconnecting in " + delay / 1000 + " seconds...");
                 Thread.sleep(delay);
+
+                if(conMain != null // same as isSecondary()
+                        && !conMain.isConnected()){
+                    AL.debug(this.getClass(), "Reconnect attempt aborted," +
+                            " because main con is not connected. Assume reconnect will be handled by main con.");
+                    return;
+                }
 
                 if (!open()) scheduleReconnect();
             } catch (Exception e) {
@@ -143,6 +161,7 @@ public abstract class DefaultConnection implements AutoCloseable {
         try {
             channel = b.connect(ip, port).sync().channel();
             this.errorCode = authFuture.get(60, TimeUnit.SECONDS);
+            currentReconnectDelay = initalReconnectDelay; // Reset reconnect delay on success connect
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("Throttled")) {
                 int punishment = Integer.parseInt(e.getMessage().split(":")[1].trim());

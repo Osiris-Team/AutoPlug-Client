@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+// Client code
 public class ConFileManager extends DefaultConnection {
     private FileOutputStream tempFileOutputStream;
 
@@ -32,7 +33,6 @@ public class ConFileManager extends DefaultConnection {
 
         channel.pipeline().addLast(new ReplayingDecoder<Void>() {
             int state = 0;
-            // 0 = Opcode, 1 = FileDetails WantsContent, 2 = SaveFile Chunk, 3 = UploadFile Chunk
             File currentFile;
 
             @Override
@@ -40,42 +40,48 @@ public class ConFileManager extends DefaultConnection {
                 try {
                     if (state == 0) {
                         byte op = in.readByte();
-                        if (op == 0) { // Get File Details
+                        if (op == 0) {
                             String path = NettyUtils.readUTF(in);
                             currentFile = path.isEmpty() ? GD.WORKING_DIR : new File(path);
-                            Executors.newSingleThreadExecutor().submit(() -> sendFileDetailsAndChildren(currentFile));
+                            // FIX: Use shared executor instead of creating a new thread pool every time
+                            DefaultConnection.exec.submit(() -> sendFileDetailsAndChildren(currentFile));
                             if (!currentFile.isDirectory()) {
                                 state = 1;
                             }
                         }
-                        else if (op == 1) { // Create
+                        else if (op == 1) {
                             String path = NettyUtils.readUTF(in);
                             boolean isDir = in.readBoolean();
-                            Executors.newSingleThreadExecutor().submit(() -> doCreate(path, isDir));
+                            DefaultConnection.exec.submit(() -> doCreate(path, isDir));
                         }
-                        else if (op == 2) { // Delete
+                        else if (op == 2) {
                             int count = in.readInt();
                             String[] paths = new String[count];
                             for (int i = 0; i < count; i++) paths[i] = NettyUtils.readUTF(in);
-                            Executors.newSingleThreadExecutor().submit(() -> doDelete(paths));
+                            DefaultConnection.exec.submit(() -> doDelete(paths));
                         }
-                        else if (op == 3) { // Rename
+                        else if (op == 3) {
                             String path = NettyUtils.readUTF(in);
                             String newName = NettyUtils.readUTF(in);
-                            Executors.newSingleThreadExecutor().submit(() -> doRename(path, newName));
+                            DefaultConnection.exec.submit(() -> doRename(path, newName));
                         }
                         else if (op == 4) { // Save File
                             currentFile = new File(NettyUtils.readUTF(in));
+                            if (currentFile.getParentFile() != null) currentFile.getParentFile().mkdirs();
+                            if (!currentFile.exists()) currentFile.createNewFile();
                             tempFileOutputStream = new FileOutputStream(currentFile);
+                            writeBool(true); // FIX: Notify the server we are ready to receive the stream
                             state = 2;
                         }
                         else if (op == 5) { // Receive Upload
                             currentFile = new File(NettyUtils.readUTF(in));
+                            if (currentFile.getParentFile() != null) currentFile.getParentFile().mkdirs();
                             if (!currentFile.exists()) currentFile.createNewFile();
                             tempFileOutputStream = new FileOutputStream(currentFile);
+                            writeBool(true); // FIX: Notify the server we are ready to receive the stream
                             state = 3;
                         }
-                        else if (op == 6) { // Copy/Cut
+                        else if (op == 6) {
                             int count = in.readInt();
                             boolean isCopy = in.readBoolean();
                             String targetDir = NettyUtils.readUTF(in);
@@ -85,20 +91,28 @@ public class ConFileManager extends DefaultConnection {
                                 paths[i] = NettyUtils.readUTF(in);
                                 isDirs[i] = in.readBoolean();
                             }
-                            Executors.newSingleThreadExecutor().submit(() -> doCopyCut(paths, isDirs, isCopy, targetDir));
+                            DefaultConnection.exec.submit(() -> doCopyCut(paths, isDirs, isCopy, targetDir));
                         }
-                        else if (op == 7) { // Roots
-                            Executors.newSingleThreadExecutor().submit(ConFileManager.this::sendRoots);
+                        else if (op == 7) {
+                            DefaultConnection.exec.submit(ConFileManager.this::sendRoots);
                         }
                         checkpoint();
                     }
                     else if (state == 1) { // Wait for Content Boolean
                         boolean wantsContent = in.readBoolean();
                         if (wantsContent) {
-                            Executors.newSingleThreadExecutor().submit(() -> {
+                            DefaultConnection.exec.submit(() -> {
                                 try {
                                     sendFileContent(currentFile);
-                                } catch (IOException e) { AL.warn(e); }
+                                } catch (Exception e) {
+                                    AL.warn("Failed to send file content:", e);
+                                    // FIX: Send EOF so the server doesn't wait indefinitely and timeout
+                                    if (channel != null && channel.isActive()) {
+                                        ByteBuf buf = channel.alloc().buffer();
+                                        NettyUtils.writeUTF(buf, NettyUtils.EOF);
+                                        channel.writeAndFlush(buf);
+                                    }
+                                }
                             });
                         }
                         state = 0;
@@ -167,7 +181,7 @@ public class ConFileManager extends DefaultConnection {
         encodeDetails(buf, file);
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if (files == null) buf.writeInt(0);
+            if (files == null || files.length == 0) buf.writeInt(0);
             else {
                 buf.writeInt(files.length);
                 for (File f : files) if (f.isDirectory()) encodeDetails(buf, f);
