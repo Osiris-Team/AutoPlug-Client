@@ -47,6 +47,7 @@ public class SteamCMD {
     public File destDir = new File(GD.WORKING_DIR + "/autoplug/system/steamcmd");
     public File destExe = new File(destDir + "/" + steamcmdExecutable);
     public File dirSteamServersDownloads = new File(GD.DOWNLOADS_DIR + "/steam-servers");
+    public File dirDayZWorkshopDownloads = new File(GD.DOWNLOADS_DIR + "/dayz-workshop");
     public File destArchive = new File(destDir + "/" + steamcmdArchive);
 
     public boolean isInstalled() {
@@ -140,7 +141,7 @@ public class SteamCMD {
                 onLogErr.accept(line);
                 logErrLines.add(line);
             },
-                    destExe.getAbsolutePath() + " " + steamcmdCommand
+                    quoteForTerminal(destExe.getAbsolutePath()) + " " + steamcmdCommand
                             .replace("{LOGIN}", login)
                             .replace("{DESTINATION}", gameInstallDir.getAbsolutePath())
                             .replace("{APP}", appId));
@@ -157,6 +158,71 @@ public class SteamCMD {
             AL.warn(e);
             return false;
         }
+    }
+
+    public boolean installOrUpdateWorkshopItems(String workshopAppId, List<String> itemIds, File installDir,
+                                                Consumer<String> onLog, Consumer<String> onLogErr) {
+        try {
+            if (itemIds == null || itemIds.isEmpty()) return true;
+            if (!installIfNeeded()) return false;
+            AL.debug(this.getClass(), "Installing workshop items for app " + workshopAppId + "...");
+            onLog.accept("Installing " + itemIds.size() + " Steam Workshop item(s)...");
+
+            String login = new UpdaterConfig().server_steamcmd_login.asString();
+            if (login == null || login.isEmpty()) login = "anonymous";
+            if (installDir == null) installDir = dirDayZWorkshopDownloads;
+
+            installDir.mkdirs();
+            StringBuilder steamcmdWorkshopCommand = new StringBuilder(quoteForTerminal(destExe.getAbsolutePath()))
+                    .append(" +login ").append(login)
+                    .append(" +force_install_dir \"").append(installDir.getAbsolutePath()).append("\"");
+            for (String itemId : itemIds) {
+                steamcmdWorkshopCommand.append(" +workshop_download_item ")
+                        .append(workshopAppId)
+                        .append(" ")
+                        .append(itemId);
+            }
+            steamcmdWorkshopCommand.append(" +quit");
+
+            String doneToken = "AUTOPLUG_STEAMCMD_WORKSHOP_DONE_" + System.nanoTime();
+            AtomicBoolean isFinished = new AtomicBoolean(false);
+            AtomicBoolean isSuccess = new AtomicBoolean(true);
+            AsyncTerminal terminal = new AsyncTerminal(destDir, line -> {
+                if (line.contains(doneToken)) {
+                    isFinished.set(true);
+                    return;
+                }
+                onLog.accept(line);
+                String lowerLine = line.toLowerCase();
+                if (lowerLine.startsWith("error!") || lowerLine.contains("workshop item download failed")) {
+                    isSuccess.set(false);
+                    isFinished.set(true);
+                }
+            }, line -> {
+                onLogErr.accept(line);
+                String lowerLine = line.toLowerCase();
+                if (lowerLine.startsWith("error!") || lowerLine.contains("workshop item download failed")) {
+                    isSuccess.set(false);
+                    isFinished.set(true);
+                }
+            }, steamcmdWorkshopCommand.toString(), "echo " + doneToken);
+
+            Thread thread = new Thread(() -> {
+                terminal.process.destroy();
+            });
+            Runtime.getRuntime().addShutdownHook(thread);
+            while (!isFinished.get()) Thread.sleep(100);
+            terminal.process.destroy();
+            Runtime.getRuntime().removeShutdownHook(thread);
+            return isSuccess.get();
+        } catch (Exception e) {
+            AL.warn(e);
+            return false;
+        }
+    }
+
+    private String quoteForTerminal(String value) {
+        return "\"" + value + "\"";
     }
 
     public String getResolutionForError(String error) {
