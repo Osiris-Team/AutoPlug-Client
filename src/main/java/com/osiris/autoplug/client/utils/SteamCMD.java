@@ -35,6 +35,7 @@ import static com.osiris.jprocesses2.util.OS.isWindows;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SteamCMD {
 
+    private static final String STEAMCMD_WORKSHOP_COMMAND = "+login {LOGIN} +workshop_download_item {WORKSHOP_APP} {WORKSHOP_ITEM} validate +quit";
     private final String steamcmdArchive = "steamcmd" + (isWindows ? ".zip" : isMac ? "_osx.tar.gz" : "_linux.tar.gz");
     private final String steamcmdExtension = isWindows ? ".exe" : ".sh";
     private final String steamcmdExecutable = "steamcmd" + steamcmdExtension;
@@ -115,8 +116,7 @@ public class SteamCMD {
             AL.debug(this.getClass(), "Installing app " + appId + "...");
             onLog.accept("Installing app " + appId + "...");
 
-            String login = new UpdaterConfig().server_steamcmd_login.asString();
-            if (login == null || login.isEmpty()) login = "anonymous";
+            String login = getLogin();
 
             File gameInstallDir = new File(dirSteamServersDownloads + "/" + appId);
             gameInstallDir.mkdirs();
@@ -157,6 +157,61 @@ public class SteamCMD {
             AL.warn(e);
             return false;
         }
+    }
+
+    public boolean installOrUpdateWorkshopItem(String workshopAppId, String workshopItemId, Consumer<String> onLog, Consumer<String> onLogErr) {
+        try {
+            if (!installIfNeeded()) return false;
+            AL.debug(this.getClass(), "Installing workshop item " + workshopItemId + " for app " + workshopAppId + "...");
+            onLog.accept("Installing workshop item " + workshopItemId + "...");
+
+            String command = buildWorkshopItemCommand(getLogin(), workshopAppId, workshopItemId);
+            List<String> logLines = new ArrayList<>();
+            List<String> logErrLines = new ArrayList<>();
+            AtomicBoolean isFinished = new AtomicBoolean(false);
+            AtomicBoolean isSuccess = new AtomicBoolean(true);
+            AsyncTerminal terminal = new AsyncTerminal(destDir, line -> {
+                onLog.accept(line);
+                logLines.add(line);
+                String lowerLine = line.toLowerCase();
+                if (lowerLine.startsWith("success.") && lowerLine.contains("item " + workshopItemId.toLowerCase()))
+                    isFinished.set(true);
+                if (lowerLine.startsWith("error!")) {
+                    isSuccess.set(false);
+                    isFinished.set(true);
+                }
+            }, line -> {
+                onLogErr.accept(line);
+                logErrLines.add(line);
+            }, destExe.getAbsolutePath() + " " + command);
+
+            Thread thread = new Thread(() -> terminal.process.destroy());
+            Runtime.getRuntime().addShutdownHook(thread);
+            while (!isFinished.get() && terminal.process.isAlive()) Thread.sleep(100);
+            if (terminal.process.isAlive()) terminal.process.destroy();
+            Runtime.getRuntime().removeShutdownHook(thread);
+            return isSuccess.get() && getWorkshopItemDir(workshopAppId, workshopItemId).exists();
+        } catch (Exception e) {
+            AL.warn(e);
+            return false;
+        }
+    }
+
+    public File getWorkshopItemDir(String workshopAppId, String workshopItemId) {
+        return new File(destDir + "/steamapps/workshop/content/" + workshopAppId + "/" + workshopItemId);
+    }
+
+    static String buildWorkshopItemCommand(String login, String workshopAppId, String workshopItemId) {
+        return STEAMCMD_WORKSHOP_COMMAND
+                .replace("{LOGIN}", login)
+                .replace("{WORKSHOP_APP}", workshopAppId)
+                .replace("{WORKSHOP_ITEM}", workshopItemId);
+    }
+
+    private String getLogin() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        String login = new UpdaterConfig().server_steamcmd_login.asString();
+        if (login == null || login.isEmpty()) login = "anonymous";
+        return login;
     }
 
     public String getResolutionForError(String error) {

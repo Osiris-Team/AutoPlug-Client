@@ -15,6 +15,7 @@ import com.osiris.autoplug.client.managers.FileManager;
 import com.osiris.autoplug.client.tasks.updater.plugins.ResourceFinder;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.utils.SteamCMD;
 import com.osiris.autoplug.client.utils.UtilsFile;
 import com.osiris.autoplug.client.utils.UtilsMinecraft;
 import com.osiris.betterthread.BThread;
@@ -22,6 +23,8 @@ import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
 import com.osiris.dyml.YamlSection;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.jlib.logger.AL;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -81,7 +84,14 @@ public class TaskModsUpdater extends BThread {
         setStatus("Fetching latest mod data...");
 
         userProfile = updaterConfig.mods_updater_profile.asString();
-        this.allMods.addAll(new UtilsMinecraft().getMods(FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString())));
+        File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
+        List<DayZWorkshopMod> dayZWorkshopMods = DayZWorkshopMod.findIn(modsDir);
+        if (!dayZWorkshopMods.isEmpty()) {
+            doDayZWorkshopUpdateLogic(dayZWorkshopMods);
+            return;
+        }
+
+        this.allMods.addAll(new UtilsMinecraft().getMods(modsDir));
 
         for (MinecraftMod installedMod :
                 allMods) {
@@ -335,6 +345,57 @@ public class TaskModsUpdater extends BThread {
             finish("Checked " + results.size() + "/" + includedSize + " mods.");
         }
 
+    }
+
+    private void doDayZWorkshopUpdateLogic(@NotNull List<DayZWorkshopMod> dayZWorkshopMods) throws Exception {
+        setMax(dayZWorkshopMods.size());
+        String configuredWorkshopAppId = updaterConfig.mods_updater_dayz_workshop_app_id.asString();
+        String workshopAppId = configuredWorkshopAppId == null || configuredWorkshopAppId.isEmpty() ? "221100" : configuredWorkshopAppId;
+
+        if (userProfile.equals(notifyProfile)) {
+            for (DayZWorkshopMod mod : dayZWorkshopMods)
+                addInfo("NOTIFY: DayZ mod '" + mod.getName() + "' can be updated with Steam Workshop item " + mod.getPublishedId() + ".");
+            finish("Found " + dayZWorkshopMods.size() + " DayZ workshop mods.");
+            return;
+        }
+
+        SteamCMD steamCMD = new SteamCMD();
+        int successfulUpdates = 0;
+        int checkedMods = 0;
+        for (DayZWorkshopMod mod : dayZWorkshopMods) {
+            checkedMods++;
+            setStatus("Updating DayZ mod '" + mod.getName() + "' (" + checkedMods + "/" + dayZWorkshopMods.size() + ")...");
+            boolean isSuccess = steamCMD.installOrUpdateWorkshopItem(workshopAppId, mod.getPublishedId(), line -> {
+                AL.debug(this.getClass(), "SteamCMD-Out: " + line);
+                setStatus(line);
+            }, errLine -> {
+                AL.debug(this.getClass(), "SteamCMD-Err-Out: " + errLine);
+                setStatus(errLine);
+                addWarning(errLine);
+            });
+            if (!isSuccess) {
+                addWarning("Failed to update DayZ mod '" + mod.getName() + "' via SteamCMD.");
+                continue;
+            }
+
+            File downloadedDir = steamCMD.getWorkshopItemDir(workshopAppId, mod.getPublishedId());
+            if (userProfile.equals(manualProfile)) {
+                addInfo("MANUAL: Downloaded DayZ mod '" + mod.getName() + "' to " + downloadedDir.getAbsolutePath() + ".");
+            } else {
+                setStatus("Copying DayZ mod '" + mod.getName() + "' into " + mod.getDirectory().getAbsolutePath() + "...");
+                FileUtils.copyDirectory(downloadedDir, mod.getDirectory());
+                addInfo("Updated DayZ mod '" + mod.getName() + "' from Steam Workshop item " + mod.getPublishedId() + ".");
+            }
+            successfulUpdates++;
+        }
+
+        if (successfulUpdates == dayZWorkshopMods.size()) {
+            setSuccess(true);
+            finish("Updated " + successfulUpdates + " DayZ workshop mods.");
+        } else {
+            setSuccess(false);
+            finish("Updated " + successfulUpdates + "/" + dayZWorkshopMods.size() + " DayZ workshop mods.");
+        }
     }
 
     private void doDownloadLogic(@NotNull MinecraftMod mod, SearchResult result) {
