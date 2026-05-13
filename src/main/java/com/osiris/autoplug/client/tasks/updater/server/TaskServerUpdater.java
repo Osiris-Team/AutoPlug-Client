@@ -12,6 +12,8 @@ import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.managers.FileManager;
+import com.osiris.autoplug.client.tasks.updater.mods.DayZWorkshopModUpdater;
+import com.osiris.autoplug.client.tasks.updater.mods.DayZWorkshopModUpdater.DayZWorkshopMod;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
@@ -32,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static com.osiris.jprocesses2.util.OS.isWindows;
 
@@ -59,23 +62,19 @@ public class TaskServerUpdater extends BThread {
         profile = updaterConfig.server_updater_profile.asString();
         serverSoftware = updaterConfig.server_software.asString();
 
-        serverVersion = updaterConfig.server_updater_version.asString();
-        if (serverVersion == null) serverVersion = new GeneralConfig().server_version.asString();
-        if (serverVersion == null) serverVersion = new UtilsMinecraft().getInstalledVersion();
-        if (serverVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
+        boolean isSteamAppId = isSteamAppId(updaterConfig.server_software.asString());
+        boolean isAlternativeUpdater = updaterConfig.server_github_repo_name.asString() != null
+                || updaterConfig.server_jenkins_project_url.asString() != null;
+        if (!isSteamAppId && !isAlternativeUpdater) {
+            serverVersion = updaterConfig.server_updater_version.asString();
+            if (serverVersion == null) serverVersion = new GeneralConfig().server_version.asString();
+            if (serverVersion == null) serverVersion = new UtilsMinecraft().getInstalledVersion();
+            if (serverVersion == null) throw new NullPointerException(GD.errorMsgFailedToGetMCVersion());
+        }
 
         setStatus("Searching for updates...");
 
-        boolean isSteamAppId = false;
-        try {
-            Integer.parseInt(updaterConfig.server_software.asString());
-            // Steam ids are only numbers, thus
-            // if this fails we know it's not a steam id
-            isSteamAppId = true;
-        } catch (Exception e) {
-        }
-
-        if (updaterConfig.server_github_repo_name.asString() != null || updaterConfig.server_jenkins_project_url.asString() != null) {
+        if (isAlternativeUpdater) {
             doAlternativeUpdatingLogic();
         } else {
             if (isSteamAppId)
@@ -272,7 +271,53 @@ public class TaskServerUpdater extends BThread {
             }
         }
 
-        setStatus("Installed updated if needed (SteamCMD).");
+        if (DayZWorkshopModUpdater.DAYZ_SERVER_APP_ID.equals(updaterConfig.server_software.asString())) {
+            doDayZWorkshopModUpdate(steamCMD);
+        } else {
+            setStatus("Installed updated if needed (SteamCMD).");
+        }
         setSuccess(true);
+    }
+
+    private boolean isSteamAppId(String software) {
+        try {
+            Integer.parseInt(software);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void doDayZWorkshopModUpdate(SteamCMD steamCMD) throws Exception {
+        DayZWorkshopModUpdater dayZModUpdater = new DayZWorkshopModUpdater(GD.WORKING_DIR, steamCMD.dirDayZWorkshopDownloads);
+        List<DayZWorkshopMod> installedMods = dayZModUpdater.findInstalledMods();
+        if (installedMods.isEmpty()) {
+            setStatus("No DayZ Workshop mods with meta.cpp files were found.");
+            addInfo("No DayZ Workshop mods with meta.cpp files were found.");
+            return;
+        }
+
+        setStatus("Updating " + installedMods.size() + " DayZ Workshop mod(s)...");
+        boolean isSuccess = steamCMD.installOrUpdateWorkshopItems(
+                DayZWorkshopModUpdater.DAYZ_WORKSHOP_APP_ID,
+                dayZModUpdater.getWorkshopIds(installedMods),
+                dayZModUpdater.getWorkshopDownloadDir(),
+                line -> {
+                    AL.debug(this.getClass(), "SteamCMD-Workshop-Out: " + line);
+                    setStatus(line);
+                },
+                errLine -> {
+                    AL.debug(this.getClass(), "SteamCMD-Workshop-Err-Out: " + errLine);
+                    setStatus(errLine);
+                    addWarning(errLine);
+                });
+        if (!isSuccess) throw new Exception("Failed to update DayZ Workshop mods with SteamCMD.");
+
+        if (profile.equals("AUTOMATIC")) {
+            int installed = dayZModUpdater.installDownloadedMods(installedMods);
+            setStatus("Installed " + installed + " DayZ Workshop mod update(s).");
+        } else {
+            setStatus("Downloaded DayZ Workshop mod update(s) to " + dayZModUpdater.getWorkshopDownloadDir().getAbsolutePath() + ".");
+        }
     }
 }
