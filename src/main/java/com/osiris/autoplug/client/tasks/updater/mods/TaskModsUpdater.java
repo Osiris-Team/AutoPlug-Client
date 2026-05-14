@@ -85,9 +85,9 @@ public class TaskModsUpdater extends BThread {
 
         userProfile = updaterConfig.mods_updater_profile.asString();
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
-        List<DayZWorkshopMod> dayZWorkshopMods = DayZWorkshopMod.findIn(modsDir);
-        if (!dayZWorkshopMods.isEmpty()) {
-            doDayZWorkshopUpdateLogic(dayZWorkshopMods);
+        List<SteamWorkshopMod> steamWorkshopMods = SteamWorkshopMod.findIn(modsDir);
+        if (!steamWorkshopMods.isEmpty()) {
+            doSteamWorkshopUpdateLogic(steamWorkshopMods);
             return;
         }
 
@@ -347,24 +347,29 @@ public class TaskModsUpdater extends BThread {
 
     }
 
-    private void doDayZWorkshopUpdateLogic(@NotNull List<DayZWorkshopMod> dayZWorkshopMods) throws Exception {
-        setMax(dayZWorkshopMods.size());
-        String configuredWorkshopAppId = updaterConfig.mods_updater_dayz_workshop_app_id.asString();
-        String workshopAppId = configuredWorkshopAppId == null || configuredWorkshopAppId.isEmpty() ? "221100" : configuredWorkshopAppId;
+    private void doSteamWorkshopUpdateLogic(@NotNull List<SteamWorkshopMod> steamWorkshopMods) throws Exception {
+        setMax(steamWorkshopMods.size());
+        String workshopAppId = updaterConfig.server_software.asString();
+        if (workshopAppId == null || !workshopAppId.matches("\\d+")) {
+            setSuccess(false);
+            addWarning("Steam Workshop mods were found, but server-updater.software is not a numeric Steam app-id.");
+            finish("Found " + steamWorkshopMods.size() + " Steam Workshop mods, but no Steam app-id is configured.");
+            return;
+        }
 
         if (userProfile.equals(notifyProfile)) {
-            for (DayZWorkshopMod mod : dayZWorkshopMods)
-                addInfo("NOTIFY: DayZ mod '" + mod.getName() + "' can be updated with Steam Workshop item " + mod.getPublishedId() + ".");
-            finish("Found " + dayZWorkshopMods.size() + " DayZ workshop mods.");
+            for (SteamWorkshopMod mod : steamWorkshopMods)
+                addInfo("NOTIFY: Steam Workshop mod '" + mod.getName() + "' can be updated with Workshop item " + mod.getPublishedId() + " for app " + workshopAppId + ".");
+            finish("Found " + steamWorkshopMods.size() + " Steam Workshop mods.");
             return;
         }
 
         SteamCMD steamCMD = new SteamCMD();
         int successfulUpdates = 0;
         int checkedMods = 0;
-        for (DayZWorkshopMod mod : dayZWorkshopMods) {
+        for (SteamWorkshopMod mod : steamWorkshopMods) {
             checkedMods++;
-            setStatus("Updating DayZ mod '" + mod.getName() + "' (" + checkedMods + "/" + dayZWorkshopMods.size() + ")...");
+            setStatus("Updating Steam Workshop mod '" + mod.getName() + "' (" + checkedMods + "/" + steamWorkshopMods.size() + ")...");
             boolean isSuccess = steamCMD.installOrUpdateWorkshopItem(workshopAppId, mod.getPublishedId(), line -> {
                 AL.debug(this.getClass(), "SteamCMD-Out: " + line);
                 setStatus(line);
@@ -374,27 +379,27 @@ public class TaskModsUpdater extends BThread {
                 addWarning(errLine);
             });
             if (!isSuccess) {
-                addWarning("Failed to update DayZ mod '" + mod.getName() + "' via SteamCMD.");
+                addWarning("Failed to update Steam Workshop mod '" + mod.getName() + "' via SteamCMD.");
                 continue;
             }
 
             File downloadedDir = steamCMD.getWorkshopItemDir(workshopAppId, mod.getPublishedId());
             if (userProfile.equals(manualProfile)) {
-                addInfo("MANUAL: Downloaded DayZ mod '" + mod.getName() + "' to " + downloadedDir.getAbsolutePath() + ".");
+                addInfo("MANUAL: Downloaded Steam Workshop mod '" + mod.getName() + "' to " + downloadedDir.getAbsolutePath() + ".");
             } else {
-                setStatus("Copying DayZ mod '" + mod.getName() + "' into " + mod.getDirectory().getAbsolutePath() + "...");
+                setStatus("Copying Steam Workshop mod '" + mod.getName() + "' into " + mod.getDirectory().getAbsolutePath() + "...");
                 FileUtils.copyDirectory(downloadedDir, mod.getDirectory());
-                addInfo("Updated DayZ mod '" + mod.getName() + "' from Steam Workshop item " + mod.getPublishedId() + ".");
+                addInfo("Updated Steam Workshop mod '" + mod.getName() + "' from Workshop item " + mod.getPublishedId() + ".");
             }
             successfulUpdates++;
         }
 
-        if (successfulUpdates == dayZWorkshopMods.size()) {
+        if (successfulUpdates == steamWorkshopMods.size()) {
             setSuccess(true);
-            finish("Updated " + successfulUpdates + " DayZ workshop mods.");
+            finish("Updated " + successfulUpdates + " Steam Workshop mods.");
         } else {
             setSuccess(false);
-            finish("Updated " + successfulUpdates + "/" + dayZWorkshopMods.size() + " DayZ workshop mods.");
+            finish("Updated " + successfulUpdates + "/" + steamWorkshopMods.size() + " Steam Workshop mods.");
         }
     }
 

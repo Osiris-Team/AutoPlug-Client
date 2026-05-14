@@ -64,7 +64,6 @@ public class UpdaterConfig extends MyYaml {
     public YamlSection mods_updater_version;
     public YamlSection mods_updater_async;
     public YamlSection mods_update_check_name_for_mod_loader;
-    public YamlSection mods_updater_dayz_workshop_app_id;
 
 
     public UpdaterConfig() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -231,9 +230,9 @@ public class UpdaterConfig extends MyYaml {
         mods_update_check_name_for_mod_loader = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("false").setComments(
                 "Only relevant for determining if a curseforge mod release is forge or fabric.",
                 "If enabled additionally checks the mod name to see if it contains fabric or forge.");
-        mods_updater_dayz_workshop_app_id = put(name, "mods-updater", "dayz-workshop-app-id").setDefValues("221100").setComments(
-                "Steam workshop app-id used for DayZ mods.",
-                "When the mods path contains DayZ mod folders with meta.cpp files, AutoPlug reads their publishedid and updates them through SteamCMD.");
+        mods_updater_path.setComments(
+                "Path to your mods folder.",
+                "Steam Workshop mods with supported metadata can be updated through SteamCMD when server-updater.software is set to a numeric Steam app-id.");
 
         save();
         unlockFile();

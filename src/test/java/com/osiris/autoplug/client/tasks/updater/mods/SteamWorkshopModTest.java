@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DayZWorkshopModTest {
+class SteamWorkshopModTest {
 
     @TempDir
     Path tempDir;
@@ -35,7 +35,7 @@ class DayZWorkshopModTest {
                 "name = \"CF\";",
                 "timestamp = 5249804932187309401;");
 
-        DayZWorkshopMod mod = DayZWorkshopMod.readFromMeta(modDir, metaFile);
+        SteamWorkshopMod mod = SteamWorkshopMod.readFromMeta(modDir, metaFile);
 
         assertEquals(modDir, mod.getDirectory());
         assertEquals("CF", mod.getName());
@@ -53,7 +53,7 @@ class DayZWorkshopModTest {
         writeMeta(firstModDir, "publishedid = 1559212036;", "name = \"CF\";");
         writeMeta(secondModDir, "publishedid = 1564026768;", "name = \"Community-Online-Tools\";");
 
-        List<DayZWorkshopMod> mods = DayZWorkshopMod.findIn(tempDir.toFile());
+        List<SteamWorkshopMod> mods = SteamWorkshopMod.findIn(tempDir.toFile());
 
         assertEquals(2, mods.size());
         assertEquals("1559212036", mods.get(0).getPublishedId());

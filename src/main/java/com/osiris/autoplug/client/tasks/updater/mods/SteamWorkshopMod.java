@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class DayZWorkshopMod {
+public class SteamWorkshopMod {
     private final File directory;
     private final String name;
     private final String publishedId;
 
-    public DayZWorkshopMod(File directory, String name, String publishedId) {
+    public SteamWorkshopMod(File directory, String name, String publishedId) {
         this.directory = directory;
         this.name = name;
         this.publishedId = publishedId;
@@ -44,9 +44,9 @@ public class DayZWorkshopMod {
     }
 
     @NotNull
-    public static List<DayZWorkshopMod> findIn(File dir) throws IOException {
+    public static List<SteamWorkshopMod> findIn(File dir) throws IOException {
         if (!dir.exists()) throw new FileNotFoundException("Directory does not exist: " + dir);
-        List<DayZWorkshopMod> mods = new ArrayList<>();
+        List<SteamWorkshopMod> mods = new ArrayList<>();
         File[] files = dir.listFiles();
         if (files == null) return mods;
         Arrays.sort(files, Comparator.comparing(File::getName));
@@ -59,7 +59,7 @@ public class DayZWorkshopMod {
         return mods;
     }
 
-    static DayZWorkshopMod readFromMeta(File modDir, File metaFile) throws IOException {
+    static SteamWorkshopMod readFromMeta(File modDir, File metaFile) throws IOException {
         String name = modDir.getName();
         String publishedId = null;
         for (String line : Files.readAllLines(metaFile.toPath(), StandardCharsets.UTF_8)) {
@@ -84,6 +84,6 @@ public class DayZWorkshopMod {
         if (publishedId == null || !publishedId.matches("\\d+"))
             throw new IOException("Failed to read publishedid from " + metaFile);
 
-        return new DayZWorkshopMod(modDir, name, publishedId);
+        return new SteamWorkshopMod(modDir, name, publishedId);
     }
 }
