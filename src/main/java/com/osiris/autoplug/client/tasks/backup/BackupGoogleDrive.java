@@ -26,8 +26,11 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class BackupGoogleDrive {
+
+    private static final Pattern AUTOPLUG_BACKUP_ZIP_NAME = Pattern.compile("\\d{4}-\\d{2}-\\d{2}-\\d{2}\\.\\d{2}-BACKUP\\.zip");
 
     final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -164,6 +167,10 @@ public class BackupGoogleDrive {
                     if (oldBackup.getId() == null || oldBackup.getId().trim().isEmpty()) {
                         continue;
                     }
+                    if (!isAutoPlugBackupZipName(oldBackup.getName())) {
+                        AL.debug(this.getClass(), "Skipping Google Drive file that does not match AutoPlug backup naming: " + oldBackup.getName());
+                        continue;
+                    }
 
                     drive.files().delete(oldBackup.getId()).execute();
                     deleted++;
@@ -197,5 +204,9 @@ public class BackupGoogleDrive {
 
     static String escapeDriveQueryLiteral(String value) {
         return value.replace("\\", "\\\\").replace("'", "\\'");
+    }
+
+    static boolean isAutoPlugBackupZipName(String fileName) {
+        return fileName != null && AUTOPLUG_BACKUP_ZIP_NAME.matcher(fileName).matches();
     }
 }

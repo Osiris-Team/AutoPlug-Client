@@ -48,4 +48,13 @@ class BackupGoogleDriveTest {
 
         assertEquals("trashed = false and name contains '-BACKUP.zip' and mimeType != 'application/vnd.google-apps.folder' and createdTime < '2026-05-01T00:00:00Z' and 'folder\\'123' in parents", query);
     }
+
+    @Test
+    void identifiesOnlyTimestampedAutoPlugBackupZipNames() {
+        assertTrue(BackupGoogleDrive.isAutoPlugBackupZipName("2026-05-14-23.42-BACKUP.zip"));
+        assertFalse(BackupGoogleDrive.isAutoPlugBackupZipName("server-BACKUP.zip"));
+        assertFalse(BackupGoogleDrive.isAutoPlugBackupZipName("2026-05-14-23.42-BACKUP.zip.tmp"));
+        assertFalse(BackupGoogleDrive.isAutoPlugBackupZipName("2026-05-14-23-42-BACKUP.zip"));
+        assertFalse(BackupGoogleDrive.isAutoPlugBackupZipName(null));
+    }
 }
