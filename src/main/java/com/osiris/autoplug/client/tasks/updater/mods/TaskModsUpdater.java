@@ -85,13 +85,8 @@ public class TaskModsUpdater extends BThread {
 
         userProfile = updaterConfig.mods_updater_profile.asString();
         File modsDir = FileManager.convertRelativeToAbsolutePath(updaterConfig.mods_updater_path.asString());
-        List<SteamWorkshopMod> steamWorkshopMods = SteamWorkshopMod.findIn(modsDir);
-        if (!steamWorkshopMods.isEmpty()) {
-            doSteamWorkshopUpdateLogic(steamWorkshopMods);
-            return;
-        }
-
         this.allMods.addAll(new UtilsMinecraft().getMods(modsDir));
+        this.allMods.addAll(SteamWorkshopMod.findIn(modsDir));
 
         for (MinecraftMod installedMod :
                 allMods) {
@@ -106,6 +101,7 @@ public class TaskModsUpdater extends BThread {
                 YamlSection author = modsConfig.put(name, plName, "author").setDefValues(installedMod.getAuthor());
                 YamlSection modrinthId = modsConfig.put(name, plName, "modrinth-id");
                 YamlSection curseforgeId = modsConfig.put(name, plName, "curseforge-id");
+                YamlSection steamWorkshopId = modsConfig.put(name, plName, "steam-workshop-id");
                 YamlSection ignoreContentType = modsConfig.put(name, plName, "ignore-content-type").setDefValues("false");
                 YamlSection forceLatest = modsConfig.put(name, plName, "force-latest").setDefValues("false");
                 YamlSection forceUpdate = modsConfig.put(name, plName, "force-update").setDefValues("false");
@@ -121,6 +117,8 @@ public class TaskModsUpdater extends BThread {
                     modrinthId.setValues(installedMod.modrinthId);
                 if (installedMod.curseforgeId != null && curseforgeId.asString() == null)
                     curseforgeId.setValues(installedMod.curseforgeId);
+                if (installedMod instanceof SteamWorkshopMod)
+                    steamWorkshopId.setValues(((SteamWorkshopMod) installedMod).getPublishedId());
 
                 // Update the detailed mods in-memory values
                 installedMod.modrinthId = (modrinthId.asString());
@@ -135,6 +133,14 @@ public class TaskModsUpdater extends BThread {
                 installedMod.jenkinsArtifactName = (jenkinsArtifactName.asString());
                 installedMod.jenkinsBuildId = (jenkinsBuildId.asInt());
                 installedMod.forceUpdate = forceUpdate.asBoolean();
+                if (installedMod instanceof SteamWorkshopMod) {
+                    ((SteamWorkshopMod) installedMod).setPublishedId(steamWorkshopId.asString());
+                    if (exclude.asBoolean())
+                        excludedMods.add(installedMod);
+                    else
+                        includedMods.add(installedMod);
+                    continue;
+                }
 
                 // Check for missing author in internal config
                 if ((installedMod.getVersion() == null)
@@ -194,11 +200,7 @@ public class TaskModsUpdater extends BThread {
         int sizeBukkitMods = 0;
         int sizeUnknownMods = 0;
         int sizeCustomMods = 0;
-
-
-        String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) updaterConfig.server_updater_version.asString();
-        if (mcVersion == null) mcVersion = Server.getMCVersion();
+        int sizeSteamWorkshopMods = 0;
 
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
@@ -207,11 +209,15 @@ public class TaskModsUpdater extends BThread {
             executorService = Executors.newSingleThreadExecutor();
         InstalledModLoader modLoader = new InstalledModLoader();
         List<Future<SearchResult>> activeFutures = new ArrayList<>();
+        String mcVersion = null;
         for (MinecraftMod mod :
                 includedMods) {
             try {
                 setStatus("Initialising update check for  " + mod.getName() + "...");
-                if (mod.customCheckURL != null) { // Custom Check
+                if (mod instanceof SteamWorkshopMod) {
+                    sizeSteamWorkshopMods++;
+                    activeFutures.add(executorService.submit(() -> doSteamWorkshopUpdateLogic((SteamWorkshopMod) mod)));
+                } else if (mod.customCheckURL != null) { // Custom Check
                     sizeCustomMods++;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByCustomCheckURL(mod)));
                 } else if (mod.jenkinsProjectUrl != null) { // JENKINS MOD
@@ -223,6 +229,11 @@ public class TaskModsUpdater extends BThread {
                 } else {
                     sizeUnknownMods++; // MODRINTH OR CURSEFORGE MOD
                     mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
+                    if (mcVersion == null) {
+                        mcVersion = updaterConfig.mods_updater_version.asString();
+                        if (mcVersion == null) mcVersion = updaterConfig.server_updater_version.asString();
+                        if (mcVersion == null) mcVersion = Server.getMCVersion();
+                    }
                     String finalMcVersion = mcVersion;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(modLoader, mod, finalMcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean())));
                 }
@@ -255,7 +266,13 @@ public class TaskModsUpdater extends BThread {
                 String resultModrinthId = mod.modrinthId;
                 String resultCurseForgeId = mod.curseforgeId;
                 this.setStatus("Checked '" + mod.getName() + "' mod (" + results.size() + "/" + includedSize + ")");
-                if (code == SearchResult.Type.UP_TO_DATE || code == SearchResult.Type.UPDATE_AVAILABLE) {
+                if (mod instanceof SteamWorkshopMod) {
+                    if (code == SearchResult.Type.API_ERROR)
+                        if (result.getException() != null)
+                            getWarnings().add(new BWarning(this, result.getException(), "There was a Steam Workshop update error for " + mod.getName() + "!"));
+                        else
+                            getWarnings().add(new BWarning(this, new Exception("There was a Steam Workshop update error for " + mod.getName() + "!")));
+                } else if (code == SearchResult.Type.UP_TO_DATE || code == SearchResult.Type.UPDATE_AVAILABLE) {
                     doDownloadLogic(mod, result);
                 } else if (code == SearchResult.Type.API_ERROR)
                     if (result.getException() != null)
@@ -347,60 +364,56 @@ public class TaskModsUpdater extends BThread {
 
     }
 
-    private void doSteamWorkshopUpdateLogic(@NotNull List<SteamWorkshopMod> steamWorkshopMods) throws Exception {
-        setMax(steamWorkshopMods.size());
+    private SearchResult doSteamWorkshopUpdateLogic(@NotNull SteamWorkshopMod mod) {
+        SearchResult result = new SearchResult(null, SearchResult.Type.UP_TO_DATE, mod.getPublishedId(), null, "steam-workshop", null, null, false);
+        result.mod = mod;
         String workshopAppId = updaterConfig.server_software.asString();
         if (workshopAppId == null || !workshopAppId.matches("\\d+")) {
-            setSuccess(false);
-            addWarning("Steam Workshop mods were found, but server-updater.software is not a numeric Steam app-id.");
-            finish("Found " + steamWorkshopMods.size() + " Steam Workshop mods, but no Steam app-id is configured.");
-            return;
+            result.type = SearchResult.Type.API_ERROR;
+            result.setException(new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but server-updater.software is not a numeric Steam app-id."));
+            return result;
         }
 
         if (userProfile.equals(notifyProfile)) {
-            for (SteamWorkshopMod mod : steamWorkshopMods)
-                addInfo("NOTIFY: Steam Workshop mod '" + mod.getName() + "' can be updated with Workshop item " + mod.getPublishedId() + " for app " + workshopAppId + ".");
-            finish("Found " + steamWorkshopMods.size() + " Steam Workshop mods.");
-            return;
+            addInfo("NOTIFY: Steam Workshop mod '" + mod.getName() + "' can be updated with Workshop item " + mod.getPublishedId() + " for app " + workshopAppId + ".");
+            result.type = SearchResult.Type.UPDATE_AVAILABLE;
+            return result;
         }
 
-        SteamCMD steamCMD = new SteamCMD();
-        int successfulUpdates = 0;
-        int checkedMods = 0;
-        for (SteamWorkshopMod mod : steamWorkshopMods) {
-            checkedMods++;
-            setStatus("Updating Steam Workshop mod '" + mod.getName() + "' (" + checkedMods + "/" + steamWorkshopMods.size() + ")...");
-            boolean isSuccess = steamCMD.installOrUpdateWorkshopItem(workshopAppId, mod.getPublishedId(), line -> {
-                AL.debug(this.getClass(), "SteamCMD-Out: " + line);
-                setStatus(line);
-            }, errLine -> {
-                AL.debug(this.getClass(), "SteamCMD-Err-Out: " + errLine);
-                setStatus(errLine);
-                addWarning(errLine);
-            });
-            if (!isSuccess) {
-                addWarning("Failed to update Steam Workshop mod '" + mod.getName() + "' via SteamCMD.");
-                continue;
-            }
+        try {
+            SteamCMD steamCMD = createSteamCMD();
+            setStatus("Updating Steam Workshop mod '" + mod.getName() + "'...");
+            boolean isSuccess = steamCMD.installOrUpdateWorkshopItem(workshopAppId, mod.getPublishedId(),
+                    line -> {
+                        AL.debug(this.getClass(), "SteamCMD-Out: " + line);
+                        setStatus(line);
+                    }, errLine -> {
+                        AL.debug(this.getClass(), "SteamCMD-Err-Out: " + errLine);
+                        setStatus(errLine);
+                        addWarning(errLine);
+                    });
+            if (!isSuccess)
+                throw new Exception("Failed to update Steam Workshop mod '" + mod.getName() + "' via SteamCMD.");
 
             File downloadedDir = steamCMD.getWorkshopItemDir(workshopAppId, mod.getPublishedId());
             if (userProfile.equals(manualProfile)) {
                 addInfo("MANUAL: Downloaded Steam Workshop mod '" + mod.getName() + "' to " + downloadedDir.getAbsolutePath() + ".");
+                result.type = SearchResult.Type.UPDATE_DOWNLOADED;
             } else {
                 setStatus("Copying Steam Workshop mod '" + mod.getName() + "' into " + mod.getDirectory().getAbsolutePath() + "...");
                 FileUtils.copyDirectory(downloadedDir, mod.getDirectory());
                 addInfo("Updated Steam Workshop mod '" + mod.getName() + "' from Workshop item " + mod.getPublishedId() + ".");
+                result.type = SearchResult.Type.UPDATE_INSTALLED;
             }
-            successfulUpdates++;
+        } catch (Exception e) {
+            result.type = SearchResult.Type.API_ERROR;
+            result.setException(e);
         }
+        return result;
+    }
 
-        if (successfulUpdates == steamWorkshopMods.size()) {
-            setSuccess(true);
-            finish("Updated " + successfulUpdates + " Steam Workshop mods.");
-        } else {
-            setSuccess(false);
-            finish("Updated " + successfulUpdates + "/" + steamWorkshopMods.size() + " Steam Workshop mods.");
-        }
+    SteamCMD createSteamCMD() {
+        return new SteamCMD();
     }
 
     private void doDownloadLogic(@NotNull MinecraftMod mod, SearchResult result) {

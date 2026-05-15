@@ -20,14 +20,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class SteamWorkshopMod {
+public class SteamWorkshopMod extends MinecraftMod {
     private final File directory;
-    private final String name;
-    private final String publishedId;
+    private String publishedId;
 
     public SteamWorkshopMod(File directory, String name, String publishedId) {
+        super(directory.getAbsolutePath(), name, publishedId, "Steam Workshop", null, null, null);
         this.directory = directory;
-        this.name = name;
         this.publishedId = publishedId;
     }
 
@@ -35,12 +34,13 @@ public class SteamWorkshopMod {
         return directory;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public String getPublishedId() {
         return publishedId;
+    }
+
+    public void setPublishedId(String publishedId) {
+        this.publishedId = publishedId;
+        setVersion(publishedId);
     }
 
     @NotNull
