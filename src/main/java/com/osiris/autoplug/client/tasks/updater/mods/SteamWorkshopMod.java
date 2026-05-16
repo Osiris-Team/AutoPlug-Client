@@ -23,11 +23,17 @@ import java.util.List;
 public class SteamWorkshopMod extends MinecraftMod {
     private final File directory;
     private String publishedId;
+    private final String timestamp;
 
     public SteamWorkshopMod(File directory, String name, String publishedId) {
-        super(directory.getAbsolutePath(), name, publishedId, "Steam Workshop", null, null, null);
+        this(directory, name, publishedId, null);
+    }
+
+    public SteamWorkshopMod(File directory, String name, String publishedId, String timestamp) {
+        super(directory.getAbsolutePath(), name, timestamp != null ? timestamp : publishedId, "Steam Workshop", null, null, null);
         this.directory = directory;
         this.publishedId = publishedId;
+        this.timestamp = timestamp;
     }
 
     public File getDirectory() {
@@ -40,7 +46,12 @@ public class SteamWorkshopMod extends MinecraftMod {
 
     public void setPublishedId(String publishedId) {
         this.publishedId = publishedId;
-        setVersion(publishedId);
+        if (getVersion() == null)
+            setVersion(publishedId);
+    }
+
+    public String getTimestamp() {
+        return timestamp;
     }
 
     @NotNull
@@ -62,6 +73,7 @@ public class SteamWorkshopMod extends MinecraftMod {
     static SteamWorkshopMod readFromMeta(File modDir, File metaFile) throws IOException {
         String name = modDir.getName();
         String publishedId = null;
+        String timestamp = null;
         for (String line : Files.readAllLines(metaFile.toPath(), StandardCharsets.UTF_8)) {
             String trimmedLine = line.trim();
             if (trimmedLine.isEmpty() || trimmedLine.startsWith("//")) continue;
@@ -79,11 +91,12 @@ public class SteamWorkshopMod extends MinecraftMod {
 
             if (key.equals("name")) name = value;
             if (key.equals("publishedid")) publishedId = value;
+            if (key.equals("timestamp")) timestamp = value;
         }
 
         if (publishedId == null || !publishedId.matches("\\d+"))
             throw new IOException("Failed to read publishedid from " + metaFile);
 
-        return new SteamWorkshopMod(modDir, name, publishedId);
+        return new SteamWorkshopMod(modDir, name, publishedId, timestamp);
     }
 }

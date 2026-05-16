@@ -8,6 +8,9 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.io.AsyncReader;
@@ -15,6 +18,11 @@ import com.osiris.autoplug.client.utils.terminal.AsyncTerminal;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.jlib.logger.AL;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.rauschig.jarchivelib.ArchiveFormat;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -35,6 +43,7 @@ import static com.osiris.jprocesses2.util.OS.isWindows;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SteamCMD {
 
+    private static final String STEAM_WORKSHOP_DETAILS_URL = "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/";
     private static final String STEAMCMD_WORKSHOP_COMMAND = "+login {LOGIN} +workshop_download_item {WORKSHOP_APP} {WORKSHOP_ITEM} validate +quit";
     private final String steamcmdArchive = "steamcmd" + (isWindows ? ".zip" : isMac ? "_osx.tar.gz" : "_linux.tar.gz");
     private final String steamcmdExtension = isWindows ? ".exe" : ".sh";
@@ -197,6 +206,52 @@ public class SteamCMD {
         }
     }
 
+    public SteamWorkshopItemDetails getWorkshopItemDetails(String workshopItemId) throws IOException {
+        Request request = new Request.Builder()
+                .url(STEAM_WORKSHOP_DETAILS_URL)
+                .post(new FormBody.Builder()
+                        .add("itemcount", "1")
+                        .add("publishedfileids[0]", workshopItemId)
+                        .build())
+                .header("User-Agent", "AutoPlug-Client - https://autoplug.one")
+                .build();
+
+        Response response = new OkHttpClient().newCall(request).execute();
+        ResponseBody body = null;
+        try {
+            if (response.code() != 200)
+                throw new IOException("Steam Workshop details request failed for item " + workshopItemId + " with code " + response.code() + " message: " + response.message());
+
+            body = response.body();
+            if (body == null)
+                throw new IOException("Steam Workshop details request returned no body for item " + workshopItemId);
+
+            JsonObject root = JsonParser.parseString(body.string()).getAsJsonObject();
+            JsonObject responseObject = root.getAsJsonObject("response");
+            JsonArray details = responseObject == null ? null : responseObject.getAsJsonArray("publishedfiledetails");
+            if (details == null || details.size() == 0)
+                throw new IOException("Steam Workshop details request returned no details for item " + workshopItemId);
+
+            JsonObject detail = details.get(0).getAsJsonObject();
+            int result = detail.has("result") ? detail.get("result").getAsInt() : 0;
+            if (result != 1)
+                throw new IOException("Steam Workshop details request failed for item " + workshopItemId + " with result " + result);
+
+            String timeUpdated = getString(detail, "time_updated");
+            if (timeUpdated == null || timeUpdated.isEmpty())
+                throw new IOException("Steam Workshop details for item " + workshopItemId + " did not contain time_updated.");
+
+            return new SteamWorkshopItemDetails(
+                    getString(detail, "publishedfileid"),
+                    getString(detail, "title"),
+                    timeUpdated,
+                    getString(detail, "file_url"));
+        } finally {
+            if (body != null) body.close();
+            response.close();
+        }
+    }
+
     public File getWorkshopItemDir(String workshopAppId, String workshopItemId) {
         return new File(destDir + "/steamapps/workshop/content/" + workshopAppId + "/" + workshopItemId);
     }
@@ -214,10 +269,46 @@ public class SteamCMD {
         return login;
     }
 
+    private static String getString(JsonObject object, String key) {
+        if (object == null || !object.has(key) || object.get(key).isJsonNull())
+            return null;
+        return object.get(key).getAsString();
+    }
+
     public String getResolutionForError(String error) {
         for (Map.Entry<String, String> entry : errorResolutions.entrySet())
             if (error.contains(entry.getKey())) return entry.getValue();
         return "Unknown. :(";
+    }
+
+    public static class SteamWorkshopItemDetails {
+        private final String publishedFileId;
+        private final String title;
+        private final String timeUpdated;
+        private final String fileUrl;
+
+        public SteamWorkshopItemDetails(String publishedFileId, String title, String timeUpdated, String fileUrl) {
+            this.publishedFileId = publishedFileId;
+            this.title = title;
+            this.timeUpdated = timeUpdated;
+            this.fileUrl = fileUrl;
+        }
+
+        public String getPublishedFileId() {
+            return publishedFileId;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getTimeUpdated() {
+            return timeUpdated;
+        }
+
+        public String getFileUrl() {
+            return fileUrl;
+        }
     }
 
 }
