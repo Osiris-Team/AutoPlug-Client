@@ -97,6 +97,52 @@ class SteamWorkshopModTest {
     }
 
     @Test
+    void firstRunDetectionInstallsWhenMetaTimestampUsesDifferentDomainThanSteamApi() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            File modDir = tempDir.resolve("mods/@CF").toFile();
+            modDir.mkdirs();
+            writeMeta(modDir,
+                    "protocol = 1;",
+                    "publishedid = 1559212036;",
+                    "name = \"CF\";",
+                    "timestamp = 5249804932187309401;");
+
+            File downloadedDir = tempDir.resolve("steamcmd/steamapps/workshop/content/221100/1559212036").toFile();
+            downloadedDir.mkdirs();
+            Files.write(downloadedDir.toPath().resolve("updated.txt"), Arrays.asList("updated"), StandardCharsets.UTF_8);
+
+            configureUpdaterWithoutCachedMod();
+            FakeSteamCMD steamCMD = new FakeSteamCMD("1718030554", downloadedDir);
+
+            TaskModsUpdater task = new TaskModsUpdater("ModsUpdater", new BThreadManager()) {
+                @Override
+                SteamCMD createSteamCMD() {
+                    return steamCMD;
+                }
+            };
+            task.runAtStart();
+
+            assertEquals(1, steamCMD.detailsCalls);
+            assertEquals(1, steamCMD.updateCalls);
+            assertEquals("updated", Files.readAllLines(modDir.toPath().resolve("updated.txt"), StandardCharsets.UTF_8).get(0));
+            assertTrue(task.getWarnings().isEmpty());
+
+            ModsConfig modsConfig = new ModsConfig();
+            modsConfig.load();
+            assertEquals("1559212036", modsConfig.get("mods", "CF", "steam-workshop-id").asString());
+            assertEquals("1718030554", modsConfig.get("mods", "CF", "version").asString());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
+    @Test
     void updaterSkipsDownloadWhenCachedSteamVersionMatches() throws Exception {
         File oldWorkingDir = GD.WORKING_DIR;
         File oldDownloadsDir = GD.DOWNLOADS_DIR;
@@ -193,6 +239,19 @@ class SteamWorkshopModTest {
     }
 
     private void configureUpdater(String cachedWorkshopVersion, String profile) throws Exception {
+        configureUpdaterProfile(profile);
+
+        ModsConfig modsConfig = new ModsConfig();
+        modsConfig.put("mods", "CF", "version").setValues(cachedWorkshopVersion);
+        modsConfig.put("mods", "CF", "steam-workshop-id").setValues("1559212036");
+        modsConfig.save();
+    }
+
+    private void configureUpdaterWithoutCachedMod() throws Exception {
+        configureUpdaterProfile("AUTOMATIC");
+    }
+
+    private void configureUpdaterProfile(String profile) throws Exception {
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.mods_updater.setValues("true");
         updaterConfig.mods_updater_profile.setValues(profile);
@@ -201,11 +260,6 @@ class SteamWorkshopModTest {
         updaterConfig.mods_updater_async.setValues("false");
         updaterConfig.mods_updater_steam_workshop_app_id.setValues("221100");
         updaterConfig.save();
-
-        ModsConfig modsConfig = new ModsConfig();
-        modsConfig.put("mods", "CF", "version").setValues(cachedWorkshopVersion);
-        modsConfig.put("mods", "CF", "steam-workshop-id").setValues("1559212036");
-        modsConfig.save();
     }
 
     private static class FakeSteamCMD extends SteamCMD {

@@ -26,7 +26,7 @@ public class SteamWorkshopMod extends MinecraftMod {
     private final String timestamp;
 
     public SteamWorkshopMod(File directory, String name, String publishedId, String timestamp) {
-        super(directory.getAbsolutePath(), name, timestamp != null ? timestamp : publishedId, "Steam Workshop", null, null, null);
+        super(directory.getAbsolutePath(), name, null, "Steam Workshop", null, null, null);
         this.directory = directory;
         this.publishedId = publishedId;
         this.timestamp = timestamp;
