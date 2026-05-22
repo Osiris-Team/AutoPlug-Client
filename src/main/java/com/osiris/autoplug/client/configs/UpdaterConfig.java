@@ -63,6 +63,7 @@ public class UpdaterConfig extends MyYaml {
     public YamlSection mods_updater_path;
     public YamlSection mods_updater_version;
     public YamlSection mods_updater_async;
+    public YamlSection mods_updater_steam_workshop_app_id;
     public YamlSection mods_update_check_name_for_mod_loader;
 
 
@@ -227,6 +228,9 @@ public class UpdaterConfig extends MyYaml {
                 "Asynchronously checks for updates.",
                 "Normally this should be faster than checking for updates synchronously, thus it should be enabled.",
                 "The only downside of this is that your log file gets a bit messy.");
+        mods_updater_steam_workshop_app_id = put(name, "mods-updater", "steam-workshop-app-id").setDefValues("221100").setComments(
+                "Steam app-id used for Steam Workshop mod downloads. DayZ Workshop mods use 221100.",
+                "Only used for mod directories that contain a meta.cpp file with a publishedid.");
         mods_update_check_name_for_mod_loader = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("false").setComments(
                 "Only relevant for determining if a curseforge mod release is forge or fabric.",
                 "If enabled additionally checks the mod name to see if it contains fabric or forge.");

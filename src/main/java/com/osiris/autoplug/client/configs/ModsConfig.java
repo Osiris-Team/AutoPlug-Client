@@ -44,6 +44,7 @@ public class ModsConfig extends MyYaml {
                         "If there are mods that weren't found by the search-algorithm, you can add an id (spigot or bukkit) and a custom link (optional & must be a static link to the latest mod jar).\n" +
                         "modrinth-id: Is the 'Project-ID' and can be found on the mods modrinth site inside of the 'About' box, under 'Technical Information' at the bottom left.\n" +
                         "curseforge-id: Is also called 'Project-ID' and can be found on the mods curseforge site inside of the 'About' box at the right.\n" +
+                        "steam-workshop-id: Is read from meta.cpp for supported Steam Workshop mods and updated through SteamCMD.\n" +
                         "ignore-content-type: If true, does not check if the downloaded file is of type jar or zip, and downloads it anyway.\n" +
                         "force-latest: If true, does not search for updates compatible with this Minecraft version and simply picks the latest release.\n" +
                         "force-update: If true, downloads the update every time even if its already on the latest version.\n" +
