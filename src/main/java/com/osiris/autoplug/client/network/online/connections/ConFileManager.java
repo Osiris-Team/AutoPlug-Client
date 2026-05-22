@@ -16,11 +16,63 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 // Client code
 public class ConFileManager extends DefaultConnection {
     private FileOutputStream tempFileOutputStream;
+
+    // --- Debug enums ---
+    public enum DecoderState {
+        OPERATION(0),
+        WAIT_CONTENT_BOOL(1),
+        SAVE_FILE_CHUNKS(2),
+        UPLOAD_CHUNKS(3),
+        UNKNOWN(-1);
+
+        public final int id;
+
+        DecoderState(int id) {
+            this.id = id;
+        }
+
+        public static DecoderState fromId(int id) {
+            for (DecoderState s : values()) {
+                if (s.id == id) return s;
+            }
+            return UNKNOWN;
+        }
+    }
+
+    public enum Operation {
+        LIST_FILE(0),
+        CREATE(1),
+        DELETE(2),
+        RENAME(3),
+        SAVE_FILE(4),
+        RECEIVE_UPLOAD(5),
+        COPY_CUT(6),
+        ROOTS(7),
+        UNKNOWN(-1);
+
+        public final byte id;
+
+        Operation(int id) {
+            this.id = (byte) id;
+        }
+
+        public static Operation fromId(byte id) {
+            for (Operation o : values()) {
+                if (o.id == id) return o;
+            }
+            return UNKNOWN;
+        }
+    }
+
+    // --- Debug fields ---
+    private volatile DecoderState decoderState = DecoderState.UNKNOWN;
+    private volatile Operation lastOperation = Operation.UNKNOWN;
+    private volatile File debugCurrentFile = null;
+    private volatile long bytesTransferred = 0;
 
     public ConFileManager() {
         super((byte) 5);
@@ -40,13 +92,17 @@ public class ConFileManager extends DefaultConnection {
                 try {
                     if (state == 0) {
                         byte op = in.readByte();
+                        lastOperation = Operation.fromId(op);
+
                         if (op == 0) {
                             String path = NettyUtils.readUTF(in);
                             currentFile = path.isEmpty() ? GD.WORKING_DIR : new File(path);
-                            // FIX: Use shared executor instead of creating a new thread pool every time
+                            debugCurrentFile = currentFile;
+
                             DefaultConnection.exec.submit(() -> sendFileDetailsAndChildren(currentFile));
                             if (!currentFile.isDirectory()) {
                                 state = 1;
+                                decoderState = DecoderState.fromId(state);
                             }
                         }
                         else if (op == 1) {
@@ -67,19 +123,29 @@ public class ConFileManager extends DefaultConnection {
                         }
                         else if (op == 4) { // Save File
                             currentFile = new File(NettyUtils.readUTF(in));
+                            debugCurrentFile = currentFile;
+
                             if (currentFile.getParentFile() != null) currentFile.getParentFile().mkdirs();
                             if (!currentFile.exists()) currentFile.createNewFile();
                             tempFileOutputStream = new FileOutputStream(currentFile);
-                            writeBool(true); // FIX: Notify the server we are ready to receive the stream
+
+                            writeBool(true);
                             state = 2;
+                            decoderState = DecoderState.fromId(state);
+                            bytesTransferred = 0;
                         }
                         else if (op == 5) { // Receive Upload
                             currentFile = new File(NettyUtils.readUTF(in));
+                            debugCurrentFile = currentFile;
+
                             if (currentFile.getParentFile() != null) currentFile.getParentFile().mkdirs();
                             if (!currentFile.exists()) currentFile.createNewFile();
                             tempFileOutputStream = new FileOutputStream(currentFile);
-                            writeBool(true); // FIX: Notify the server we are ready to receive the stream
+
+                            writeBool(true);
                             state = 3;
+                            decoderState = DecoderState.fromId(state);
+                            bytesTransferred = 0;
                         }
                         else if (op == 6) {
                             int count = in.readInt();
@@ -96,6 +162,8 @@ public class ConFileManager extends DefaultConnection {
                         else if (op == 7) {
                             DefaultConnection.exec.submit(ConFileManager.this::sendRoots);
                         }
+
+                        decoderState = DecoderState.fromId(state);
                         checkpoint();
                     }
                     else if (state == 1) { // Wait for Content Boolean
@@ -106,7 +174,6 @@ public class ConFileManager extends DefaultConnection {
                                     sendFileContent(currentFile);
                                 } catch (Exception e) {
                                     AL.warn("Failed to send file content:", e);
-                                    // FIX: Send EOF so the server doesn't wait indefinitely and timeout
                                     if (channel != null && channel.isActive()) {
                                         ByteBuf buf = channel.alloc().buffer();
                                         NettyUtils.writeUTF(buf, NettyUtils.EOF);
@@ -116,6 +183,7 @@ public class ConFileManager extends DefaultConnection {
                             });
                         }
                         state = 0;
+                        decoderState = DecoderState.fromId(state);
                         checkpoint();
                     }
                     else if (state == 2) { // Save File Chunks
@@ -124,8 +192,10 @@ public class ConFileManager extends DefaultConnection {
                             tempFileOutputStream.close();
                             writeBool(true);
                             state = 0;
+                            decoderState = DecoderState.fromId(state);
                         } else {
                             tempFileOutputStream.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+                            bytesTransferred += line.length();
                         }
                         checkpoint();
                     }
@@ -135,9 +205,11 @@ public class ConFileManager extends DefaultConnection {
                             tempFileOutputStream.close();
                             writeBool(true);
                             state = 0;
+                            decoderState = DecoderState.fromId(state);
                         } else {
                             byte[] decoded = Base64.getDecoder().decode(line.getBytes(StandardCharsets.UTF_8));
                             tempFileOutputStream.write(decoded);
+                            bytesTransferred += decoded.length;
                         }
                         checkpoint();
                     }
@@ -145,6 +217,7 @@ public class ConFileManager extends DefaultConnection {
                     AL.warn(e);
                     writeBool(false);
                     state = 0;
+                    decoderState = DecoderState.fromId(state);
                 }
             }
 
@@ -164,7 +237,6 @@ public class ConFileManager extends DefaultConnection {
         }
     }
 
-    // Disk I/O Methods mapping exactly to original functionality:
     private void sendRoots() {
         File[] roots = File.listRoots();
         ByteBuf buf = channel.alloc().buffer();
@@ -259,5 +331,18 @@ public class ConFileManager extends DefaultConnection {
             }
             writeBool(true);
         } catch (Exception e) { writeBool(false); }
+    }
+
+    @Override
+    public String toString() {
+        boolean tmp = tempFileOutputStream != null;
+        String file = debugCurrentFile != null ? debugCurrentFile.getAbsolutePath() : "null";
+
+        return super.toString() +
+                " " + (tmp ? "tmpStream" : "!tmpStream") +
+                " state=" + decoderState +
+                " op=" + lastOperation +
+                " bytes=" + bytesTransferred +
+                " file=" + file;
     }
 }

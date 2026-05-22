@@ -198,12 +198,29 @@ public abstract class DefaultConnection implements AutoCloseable {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{" +
-                "isEncrypted=" + useSsl +
-                ", isConnected=" + isConnected() +
-                ", isClosing=" + isClosing.get() +
-                ", errorCode=" + errorCode +
-                '}';
+        boolean connected = isConnected();
+        boolean secondary = isSecondary();
+        boolean closing = isClosing.get();
+
+        boolean chActive = channel != null && channel.isActive();
+        boolean chOpen = channel != null && channel.isOpen();
+        boolean chWritable = channel != null && channel.isWritable();
+
+        return getClass().getSimpleName() +
+                "@" + Integer.toHexString(System.identityHashCode(this)) +
+
+                " " + (useSsl ? "ssl" : "!ssl") +
+                " " + (connected ? "connected" : "!connected") +
+                " " + (closing ? "closing" : "!closing") +
+
+                " " + (chActive ? "chActive" : "!chActive") +
+                " " + (chOpen ? "chOpen" : "!chOpen") +
+                " " + (chWritable ? "chWritable" : "!chWritable") +
+
+                " err=" + errorCode +
+
+                " rDelay=" + currentReconnectDelay +
+                " rThread=" + (reconnectThread != null ? reconnectThread.getState() : "null");
     }
 
     public static class AuthHandler extends ByteToMessageDecoder {
