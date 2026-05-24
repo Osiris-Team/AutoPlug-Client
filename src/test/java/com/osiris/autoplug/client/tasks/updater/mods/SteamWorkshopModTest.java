@@ -217,6 +217,26 @@ class SteamWorkshopModTest {
         }
     }
 
+    @Test
+    void invalidModsUpdaterProfileFallsBackToDefault() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            UpdaterConfig updaterConfig = new UpdaterConfig();
+            updaterConfig.mods_updater_profile.setValues("BROKEN");
+
+            updaterConfig.validateValues();
+
+            assertEquals("AUTOMATIC", updaterConfig.mods_updater_profile.asString());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
     private File writeMeta(File modDir, String... lines) throws Exception {
         File metaFile = new File(modDir, "meta.cpp");
         Files.write(metaFile.toPath(), Arrays.asList(lines), StandardCharsets.UTF_8);

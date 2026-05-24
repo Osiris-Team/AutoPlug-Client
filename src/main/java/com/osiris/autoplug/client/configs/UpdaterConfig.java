@@ -245,6 +245,7 @@ public class UpdaterConfig extends MyYaml {
         String jP = java_updater_profile.asString();
         String sP = server_updater_profile.asString();
         String uP = plugins_updater_profile.asString();
+        String mP = mods_updater_profile.asString();
 
         if (!selfP.equals("NOTIFY") && !selfP.equals("MANUAL") && !selfP.equals("AUTOMATIC")) {
             String correction = self_updater_profile.getDefValue().asString();
@@ -268,6 +269,12 @@ public class UpdaterConfig extends MyYaml {
             String correction = plugins_updater_profile.getDefValue().asString();
             AL.warn("Config error -> " + plugins_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
             plugins_updater_profile.setValues(correction);
+        }
+
+        if (!mP.equals("NOTIFY") && !mP.equals("MANUAL") && !mP.equals("AUTOMATIC")) {
+            String correction = mods_updater_profile.getDefValue().asString();
+            AL.warn("Config error -> " + mods_updater_profile.getKeys() + " must be: NOTIFY or MANUAL or AUTOMATIC. Applied default!");
+            mods_updater_profile.setValues(correction);
         }
         return this;
     }
