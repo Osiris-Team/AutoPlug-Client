@@ -73,36 +73,33 @@ Details:
 * Payments are only made via PayPal.
 * Your PayPal email must be visible somewhere on your public GitHub profile before the PR is merged.
 * By submitting a PR for a bounty issue, you agree to these terms.
-* Low-quality, incomplete, AI-spam, or copy-paste PRs may be closed without review.
+* Low-quality, incomplete, or spam PRs may be closed without review.
 
-### AI / LLM Generated Pull Requests
+### AI Generated Pull Requests
 
-* AI/LLM-assisted code is allowed, but must be fully reviewed and understood by the person submitting the PR.
-* Do not submit raw AI output without testing, cleanup, or verification.
-* The PR author is fully responsible for all generated code.
+* AI-assisted code is allowed, but the submitter must fully review, understand, and test all generated code before opening the PR.
+* The PR author is fully responsible for all generated code and behavior.
 * PRs generated mostly by AI must clearly state this in the description.
 * AI-generated PRs require manual human review before merge.
-* Massive AI-generated refactors, formatting-only changes, or unrelated rewrites will be rejected.
-* PRs with hallucinated APIs, fake fixes, broken logic, missing context, or obvious generated spam may result in being blocked from future bounties.
+* Large AI-generated rewrites, formatting-only changes, hallucinated APIs, duplicate logic, or low-effort generated spam will be rejected.
+* Repeated submission of low-quality AI-generated PRs may result in bounty disqualification or repository bans.
 
 ### Code Quality Requirements
 
-* Keep PRs focused and small. One issue/fix per PR.
-* Keep changes close to the existing code structure and style.
+* Keep PRs focused and limited to a single issue or feature.
+* Follow the existing project structure, architecture, naming conventions, and coding style.
 * Reuse existing APIs, utility classes, helpers, and abstractions whenever possible.
-* Integrate changes into the existing code flow instead of bypassing or replacing major parts of the system.
-* Avoid unnecessary rewrites, duplicate logic, custom frameworks, or parallel implementations.
-* Do not introduce new dependencies or architectural patterns unless absolutely necessary.
-* Follow the existing naming conventions, file organization, and project architecture.
-* Do not include unrelated changes, formatting noise, or drive-by edits.
-* PR descriptions must explain:
-
-  * what was changed
-  * why it was changed
+* Integrate changes into the existing code flow instead of bypassing, replacing, or duplicating major logic.
+* Avoid unnecessary rewrites, new abstractions, excessive refactors, or unrelated cleanup.
+* Do not introduce new dependencies or frameworks unless clearly justified.
+* PRs must include a clear description of:
+  * what changed
+  * why it changed
   * how it was tested
-* Broken builds, failing tests, or untested changes will be rejected.
-* If maintainers spend excessive time cleaning up, restructuring, or rewriting your PR, it may be closed.
+* PRs with failing builds, missing tests, broken functionality, or unreviewed generated code will be rejected.
+* If a PR requires excessive maintainer cleanup, restructuring, or debugging, it may be closed.
 * Repeated low-quality submissions may result in bounty disqualification or repository bans.
+
 
 ## Libraries
 
