@@ -12,19 +12,25 @@ import com.google.api.client.http.FileContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import com.osiris.autoplug.client.configs.BackupConfig;
 import com.osiris.jlib.logger.AL;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class BackupGoogleDrive {
+
+    private static final Pattern AUTOPLUG_BACKUP_ZIP_NAME = Pattern.compile("\\d{4}-\\d{2}-\\d{2}-\\d{2}\\.\\d{2}-BACKUP\\.zip");
 
     final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -123,9 +129,84 @@ public class BackupGoogleDrive {
                 .execute();
 
         AL.debug(this.getClass(), "Uploaded to Google Drive with ID: " + uploadedFile.getId());
+        int deletedOldBackups = deleteOldBackupsFromGoogleDrive(drive, config);
+        if (deletedOldBackups > 0) {
+            AL.debug(this.getClass(), "Deleted " + deletedOldBackups + " old Google Drive backup(s).");
+        }
 
         if (config.backup_upload_delete_on_complete.asBoolean()) {
             fileToUpload.delete();
         }
+    }
+
+    int deleteOldBackupsFromGoogleDrive(Drive drive, BackupConfig config) throws IOException {
+        int maxDays = config.backup_max_days.asInt();
+        if (maxDays <= 0) {
+            AL.debug(this.getClass(), "Skipping Google Drive backup retention cleanup because max-days is " + maxDays + ".");
+            return 0;
+        }
+
+        Instant cutoff = Instant.now().minus(maxDays, ChronoUnit.DAYS);
+        return deleteOldBackupsFromGoogleDrive(drive, config.backup_upload_path.asString(), cutoff);
+    }
+
+    int deleteOldBackupsFromGoogleDrive(Drive drive, String folderId, Instant cutoff) throws IOException {
+        int deleted = 0;
+        String pageToken = null;
+        String query = buildBackupRetentionQuery(folderId, cutoff);
+
+        do {
+            FileList result = drive.files().list()
+                    .setQ(query)
+                    .setFields("nextPageToken, files(id, name)")
+                    .setPageToken(pageToken)
+                    .execute();
+
+            if (result.getFiles() != null) {
+                for (File oldBackup : result.getFiles()) {
+                    if (oldBackup.getId() == null || oldBackup.getId().trim().isEmpty()) {
+                        continue;
+                    }
+                    if (!isAutoPlugBackupZipName(oldBackup.getName())) {
+                        AL.debug(this.getClass(), "Skipping Google Drive file that does not match AutoPlug backup naming: " + oldBackup.getName());
+                        continue;
+                    }
+
+                    drive.files().delete(oldBackup.getId()).execute();
+                    deleted++;
+                    AL.debug(this.getClass(), "Deleted old Google Drive backup: " + oldBackup.getName());
+                }
+            }
+
+            pageToken = result.getNextPageToken();
+        } while (pageToken != null && !pageToken.trim().isEmpty());
+
+        return deleted;
+    }
+
+    static String buildBackupRetentionQuery(String folderId, Instant cutoff) {
+        StringBuilder query = new StringBuilder()
+                .append("trashed = false")
+                .append(" and name contains '-BACKUP.zip'")
+                .append(" and mimeType != 'application/vnd.google-apps.folder'")
+                .append(" and createdTime < '")
+                .append(DateTimeFormatter.ISO_INSTANT.format(cutoff))
+                .append("'");
+
+        if (folderId != null && !folderId.trim().isEmpty()) {
+            query.append(" and '")
+                    .append(escapeDriveQueryLiteral(folderId.trim()))
+                    .append("' in parents");
+        }
+
+        return query.toString();
+    }
+
+    static String escapeDriveQueryLiteral(String value) {
+        return value.replace("\\", "\\\\").replace("'", "\\'");
+    }
+
+    static boolean isAutoPlugBackupZipName(String fileName) {
+        return fileName != null && AUTOPLUG_BACKUP_ZIP_NAME.matcher(fileName).matches();
     }
 }
