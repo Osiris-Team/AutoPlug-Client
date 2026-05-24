@@ -60,19 +60,49 @@ Beginners:
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
-Bounties:
-
-Some open issues are marked with a tag/label like this: `bounty: 15€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/labels/bounty%3A%2015%E2%82%AC)), which means that the first person
-creating a pull request for fixing/closing that issue will receive the bounty (15€). Note that your code must have
-at least one test demonstrating that the implemented fix/feature is working. Also note that payments are only made via PayPal, so make sure
-that the public Github page of your profile, with which you commit the pull request, contains your PayPal email address somewhere.
-By commiting to an issue with the bounty tag you agree to these terms.
-
 Details:
 
 - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 - Built with [1JPM](https://github.com/Osiris-Team/1JPM), command: `java ./src/main/java/JPM.java`
 (if you want to directly run it too append `andRun` at the end).
+
+### Bounties
+
+* Some issues are labeled like `bounty: 50€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/issues?q=state%3Aopen%20label%3A%22bounty%3A%2050%E2%82%AC%22)). The first accepted pull request that fully fixes/closes the issue receives the bounty.
+* Your PR must include at least one test proving the fix or feature works.
+* Payments are only made via PayPal.
+* Your PayPal email must be visible somewhere on your public GitHub profile before the PR is merged.
+* By submitting a PR for a bounty issue, you agree to these terms.
+* Low-quality, incomplete, AI-spam, or copy-paste PRs may be closed without review.
+
+### AI / LLM Generated Pull Requests
+
+* AI/LLM-assisted code is allowed, but must be fully reviewed and understood by the person submitting the PR.
+* Do not submit raw AI output without testing, cleanup, or verification.
+* The PR author is fully responsible for all generated code.
+* PRs generated mostly by AI must clearly state this in the description.
+* AI-generated PRs require manual human review before merge.
+* Massive AI-generated refactors, formatting-only changes, or unrelated rewrites will be rejected.
+* PRs with hallucinated APIs, fake fixes, broken logic, missing context, or obvious generated spam may result in being blocked from future bounties.
+
+### Code Quality Requirements
+
+* Keep PRs focused and small. One issue/fix per PR.
+* Keep changes close to the existing code structure and style.
+* Reuse existing APIs, utility classes, helpers, and abstractions whenever possible.
+* Integrate changes into the existing code flow instead of bypassing or replacing major parts of the system.
+* Avoid unnecessary rewrites, duplicate logic, custom frameworks, or parallel implementations.
+* Do not introduce new dependencies or architectural patterns unless absolutely necessary.
+* Follow the existing naming conventions, file organization, and project architecture.
+* Do not include unrelated changes, formatting noise, or drive-by edits.
+* PR descriptions must explain:
+
+  * what was changed
+  * why it was changed
+  * how it was tested
+* Broken builds, failing tests, or untested changes will be rejected.
+* If maintainers spend excessive time cleaning up, restructuring, or rewriting your PR, it may be closed.
+* Repeated low-quality submissions may result in bounty disqualification or repository bans.
 
 ## Libraries
 
