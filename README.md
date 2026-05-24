@@ -60,15 +60,20 @@ Beginners:
 - [contribute-to-projects](https://www.jetbrains.com/help/idea/contribute-to-projects.html)
 - [clone-a-project-from-github](https://blog.jetbrains.com/idea/2020/10/clone-a-project-from-github/)
 
-Details:
+Building:
 
 - Written in [Java](https://java.com/), with [JDK 8](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), inside of [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 - Built with [1JPM](https://github.com/Osiris-Team/1JPM), command: `java ./src/main/java/JPM.java`
 (if you want to directly run it too append `andRun` at the end).
 
-### Bounties
+Bounties:
 
 * Some issues are labeled like `bounty: 50€` (show the [list](https://github.com/Osiris-Team/AutoPlug-Client/issues?q=state%3Aopen%20label%3A%22bounty%3A%2050%E2%82%AC%22)). The first accepted pull request that fully fixes/closes the issue receives the bounty.
+
+<details>
+<summary>View Terms</summary>
+
+
 * Your PR must include at least one test proving the fix or feature works.
 * Payments are only made via PayPal.
 * Your PayPal email must be visible somewhere on your public GitHub profile before the PR is merged.
@@ -99,6 +104,9 @@ Details:
 * PRs with failing builds, missing tests, broken functionality, or unreviewed generated code will be rejected.
 * If a PR requires excessive maintainer cleanup, restructuring, or debugging, it may be closed.
 * Repeated low-quality submissions may result in bounty disqualification or repository bans.
+</details>
+
+
 
 
 ## Libraries
