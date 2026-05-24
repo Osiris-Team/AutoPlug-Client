@@ -230,6 +230,9 @@ public class UpdaterConfig extends MyYaml {
         mods_update_check_name_for_mod_loader = put(name, "mods-updater", "check-name-for-mod-loader").setDefValues("false").setComments(
                 "Only relevant for determining if a curseforge mod release is forge or fabric.",
                 "If enabled additionally checks the mod name to see if it contains fabric or forge.");
+        mods_updater_path.setComments(
+                "Path to your mods folder.",
+                "Steam Workshop mods with supported metadata can be updated through SteamCMD when server-updater.software is set to a numeric Steam app-id.");
 
         save();
         unlockFile();
