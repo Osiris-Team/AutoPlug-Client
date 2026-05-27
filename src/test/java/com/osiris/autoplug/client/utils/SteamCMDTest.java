@@ -20,4 +20,13 @@ class SteamCMDTest {
         UtilsTest.init();
         new SteamCMD().installIfNeeded();
     }
+
+    @Test
+    void buildsWorkshopDownloadCommand() {
+        String command = SteamCMD.buildWorkshopItemCommand("anonymous", "221100", "1559212036");
+
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "+login anonymous +workshop_download_item 221100 1559212036 validate +quit",
+                command);
+    }
 }

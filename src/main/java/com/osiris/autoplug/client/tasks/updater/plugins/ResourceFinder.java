@@ -13,14 +13,17 @@ import com.osiris.autoplug.client.tasks.updater.mods.CurseForgeAPI;
 import com.osiris.autoplug.client.tasks.updater.mods.InstalledModLoader;
 import com.osiris.autoplug.client.tasks.updater.mods.MinecraftMod;
 import com.osiris.autoplug.client.tasks.updater.mods.ModrinthAPI;
+import com.osiris.autoplug.client.tasks.updater.mods.SteamWorkshopMod;
 import com.osiris.autoplug.client.tasks.updater.search.CustomCheckURL;
 import com.osiris.autoplug.client.tasks.updater.search.GithubSearch;
 import com.osiris.autoplug.client.tasks.updater.search.JenkinsSearch;
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
+import com.osiris.autoplug.client.tasks.updater.search.SteamWorkshopSearch;
 import com.osiris.autoplug.client.tasks.updater.search.bukkit.BukkitSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByAuthor;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchById;
 import com.osiris.autoplug.client.tasks.updater.search.spigot.SpigotSearchByName;
+import com.osiris.autoplug.client.utils.SteamCMD;
 
 public class ResourceFinder {
 
@@ -62,6 +65,14 @@ public class ResourceFinder {
 
         sr.mod = mod;
         return sr;
+    }
+
+    public SearchResult findBySteamWorkshop(SteamWorkshopMod mod, String workshopAppId) {
+        return findBySteamWorkshop(mod, workshopAppId, new SteamCMD());
+    }
+
+    public SearchResult findBySteamWorkshop(SteamWorkshopMod mod, String workshopAppId, SteamCMD steamCMD) {
+        return new SteamWorkshopSearch().search(mod, workshopAppId, steamCMD);
     }
 
     public SearchResult findPluginBySpigotId(MinecraftPlugin plugin) {
