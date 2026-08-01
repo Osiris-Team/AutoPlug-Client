@@ -8,6 +8,9 @@
 
 package com.osiris.autoplug.client.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.tasks.updater.TaskDownload;
 import com.osiris.autoplug.client.utils.io.AsyncReader;
@@ -20,8 +23,14 @@ import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.CompressionType;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,8 +124,7 @@ public class SteamCMD {
             AL.debug(this.getClass(), "Installing app " + appId + "...");
             onLog.accept("Installing app " + appId + "...");
 
-            String login = new UpdaterConfig().server_steamcmd_login.asString();
-            if (login == null || login.isEmpty()) login = "anonymous";
+            String login = getLogin();
 
             File gameInstallDir = new File(dirSteamServersDownloads + "/" + appId);
             gameInstallDir.mkdirs();
@@ -159,10 +167,151 @@ public class SteamCMD {
         }
     }
 
+    private static final String STEAM_WORKSHOP_DETAILS_URL = "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/";
+
+    public boolean installOrUpdateWorkshopItem(String workshopAppId, String workshopItemId, Consumer<String> onLog, Consumer<String> onLogErr) {
+        try {
+            if (!installIfNeeded()) return false;
+            AL.debug(this.getClass(), "Installing workshop item " + workshopItemId + " for app " + workshopAppId + "...");
+            onLog.accept("Installing workshop item " + workshopItemId + "...");
+
+            String command = buildWorkshopItemCommand(getLogin(), workshopAppId, workshopItemId);
+            AtomicBoolean isFinished = new AtomicBoolean(false);
+            AtomicBoolean isSuccess = new AtomicBoolean(true);
+            // Doesn't work when directly executing via ProcessBuilder thats why we execute it from an
+            // actual terminal
+            AsyncTerminal terminal = new AsyncTerminal(destDir, line -> { // Without a reader it seems to never finish
+                onLog.accept(line);
+                String lowerLine = line.toLowerCase();
+                if (lowerLine.startsWith("success.") && lowerLine.contains("item " + workshopItemId.toLowerCase()))
+                    isFinished.set(true);
+                if (lowerLine.startsWith("error!")) {
+                    isSuccess.set(false);
+                    isFinished.set(true);
+                }
+            }, line -> {
+                onLogErr.accept(line);
+            }, destExe.getAbsolutePath() + " " + command);
+
+            Thread thread = new Thread(() -> terminal.process.destroy());
+            Runtime.getRuntime().addShutdownHook(thread);
+            while (!isFinished.get() && terminal.process.isAlive()) Thread.sleep(100);
+            if (terminal.process.isAlive()) terminal.process.destroy();
+            Runtime.getRuntime().removeShutdownHook(thread);
+            return isSuccess.get() && getWorkshopItemDir(workshopAppId, workshopItemId).exists();
+        } catch (Exception e) {
+            AL.warn(e);
+            return false;
+        }
+    }
+
+    /**
+     * Fetches details for a Steam Workshop item from the public Steam Web API
+     * (GetPublishedFileDetails). This endpoint only accepts POST form requests
+     * (GET returns an error), which is why jlib's Json.get(url) cannot be used
+     * here. Uses plain HttpURLConnection to avoid introducing new dependencies.
+     */
+    public SteamWorkshopItemDetails getWorkshopItemDetails(String workshopItemId) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            byte[] formData = ("itemcount=1&publishedfileids[0]=" + workshopItemId).getBytes(StandardCharsets.UTF_8);
+            connection = (HttpURLConnection) new URL(STEAM_WORKSHOP_DETAILS_URL).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("User-Agent", "AutoPlug-Client - https://autoplug.one");
+            try (OutputStream out = connection.getOutputStream()) {
+                out.write(formData);
+            }
+
+            if (connection.getResponseCode() != 200)
+                throw new IOException("Steam Workshop details request failed for item " + workshopItemId + " with code " + connection.getResponseCode() + " message: " + connection.getResponseMessage());
+
+            StringBuilder responseBody = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) responseBody.append(line);
+            }
+
+            JsonObject root = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
+            JsonObject responseObject = root.getAsJsonObject("response");
+            JsonArray details = responseObject == null ? null : responseObject.getAsJsonArray("publishedfiledetails");
+            if (details == null || details.size() == 0)
+                throw new IOException("Steam Workshop details request returned no details for item " + workshopItemId);
+
+            JsonObject detail = details.get(0).getAsJsonObject();
+            int result = detail.has("result") && !detail.get("result").isJsonNull() ? detail.get("result").getAsInt() : 0;
+            if (result != 1)
+                throw new IOException("Steam Workshop details request failed for item " + workshopItemId + " with result " + result);
+
+            String timeUpdated = getString(detail, "time_updated");
+            if (timeUpdated == null || timeUpdated.isEmpty())
+                throw new IOException("Steam Workshop details for item " + workshopItemId + " did not contain time_updated.");
+
+            return new SteamWorkshopItemDetails(
+                    getString(detail, "publishedfileid"),
+                    getString(detail, "title"),
+                    timeUpdated,
+                    getString(detail, "file_url"));
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    public File getWorkshopItemDir(String workshopAppId, String workshopItemId) {
+        return new File(destDir + "/steamapps/workshop/content/" + workshopAppId + "/" + workshopItemId);
+    }
+
+    static String buildWorkshopItemCommand(String login, String workshopAppId, String workshopItemId) {
+        return "+login " + login + " +workshop_download_item " + workshopAppId + " " + workshopItemId + " validate +quit";
+    }
+
+    private String getLogin() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        String login = new UpdaterConfig().server_steamcmd_login.asString();
+        if (login == null || login.isEmpty()) login = "anonymous";
+        return login;
+    }
+
+    private static String getString(JsonObject object, String key) {
+        if (object == null || !object.has(key) || object.get(key).isJsonNull())
+            return null;
+        return object.get(key).getAsString();
+    }
+
     public String getResolutionForError(String error) {
         for (Map.Entry<String, String> entry : errorResolutions.entrySet())
             if (error.contains(entry.getKey())) return entry.getValue();
         return "Unknown. :(";
+    }
+
+    public static class SteamWorkshopItemDetails {
+        private final String publishedFileId;
+        private final String title;
+        private final String timeUpdated;
+        private final String fileUrl;
+
+        public SteamWorkshopItemDetails(String publishedFileId, String title, String timeUpdated, String fileUrl) {
+            this.publishedFileId = publishedFileId;
+            this.title = title;
+            this.timeUpdated = timeUpdated;
+            this.fileUrl = fileUrl;
+        }
+
+        public String getPublishedFileId() {
+            return publishedFileId;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getTimeUpdated() {
+            return timeUpdated;
+        }
+
+        public String getFileUrl() {
+            return fileUrl;
+        }
     }
 
 }

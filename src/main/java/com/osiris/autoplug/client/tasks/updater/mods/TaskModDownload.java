@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 
-public class TaskModDownload extends BThread {
+public class TaskModDownload extends BThread implements ModDownloadTask {
     private final String plName;
     private final String plLatestVersion;
     private final String url;
@@ -205,6 +205,10 @@ public class TaskModDownload extends BThread {
 
     public File getDownloadDest() {
         return dest;
+    }
+
+    public SearchResult getSearchResult() {
+        return searchResult;
     }
 
     public boolean isDownloadSuccessful() {
