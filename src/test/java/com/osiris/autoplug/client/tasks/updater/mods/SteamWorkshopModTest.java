@@ -72,6 +72,15 @@ class SteamWorkshopModTest {
     }
 
     @Test
+    void detectsUpdatesWhenMetaCppUsesLongTimestamp() {
+        SteamWorkshopMod mod = new SteamWorkshopMod(
+                tempDir.toFile(), "CF", "1559212036", "5249804932187309401");
+        SteamWorkshopUpdateFinder finder = new SteamWorkshopUpdateFinder(null, null);
+
+        assertTrue(finder.hasUpdate(mod, "1771519119"));
+    }
+
+    @Test
     void taskDoesNotDownloadWorkshopModWhenSteamMetadataIsCurrent() throws Exception {
         File oldWorkingDir = GD.WORKING_DIR;
         File oldDownloadsDir = GD.DOWNLOADS_DIR;
@@ -170,7 +179,9 @@ class SteamWorkshopModTest {
         updaterConfig.mods_updater_path.setValues("./mods");
         updaterConfig.mods_updater_version.setValues("1.20.1");
         updaterConfig.mods_updater_async.setValues("false");
-        updaterConfig.server_software.setValues("221100");
+        // The dedicated-server app id can differ from the Workshop
+        // consumer app id returned by GetPublishedFileDetails.
+        updaterConfig.server_software.setValues("223350");
         updaterConfig.save();
 
         ModsConfig modsConfig = new ModsConfig();
@@ -204,7 +215,7 @@ class SteamWorkshopModTest {
         @Override
         public SteamWorkshopItemDetails getWorkshopItemDetails(String workshopItemId) {
             detailsCalls++;
-            return new SteamWorkshopItemDetails(workshopItemId, "CF", latestVersion, null);
+            return new SteamWorkshopItemDetails(workshopItemId, "CF", latestVersion, null, "221100");
         }
 
         @Override

@@ -32,15 +32,18 @@ public class SteamWorkshopUpdateFinder {
     public SearchResult find(@NotNull SteamWorkshopMod mod) {
         SearchResult result = new SearchResult(null, SearchResult.Type.UP_TO_DATE, mod.getVersion(), null, "steam-workshop", null, null, false);
         result.mod = mod;
-        String workshopAppId = getWorkshopAppId();
-        if (workshopAppId == null) {
-            result.type = SearchResult.Type.API_ERROR;
-            result.setException(new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but server-updater.software is not a numeric Steam app-id."));
-            return result;
-        }
 
         try {
             SteamCMD.SteamWorkshopItemDetails details = steamCMD.getWorkshopItemDetails(mod.getPublishedId());
+            String workshopAppId = details.getConsumerAppId();
+            if (workshopAppId == null || !workshopAppId.matches("[1-9]\\d*"))
+                workshopAppId = getWorkshopAppId();
+            if (workshopAppId == null) {
+                result.type = SearchResult.Type.API_ERROR;
+                result.setException(new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but neither Steam's response nor server-updater.software provided a numeric Steam app-id."));
+                return result;
+            }
+            mod.setConsumerAppId(workshopAppId);
             result.latestVersion = details.getTimeUpdated();
             result.downloadUrl = details.getFileUrl();
             if (hasUpdate(mod, details.getTimeUpdated()))
@@ -58,7 +61,7 @@ public class SteamWorkshopUpdateFinder {
      */
     public String getWorkshopAppId() {
         String workshopAppId = updaterConfig.server_software.asString();
-        if (workshopAppId == null || !workshopAppId.matches("\\d+"))
+        if (workshopAppId == null || !workshopAppId.matches("[1-9]\\d*"))
             return null;
         return workshopAppId;
     }
@@ -75,6 +78,12 @@ public class SteamWorkshopUpdateFinder {
             return true;
         if (latestTimeUpdated.equals(currentVersion))
             return false;
+        // A DayZ/Arma meta.cpp commonly stores the local version as a .NET
+        // timestamp (16-19 digits), while Steam's time_updated is Unix time
+        // (currently 10 digits). They are both numeric strings, so comparing
+        // them as longs makes every real mod look up to date on its first run.
+        if (currentVersion.matches("\\d{16,19}") && latestTimeUpdated.matches("\\d{9,11}"))
+            return true;
         try {
             return Long.parseLong(latestTimeUpdated) > Long.parseLong(currentVersion);
         } catch (NumberFormatException e) {

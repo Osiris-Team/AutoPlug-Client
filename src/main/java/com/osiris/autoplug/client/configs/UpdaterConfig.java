@@ -225,7 +225,7 @@ public class UpdaterConfig extends MyYaml {
         mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
         mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods").setComments(
                 "Path to your mods folder.",
-                "Steam Workshop mods with supported metadata (meta.cpp) can be updated through SteamCMD when server-updater.software is set to a numeric Steam app-id.");
+                "Steam Workshop mods with supported metadata (meta.cpp) can be updated through SteamCMD. The Workshop consumer app-id is read from Steam; server-updater.software is used as a fallback when Steam does not provide it.");
         mods_updater_version = put(name, "mods-updater", "version").setComments("The Minecraft version to check and download mods for.",
                 "If left empty, taken from server-updater.version above, if also empty, taken from general.yml, if also empty, taken from server jar.");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(

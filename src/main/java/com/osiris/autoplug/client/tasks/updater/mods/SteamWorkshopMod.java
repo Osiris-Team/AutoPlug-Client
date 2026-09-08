@@ -31,6 +31,7 @@ import java.util.List;
 public class SteamWorkshopMod extends MinecraftMod {
     private final File directory;
     private String publishedId;
+    private String consumerAppId;
     private final String timestamp;
 
     public SteamWorkshopMod(File directory, String name, String publishedId) {
@@ -54,6 +55,14 @@ public class SteamWorkshopMod extends MinecraftMod {
 
     public void setPublishedId(String publishedId) {
         this.publishedId = publishedId;
+    }
+
+    public String getConsumerAppId() {
+        return consumerAppId;
+    }
+
+    public void setConsumerAppId(String consumerAppId) {
+        this.consumerAppId = consumerAppId;
     }
 
     public String getTimestamp() {

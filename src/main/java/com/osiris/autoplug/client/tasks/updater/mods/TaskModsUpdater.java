@@ -390,9 +390,11 @@ public class TaskModsUpdater extends BThread {
                     addInfo("NOTIFY: Mod '" + mod.getName() + "' has an update available (" + mod.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 if (mod instanceof SteamWorkshopMod) {
-                    String workshopAppId = createSteamWorkshopUpdateFinder().getWorkshopAppId();
+                    String workshopAppId = ((SteamWorkshopMod) mod).getConsumerAppId();
+                    if (workshopAppId == null)
+                        workshopAppId = createSteamWorkshopUpdateFinder().getWorkshopAppId();
                     if (workshopAppId == null) {
-                        getWarnings().add(new BWarning(this, new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but server-updater.software is not a numeric Steam app-id.")));
+                        getWarnings().add(new BWarning(this, new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but no numeric Steam app-id was available.")));
                         return;
                     }
 
