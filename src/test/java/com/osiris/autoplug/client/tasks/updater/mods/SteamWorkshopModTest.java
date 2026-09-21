@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.mods;
 
+import com.osiris.autoplug.client.configs.GeneralConfig;
 import com.osiris.autoplug.client.configs.ModsConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
 import com.osiris.autoplug.client.utils.GD;
@@ -108,6 +109,35 @@ class SteamWorkshopModTest {
     }
 
     @Test
+    void taskChecksWorkshopModsWithoutMinecraftVersionOrJar() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            File modDir = tempDir.resolve("mods/@CF").toFile();
+            modDir.mkdirs();
+            writeMeta(modDir, "publishedid = 1559212036;", "name = \"CF\";", "timestamp = 100;");
+            // The eager implementation reaches this non-JAR executable and fails before Steam is queried.
+            configureNonJarServerExecutable();
+
+            configureUpdater("200", "221100", null);
+            FakeSteamCMD steamCMD = new FakeSteamCMD("200", null);
+            TaskModsUpdater task = createTask(steamCMD);
+
+            task.runAtStart();
+
+            assertEquals(1, steamCMD.detailsCalls);
+            assertEquals(0, steamCMD.updateCalls);
+            assertTrue(task.getWarnings().isEmpty());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
+    @Test
     void taskUsesConsumerAppIdAndCachesSteamVersionOnFirstCheck() throws Exception {
         File oldWorkingDir = GD.WORKING_DIR;
         File oldDownloadsDir = GD.DOWNLOADS_DIR;
@@ -148,6 +178,14 @@ class SteamWorkshopModTest {
         }
     }
 
+    private void configureNonJarServerExecutable() throws Exception {
+        File serverExecutable = tempDir.resolve("server.exe").toFile();
+        Files.createFile(serverExecutable.toPath());
+        GeneralConfig generalConfig = new GeneralConfig();
+        generalConfig.server_start_command.setValues("\"" + serverExecutable.getAbsolutePath() + "\"");
+        generalConfig.save();
+    }
+
     private File writeMeta(File modDir, String... lines) throws Exception {
         File metaFile = new File(modDir, "meta.cpp");
         Files.write(metaFile.toPath(), Arrays.asList(lines), StandardCharsets.UTF_8);
@@ -170,11 +208,16 @@ class SteamWorkshopModTest {
     }
 
     private void configureUpdater(String cachedWorkshopVersion, String serverAppId) throws Exception {
+        configureUpdater(cachedWorkshopVersion, serverAppId, "1.20.1");
+    }
+
+    private void configureUpdater(String cachedWorkshopVersion, String serverAppId, String modsUpdaterVersion) throws Exception {
         UpdaterConfig updaterConfig = new UpdaterConfig();
         updaterConfig.mods_updater.setValues("true");
         updaterConfig.mods_updater_profile.setValues("AUTOMATIC");
         updaterConfig.mods_updater_path.setValues("./mods");
-        updaterConfig.mods_updater_version.setValues("1.20.1");
+        if (modsUpdaterVersion != null)
+            updaterConfig.mods_updater_version.setValues(modsUpdaterVersion);
         updaterConfig.mods_updater_async.setValues("false");
         updaterConfig.server_software.setValues(serverAppId);
         updaterConfig.save();

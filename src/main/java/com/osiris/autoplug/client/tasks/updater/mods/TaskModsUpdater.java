@@ -206,9 +206,19 @@ public class TaskModsUpdater extends BThread {
         int sizeSteamWorkshopMods = 0;
 
 
-        String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) updaterConfig.server_updater_version.asString();
-        if (mcVersion == null) mcVersion = Server.getMCVersion();
+        String mcVersion = null;
+        for (MinecraftMod mod : includedMods) {
+            if (mod instanceof SteamWorkshopMod
+                    || mod.customCheckURL != null
+                    || mod.jenkinsProjectUrl != null
+                    || mod.githubRepoName != null)
+                continue;
+
+            mcVersion = updaterConfig.mods_updater_version.asString();
+            if (mcVersion == null) mcVersion = updaterConfig.server_updater_version.asString();
+            if (mcVersion == null) mcVersion = Server.getMCVersion();
+            break;
+        }
 
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
