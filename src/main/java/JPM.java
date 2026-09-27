@@ -25,6 +25,9 @@ import java.nio.charset.Charset;
 
 
 
+
+
+
 public class JPM {
     public static class ThisProject extends JPM.Project {
         public ThisProject() throws Exception {
@@ -34,7 +37,7 @@ public class JPM {
 // Override default configurations
             this.groupId = "com.osiris.autoplug.client";
             this.artifactId = "AutoPlug-Client";
-            this.version = "10.1.0";
+            this.version = "10.2.0";
             this.mainClass = "com.osiris.autoplug.client.Main";
             this.jarName = "AutoPlug-Client-original.jar";
             this.fatJarName = "AutoPlug-Client.jar";
@@ -177,7 +180,8 @@ public class JPM {
     }
 
     
-// 1JPM version 3.3.12 by Osiris-Team: https://github.com/Osiris-Team/1JPM
+
+// 1JPM version 3.3.13 by Osiris-Team: https://github.com/Osiris-Team/1JPM
     // Do not edit anything below, since changes will be lost due to auto-updating.
     // You can also do this manually, by replacing everything below with its newer version and updating the imports.
     public static final List<Plugin> plugins = new ArrayList<>();
@@ -1410,6 +1414,19 @@ public class JPM {
 
             // Write to pom.xml
             File pomFile = new File(System.getProperty("user.dir") + "/pom.xml");
+            // Delete the existing pom.xml first, wait briefly, then re-create it.
+            // This ensures IDEs actually notice the change (file watchers detect delete + recreate).
+            if (pomFile.exists()) {
+                if (!pomFile.delete()) {
+                    System.err.println("WARNING: Could not delete existing pom.xml before re-creating it.");
+                }
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("WARNING: Interrupted while waiting before re-creating pom.xml.");
+            }
             try (FileWriter writer = new FileWriter(pomFile)) {
                 writer.write(pom.toString());
             }
