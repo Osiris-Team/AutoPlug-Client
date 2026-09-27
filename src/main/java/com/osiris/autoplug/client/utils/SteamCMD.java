@@ -216,6 +216,8 @@ public class SteamCMD {
         try {
             byte[] formData = ("itemcount=1&publishedfileids[0]=" + workshopItemId).getBytes(StandardCharsets.UTF_8);
             connection = (HttpURLConnection) new URL(STEAM_WORKSHOP_DETAILS_URL).openConnection();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -252,7 +254,8 @@ public class SteamCMD {
                     getString(detail, "publishedfileid"),
                     getString(detail, "title"),
                     timeUpdated,
-                    getString(detail, "file_url"));
+                    getString(detail, "file_url"),
+                    getString(detail, "consumer_app_id"));
         } finally {
             if (connection != null) connection.disconnect();
         }
@@ -289,12 +292,18 @@ public class SteamCMD {
         private final String title;
         private final String timeUpdated;
         private final String fileUrl;
+        private final String consumerAppId;
 
         public SteamWorkshopItemDetails(String publishedFileId, String title, String timeUpdated, String fileUrl) {
+            this(publishedFileId, title, timeUpdated, fileUrl, null);
+        }
+
+        public SteamWorkshopItemDetails(String publishedFileId, String title, String timeUpdated, String fileUrl, String consumerAppId) {
             this.publishedFileId = publishedFileId;
             this.title = title;
             this.timeUpdated = timeUpdated;
             this.fileUrl = fileUrl;
+            this.consumerAppId = consumerAppId;
         }
 
         public String getPublishedFileId() {
@@ -311,6 +320,10 @@ public class SteamCMD {
 
         public String getFileUrl() {
             return fileUrl;
+        }
+
+        public String getConsumerAppId() {
+            return consumerAppId;
         }
     }
 

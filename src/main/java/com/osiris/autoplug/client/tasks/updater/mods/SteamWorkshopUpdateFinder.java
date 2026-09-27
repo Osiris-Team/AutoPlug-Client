@@ -41,6 +41,9 @@ public class SteamWorkshopUpdateFinder {
 
         try {
             SteamCMD.SteamWorkshopItemDetails details = steamCMD.getWorkshopItemDetails(mod.getPublishedId());
+            if (details.getConsumerAppId() != null && !details.getConsumerAppId().isEmpty()) {
+                mod.setConsumerAppId(details.getConsumerAppId());
+            }
             result.latestVersion = details.getTimeUpdated();
             result.downloadUrl = details.getFileUrl();
             if (hasUpdate(mod, details.getTimeUpdated()))
@@ -75,6 +78,14 @@ public class SteamWorkshopUpdateFinder {
             return true;
         if (latestTimeUpdated.equals(currentVersion))
             return false;
+        // Real DayZ / Bohemia meta.cpp files use long 64-bit timestamps (e.g. Windows FILETIME or similar 18-19 digit numbers),
+        // whereas Steam Web API time_updated is a standard 10-digit Unix timestamp (in seconds).
+        // If the cached version is in the long format (more than 10 digits), it is not numerically comparable to Unix time_updated,
+        // and represents the local meta.cpp state before any Steam update check. In that case an update check must detect
+        // the newer Workshop item.
+        if (currentVersion.length() > 10 && currentVersion.matches("\\d+")) {
+            return true;
+        }
         try {
             return Long.parseLong(latestTimeUpdated) > Long.parseLong(currentVersion);
         } catch (NumberFormatException e) {

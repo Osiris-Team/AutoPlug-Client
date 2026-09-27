@@ -32,6 +32,7 @@ public class SteamWorkshopMod extends MinecraftMod {
     private final File directory;
     private String publishedId;
     private final String timestamp;
+    private String consumerAppId;
 
     public SteamWorkshopMod(File directory, String name, String publishedId) {
         this(directory, name, publishedId, null);
@@ -42,6 +43,14 @@ public class SteamWorkshopMod extends MinecraftMod {
         this.directory = directory;
         this.publishedId = publishedId;
         this.timestamp = timestamp;
+    }
+
+    public String getConsumerAppId() {
+        return consumerAppId;
+    }
+
+    public void setConsumerAppId(String consumerAppId) {
+        this.consumerAppId = consumerAppId;
     }
 
     public File getDirectory() {

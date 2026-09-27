@@ -205,8 +205,9 @@ public class TaskModsUpdater extends BThread {
 
 
         String mcVersion = updaterConfig.mods_updater_version.asString();
-        if (mcVersion == null) updaterConfig.server_updater_version.asString();
-        if (mcVersion == null) mcVersion = Server.getMCVersion();
+        if (mcVersion == null) mcVersion = updaterConfig.server_updater_version.asString();
+        // mcVersion lookup from Server.getMCVersion() is deferred until a mod actually needs it
+        // (e.g. Modrinth / CurseForge), so servers with only Workshop mods or non-JAR servers don't fail.
 
         ExecutorService executorService;
         if (updaterConfig.mods_updater_async.asBoolean())
@@ -234,6 +235,7 @@ public class TaskModsUpdater extends BThread {
                 } else {
                     sizeUnknownMods++; // MODRINTH OR CURSEFORGE MOD
                     mod.ignoreContentType = true; // TODO temporary workaround for xamazon-json content type curseforge/bukkit issue: https://github.com/Osiris-Team/AutoPlug-Client/issues/109
+                    if (mcVersion == null) mcVersion = Server.getMCVersion();
                     String finalMcVersion = mcVersion;
                     activeFutures.add(executorService.submit(() -> new ResourceFinder().findByModrinthOrCurseforge(modLoader, mod, finalMcVersion, updaterConfig.mods_update_check_name_for_mod_loader.asBoolean())));
                 }
@@ -390,14 +392,18 @@ public class TaskModsUpdater extends BThread {
                     addInfo("NOTIFY: Mod '" + mod.getName() + "' has an update available (" + mod.getVersion() + " -> " + latest + "). Download url: " + downloadUrl);
             } else {
                 if (mod instanceof SteamWorkshopMod) {
-                    String workshopAppId = createSteamWorkshopUpdateFinder().getWorkshopAppId();
+                    SteamWorkshopMod wsMod = (SteamWorkshopMod) mod;
+                    String workshopAppId = wsMod.getConsumerAppId();
+                    if (workshopAppId == null || !workshopAppId.matches("\\d+")) {
+                        workshopAppId = createSteamWorkshopUpdateFinder().getWorkshopAppId();
+                    }
                     if (workshopAppId == null) {
-                        getWarnings().add(new BWarning(this, new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but server-updater.software is not a numeric Steam app-id.")));
+                        getWarnings().add(new BWarning(this, new Exception("Steam Workshop mod '" + mod.getName() + "' was found, but neither Workshop metadata nor server-updater.software provided a numeric Steam app-id.")));
                         return;
                     }
 
                     TaskSteamWorkshopModDownload task = new TaskSteamWorkshopModDownload("SteamWorkshopModDownloader", getManager(),
-                            (SteamWorkshopMod) mod, workshopAppId, userProfile, createSteamCMD(), result);
+                            wsMod, workshopAppId, userProfile, createSteamCMD(), result);
                     downloadTasksList.add(task);
                     task.start();
                     return;

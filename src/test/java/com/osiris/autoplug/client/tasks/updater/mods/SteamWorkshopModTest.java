@@ -146,6 +146,138 @@ class SteamWorkshopModTest {
         }
     }
 
+    @Test
+    void taskDetectsUpdateWhenModHasLongMetaCppTimestamp() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            File modDir = tempDir.resolve("mods/@CF").toFile();
+            modDir.mkdirs();
+            // Real DayZ meta.cpp files contain 64-bit timestamps (18-19 digits)
+            writeMeta(modDir, "publishedid = 1559212036;", "name = \"CF\";", "timestamp = 5249804932187309401;");
+
+            File downloadedDir = tempDir.resolve("steamcmd/downloaded").toFile();
+            downloadedDir.mkdirs();
+            Files.write(downloadedDir.toPath().resolve("updated.txt"), Arrays.asList("updated"), StandardCharsets.UTF_8);
+
+            // Cached version in mods.yml is the long timestamp from meta.cpp
+            configureUpdater("5249804932187309401");
+            FakeSteamCMD steamCMD = new FakeSteamCMD("1700000000", downloadedDir);
+            TaskModsUpdater task = createTask(steamCMD);
+
+            task.runAtStart();
+
+            // Should detect update and trigger download because long timestamp is not numerically comparable to Unix time_updated
+            assertEquals(1, steamCMD.detailsCalls);
+            assertEquals(1, steamCMD.updateCalls);
+            assertTrue(task.getWarnings().isEmpty());
+
+            ModsConfig modsConfig = new ModsConfig();
+            modsConfig.load();
+            assertEquals("1700000000", modsConfig.get("mods", "CF", "version").asString());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
+    @Test
+    void taskUsesConsumerAppIdFromWorkshopMetadataDifferingFromServerAppId() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            File modDir = tempDir.resolve("mods/@CF").toFile();
+            modDir.mkdirs();
+            writeMeta(modDir, "publishedid = 1559212036;", "name = \"CF\";", "timestamp = 100;");
+
+            File downloadedDir = tempDir.resolve("steamcmd/downloaded").toFile();
+            downloadedDir.mkdirs();
+            Files.write(downloadedDir.toPath().resolve("updated.txt"), Arrays.asList("updated"), StandardCharsets.UTF_8);
+
+            // Dedicated server app id configured as 223350, but Workshop item consumer_app_id is 221100 (DayZ client)
+            UpdaterConfig updaterConfig = new UpdaterConfig();
+            updaterConfig.mods_updater.setValues("true");
+            updaterConfig.mods_updater_profile.setValues("AUTOMATIC");
+            updaterConfig.mods_updater_path.setValues("./mods");
+            updaterConfig.mods_updater_version.setValues("1.20.1");
+            updaterConfig.mods_updater_async.setValues("false");
+            updaterConfig.server_software.setValues("223350");
+            updaterConfig.save();
+
+            ModsConfig modsConfig = new ModsConfig();
+            modsConfig.put("mods", "CF", "version").setValues("100");
+            modsConfig.put("mods", "CF", "steam-workshop-id").setValues("1559212036");
+            modsConfig.save();
+
+            FakeSteamCMD steamCMD = new FakeSteamCMD("200", downloadedDir, "221100");
+            TaskModsUpdater task = createTask(steamCMD);
+
+            task.runAtStart();
+
+            assertEquals(1, steamCMD.updateCalls);
+            // Download must use consumerAppId 221100 instead of dedicated-server 223350
+            assertEquals("221100", steamCMD.workshopAppId);
+            assertTrue(task.getWarnings().isEmpty());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
+    @Test
+    void taskRunsWorkshopOnlyWithoutMinecraftVersionAndWithNonJarServerExecutable() throws Exception {
+        File oldWorkingDir = GD.WORKING_DIR;
+        File oldDownloadsDir = GD.DOWNLOADS_DIR;
+        String oldUserDir = System.getProperty("user.dir");
+        useWorkingDir(tempDir);
+        try {
+            File modDir = tempDir.resolve("mods/@CF").toFile();
+            modDir.mkdirs();
+            writeMeta(modDir, "publishedid = 1559212036;", "name = \"CF\";", "timestamp = 100;");
+
+            // Non-jar server executable (e.g. DayZServer_x64.exe)
+            File serverExe = tempDir.resolve("DayZServer_x64.exe").toFile();
+            serverExe.createNewFile();
+
+            UpdaterConfig updaterConfig = new UpdaterConfig();
+            updaterConfig.mods_updater.setValues("true");
+            updaterConfig.mods_updater_profile.setValues("AUTOMATIC");
+            updaterConfig.mods_updater_path.setValues("./mods");
+            // No Minecraft version configured
+            updaterConfig.mods_updater_version.setValues((String) null);
+            updaterConfig.server_updater_version.setValues((String) null);
+            updaterConfig.mods_updater_async.setValues("false");
+            updaterConfig.server_software.setValues("221100");
+            updaterConfig.save();
+
+            ModsConfig modsConfig = new ModsConfig();
+            modsConfig.put("mods", "CF", "version").setValues("200");
+            modsConfig.put("mods", "CF", "steam-workshop-id").setValues("1559212036");
+            modsConfig.save();
+
+            FakeSteamCMD steamCMD = new FakeSteamCMD("200", null);
+            TaskModsUpdater task = createTask(steamCMD);
+
+            // This would previously fail with NullPointerException in Server.getMCVersion()
+            // because no jar exists and no MC version is configured
+            task.runAtStart();
+
+            assertEquals(1, steamCMD.detailsCalls);
+            assertEquals(0, steamCMD.updateCalls);
+            assertTrue(task.getWarnings().isEmpty());
+        } finally {
+            System.setProperty("user.dir", oldUserDir);
+            GD.WORKING_DIR = oldWorkingDir;
+            GD.DOWNLOADS_DIR = oldDownloadsDir;
+        }
+    }
+
     private File writeMeta(File modDir, String... lines) throws Exception {
         File metaFile = new File(modDir, "meta.cpp");
         Files.write(metaFile.toPath(), Arrays.asList(lines), StandardCharsets.UTF_8);
@@ -158,7 +290,8 @@ class SteamWorkshopModTest {
         GD.WORKING_DIR = dir.toFile();
         GD.DOWNLOADS_DIR = dir.resolve("autoplug/downloads").toFile();
         GD.DOWNLOADS_DIR.mkdirs();
-        File logFile = dir.resolve("autoplug/logs/latest.log").toFile();
+        // Put logFile outside of tempDir to prevent file locks preventing @TempDir cleanup on Windows
+        File logFile = new File(System.getProperty("java.io.tmpdir"), "autoplug-test-log/latest.log");
         logFile.getParentFile().mkdirs();
         new AL().start("AL", true, logFile, false, false);
     }
@@ -191,20 +324,26 @@ class SteamWorkshopModTest {
     private static class FakeSteamCMD extends SteamCMD {
         final File workshopItemDir;
         final String latestVersion;
+        final String consumerAppId;
         int detailsCalls;
         int updateCalls;
         String workshopAppId;
         String workshopItemId;
 
         FakeSteamCMD(String latestVersion, File workshopItemDir) {
+            this(latestVersion, workshopItemDir, null);
+        }
+
+        FakeSteamCMD(String latestVersion, File workshopItemDir, String consumerAppId) {
             this.latestVersion = latestVersion;
             this.workshopItemDir = workshopItemDir;
+            this.consumerAppId = consumerAppId;
         }
 
         @Override
         public SteamWorkshopItemDetails getWorkshopItemDetails(String workshopItemId) {
             detailsCalls++;
-            return new SteamWorkshopItemDetails(workshopItemId, "CF", latestVersion, null);
+            return new SteamWorkshopItemDetails(workshopItemId, "CF", latestVersion, null, consumerAppId);
         }
 
         @Override
