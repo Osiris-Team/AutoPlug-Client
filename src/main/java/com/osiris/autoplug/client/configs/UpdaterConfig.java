@@ -223,7 +223,9 @@ public class UpdaterConfig extends MyYaml {
                 "Updates your mods and the results are sent to AutoPlug-Web. You can configure this in the web-config.",
                 "Note that there is a web-cool-down (that cannot be changed) of a few hours, to prevent spamming of results to AutoPlug-Web.");
         mods_updater_profile = put(name, "mods-updater", "profile").setDefValues("AUTOMATIC");
-        mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods");
+        mods_updater_path = put(name, "mods-updater", "path").setDefValues("./mods").setComments(
+                "Path to your mods folder.",
+                "Steam Workshop mods with supported metadata (meta.cpp) can be updated through SteamCMD when server-updater.software is set to a numeric Steam app-id.");
         mods_updater_version = put(name, "mods-updater", "version").setComments("The Minecraft version to check and download mods for.",
                 "If left empty, taken from server-updater.version above, if also empty, taken from general.yml, if also empty, taken from server jar.");
         mods_updater_async = put(name, "mods-updater", "async").setDefValues("true").setComments(
