@@ -38,6 +38,11 @@ public class SearchResult {
     public Type type;
     public Exception exception;
     public String fileName;
+    /** Optional provider integrity metadata used by isolated profile migrations. */
+    public String sha512, sha1;
+    public long fileSize = -1;
+    /** Resolved provider identity, available to persist after successful application. */
+    public String modrinthProjectId;
 
     /**
      * @param type    All codes: <br>

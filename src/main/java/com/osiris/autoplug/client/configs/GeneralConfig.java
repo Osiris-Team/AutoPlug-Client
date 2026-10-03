@@ -67,6 +67,7 @@ public class GeneralConfig extends MyYaml {
             try {
                 if (this.autoplug_system_tray.asBoolean()) {
                     boolean firstStart = MainWindow.GET == null;
+                    com.osiris.autoplug.client.Main.getLauncher();
                     new MainWindow(this);
                     if (firstStart) AL.info("Started system-tray GUI.");
                 } else {
