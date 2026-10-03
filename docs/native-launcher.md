@@ -109,7 +109,7 @@ Launching starts a background dedicated server bound to `127.0.0.1`, waits for M
 Sharing requires all of the following:
 
 - A Microsoft-authenticated world session. Offline worlds use local authentication and remain loopback-only; sign in and relaunch before sharing.
-- **Use UPnP when I explicitly share a world** enabled in Settings. This permission is off by default and does not itself start sharing. Turning it off releases existing owned mappings.
+- **Use UPnP when I explicitly share a world** enabled in Settings. This option is on by default but does not itself start sharing; a separate explicit **Share** action is required. Turning it off releases existing owned mappings.
 - An explicit **Share** action or `--share` launch flag, plus a compatible gateway with a public IPv4 address.
 
 For sharing, AutoPlug opens a LAN TCP forwarding endpoint to the loopback server and requests a leased UPnP mapping. It reports the external address for friends to use. The Minecraft server itself remains bound to loopback. Closing the world removes the owned forwarding endpoint and mapping; AutoPlug does not overwrite or delete another application's mapping.
