@@ -1,175 +1,101 @@
-/*
- * Copyright (c) 2022-2023 Osiris-Team.
- * All rights reserved.
- *
- * This software is copyrighted work, licensed under the terms
- * of the MIT-License. Consult the "LICENSE" file for details.
- */
-
+/* Copyright (c) 2022-2026 Osiris-Team. Licensed under the MIT License. */
 package com.osiris.autoplug.client.ui;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.osiris.autoplug.client.browser.ServerBrowserService;
 import com.osiris.autoplug.client.configs.GeneralConfig;
-import com.osiris.autoplug.client.ui.utils.MyMouseListener;
 import com.osiris.autoplug.client.utils.GD;
-import com.osiris.betterlayout.BLayout;
 import com.osiris.betterlayout.utils.UIDebugWindow;
 import com.osiris.jlib.logger.AL;
-
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Files;
+import java.util.Objects;
 
+/** One dashboard shared by the tray and the desktop window. Closing the window hides it. */
 public class MainWindow extends JFrame {
-    /**
-     * There should always be only one instance of {@link MainWindow}.
-     */
-    public static MainWindow GET = null;
+    public static volatile MainWindow GET;
     public static final Object lockUI = new Object();
+    private static volatile LauncherActions launcherActions = new LauncherActions() {};
+    private static volatile ServerBrowserService browserService = ServerBrowserService.defaults();
     public TrayIcon trayIcon;
+    private DashboardPanel dashboard;
+
+    public static void setLauncherActions(LauncherActions actions) {
+        launcherActions = Objects.requireNonNull(actions);
+        SwingUtilities.invokeLater(() -> { if (GET != null) GET.installDashboard(); });
+    }
+    public static void setBrowserService(ServerBrowserService browser) { browserService = Objects.requireNonNull(browser); }
 
     public MainWindow(GeneralConfig generalConfig) throws Exception {
-        synchronized (lockUI){
-            if (GET != null) {
-                GET.close(); // There should only be one, thus stop old
-            }
-            GET = this;
-        }
-        initTheme(generalConfig);
-        start();
-        this.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F12)
-                    new UIDebugWindow(GET);
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
+        Runnable initialize = () -> {
+            synchronized (lockUI) { if (GET != null) GET.close(); GET = this; }
+            initTheme(generalConfig);
+            try { start(); } catch (Exception e) { AL.warn("Could not initialize the dashboard", e); }
+        };
+        if (SwingUtilities.isEventDispatchThread()) initialize.run(); else SwingUtilities.invokeAndWait(initialize);
     }
 
-    public void initTheme() {
-        initTheme(null);
-    }
-
+    public void initTheme() { initTheme(null); }
     public void initTheme(GeneralConfig generalConfig) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            final GeneralConfig configuration = generalConfig;
+            SwingUtilities.invokeLater(() -> initTheme(configuration)); return;
+        }
         try {
             if (generalConfig == null) generalConfig = new GeneralConfig();
-            if (generalConfig.autoplug_system_tray_theme.asString().equals("light")) {
-                if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
-            } else if (generalConfig.autoplug_system_tray_theme.asString().equals("dark")) {
-                if (!FlatDarkLaf.setup()) throw new Exception("Returned false!");
-            } else if (generalConfig.autoplug_system_tray_theme.asString().equals("darcula")) {
-                if (!FlatDarculaLaf.setup()) throw new Exception("Returned false!");
-            } else {
-                AL.warn("The selected theme '" + generalConfig.autoplug_system_tray_theme.asString() + "' is not a valid option! Using default.");
-                if (!FlatLightLaf.setup()) throw new Exception("Returned false!");
-            }
-        } catch (Exception e) {
-            AL.warn("Failed to init GUI theme!", e);
-        }
+            String theme = generalConfig.autoplug_system_tray_theme.asString();
+            if ("dark".equals(theme)) FlatDarkLaf.setup();
+            else if ("darcula".equals(theme)) FlatDarculaLaf.setup();
+            else FlatLightLaf.setup();
+            if (isDisplayable()) SwingUtilities.invokeLater(() -> SwingUtilities.updateComponentTreeUI(this));
+        } catch (Exception e) { AL.warn("Failed to initialize the dashboard theme", e); }
     }
 
     public void close() {
-        if (SystemTray.isSupported())
-            SystemTray.getSystemTray().remove(trayIcon);
-        this.dispose();
-        GET = null;
+        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(this::close); return; }
+        if (dashboard != null) dashboard.close();
+        if (trayIcon != null && SystemTray.isSupported()) SystemTray.getSystemTray().remove(trayIcon);
+        trayIcon = null; dispose(); if (GET == this) GET = null;
     }
 
     public void start() throws Exception {
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); setName("AutoPlug-Dashboard"); setTitle("AutoPlug — Minecraft Dashboard");
+        setMinimumSize(new Dimension(950, 620));
+        installDashboard(); pack(); setLocationRelativeTo(null);
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "ui-debug");
+        getRootPane().getActionMap().put("ui-debug", new AbstractAction() { @Override public void actionPerformed(ActionEvent e) { new UIDebugWindow(MainWindow.this); } });
+        Image image = loadIcon(); if (image != null) setIconImage(image);
         if (SystemTray.isSupported()) {
-            SystemTray tray = SystemTray.getSystemTray();
-            File icon = new File(GD.WORKING_DIR + "/autoplug/system/icon.png");
-            if (!icon.exists()) {
-                icon.getParentFile().mkdirs();
-                icon.createNewFile();
-                InputStream link = (getClass().getResourceAsStream("/autoplug-icon.png"));
-                Files.copy(link, icon.toPath());
-            }
-            Image image = Toolkit.getDefaultToolkit().getImage(icon.getAbsolutePath());
-            trayIcon = new TrayIcon(image, "AutoPlug", null);
-            trayIcon.addMouseListener(new MyMouseListener().onClick(event -> {
-                this.setVisible(true);
-            }));
-            trayIcon.setImageAutoSize(true);
-            try {
-                tray.add(trayIcon);
-            } catch (AWTException e) {
-                AL.warn("Failed to create system tray GUI: Exception occurred.", e);
-            }
-
-            TrayIcon finalTrayIcon = trayIcon;
-            /* // TODO causes dead lock and the jvm doesnt close:
-            // TODO find alternative to remove the icon.
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    AL.info("removing");
-                    tray.remove(finalTrayIcon);
-                    AL.info("aaa");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }));
-
-             */
-
-            this.setIconImage(image);
-            initUI();
-        } else throw new Exception("Failed to create system tray GUI: Not supported on your system.");
+            if (image == null) image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+            PopupMenu menu = new PopupMenu(); MenuItem open = new MenuItem("Open AutoPlug Dashboard");
+            open.addActionListener(e -> openDashboard()); menu.add(open);
+            trayIcon = new TrayIcon(image, "AutoPlug", menu); trayIcon.setImageAutoSize(true);
+            trayIcon.addActionListener(e -> openDashboard());
+            trayIcon.addMouseListener(new java.awt.event.MouseAdapter() { @Override public void mouseClicked(java.awt.event.MouseEvent e) { if (e.getButton() == java.awt.event.MouseEvent.BUTTON1) openDashboard(); } });
+            try { SystemTray.getSystemTray().add(trayIcon); }
+            catch (AWTException e) { trayIcon = null; AL.warn("Tray unavailable; opening the desktop dashboard", e); }
+        }
+        setVisible(trayIcon == null);
     }
 
-    private void initUI() throws Exception {
-        // TODO dont stop full autoplug when this window is closed
-        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setName("AutoPlug-Tray");
-        this.setTitle("AutoPlug-Tray");
-        this.setUndecorated(true);
-        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width, screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        int width = (int) (screenWidth / 1.5), height = screenHeight / 2;
-        this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 20, 20));
-        this.setLocation((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2)); // Position frame in mid of screen
-        this.setSize(width, height);
-        this.setVisible(false);
-
-        BLayout thisLy = new BLayout(this);
-        this.setContentPane(thisLy);
-        thisLy.access(() -> {
-            // Add stuff to main window
-            JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
-            titleAutoPlug.setText("AutoPlug");
-            titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-            thisLy.addH(titleAutoPlug);
-
-            titleTray.setText(" | Tray");
-            titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-            thisLy.addH(titleTray).delPadding().paddingTop();
-
-            JTabbedPane mainTab = new JTabbedPane();
-            thisLy.addV(mainTab).height(80).widthFull();
-            mainTab.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-            // Tab panels/layouts
-            try {
-                mainTab.addTab("Server", new ServerPanel(mainTab));
-                mainTab.addTab("Client", new ClientPanel(mainTab));
-                //tabbedPane.addChangeListener(e -> selectedTabChanged());
-            } catch (Exception e) {
-                AL.warn(e);
-            }
-        });
+    private void installDashboard() {
+        if (dashboard != null) dashboard.close();
+        dashboard = new DashboardPanel(launcherActions, browserService); setContentPane(dashboard); revalidate(); repaint();
+    }
+    private void openDashboard() { SwingUtilities.invokeLater(() -> { setVisible(true); setState(Frame.NORMAL); toFront(); requestFocus(); }); }
+    private Image loadIcon() {
+        File custom = new File(GD.WORKING_DIR, "autoplug/system/icon.png");
+        try { if (custom.isFile() && custom.length() > 0) { Image image = ImageIO.read(custom); if (image != null) return image; } }
+        catch (Exception e) { AL.warn("Could not read the custom tray icon", e); }
+        try (InputStream stream = getClass().getResourceAsStream("/autoplug-icon.png")) { return stream == null ? null : ImageIO.read(stream); }
+        catch (Exception e) { AL.warn("Could not read the dashboard icon", e); return null; }
     }
 }

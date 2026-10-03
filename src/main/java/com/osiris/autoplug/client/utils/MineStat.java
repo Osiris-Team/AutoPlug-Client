@@ -55,6 +55,7 @@ public class MineStat {
      * Minecraft version the server is running
      */
     private String version;
+    private int protocol = -1;
     /**
      * Current number of players on the server
      */
@@ -178,25 +179,29 @@ public class MineStat {
     }
 
     public String stripMotdFormatting(JsonObject motd) {
-        StringBuilder strippedMotd = new StringBuilder();
-
-        if (motd.isJsonPrimitive()) {
-            return motd.getAsString();
-        }
-
-        JsonObject motdObj = motd.getAsJsonObject();
-        if (motdObj.has("text")) {
-            strippedMotd.append(motdObj.get("text").getAsString());
-        }
-
-        if (motdObj.has("extra") && motdObj.get("extra").isJsonArray()) {
-            for (JsonElement extraElem : motdObj.get("extra").getAsJsonArray()) {
-                strippedMotd.append(stripMotdFormatting(extraElem.getAsJsonObject()));
-            }
-        }
-
-        return strippedMotd.toString();
+        return stripMotdFormatting((JsonElement) motd);
     }
+
+    public String stripMotdFormatting(JsonElement motd) {
+        return stripMotdFormatting(motd, 0);
+    }
+
+    private String stripMotdFormatting(JsonElement motd, int depth) {
+        if (motd == null || motd.isJsonNull() || depth > 32) return "";
+        if (motd.isJsonPrimitive()) return stripMotdFormatting(motd.getAsString());
+        StringBuilder text = new StringBuilder();
+        if (motd.isJsonArray()) {
+            for (JsonElement child : motd.getAsJsonArray()) text.append(stripMotdFormatting(child, depth + 1));
+        } else if (motd.isJsonObject()) {
+            JsonObject object = motd.getAsJsonObject();
+            if (object.has("text")) text.append(stripMotdFormatting(object.get("text"), depth + 1));
+            if (object.has("translate")) text.append(stripMotdFormatting(object.get("translate"), depth + 1));
+            if (object.has("extra")) text.append(stripMotdFormatting(object.get("extra"), depth + 1));
+        }
+        return text.toString();
+    }
+
+    public int getProtocol() { return protocol; }
 
     public String getVersion() {
         return version;
@@ -519,50 +524,52 @@ public class MineStat {
      *   'description': {'text': 'A Minecraft Server'}}
      */
     public Retval jsonRequest(String address, int port, int timeout) {
-        try {
-            String[] serverData = null;
-            byte[] rawServerData = null;
-            Socket clientSocket = new Socket();
+        serverUp = false;
+        protocol = -1;
+        try (Socket clientSocket = new Socket()) {
             long startTime = System.currentTimeMillis();
-            clientSocket.connect(new InetSocketAddress(getAddress(), getPort()), getTimeout());
-            setLatency(System.currentTimeMillis() - startTime);
+            clientSocket.connect(new InetSocketAddress(address, port), timeout);
+            clientSocket.setSoTimeout(timeout);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             DataOutputStream payload = new DataOutputStream(baos);
             DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
             DataInputStream dis = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
             payload.writeByte(0x00);               // handshake packet
             sendVarInt(payload, 0x00);             // protocol version
-            sendVarInt(payload, address.length()); // packed remote address length as varint
-            payload.writeBytes(address);           // remote address as string
+            byte[] hostBytes = address.getBytes(StandardCharsets.UTF_8);
+            sendVarInt(payload, hostBytes.length); // packed remote address length as varint
+            payload.write(hostBytes);             // remote address as UTF-8 string
             payload.writeShort(port);              // remote port as short
             sendVarInt(payload, 0x01);             // state packet
             sendVarInt(dos, baos.size());          // payload size as varint
             dos.write(baos.toByteArray());         // send payload
             dos.writeByte(0x01);                   // size
             dos.writeByte(0x00);                   // ping packet
-            int totalLength = recvVarInt(dis);     // total response size
-            int packetID = recvVarInt(dis);        // packet ID
-            int jsonLength = recvVarInt(dis);      // JSON response size
-            byte[] rawData = new byte[jsonLength]; // storage for JSON data
-
-            dis.readFully(rawData);                     // fill byte array with JSON data
-
-            // Close sockets
-            if (!clientSocket.isClosed()) {
-                clientSocket.close();
-            }
+            dos.flush();
+            int totalLength = readStatusVarInt(dis);
+            if (totalLength < 3 || totalLength > 1024 * 1024) return Retval.UNKNOWN;
+            byte[] packet = new byte[totalLength];
+            dis.readFully(packet);
+            DataInputStream response = new DataInputStream(new ByteArrayInputStream(packet));
+            if (readStatusVarInt(response) != 0) return Retval.UNKNOWN;
+            int jsonLength = readStatusVarInt(response);
+            if (jsonLength < 1 || jsonLength != response.available()) return Retval.UNKNOWN;
+            byte[] rawData = new byte[jsonLength];
+            response.readFully(rawData);
+            setLatency(System.currentTimeMillis() - startTime);
 
             // Populate object from JSON data
-            JsonObject jobj = new Gson().fromJson(new String(rawData), JsonObject.class);
+            JsonObject jobj = new Gson().fromJson(new String(rawData, StandardCharsets.UTF_8), JsonObject.class);
             setMotd(jobj.get("description").toString());
-            setStrippedMotd(stripMotdFormatting(jobj.get("description").getAsJsonObject()));
+            setStrippedMotd(stripMotdFormatting(jobj.get("description")));
             setVersion(jobj.get("version").getAsJsonObject().get("name").getAsString());
+            protocol = jobj.get("version").getAsJsonObject().get("protocol").getAsInt();
             setCurrentPlayers(jobj.get("players").getAsJsonObject().get("online").getAsInt());
             setMaximumPlayers(jobj.get("players").getAsJsonObject().get("max").getAsInt());
-            serverUp = true;
             setRequestType("SLP 1.7 (JSON)");
             if (!isDataValid())
                 return Retval.UNKNOWN;
+            serverUp = true;
         } catch (ConnectException ce) {
             return Retval.CONNFAIL;
         } catch (SocketException se) {
@@ -577,6 +584,18 @@ public class MineStat {
         }
 
         return Retval.SUCCESS;
+    }
+
+    /** Unlike the legacy helper, preserve socket timeouts for an accurate ping result. */
+    private int readStatusVarInt(DataInputStream input) throws IOException {
+        int result = 0;
+        for (int index = 0; index < 5; index++) {
+            int value = input.readUnsignedByte();
+            if (index == 4 && (value & 0xf0) != 0) throw new IOException("Status packet varint exceeds 32 bits.");
+            result |= (value & 0x7f) << (index * 7);
+            if ((value & 0x80) == 0) return result;
+        }
+        throw new IOException("Status packet varint is too long.");
     }
 
     public enum Retval {

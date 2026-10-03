@@ -96,7 +96,10 @@ public class CurseForgeAPI {
                 }
 
                 // If the release has no fabric or forge tag, then we expect only forge support.
-                if (modLoader.isFabric || modLoader.isQuilt) { // FABRIC or QUILT
+                if (modLoader.isNeoForge) {
+                    for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray())
+                        if ("neoforge".equalsIgnoreCase(el.getAsString())) isModLoaderCompatible = true;
+                } else if (modLoader.isFabric || modLoader.isQuilt) { // FABRIC or QUILT
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) { // check if game versions contain fabric
                         if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
                             isModLoaderCompatible = true;
@@ -113,7 +116,7 @@ public class CurseForgeAPI {
                     isModLoaderCompatible = true; // since no fabric/forge tag == forge is supported,
                     // we only need to check if it has no fabric tag
                     for (JsonElement el : tempRelease.get("gameVersions").getAsJsonArray()) {
-                        if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric")) {
+                        if (StringUtils.containsIgnoreCase(el.getAsString(), "fabric") || StringUtils.containsIgnoreCase(el.getAsString(), "neoforge")) {
                             isModLoaderCompatible = false;
                             break;
                         }
@@ -125,21 +128,12 @@ public class CurseForgeAPI {
                     break;
                 }
             }
-            if (release == null)
-                throw new Exception("Failed to find a single release of this mod for mc version " + mcVersion);
-            try {
-                latest = release.get("fileName").getAsString().replaceAll("[^0-9.]", ""); // Before passing over remove everything except numbers and dots
-            } catch (Exception e) {
-                throw new Exception("Failed to determine latest mod version!", e);
+            if (release == null) {
+                SearchResult missing = new SearchResult(null, SearchResult.Type.RESOURCE_NOT_FOUND, null, null, ".jar", null, null, false);
+                missing.mod = mod;
+                return missing;
             }
-            if (new File(mod.installationPath).lastModified() < fileDateToMs(release.get("fileDate").getAsString()))
-                resultType = SearchResult.Type.UPDATE_AVAILABLE;
-            downloadUrl = release.get("downloadUrl").getAsString();
-            try {
-                String fileName = release.get("fileName").getAsString();
-                type = fileName.substring(fileName.lastIndexOf("."));
-            } catch (Exception e) {
-            }
+            return compatibleArtifactResult(release, mod);
         } catch (Exception e) {
             exception = e;
             resultType = SearchResult.Type.API_ERROR;
@@ -147,6 +141,30 @@ public class CurseForgeAPI {
         SearchResult result = new SearchResult(null, resultType, latest, downloadUrl, type, null, null, false);
         result.mod = mod;
         result.setException(exception);
+        return result;
+    }
+
+    /** A copied file's timestamp says nothing about its version; compare publisher hashes. */
+    public SearchResult compatibleArtifactResult(JsonObject release, MinecraftMod mod) throws Exception {
+        String filename = release.get("fileName").getAsString();
+        if (!release.has("downloadUrl") || release.get("downloadUrl").isJsonNull())
+            throw new IOException("The publisher does not permit direct downloads for this release");
+        SearchResult result = new SearchResult(null, SearchResult.Type.UPDATE_AVAILABLE, filename.replaceAll("[^0-9.]", ""),
+                release.get("downloadUrl").getAsString(), ".jar", null, null, false);
+        result.mod = mod; result.fileName = filename;
+        result.fileSize = release.has("fileLength") ? release.get("fileLength").getAsLong() : -1;
+        if (release.has("hashes")) for (JsonElement value : release.getAsJsonArray("hashes")) {
+            JsonObject hash = value.getAsJsonObject();
+            if (hash.get("algo").getAsInt() == 1) result.sha1 = hash.get("value").getAsString();
+        }
+        if (result.sha1 != null && Files.isRegularFile(Paths.get(mod.installationPath))) {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
+            try (java.io.InputStream in = Files.newInputStream(Paths.get(mod.installationPath))) {
+                byte[] buffer = new byte[65536]; int n; while ((n = in.read(buffer)) != -1) digest.update(buffer, 0, n);
+            }
+            StringBuilder actual = new StringBuilder(); for (byte b : digest.digest()) actual.append(String.format("%02x", b & 255));
+            if (result.sha1.equalsIgnoreCase(actual.toString())) result.type = SearchResult.Type.UP_TO_DATE;
+        }
         return result;
     }
 

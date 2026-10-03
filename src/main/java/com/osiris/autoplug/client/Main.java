@@ -39,6 +39,8 @@ import com.osiris.autoplug.client.network.local.ConPluginCommandReceive;
 import com.osiris.autoplug.client.network.online.ConMain;
 import com.osiris.autoplug.client.tasks.SSHManager;
 import com.osiris.autoplug.client.ui.MainWindow;
+import com.osiris.autoplug.client.profiles.LauncherEntry;
+import com.osiris.autoplug.client.profiles.LauncherServices;
 import com.osiris.autoplug.client.utils.GD;
 import static com.osiris.autoplug.client.utils.GD.WORKING_DIR;
 import com.osiris.autoplug.client.utils.UpdateCheckerThread;
@@ -57,6 +59,18 @@ public class Main {
     //public static NonBlockingPipedInputStream PIPED_IN;
     public static ConMain CON;
     public static SSHManager sshManager;
+    public static LauncherServices LAUNCHER;
+
+    /** One service instance for console commands, startup UI, and later tray enablement. */
+    public static synchronized LauncherServices getLauncher() throws Exception {
+        if (LAUNCHER == null) {
+            LAUNCHER = new LauncherServices(java.nio.file.Paths.get(System.getProperty("autoplug.home", System.getProperty("user.home") + "/.autoplug")), AL::info);
+            Runtime.getRuntime().addShutdownHook(new Thread(LAUNCHER::close, "launcher-cleanup"));
+        }
+        MainWindow.setLauncherActions(LAUNCHER);
+        MainWindow.setBrowserService(LAUNCHER.getServers());
+        return LAUNCHER;
+    }
 
     public static UpdateCheckerThread UPDATE_CHECKER_THREAD = null;
 
@@ -67,6 +81,13 @@ public class Main {
      *              - test: enables test mode <br>
      */
     public static void main(String[] _args) {
+
+        LauncherEntry launcherEntry = new LauncherEntry();
+        if (launcherEntry.isLauncherCommand(_args)) {
+            int result = launcherEntry.run(_args);
+            if (result != 0) System.exit(result);
+            return;
+        }
 
         List<String> args = new ArrayList<>();
         if (_args != null)
@@ -268,6 +289,7 @@ public class Main {
             try {
                 if (generalConfig.autoplug_system_tray.asBoolean()) {
                     now = System.currentTimeMillis();
+                    getLauncher();
                     new MainWindow(generalConfig);
                     AL.info("Started system-tray GUI, took " + (System.currentTimeMillis() - now) + "ms");
                 }
@@ -312,16 +334,15 @@ public class Main {
                 Server.start();
 
             // Execute arguments as commands if existing
-            String argsString = "";
+            StringBuilder argumentCommand = new StringBuilder();
             for (String arg : args) {
-                argsString += arg + " ";
-            }
-            if (argsString.contains(".")) {
-                String[] commands = argsString.split("\\."); // Split by dots
-                for (String c : commands) {
-                    Commands.execute("." + c);
+                // Only command tokens begin a new command; version numbers, hosts and paths contain dots too.
+                if (arg.matches("\\.[A-Za-z].*") && argumentCommand.length() > 0) {
+                    Commands.execute(argumentCommand.toString().trim()); argumentCommand.setLength(0);
                 }
+                if (argumentCommand.length() > 0 || arg.startsWith(".")) argumentCommand.append(arg).append(' ');
             }
+            if (argumentCommand.length() > 0) Commands.execute(argumentCommand.toString().trim());
 
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working
