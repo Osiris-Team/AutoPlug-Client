@@ -1,0 +1,42 @@
+[
+  {
+    "file": "paper-1.20.4-builds.json",
+    "url": "https://fill.papermc.io/v3/projects/paper/versions/1.20.4/builds",
+    "status": 200,
+    "observedUtc": "2026-10-03T21:22:05.6850678Z",
+    "bytes": 181172,
+    "capturedResponseSha256": "dfcf3fdb881e12a60e10e3d3c88201bb932b3969e48c0936cd186c2af6b2f964",
+    "fixtureSha256": "1268d733cc956fcb78fe3cdb49f0a3dd7071601597d851e85eb4031308fccc6d",
+    "transformation": "First five response records; only fields used by server artifact selection retained. Purpur retains its single build record. Values come directly from the successful official GET."
+  },
+  {
+    "file": "purpur-1.20.4-latest.json",
+    "url": "https://api.purpurmc.org/v2/purpur/1.20.4/latest",
+    "status": 200,
+    "observedUtc": "2026-10-03T21:22:06.0806136Z",
+    "bytes": 359,
+    "capturedResponseSha256": "3b7de99b8a9268c95bb5cd4219c88a6ec81ff7983755606e26ee91204050fd37",
+    "fixtureSha256": "8c5a54c9e4ccf9af82b8e718cec63d0d9cbfa750bc250695d1b02cb4f885e9c5",
+    "transformation": "First five response records; only fields used by server artifact selection retained. Purpur retains its single build record. Values come directly from the successful official GET."
+  },
+  {
+    "file": "fabric-1.20.4-loaders.json",
+    "url": "https://meta.fabricmc.net/v2/versions/loader/1.20.4",
+    "status": 200,
+    "observedUtc": "2026-10-03T21:22:06.6015498Z",
+    "bytes": 590278,
+    "capturedResponseSha256": "e672569c405c1343110c8d9130062d75a1fb9d853dc97b7835cc092e9b901560",
+    "fixtureSha256": "51f6b4a409ea386a466798ffcd38c564efb690279faa6fa131b867ef7372ecd0",
+    "transformation": "First five response records; only fields used by server artifact selection retained. Purpur retains its single build record. Values come directly from the successful official GET."
+  },
+  {
+    "file": "fabric-installers.json",
+    "url": "https://meta.fabricmc.net/v2/versions/installer",
+    "status": 200,
+    "observedUtc": "2026-10-03T21:22:06.8889492Z",
+    "bytes": 14544,
+    "capturedResponseSha256": "55918208b3acb6ea205b662e57551a017fca51606ed2f3fcd71b71cd0f3d77a2",
+    "fixtureSha256": "d7259fab803d2769b7f841563d0eaeb373e3e9d4c0dffbb1abf33d9045215f2b",
+    "transformation": "First five response records; only fields used by server artifact selection retained. Purpur retains its single build record. Values come directly from the successful official GET."
+  }
+]

@@ -43,6 +43,7 @@ public class CurseForgeJson {
             con.addRequestProperty("User-Agent", "AutoPlug-Client - Contact: " + GD.OFFICIAL_WEBSITE);
             con.addRequestProperty("x-api-key", key);
             con.setConnectTimeout(1000);
+            con.setReadTimeout(30000);
             con.connect();
 
             if (con.getResponseCode() == 200) {

@@ -33,14 +33,10 @@ public class ClientPanel extends BLayout {
         tabs.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
         if (GD.TARGET == Target.MINECRAFT_CLIENT || GD.TARGET == Target.MINECRAFT_SERVER) {
-            SettingsPanel servers = new SettingsPanel(tabs);
-            tabs.addTab("Servers", servers); // TODO list of favorite servers with play/join button which auto-selects
-            // (TODO) and launches the correct minecraft client version
-
-            SettingsPanel profiles = new SettingsPanel(tabs);
-            tabs.addTab("Profiles", profiles); // TODO game profile containing settings and mods
-            // (TODO) is not tied to a minecraft version, meaning internally
-            // (TODO) mods/settings will be down/upgraded to match the launched version
+            com.osiris.autoplug.client.clientapp.NativeClientService service = com.osiris.autoplug.client.clientapp.NativeClientService.getDefault();
+            tabs.addTab("Servers", new com.osiris.autoplug.client.ui.client.ServerBrowserPanel(service));
+            tabs.addTab("Profiles", new com.osiris.autoplug.client.ui.client.ProfilesPanel(service));
+            tabs.addTab("Client settings", new com.osiris.autoplug.client.ui.client.ClientSettingsPanel(service));
 
             MinecraftModsPanel minecraftMods = new MinecraftModsPanel(tabs);
             tabs.addTab("Mods", minecraftMods);
