@@ -42,6 +42,14 @@ public interface LauncherActions {
     default void saveSettings(SettingsInfo settings) throws Exception { throw unavailable(); }
     /** Deliver device sign-in instructions before waiting for the account provider. Never log tokens. */
     default void signInMicrosoft(Consumer<String> instructions) throws Exception { throw unavailable(); }
+    /** Reserve an account change on the calling UI thread, before its worker is queued. */
+    default long beginAccountChange() { return 0; }
+    default void cancelMicrosoftSignIn() {}
+    default void signInMicrosoft(long attempt, SettingsInfo settings, Consumer<String> instructions) throws Exception {
+        if (settings != null) saveSettings(settings);
+        signInMicrosoft(instructions);
+    }
+    default void useOfflineAccount(long attempt, String name) throws Exception { useOfflineAccount(name); }
     default void useOfflineAccount(String name) throws Exception { throw unavailable(); }
 
     static UnsupportedOperationException unavailable() {

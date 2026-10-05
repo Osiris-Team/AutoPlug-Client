@@ -33,8 +33,10 @@ public final class WorldService implements AutoCloseable {
     private final ProcessFactory processes;
     private final Duration readyTimeout;
     private final Map<String, WorldSession> sessions = new ConcurrentHashMap<>();
+    private final Map<String, PendingLaunch> preparing = new ConcurrentHashMap<>();
+    private final Object lifecycle = new Object();
     private final Thread shutdownHook;
-    private boolean closed;
+    private volatile boolean closed;
     private int preferredPort = 25565;
     private boolean sharingEnabled = true;
     private LaunchWrapper wrapper = (profile, launch) -> launch;
@@ -86,44 +88,85 @@ public final class WorldService implements AutoCloseable {
         }
         Path directory = worlds.getDirectory(world.id);
         Files.createDirectories(directory);
-        ProfileLease worldLease = new ProfileLease(directory);
-        try { return startWorld(world, serverProfile, clientProfile, directory, worldLease, share, authenticatedAccount); }
-        catch (Exception e) { try { worldLease.close(); } catch (IOException cleanup) { e.addSuppressed(cleanup); } throw e; }
+        PendingLaunch attempt = new PendingLaunch(world);
+        synchronized (lifecycle) {
+            if (closed) throw new IllegalStateException("World service is closed");
+            preparing.put(world.id, attempt);
+        }
+        ProfileLease worldLease = null;
+        try {
+            checkCancelled(attempt);
+            worldLease = new ProfileLease(directory);
+            return startWorld(world, serverProfile, clientProfile, directory, worldLease, share, authenticatedAccount, attempt);
+        } catch (Exception | Error e) {
+            if (worldLease != null) try { worldLease.close(); } catch (IOException cleanup) { e.addSuppressed(cleanup); }
+            throw e;
+        } finally {
+            synchronized (lifecycle) { preparing.remove(world.id, attempt); }
+        }
     }
 
     private WorldSession startWorld(VirtualWorld world, Profile serverProfile, Profile clientProfile, Path directory,
-                                    ProfileLease worldLease, boolean share, boolean authenticatedAccount) throws Exception {
+                                    ProfileLease worldLease, boolean share, boolean authenticatedAccount, PendingLaunch attempt) throws Exception {
         int port = availablePort(preferredPort);
         ServerLaunch launch = installer.prepare(serverProfile, directory);
+        checkCancelled(attempt);
         if (!directory.toAbsolutePath().normalize().equals(launch.directory)) throw new IOException("Installer returned a different world directory");
         configureLocalServer(directory, port, authenticatedAccount);
         launch = wrapper.wrap(serverProfile, launch);
+        checkCancelled(attempt);
         if (!directory.toAbsolutePath().normalize().equals(launch.directory)) throw new IOException("Wrapper returned a different world directory");
         ManagedServer server = new ManagedServer(processes.start(launch), 30000, launch.stopCommand, launch.restartCommand);
+        attempt.server = server;
         Process client = null;
+        WorldSession session = null;
         try {
+            checkCancelled(attempt);
             long deadline = System.nanoTime() + readyTimeout.toNanos();
             boolean ready = false;
             while (System.nanoTime() < deadline) {
+                checkCancelled(attempt);
                 if (!server.isAlive()) throw new IOException("Server exited before becoming ready; see " + directory.resolve("autoplug-server.log"));
                 if (probe.isReady("127.0.0.1", port)) { ready = true; break; }
                 Thread.sleep(200);
             }
             if (!ready) throw new IOException("Server readiness timed out; see " + directory.resolve("autoplug-server.log"));
+            checkCancelled(attempt);
             client = launcher.launch(clientProfile, "127.0.0.1", port);
             if (client == null) throw new IOException("Client launcher did not return its process");
+            checkCancelled(attempt);
             Process ownedClient = client;
-            WorldSession session = new WorldSession(world, server, client, port, sharing, worldLease, authenticatedAccount, sharingEnabled,
-                    () -> sessions.computeIfPresent(world.id, (id, value) -> value.client() == ownedClient ? null : value));
-            sessions.put(world.id, session);
+            synchronized (lifecycle) {
+                checkCancelled(attempt);
+                session = new WorldSession(world, server, client, port, sharing, worldLease, authenticatedAccount, sharingEnabled,
+                        () -> sessions.computeIfPresent(world.id, (id, value) -> value.client() == ownedClient ? null : value));
+                sessions.put(world.id, session);
+            }
             session.monitor();
             if (share) session.share();
+            checkCancelled(attempt);
             return session;
-        } catch (Exception e) {
+        } catch (Exception | Error e) {
             if (client != null) client.destroyForcibly();
-            server.close();
+            // Preserve cancellation while still allowing the graceful server stop to wait.
+            boolean interrupted = Thread.interrupted();
+            try { if (session != null) session.close(); else server.close(); }
+            finally { if (interrupted) Thread.currentThread().interrupt(); }
             throw e;
         }
+    }
+
+    private static final class PendingLaunch {
+        final VirtualWorld world;
+        final Thread thread = Thread.currentThread();
+        volatile boolean cancelled;
+        volatile ManagedServer server;
+        PendingLaunch(VirtualWorld world) { this.world = world; }
+        void cancel() { cancelled = true; thread.interrupt(); }
+    }
+    private void checkCancelled(PendingLaunch attempt) throws InterruptedException {
+        if (closed || attempt.cancelled || Thread.currentThread().isInterrupted())
+            throw new InterruptedException("World launch was cancelled");
     }
 
     private static void validateProfiles(Profile server, Profile client) {
@@ -175,7 +218,15 @@ public final class WorldService implements AutoCloseable {
             try (ServerSocket socket = new ServerSocket(0, 1, loopback)) { return socket.getLocalPort(); }
         }
     }
-    public void stopWorld(String worldId) { WorldSession session = sessions.get(worldId); if (session != null) session.close(); }
+    public void stopWorld(String worldId) {
+        PendingLaunch attempt; WorldSession session;
+        synchronized (lifecycle) {
+            attempt = preparing.get(worldId); session = sessions.get(worldId);
+            if (attempt != null) attempt.cancel();
+        }
+        if (session != null) session.close();
+        else if (attempt != null && attempt.server != null) attempt.server.close();
+    }
     public void serverCommand(String worldId, String command) throws IOException { running(worldId).server().command(command); }
     public void restartWorld(String worldId) throws IOException { running(worldId).server().restart(); }
     private WorldSession running(String worldId) throws IOException {
@@ -198,12 +249,19 @@ public final class WorldService implements AutoCloseable {
     }
     public Collection<WorldSession> activeSessions() { return Collections.unmodifiableList(new ArrayList<>(sessions.values())); }
     public boolean isProfileInUse(String profileId) {
-        return sessions.values().stream().anyMatch(s -> !s.isClosed() && (profileId.equals(s.getWorld().clientProfileId) || profileId.equals(s.getWorld().serverProfileId)));
+        return preparing.values().stream().anyMatch(p -> profileId.equals(p.world.clientProfileId) || profileId.equals(p.world.serverProfileId))
+                || sessions.values().stream().anyMatch(s -> !s.isClosed() && (profileId.equals(s.getWorld().clientProfileId) || profileId.equals(s.getWorld().serverProfileId)));
     }
-    @Override public synchronized void close() {
-        if (closed) return;
-        closed = true;
-        for (WorldSession session : new ArrayList<>(sessions.values())) session.close();
+    @Override public void close() {
+        List<PendingLaunch> pending; List<WorldSession> running;
+        synchronized (lifecycle) {
+            if (closed) return;
+            closed = true;
+            pending = new ArrayList<>(preparing.values()); running = new ArrayList<>(sessions.values());
+            for (PendingLaunch attempt : pending) attempt.cancel();
+        }
+        for (WorldSession session : running) session.close();
+        for (PendingLaunch attempt : pending) if (attempt.server != null) attempt.server.close();
         if (Thread.currentThread() != shutdownHook) {
             try { Runtime.getRuntime().removeShutdownHook(shutdownHook); }
             catch (IllegalStateException ignored) { /* JVM is already shutting down. */ }

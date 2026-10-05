@@ -2,6 +2,7 @@ package com.osiris.autoplug.client.ui;
 
 import com.osiris.autoplug.client.browser.*;
 import com.osiris.autoplug.client.launcher.DownloadProgress;
+import com.osiris.autoplug.client.profiles.ProfileType;
 import com.osiris.autoplug.client.ui.LauncherActions.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -77,6 +78,7 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
     private ServerConsolePanel console;
     private SettingsInfo loadedSettings;
     private JDialog signInDialog;
+    private long signInGeneration;
     private JDialog launchDialog;
     private LaunchChoicePanel launchChoices;
     private final AutoCloseable downloadSubscription;
@@ -613,6 +615,8 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
     private void createProfile() {
         JTextField name = new JTextField(), version = new JTextField("1.21.1");
         JComboBox<String> loader = loaders("VANILLA"), type = new JComboBox<>(new String[]{"MODS", "PLUGINS", "MODS_SERVER"});
+        filterLoaders(loader, "MODS");
+        type.addActionListener(e -> filterLoaders(loader, String.valueOf(type.getSelectedItem())));
         JCheckBox template = new JCheckBox("Use as a reusable template");
         if (!form("Create profile", fields("Name", name, "Minecraft version", version, "Loader", loader, "Asset type", type, "Template", template))) return;
         if (!required(name, version)) return;
@@ -625,6 +629,8 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
         JComboBox<ProfileInfo> base = new JComboBox<>(profiles.toArray(new ProfileInfo[0])); base.setSelectedItem(source);
         JTextField name = new JTextField(source.name + " copy"), version = new JTextField(suggestedVersion == null ? source.gameVersion : suggestedVersion);
         JComboBox<String> loader = loaders(source.loader);
+        filterLoaders(loader, source.type);
+        base.addActionListener(e -> { ProfileInfo chosen = (ProfileInfo) base.getSelectedItem(); if (chosen != null) filterLoaders(loader, chosen.type); });
         if (!form("Clone and migrate profile", fields("Base profile", base, "New name", name, "Target version", version, "Target loader", loader))) return;
         if (!required(name, version)) return;
         ProfileInfo chosen = (ProfileInfo) base.getSelectedItem(); if (chosen == null) return;
@@ -893,14 +899,19 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
             if (clientId.getText().trim().isEmpty()) { information("Microsoft client ID", "Enter and save the public client ID of your Microsoft application before signing in."); return; }
             SettingsInfo settings;
             try { settings = settingsFromForm(); } catch (IllegalArgumentException e) { error(e); return; }
+            cancelSignIn();
+            long displayAttempt = signInGeneration, attempt = actions.beginAccountChange();
             run("Waiting for Microsoft sign-in", () -> {
-                actions.saveSettings(settings);
-                actions.signInMicrosoft(instructions -> SwingUtilities.invokeLater(() -> { if (!closed.get()) showSignIn(instructions); })); return null;
-            }, ignored -> { if (signInDialog != null) signInDialog.dispose(); refreshSettings(); });
+                actions.signInMicrosoft(attempt, settings, instructions -> SwingUtilities.invokeLater(() -> {
+                    if (!closed.get() && displayAttempt == signInGeneration) showSignIn(instructions);
+                })); return null;
+            }, ignored -> { if (displayAttempt == signInGeneration) { disposeSignIn(); refreshSettings(); } });
         }), button("Use offline name", () -> {
             String name = offlineName.getText().trim();
             if (!name.matches("[A-Za-z0-9_]{1,16}")) { information("Offline player name", "Use 1–16 letters, numbers or underscores."); return; }
-            run("Switching to offline account", () -> { actions.useOfflineAccount(name); return null; }, ignored -> refreshSettings());
+            cancelSignIn();
+            long attempt = actions.beginAccountChange();
+            run("Switching to offline account", () -> { actions.useOfflineAccount(attempt, name); return null; }, ignored -> refreshSettings());
         })));
         JTextArea note = textArea(2); note.setText("Offline mode is for local/offline-enabled play. Online servers usually require a licensed Microsoft account.");
         DashboardTheme.tint(note, false); note.setBorder(new EmptyBorder(10, 0, 0, 0)); identity.add(note);
@@ -1005,14 +1016,26 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
         settings.port = (Integer) port.getValue(); settings.upnp = upnp.isSelected(); settings.rememberAccount = rememberAccount.isSelected(); settings.fullscreen = fullscreen.isSelected(); settings.microsoftClientId = clientId.getText().trim(); settings.account = account.getText(); return settings;
     }
     private void saveSettings() {
-        try { SettingsInfo settings = settingsFromForm(); run("Saving settings", () -> { actions.saveSettings(settings); return settings; }, this::showSettings); }
+        try { SettingsInfo settings = settingsFromForm(); cancelSignIn(); run("Saving settings", () -> { actions.saveSettings(settings); return settings; }, this::showSettings); }
         catch (IllegalArgumentException e) { error(e); }
     }
+    private void disposeSignIn() {
+        if (signInDialog != null) { signInDialog.dispose(); signInDialog = null; }
+    }
+    private void cancelSignIn() {
+        signInGeneration++; actions.cancelMicrosoftSignIn(); disposeSignIn();
+    }
     private void showSignIn(String instructions) {
-        if (signInDialog != null) signInDialog.dispose();
+        disposeSignIn();
         signInDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Authorize Microsoft sign-in", Dialog.ModalityType.MODELESS);
+        signInDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        signInDialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosing(java.awt.event.WindowEvent event) { cancelSignIn(); }
+        });
         JTextArea text = textArea(8); text.setText(instructions); text.setBorder(new EmptyBorder(20, 20, 20, 20));
-        signInDialog.add(new JScrollPane(text)); signInDialog.setSize(560, 300); signInDialog.setLocationRelativeTo(this); signInDialog.setVisible(true);
+        signInDialog.add(new JScrollPane(text));
+        signInDialog.add(button("Cancel sign-in", this::cancelSignIn), BorderLayout.SOUTH);
+        signInDialog.setSize(560, 300); signInDialog.setLocationRelativeTo(this); signInDialog.setVisible(true);
     }
 
     private <T> void run(String description, Callable<T> work, Consumer<T> success) {
@@ -1031,6 +1054,11 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
                 });
             } catch (Exception e) { SwingUtilities.invokeLater(() -> {
                 if (closed.get()) return;
+                if (e instanceof CancellationException || e instanceof InterruptedException) {
+                    // An obsolete sign-in must not mark its replacement as failed.
+                    if (running.get() <= 1) operationFailed = true;
+                    finishOperation(); if (running.get() == 0) setActivity(description + " cancelled"); return;
+                }
                 operationFailed = true; finishOperation(); setActivity(description + " failed: " + message(e)); error(e);
             }); }
         }); } catch (RejectedExecutionException ignored) { finishOperation(); }
@@ -1091,6 +1119,15 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
     private boolean form(String title, JPanel fields) { fields.setPreferredSize(new Dimension(530, Math.max(160, fields.getPreferredSize().height))); return JOptionPane.showConfirmDialog(this, fields, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION; }
     private boolean required(JTextField... fields) { for (JTextField field : fields) if (field.getText().trim().isEmpty()) { information("Missing details", "Complete all required fields before continuing."); return false; } return true; }
     private static JComboBox<String> loaders(String selected) { JComboBox<String> result = new JComboBox<>(new String[]{"VANILLA", "FABRIC", "QUILT", "FORGE", "NEOFORGE", "PAPER", "SPIGOT", "PURPUR"}); result.setSelectedItem(selected); return result; }
+    static void filterLoaders(JComboBox<String> loader, String type) {
+        Object selected = loader.getSelectedItem();
+        ProfileType profileType = ProfileType.valueOf(type.replace('-', '_').toUpperCase(Locale.ROOT));
+        loader.removeAllItems();
+        for (String name : new String[]{"VANILLA", "FABRIC", "QUILT", "FORGE", "NEOFORGE", "PAPER", "SPIGOT", "PURPUR", "BUKKIT", "VELOCITY", "BUNGEE"})
+            if (profileType.supportsLoader(name)) loader.addItem(name);
+        if (selected != null && profileType.supportsLoader(selected.toString())) loader.setSelectedItem(selected);
+        else loader.setSelectedItem(profileType == ProfileType.PLUGINS ? "PAPER" : "VANILLA");
+    }
     private static JLabel section(String title) { JLabel label = new JLabel(title); label.setFont(label.getFont().deriveFont(Font.BOLD, 16f)); label.setBorder(new EmptyBorder(0, 0, 10, 0)); label.setAlignmentX(Component.LEFT_ALIGNMENT); return label; }
     private static JPanel page(String title, String description) {
         JPanel page = DashboardTheme.transparent(new BorderLayout(0, 16)); page.setBorder(new EmptyBorder(0, 18, 12, 0));
@@ -1145,7 +1182,7 @@ public final class DashboardPanel extends JPanel implements AutoCloseable {
         }
     }
     @Override public void close() {
-        if (!closed.compareAndSet(false, true)) return; workers.shutdownNow();
+        if (!closed.compareAndSet(false, true)) return; cancelSignIn(); workers.shutdownNow();
         progressClock.stop(); if (launchChoices != null) launchChoices.close(); if (launchDialog != null) launchDialog.dispose();
         if (managedWorldPanel != null) managedWorldPanel.close();
         progress.setIndeterminate(false); progress.setVisible(false);

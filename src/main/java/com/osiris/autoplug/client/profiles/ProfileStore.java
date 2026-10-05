@@ -120,7 +120,7 @@ public class ProfileStore {
         if (p.gameVersion == null || !p.gameVersion.matches("[A-Za-z0-9_.-]{1,80}")) throw new IOException("Invalid game version");
         if (p.loader == null || !Arrays.asList("VANILLA", "FABRIC", "QUILT", "FORGE", "NEOFORGE", "PAPER", "SPIGOT", "PURPUR", "BUKKIT", "VELOCITY", "BUNGEE").contains(p.loader))
             throw new IOException("Unsupported loader: " + p.loader);
-        if (p.type == ProfileType.MODS && Arrays.asList("PAPER", "SPIGOT", "PURPUR", "BUKKIT", "VELOCITY", "BUNGEE").contains(p.loader))
-            throw new IOException("Server plugin loaders require a plugins profile");
+        if (!p.type.supportsLoader(p.loader))
+            throw new IOException("Loader " + p.loader + " cannot load a " + p.type + " collection; choose a compatible profile type and loader");
     }
 }
