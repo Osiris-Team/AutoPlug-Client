@@ -214,6 +214,22 @@ public class UtilsMinecraft {
                         } catch (Exception e) {
                         }
                         mods.add(new MinecraftMod(jar.getPath(), name, version, author, null, bukkitId, null));
+                    } else if (filePath.endsWith("quilt.mod.json")) { // Quilt mod
+                        found = true;
+                        JsonObject root = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
+                        JsonObject loader = root.getAsJsonObject("quilt_loader");
+                        String id = loader.get("id").getAsString();
+                        String version = loader.get("version").getAsString();
+                        JsonObject metadata = loader.getAsJsonObject("metadata");
+                        String name = metadata != null && metadata.has("name") ? metadata.get("name").getAsString() : id;
+                        String author = null;
+                        if (metadata != null && metadata.has("contributors")) {
+                            for (Map.Entry<String, JsonElement> contributor : metadata.getAsJsonObject("contributors").entrySet()) {
+                                author = contributor.getKey();
+                                break;
+                            }
+                        }
+                        mods.add(new MinecraftMod(jar.getPath(), name, version, author, id, null, null));
                     } else if (filePath.endsWith("fabric.mod.json")) { // Fabric mod
                         found = true;
                         JsonObject obj = JsonParser.parseReader(new InputStreamReader(zipFile.getInputStream(entry))).getAsJsonObject();
