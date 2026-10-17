@@ -57,13 +57,52 @@ public class TaskModsUpdater extends BThread {
     private DataOutputStream online_dos;
     private int updatesAvailable = 0;
 
+    private com.osiris.autoplug.client.mc.update.ProfileUpdateService nativeProfileUpdater;
+    private com.osiris.autoplug.client.mc.update.ProfileUpdateService.Plan nativeProfilePlan;
+    private String nativeProfileId, nativeTargetVersion;
+    private boolean nativeApply, nativeConfirmDisabling;
+
     public TaskModsUpdater(String name, BThreadManager manager) {
         super(name, manager);
     }
 
 
+    /** Profile path is isolated from the legacy server-wide updater configuration. */
+    public TaskModsUpdater(String name, BThreadManager manager,
+            com.osiris.autoplug.client.mc.update.ProfileUpdateService updater,
+            String profileId, String targetVersion, boolean apply, boolean confirmDisabling) {
+        super(name, manager);
+        nativeProfileUpdater = java.util.Objects.requireNonNull(updater);
+        nativeProfileId = profileId;
+        nativeTargetVersion = targetVersion;
+        if (apply) throw new IllegalArgumentException("Apply requires a previously reviewed Plan constructor");
+        nativeApply = false;
+        nativeConfirmDisabling = confirmDisabling;
+    }
+
+    /** Applies exactly the plan reviewed by the caller, without silently checking a different plan. */
+    public TaskModsUpdater(String name, BThreadManager manager,
+            com.osiris.autoplug.client.mc.update.ProfileUpdateService updater,
+            com.osiris.autoplug.client.mc.update.ProfileUpdateService.Plan approvedPlan, boolean confirmDisabling) {
+        super(name, manager);
+        nativeProfileUpdater = java.util.Objects.requireNonNull(updater);
+        nativeProfilePlan = java.util.Objects.requireNonNull(approvedPlan);
+        nativeApply = true;
+        nativeConfirmDisabling = confirmDisabling;
+    }
+
+    public com.osiris.autoplug.client.mc.update.ProfileUpdateService.Plan getNativeProfilePlan() {
+        return nativeProfilePlan;
+    }
+
     @Override
     public void runAtStart() throws Exception {
+        if (nativeProfileUpdater != null) {
+            if (nativeProfilePlan == null) nativeProfilePlan = nativeProfileUpdater.check(nativeProfileId, nativeTargetVersion);
+            addInfo(nativeProfilePlan.getSummary());
+            if (nativeApply) nativeProfileUpdater.apply(nativeProfilePlan, nativeConfirmDisabling);
+            return;
+        }
         updaterConfig = new UpdaterConfig();
         if (!updaterConfig.mods_updater.asBoolean()) {
             skip();
