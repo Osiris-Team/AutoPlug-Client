@@ -30,6 +30,8 @@ import java.util.Scanner;
 import org.jetbrains.annotations.NotNull;
 
 import com.osiris.autoplug.client.Main;
+import com.osiris.autoplug.client.mc.client.NativeClientAccess;
+import com.osiris.autoplug.client.mc.client.NativeClientCommands;
 import com.osiris.autoplug.client.Server;
 import com.osiris.autoplug.client.configs.SSHConfig;
 import com.osiris.autoplug.client.configs.UpdaterConfig;
@@ -93,10 +95,18 @@ public final class Commands {
 
         if (first.equals(".")) {
             try {
+                if (command.startsWith(".mc ") || command.equals(".mc") || command.startsWith(".profiles ") || command.equals(".profiles")
+                        || ((command.startsWith(".check ") || command.startsWith(".update ")) && command.contains("--profile"))) {
+                    return NativeClientAccess.commands().dispatch(NativeClientCommands.tokenize(command), System.out);
+                }
                 SSHConfig sshConfig = new SSHConfig();
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".profiles help | Isolated Minecraft client/server profiles and templates");
+                    AL.info(".mc help | Native launcher, saved servers, loaders and virtual worlds");
+                    AL.info(".check mods|plugins --profile <id> [--version <version>] | Profile-scoped check");
+                    AL.info(".update mods|plugins --profile <id> [--version <version>] [--confirm-disable] | Profile-scoped update");
                     AL.info(".ping | Responds with 'Pong!' as a way to test if AutoPlug is running.");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
