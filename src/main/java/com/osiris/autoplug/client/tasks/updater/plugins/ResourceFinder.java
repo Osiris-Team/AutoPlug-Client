@@ -26,6 +26,27 @@ import java.util.List;
 
 public class ResourceFinder {
 
+    /** Uses the same providers as the legacy updater, with a strict profile target and explicit loader. */
+    public SearchResult findCompatibleProfileMod(InstalledModLoader loader, MinecraftMod mod, String mcVersion) {
+        String modrinthId = mod.modrinthId;
+        if (modrinthId == null && mod.curseforgeId != null && !mod.curseforgeId.matches("[0-9]+")) modrinthId = mod.curseforgeId;
+        SearchResult primary = new ModrinthAPI().searchCompatible(List.of(loader.getProfileLoader()), modrinthId, mcVersion);
+        primary.mod = mod;
+        if (SearchResult.isMatchFound(primary)) return primary;
+        if (mod.curseforgeId == null || !mod.curseforgeId.matches("[0-9]+")) return primary;
+        SearchResult alternate = new CurseForgeAPI().searchCompatible(loader, mod, mcVersion);
+        // A network error is unresolved, never proof that the asset is incompatible.
+        if (SearchResult.isMatchFound(alternate)) return alternate;
+        if (primary.type == SearchResult.Type.API_ERROR) return primary;
+        return alternate;
+    }
+
+    public SearchResult findCompatibleProfilePlugin(List<String> loaders, MinecraftPlugin plugin, String mcVersion) {
+        SearchResult result = new ModrinthAPI().searchCompatible(loaders, plugin.modrinthId, mcVersion);
+        result.plugin = plugin;
+        return result;
+    }
+
     /**
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins' name and author will be executed. <br>
