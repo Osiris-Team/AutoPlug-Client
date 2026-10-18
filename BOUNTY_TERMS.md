@@ -1,41 +1,137 @@
-By submitting a Pull Request (PR) for an issue labeled with a bounty, you accept and agree to be bound by the following terms:
+# Bounty Contribution Terms
 
-### 1. Eligibility & Award Criteria
-* **Discretionary Acceptance:** The determination of whether a PR fully and satisfactorily resolves the issue, meets the project's quality standards, and is fit for merging lies within the sole technical discretion of the repository maintainers. 
-* **Trigger Event:** The claim to the bounty arises only upon the formal approval and successful merging of the PR by a repository maintainer. No legal claim to a payout exists prior to this merge.
-* **Test Requirements:** Your PR must include at least one automated test proving the fix or feature works as intended.
-* **Refusal of Submissions:** Low-quality, incomplete, duplicate, or spam PRs may be closed without review or eligibility for the bounty.
+These terms apply to all bounty-related contributions and pull requests submitted to this project. By claiming, working on, or submitting a bounty, you agree to follow them.
 
-### 2. Payment Terms
-* **Payment Method:** Payments are made exclusively via PayPal.
-* **Verification:** To receive the bounty, your PayPal email address must be visibly listed on your public GitHub profile before your PR is merged.
-* **Fees & Taxes:** The bounty amount specified in the issue label (e.g., "50€") is the gross amount. Any transaction fees (including but not limited to PayPal service fees, cross-border fees, or currency conversion charges) as well as any applicable taxes (such as income tax or VAT) in the recipient's jurisdiction are the sole responsibility of the recipient and will be deducted from or borne by the recipient.
+The goal of these terms is to encourage high-quality contributions that solve the underlying user problem, demonstrate thoughtful product and engineering judgment, and can be reviewed and maintained without unreasonable additional effort from project maintainers.
 
-### 3. Intellectual Property, Licensing & Indemnification
-* **Grant of Rights:** By submitting a PR, you represent and warrant that the code is your own original work and that you hold all necessary rights to distribute it. 
-* **Licensing:** You agree that your contribution is licensed under the repository's official license (as specified in the project's `LICENSE` file). Additionally, you grant the repository owners a perpetual, irrevocable, worldwide, non-exclusive, sublicensable, and royalty-free right to use, modify, copy, and distribute your contribution.
-* **Indemnification:** You agree to indemnify, defend, and hold harmless the repository owners and maintainers from and against any third-party claims, liabilities, losses, or expenses (including reasonable legal fees) arising from any intellectual property or copyright infringement contained in your contribution.
+## 1. Eligibility and Award Criteria
 
-### 4. AI-Assisted Code Policy
-* **Review Required:** While AI-assisted code is permitted, you must fully review, understand, and thoroughly test all AI-generated code before opening a PR. You remain fully responsible for the behavior and quality of the submitted code.
-* **Disclosure:** PRs consisting predominantly of AI-generated code must clearly state this in the description.
-* **Rejection Criteria:** Submissions containing hallucinated APIs, unnecessary rewrites, formatting-only changes, or duplicate logic will be rejected. Repeated low-quality AI submissions may result in a ban from the repository and future bounties.
+- Bounties are awarded at the sole discretion of the project maintainers.
+- A bounty is eligible for payment only after the associated pull request has been reviewed, accepted, and merged by a maintainer.
+- Opening a pull request, completing an issue checklist, or passing automated checks does not guarantee acceptance or payment.
+- Contributions must solve the intended problem and meet the project's standards for correctness, usability, maintainability, and consistency.
+- Maintainers may close or decline submissions that are incomplete, duplicative, spammy, misleading, unnecessarily complex, or otherwise unsuitable for the project.
+- The amount of code, number of commits, number of tests, or amount of work claimed does not by itself determine acceptance or bounty eligibility.
 
-### 5. Code Quality Requirements
-* **Scope:** Keep PRs focused and limited to the single issue or feature described in the label.
-* **Architecture:** Follow the existing project structure, naming conventions, and coding style. Reuse existing APIs, utility classes, and abstractions whenever possible. Avoid introducing new dependencies or frameworks without prior approval.
-* **Documentation:** PRs must include a clear description outlining what changed, why it changed, and how it was tested.
-* **Maintainability:** If a PR requires excessive maintainer cleanup, debugging, or rewriting, the maintainers reserve the right to close the PR without merging or paying out the bounty.
+## 2. Payment
 
-### 6. Inactivity, Derived PRs, and Takeovers
-* **Inactivity & Forfeiture:** If a submitted PR requires changes, and the contributor fails to provide updates, respond to inquiries, or commit modifications for a consecutive period of thirty (30) days following a change request (`request changes`) or a clarifying comment by a maintainer, the PR is deemed abandoned. In this event, the maintainers reserve the right to merge, modify, or otherwise utilize the submitted code under the terms of the open-source license (Section 3) without any obligation to pay the bounty.
-* **Derived PRs (Community Takeovers):** Because all submissions are licensed openly upon submission, any developer is permitted to use an existing, incomplete, or inactive PR as a basis to build their own PR. 
-* **Fairness Grace Period:** If a derived PR is submitted that successfully resolves the issue and is ready to be merged, a fairness grace period is triggered for the original contributor:
-  * The maintainers will notify the original contributor via a comment on their original PR.
-  * The original contributor has exactly seven (7) calendar days from the timestamp of this notification to update their original PR to a fully mergeable and approved state.
-  * If the original contributor successfully completes and obtains approval for their PR within this 7-day period, their original PR will be merged and they will receive the bounty.
-  * If the original contributor fails to meet this deadline or cannot achieve a mergeable state, the derived PR may be merged instead, and the bounty will be awarded solely to the author of the derived PR. The original contributor waives all claims to the bounty in this scenario.
+- Bounty payments are made through PayPal unless the maintainers explicitly agree to another method in writing.
+- Before the pull request is merged, the contributor must make a valid PayPal contact email available on their GitHub profile or provide it privately to the maintainers through an agreed channel.
+- The recipient is responsible for any payment-provider fees, currency-conversion costs, and applicable taxes or reporting obligations.
+- A bounty is not payable until the contribution has been accepted and merged. Maintainers are not required to pay for rejected, abandoned, or unmerged submissions.
 
-### 7. Amendments & Dispute Resolution
-* **Amendments:** We reserve the right to amend these terms at any time. Any modifications will apply prospectively to PRs submitted *after* the updated terms have been published in this repository.
-* **Governing Law:** These terms, the bounty program, and any disputes arising out of or in connection with them shall be governed by and construed in accordance with the laws of Germany, excluding its conflict of laws provisions.
+## 3. Intellectual Property, Licensing, and Responsibility
+
+- Contributions must be submitted under the project's applicable license and contribution requirements.
+- You must have the legal right to submit all code, documentation, assets, and other material included in your contribution.
+- Do not submit copied, incompatible, improperly licensed, or otherwise unauthorized material.
+- You remain responsible for the contribution, including code generated or assisted by AI tools.
+- You must not knowingly include malicious code, hidden functionality, credentials, private information, or dependencies that introduce avoidable legal or security risks.
+- By submitting a contribution, you represent that, to the best of your knowledge, it complies with these requirements.
+
+## 4. AI-Assisted Contributions
+
+AI coding tools are permitted, but using them does not reduce the contributor's responsibility for the result.
+
+- You must understand the submitted code well enough to explain its design, behavior, dependencies, and important trade-offs.
+- You must run appropriate checks and personally assess whether the result works as intended. An AI tool's claims, generated test output, or apparent confidence are not proof of correctness.
+- Disclose when a substantial or predominant portion of the contribution was generated by AI. Briefly describe the tools or workflow used when that information is relevant to reviewing the change.
+- Check generated code for hallucinated APIs, invented behavior, redundant abstractions, duplicated logic, unnecessary rewrites, dead code, and unjustified complexity.
+- Do not use AI-generated tests as the sole evidence that the implementation works. Tests should verify meaningful behavior and should not merely encode the implementation's current assumptions.
+- Formatting-only changes, broad unrelated refactors, or large amounts of low-value generated code may be rejected when they obscure the actual solution or increase maintenance burden.
+- Repeated submissions that demonstrate a pattern of careless, unverified, or low-quality AI-generated work may result in restrictions on future bounty participation.
+
+## 5. Code Quality and Maintainability
+
+Contributions must be suitable for long-term maintenance in the project.
+
+- Keep changes coherent, understandable, and proportionate to the problem being solved.
+- Follow existing project conventions unless there is a clear reason to improve them.
+- Prefer clear, direct solutions over unnecessary abstraction, duplication, or cleverness.
+- Integrate with existing architecture, configuration, error handling, accessibility, localization, and user-interface patterns where applicable.
+- Include or update documentation, comments, tests, and user-facing explanations where they materially help users or maintainers.
+- Consider edge cases, failure states, backward compatibility, performance, security, and resource cleanup where relevant.
+- Avoid unrelated cleanup or rewrites that make the change harder to review without providing a clear benefit.
+- Maintainers may reject contributions that create disproportionate debugging, cleanup, refactoring, or long-term maintenance work.
+
+## 6. User-Centric Engineering and Product Initiative
+
+The purpose of a bounty is to solve a user problem—not merely to implement the literal wording of an issue.
+
+- Treat the issue description as the initial objective and context, not necessarily as an exhaustive specification or a hard limit on useful improvements.
+- Think proactively about the complete user workflow. Identify obvious usability gaps, missing steps, confusing states, poor defaults, inconsistencies, and foreseeable edge cases that would prevent the feature from feeling complete.
+- Use product and engineering judgment to suggest or implement relevant improvements when they materially improve the user outcome.
+- Think beyond the narrow happy path. Where appropriate, consider sensible defaults, clear progress and status feedback, useful error messages, recovery paths, persistence of user choices, responsive layouts, accessibility, and consistency with the rest of the application.
+- Experiment constructively with alternative approaches when they are likely to produce a better user experience. Do not assume that the first implementation idea—or the narrowest interpretation of the issue—is necessarily the best one.
+- A technically correct implementation may still be incomplete if it leaves the user with an awkward, confusing, inconsistent, or unnecessarily laborious workflow.
+- Improvements beyond the exact issue wording are welcome when they are clearly related to the underlying problem, proportionate to the task, and consistent with the project's direction.
+- Do not add features merely to increase scope or code volume. Each meaningful addition should have a clear user benefit and should not introduce disproportionate complexity, security risk, compatibility risk, or maintenance cost.
+- If a proposed improvement materially changes the architecture, public behavior, compatibility expectations, security model, or overall direction of the task, explain the rationale and seek maintainer input before committing to a costly or difficult-to-reverse approach.
+- Document significant product decisions, notable alternatives considered, and important trade-offs so maintainers can understand why the solution was chosen.
+- A contribution will not be rejected solely because it includes a relevant, well-justified user-experience improvement that was not explicitly requested. Acceptance of the final scope remains at the maintainers' discretion.
+
+## 7. End-to-End Ownership and Validation
+
+Contributors are responsible for delivering a usable, integrated result—not merely code that compiles or passes a narrow set of tests.
+
+- Take ownership of the feature from the user's perspective, including supporting functionality, integration, error handling, sensible defaults, and regression prevention where applicable.
+- Validate the actual user outcome, not only individual methods or components. Ask whether a user can discover, understand, complete, and recover from the intended workflow.
+- Test the change in realistic conditions whenever practical. Depending on the task, this may include running the application, exercising important workflows, checking UI behavior at relevant window sizes, validating existing user data, or testing compatibility with supported configurations.
+- Compilation, unit tests, screenshots, mockups, or reports generated by an AI tool are useful evidence, but none alone proves that the complete feature works end to end.
+- Before requesting review, proactively look for obvious defects, missing integration, incomplete workflows, confusing UI states, inconsistent behavior, missing defaults, and foreseeable edge cases.
+- Do not rely on maintainers to act as the primary product analyst, discover basic omissions, perform routine exploratory testing, or repeatedly identify defects that could reasonably have been found before review.
+- Provide concise, verifiable validation notes in the pull request. State what was implemented, which important user workflows were tested, which commands or checks were run, and any known limitations or assumptions.
+- Clearly distinguish verified behavior from behavior that is assumed, mocked, or not yet tested. Never claim that a test or manual check was performed if it was not.
+- Features or improvements you add proactively are subject to the same standards for testing, documentation, integration, and maintainability as the originally requested work.
+- Maintainers may reject a contribution when substantial avoidable debugging, reconstruction, or repeated discovery of basic defects is required, regardless of code volume or the number of tests supplied.
+
+## 8. Pull Request Clarity and Reviewability
+
+Make it easy for maintainers to understand the change and evaluate its quality.
+
+- Use a clear pull request title and description that explain the problem, the solution, and the user-visible result.
+- Summarize important design decisions and explain any non-obvious trade-offs.
+- Link the relevant bounty or issue and identify any related work, dependencies, or compatibility considerations.
+- Include appropriate evidence for user-facing changes, such as screenshots, short recordings, test results, or a concise description of the manual test performed.
+- Organize commits and changes so the implementation can be understood. Avoid mixing unrelated changes into the same pull request.
+- Call out incomplete work, known limitations, migrations, configuration changes, and any steps a reviewer must take to verify the result.
+- Respond to review feedback constructively and address the underlying concern, rather than making only the narrowest textual change that satisfies a comment.
+- When addressing feedback, consider whether the same issue may exist elsewhere in the affected workflow and check for related inconsistencies.
+
+## 9. Testing Requirements
+
+Testing should provide credible evidence that the contribution works and that existing behavior has not been needlessly broken.
+
+- Add or update automated tests for meaningful behavior, important edge cases, and regressions where practical.
+- Run the project's relevant build, test, lint, and validation commands before requesting review, and report the actual results.
+- Do not add brittle tests that simply duplicate implementation details or pass without meaningfully exercising the intended behavior.
+- For visual or interactive features, automated tests should be supplemented with realistic runtime checks where practical. Include screenshots or other evidence when they help reviewers evaluate layout and behavior.
+- For changes involving persistence, existing user data, file formats, external services, or backward compatibility, test representative scenarios where practical.
+- If a check cannot be run, explain why and identify what remains unverified instead of implying that validation succeeded.
+- More tests do not automatically mean better validation; tests must be relevant, credible, and connected to the user-visible requirements.
+
+## 10. Inactivity, Derived Pull Requests, and Takeovers
+
+- If a contributor makes no meaningful progress or response for 30 consecutive days, maintainers may consider the bounty claim inactive.
+- Before reassigning or opening the work to others, maintainers may notify the original contributor and allow a reasonable opportunity to respond.
+- If another contributor proposes a substantially independent or improved solution, maintainers may allow that work to proceed.
+- Where practical, the original contributor may receive a seven-day grace period after being notified that another contributor is ready to proceed. This grace period does not guarantee exclusive ownership or payment.
+- Maintainers may adjust these steps when needed to protect project continuity, address urgent issues, or avoid blocking other contributors.
+- Only an accepted and merged contribution is eligible for the bounty, subject to the other terms in this document.
+
+## 11. Maintainer Discretion and Dispute Resolution
+
+- Maintainers retain final discretion over whether a contribution meets the project's requirements, whether a pull request is accepted and merged, and whether a bounty is awarded.
+- Review feedback is intended to improve the contribution and reduce avoidable maintenance burden. Contributors are expected to engage constructively and make reasonable efforts to address valid concerns.
+- Maintainers may decline a contribution that technically satisfies the issue's literal wording but fails to deliver a coherent, usable, maintainable result.
+- Conversely, a thoughtful solution that improves the intended user outcome may be considered even if it differs from the most literal interpretation of the issue, subject to project direction and maintainer approval.
+- Nothing in these terms guarantees acceptance, a fixed review timeline, a specific number of review rounds, or payment for work that is not merged.
+- Disputes will be handled by the maintainers in good faith, with the final decision resting with the project maintainers.
+
+## 12. Amendments
+
+- Maintainers may update these terms from time to time.
+- Unless explicitly stated otherwise, changes apply prospectively to bounty claims made after the updated terms are published.
+- The terms in effect when a bounty is claimed will generally apply to that claim, unless a change is necessary to address legal, security, or serious project-integrity concerns.
+
+By claiming or submitting work for a bounty, you acknowledge that you have read and agree to these terms.
