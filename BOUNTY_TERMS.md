@@ -110,14 +110,14 @@ Testing should provide credible evidence that the contribution works and that ex
 - If a check cannot be run, explain why and identify what remains unverified instead of implying that validation succeeded.
 - More tests do not automatically mean better validation; tests must be relevant, credible, and connected to the user-visible requirements.
 
-## 10. Inactivity, Derived Pull Requests, and Takeovers
-
-- If a contributor makes no meaningful progress or response for 30 consecutive days, maintainers may consider the bounty claim inactive.
-- Before reassigning or opening the work to others, maintainers may notify the original contributor and allow a reasonable opportunity to respond.
-- If another contributor proposes a substantially independent or improved solution, maintainers may allow that work to proceed.
-- Where practical, the original contributor may receive a seven-day grace period after being notified that another contributor is ready to proceed. This grace period does not guarantee exclusive ownership or payment.
-- Maintainers may adjust these steps when needed to protect project continuity, address urgent issues, or avoid blocking other contributors.
-- Only an accepted and merged contribution is eligible for the bounty, subject to the other terms in this document.
+## 10. Inactivity, Derived PRs, and Takeovers
+* **Inactivity & Forfeiture:** If a submitted PR requires changes, and the contributor fails to provide updates, respond to inquiries, or commit modifications for a consecutive period of thirty (30) days following a change request (`request changes`) or a clarifying comment by a maintainer, the PR is deemed abandoned. In this event, the maintainers reserve the right to merge, modify, or otherwise utilize the submitted code under the terms of the open-source license (Section 3) without any obligation to pay the bounty.
+* **Derived PRs (Community Takeovers):** Because all submissions are licensed openly upon submission, any developer is permitted to use an existing, incomplete, or inactive PR as a basis to build their own PR. 
+* **Fairness Grace Period:** If a derived PR is submitted that successfully resolves the issue and is ready to be merged, a fairness grace period is triggered for the original contributor:
+  * The maintainers will notify the original contributor via a comment on their original PR.
+  * The original contributor has exactly seven (7) calendar days from the timestamp of this notification to update their original PR to a fully mergeable and approved state.
+  * If the original contributor successfully completes and obtains approval for their PR within this 7-day period, their original PR will be merged and they will receive the bounty.
+  * If the original contributor fails to meet this deadline or cannot achieve a mergeable state, the derived PR may be merged instead, and the bounty will be awarded solely to the author of the derived PR. The original contributor waives all claims to the bounty in this scenario.
 
 ## 11. Maintainer Discretion and Dispute Resolution
 
