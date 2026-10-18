@@ -223,6 +223,10 @@ public class SSHServerConsoleReceive implements Command {
             if (!message.endsWith("\n")) {
                 message += "\n";
             }
+
+            // SSH terminals require CRLF. Convert bare LF while preserving CRLF.
+            message = message.replaceAll("(?<!\\r)\\n", "\r\n");
+
             out.write(message.getBytes(StandardCharsets.UTF_8));
             out.flush();
         } catch (IOException e) {
