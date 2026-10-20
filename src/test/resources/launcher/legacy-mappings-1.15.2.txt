@@ -1,0 +1,29 @@
+# Selected lines from the unmodified Mojang client mappings.
+# Minecraft 1.15.2; retrieved 2026-10-04.
+# Source: https://piston-data.mojang.com/v1/objects/1fbf9f0bc9c326af859b3ccf71c2a8f5edc47ef8/client.txt
+# Source SHA-1: 1fbf9f0bc9c326af859b3ccf71c2a8f5edc47ef8
+# Native WorldListEntry.loadWorld bytecode calls selectLevel(getLevelId(), getLevelName(), null), after levelExists.
+# Verified against original client JAR SHA-1 e3f78cd16f9eb9a52307ed96ebec64241cc5b32d using javap; no world was opened.
+net.minecraft.client.Minecraft -> dbn:
+    net.minecraft.client.gui.screens.Screen screen -> x
+    832:832:net.minecraft.world.level.storage.LevelStorageSource getLevelSource() -> j
+    1613:1682:void selectLevel(java.lang.String,java.lang.String,net.minecraft.world.level.LevelSettings) -> a
+    1970:1970:net.minecraft.client.Minecraft getInstance() -> x
+    2426:2426:net.minecraft.client.gui.screens.Overlay getOverlay() -> at
+net.minecraft.client.main.Main -> net.minecraft.client.main.Main:
+    45:220:void main(java.lang.String[]) -> main
+net.minecraft.client.gui.screens.TitleScreen -> dgf:
+net.minecraft.client.gui.screens.Screen -> dgb:
+net.minecraft.client.gui.screens.Overlay -> dfw:
+net.minecraft.world.level.LevelSettings -> bka:
+net.minecraft.world.level.storage.LevelStorageSource -> crp:
+    75:101:java.util.List getLevelList() -> b
+    109:109:net.minecraft.world.level.storage.LevelStorage selectLevel(java.lang.String,net.minecraft.server.MinecraftServer) -> a
+    113:113:net.minecraft.world.level.storage.LevelStorage selectLevel(java.nio.file.Path,com.mojang.datafixers.DataFixer,java.lang.String,net.minecraft.server.MinecraftServer) -> a
+    247:247:boolean levelExists(java.lang.String) -> e
+net.minecraft.world.level.storage.LevelSummary -> crq:
+    44:44:java.lang.String getLevelId() -> a
+    48:48:java.lang.String getLevelName() -> b
+net.minecraft.util.thread.BlockableEventLoop -> ais:
+    91:96:void execute(java.lang.Runnable) -> execute
+net.minecraft.util.thread.ReentrantBlockableEventLoop -> aiw:

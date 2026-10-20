@@ -128,6 +128,10 @@ public class RestarterConfig extends MyYaml {
 
     @Override
     public Yaml validateValues() {
+        if (com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild()) {
+            restarter_enabled.setValues("false").setComments(com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.RESTARTER_POLICY);
+            c_restarter_enabled.setValues("false").setComments(com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.RESTARTER_POLICY);
+        }
 
         //Get the config string list
         //Split each time up into hours and min to validate them
