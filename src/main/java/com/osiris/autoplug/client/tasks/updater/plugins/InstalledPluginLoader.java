@@ -48,6 +48,19 @@ public class InstalledPluginLoader {
         }
         return List.of();
     }
+    /** Exact profile target: a Bukkit/Spigot instance must not receive a Paper-only or Purpur-only jar. */
+    public static List<String> forProfile(String software) {
+        switch (software.toLowerCase(Locale.ROOT)) {
+            case "bukkit": return List.of("bukkit");
+            case "spigot": return List.of("spigot", "bukkit");
+            case "paper": return List.of("paper", "spigot", "bukkit");
+            case "purpur": return List.of("purpur", "paper", "spigot", "bukkit");
+            case "velocity": return List.of("velocity");
+            case "bungeecord": return List.of("bungeecord");
+            case "waterfall": return List.of("waterfall", "bungeecord");
+            default: return new InstalledPluginLoader(software).getLoaderList();
+        }
+    }
 
     public enum Loader {
         VELOCITY,

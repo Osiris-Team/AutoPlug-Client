@@ -38,6 +38,8 @@ public class SearchResult {
     public Type type;
     public Exception exception;
     public String fileName;
+    /** Optional integrity value supplied by the Bukkit file API. */
+    public String expectedMD5;
 
     /**
      * @param type    All codes: <br>

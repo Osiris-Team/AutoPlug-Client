@@ -17,6 +17,9 @@ import com.osiris.autoplug.client.utils.GD;
 import com.osiris.betterlayout.BLayout;
 import com.osiris.betterlayout.utils.UIDebugWindow;
 import com.osiris.jlib.logger.AL;
+import com.osiris.autoplug.client.clientapp.NativeClientService;
+import com.osiris.autoplug.client.ui.client.ClientDashboard;
+import com.osiris.autoplug.client.ui.client.ServerManagerPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +37,12 @@ public class MainWindow extends JFrame {
     public static MainWindow GET = null;
     public static final Object lockUI = new Object();
     public TrayIcon trayIcon;
+    private ServerManagerPanel serverManager;
+    public static void open(GeneralConfig config) {
+        SwingUtilities.invokeLater(() -> {
+            try { new MainWindow(config); } catch (Exception exception) { AL.warn("Could not open dashboard", exception); }
+        });
+    }
 
     public MainWindow(GeneralConfig generalConfig) throws Exception {
         synchronized (lockUI){
@@ -43,7 +52,7 @@ public class MainWindow extends JFrame {
             GET = this;
         }
         initTheme(generalConfig);
-        start();
+        try { start(); } catch (Exception failure) { close(); throw failure; }
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -84,26 +93,34 @@ public class MainWindow extends JFrame {
     }
 
     public void close() {
-        if (SystemTray.isSupported())
+        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(this::close); return; }
+        if (serverManager != null) serverManager.release();
+        if (getContentPane() instanceof ClientDashboard) ((ClientDashboard)getContentPane()).release();
+        if (SystemTray.isSupported() && trayIcon != null)
             SystemTray.getSystemTray().remove(trayIcon);
         this.dispose();
         GET = null;
     }
 
     public void start() throws Exception {
+        if (SwingUtilities.isEventDispatchThread()) initUI();
+        else SwingUtilities.invokeAndWait(() -> {
+            try { initUI(); } catch (Exception exception) { throw new IllegalStateException(exception); }
+        });
         if (SystemTray.isSupported()) {
             SystemTray tray = SystemTray.getSystemTray();
             File icon = new File(GD.WORKING_DIR + "/autoplug/system/icon.png");
             if (!icon.exists()) {
                 icon.getParentFile().mkdirs();
-                icon.createNewFile();
-                InputStream link = (getClass().getResourceAsStream("/autoplug-icon.png"));
-                Files.copy(link, icon.toPath());
+                try (InputStream link = getClass().getResourceAsStream("/autoplug-icon.png")) {
+                    if (link == null) throw new java.io.IOException("Missing application icon");
+                    Files.copy(link, icon.toPath());
+                }
             }
             Image image = Toolkit.getDefaultToolkit().getImage(icon.getAbsolutePath());
             trayIcon = new TrayIcon(image, "AutoPlug", null);
             trayIcon.addMouseListener(new MyMouseListener().onClick(event -> {
-                this.setVisible(true);
+                openDashboard();
             }));
             trayIcon.setImageAutoSize(true);
             try {
@@ -128,48 +145,26 @@ public class MainWindow extends JFrame {
              */
 
             this.setIconImage(image);
-            initUI();
-        } else throw new Exception("Failed to create system tray GUI: Not supported on your system.");
+        } else openDashboard();
+    }
+
+    public void openDashboard() {
+        SwingUtilities.invokeLater(() -> { setVisible(true); setExtendedState(getExtendedState() & ~Frame.ICONIFIED); toFront(); requestFocus(); });
     }
 
     private void initUI() throws Exception {
         // TODO dont stop full autoplug when this window is closed
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setName("AutoPlug-Tray");
-        this.setTitle("AutoPlug-Tray");
-        this.setUndecorated(true);
+        this.setName("AutoPlug-Client-Dashboard");
+        this.setTitle("AutoPlug • Client & Server Dashboard");
+        this.setUndecorated(false);
         int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width, screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        int width = (int) (screenWidth / 1.5), height = screenHeight / 2;
-        this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 20, 20));
+        int width = Math.min(1180, screenWidth - 80), height = Math.min(780, screenHeight - 80);
         this.setLocation((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2)); // Position frame in mid of screen
         this.setSize(width, height);
+        this.setMinimumSize(new Dimension(800, 540));
         this.setVisible(false);
-
-        BLayout thisLy = new BLayout(this);
-        this.setContentPane(thisLy);
-        thisLy.access(() -> {
-            // Add stuff to main window
-            JLabel titleAutoPlug = new JLabel(), titleTray = new JLabel();
-            titleAutoPlug.setText("AutoPlug");
-            titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
-            thisLy.addH(titleAutoPlug);
-
-            titleTray.setText(" | Tray");
-            titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
-            thisLy.addH(titleTray).delPadding().paddingTop();
-
-            JTabbedPane mainTab = new JTabbedPane();
-            thisLy.addV(mainTab).height(80).widthFull();
-            mainTab.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-            // Tab panels/layouts
-            try {
-                mainTab.addTab("Server", new ServerPanel(mainTab));
-                mainTab.addTab("Client", new ClientPanel(mainTab));
-                //tabbedPane.addChangeListener(e -> selectedTabChanged());
-            } catch (Exception e) {
-                AL.warn(e);
-            }
-        });
+        serverManager = new ServerManagerPanel();
+        this.setContentPane(new ClientDashboard(NativeClientService.getDefault(), serverManager));
     }
 }

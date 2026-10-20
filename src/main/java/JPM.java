@@ -110,6 +110,8 @@ public class JPM {
 
             // Add custom plugins
             plugins.add(new AutoPlugPropertiesPlugin());
+            // Explicit Jupiter provider: Maven's inherited Surefire version may silently skip JUnit 5.
+            plugins.add(new JPM.Plugin("org.apache.maven.plugins", "maven-surefire-plugin", "3.6.0"));
 
             // Execute build
             File cwd = new File(System.getProperty("user.dir"));

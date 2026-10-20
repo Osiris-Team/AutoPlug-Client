@@ -93,6 +93,9 @@ public final class Commands {
 
         if (first.equals(".")) {
             try {
+                if (com.osiris.autoplug.client.profiles.ProfileCommands.tryHandle(command, AL::info)) return true;
+                if (com.osiris.autoplug.client.clientapp.WorldCommands.tryHandle(command, AL::info, false)) return true;
+                if (com.osiris.autoplug.client.clientapp.NativeClientCommands.tryHandle(command, AL::info)) return true;
                 SSHConfig sshConfig = new SSHConfig();
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
@@ -129,6 +132,10 @@ public final class Commands {
                     AL.info(".check server | Checks for server updates (.cs)");
                     AL.info(".check plugins | Checks for plugins updates (.cp)");
                     AL.info(".check mods | Checks for mods updates (.cm)");
+                    AL.info(".profiles help | Unified MODS / PLUGINS / MODS_SERVER profiles");
+                    AL.info(".check/.update mods|plugins --profile <id> [--confirm-disabling] | Profile-scoped updates");
+                    AL.info(".client help | Native client launch, saved servers and account settings");
+                    AL.info(".mc help | Native client and virtual worlds, local server lifecycle and opt-in sharing");
                     AL.info("");
                     AL.info(".ssh stop | Stops the SSH-Server");
                     AL.info(".ssh start | Starts the SSH-Server");

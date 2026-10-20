@@ -8,6 +8,7 @@
 
 - Download stable/beta versions at the [AutoPlug-Releases](https://github.com/Osiris-Team/AutoPlug-Releases) repo.
 - Follow the [AutoPlug-Client-Development](https://bit.ly/acprogress) and see what we are currently working on.
+- [Native client dashboard, server browser and launcher](./docs/native-client-dashboard.md), including isolated [MODS/PLUGINS profiles](./docs/unified-profiles.md), CLI commands and verification limits.
 - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4).
 - Issues or questions? Checkout the [FAQ](/docs/FAQ.md) and/or join our [Discord](https://discord.com/invite/GGNmtCC), for live chat/voice
 support.

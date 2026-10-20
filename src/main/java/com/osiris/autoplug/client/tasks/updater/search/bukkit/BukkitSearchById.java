@@ -21,6 +21,36 @@ import java.util.regex.Pattern;
 
 public class BukkitSearchById {
 
+    /** Select a declared-compatible target release, including older game versions, without guessing from latest. */
+    public SearchResult searchCompatible(MinecraftPlugin plugin, String gameVersion) {
+        try {
+            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) new java.net.URL("https://api.curseforge.com/servermods/files?projectIds=" + plugin.getBukkitId()).openConnection();
+            connection.setConnectTimeout(15000); connection.setReadTimeout(30000); connection.setRequestProperty("User-Agent", "AutoPlug-Client/10.2.0");
+            JsonArray versions;
+            try {
+                if (connection.getResponseCode() != 200) throw new java.io.IOException("Bukkit API returned HTTP " + connection.getResponseCode());
+                try (java.io.Reader reader = new java.io.InputStreamReader(connection.getInputStream(), java.nio.charset.StandardCharsets.UTF_8)) { versions = com.google.gson.JsonParser.parseReader(reader).getAsJsonArray(); }
+            } finally { connection.disconnect(); }
+            JsonObject selected = null;
+            for (com.google.gson.JsonElement value : versions) {
+                JsonObject release = value.getAsJsonObject();
+                if (!release.has("gameVersion") || release.get("gameVersion").isJsonNull()) continue;
+                Matcher game = Pattern.compile("([0-9]+(?:\\.[0-9]+){1,2})").matcher(release.get("gameVersion").getAsString());
+                if (!game.find()) continue;
+                String declared = game.group(1);
+                if (declared.equals(gameVersion) || gameVersion.startsWith(declared + ".")) selected = release;
+            }
+            if (selected == null) return new SearchResult(plugin, SearchResult.Type.RESOURCE_NOT_FOUND, null, null, null, null, String.valueOf(plugin.getBukkitId()), false);
+            SearchResult result = new SearchResult(plugin, SearchResult.Type.UPDATE_AVAILABLE, selected.get("name").getAsString(), selected.get("downloadUrl").getAsString(), ".jar", null, String.valueOf(plugin.getBukkitId()), false);
+            result.fileName = selected.get("fileName").getAsString();
+            if (selected.has("md5") && !selected.get("md5").isJsonNull()) result.expectedMD5 = selected.get("md5").getAsString();
+            if (!result.fileName.endsWith(".jar")) throw new java.io.IOException("Compatible Bukkit release is not a jar");
+            return result;
+        } catch (Exception exception) {
+            SearchResult result = new SearchResult(plugin, SearchResult.Type.API_ERROR, null, null, null, null, String.valueOf(plugin.getBukkitId()), false); result.exception = exception; return result;
+        }
+    }
+
     public SearchResult search(MinecraftPlugin plugin) {
         AL.debug(this.getClass(), "[" + plugin.getName() + "] Performing bukkit search by id");
         int bukkitId = plugin.getBukkitId();

@@ -33,6 +33,44 @@ import java.time.Instant;
 public class CurseForgeAPI {
     private final String baseUrl = "https://api.curseforge.com/v1";
 
+    /** Explicit profile context. Reuses the existing configured API client/key; never performs fingerprint POSTs. */
+    public JsonObject compatibleProfileRelease(String projectId, String loader, String gameVersion) throws Exception {
+        if (projectId == null || !projectId.matches("[0-9]{1,10}")) throw new IOException("Invalid CurseForge project id");
+        int loaderType;
+        switch (loader.toLowerCase(java.util.Locale.ROOT)) {
+            case "forge": loaderType = 1; break;
+            case "fabric": loaderType = 4; break;
+            case "quilt": loaderType = 5; break;
+            case "neoforge": loaderType = 6; break;
+            default: throw new IOException("Unsupported CurseForge profile loader: " + loader);
+        }
+        JsonObject selected = null;
+        for (int index = 0; index < 10000; index += 50) {
+            String url = baseUrl + "/mods/" + projectId + "/files?gameVersion=" + java.net.URLEncoder.encode(gameVersion, "UTF-8") + "&modLoaderType=" + loaderType + "&pageSize=50&index=" + index;
+            JsonObject response = new CurseForgeJson().getJsonObject(url);
+            JsonArray files = response.getAsJsonArray("data");
+            JsonObject candidate = selectCompatibleProfileRelease(files, loader, gameVersion);
+            if (candidate != null && (selected == null || Instant.parse(candidate.get("fileDate").getAsString()).isAfter(Instant.parse(selected.get("fileDate").getAsString())))) selected = candidate;
+            int total = response.has("pagination") ? response.getAsJsonObject("pagination").get("totalCount").getAsInt() : index + files.size();
+            if (files.size() < 50 || index + files.size() >= total) return selected;
+        }
+        throw new IOException("CurseForge file pagination exceeded the documented limit");
+    }
+    public static JsonObject selectCompatibleProfileRelease(JsonArray files, String loader, String gameVersion) {
+        JsonObject selected = null;
+        for (JsonElement element : files) {
+            JsonObject file = element.getAsJsonObject(); boolean game = false, targetLoader = false;
+            if (file.has("isAvailable") && !file.get("isAvailable").getAsBoolean()) continue;
+            for (JsonElement tag : file.getAsJsonArray("gameVersions")) {
+                if (gameVersion.equals(tag.getAsString())) game = true;
+                if (loader.equalsIgnoreCase(tag.getAsString())) targetLoader = true;
+            }
+            if (!game || !targetLoader) continue;
+            if (selected == null || Instant.parse(file.get("fileDate").getAsString()).isAfter(Instant.parse(selected.get("fileDate").getAsString()))) selected = file;
+        }
+        return selected;
+    }
+
     /**
      * Requires curseforgeId not null.
      */
