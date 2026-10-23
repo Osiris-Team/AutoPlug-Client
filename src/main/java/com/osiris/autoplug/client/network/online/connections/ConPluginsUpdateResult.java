@@ -7,6 +7,7 @@ import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.ReplayingDecoder;
 
 import java.util.List;
@@ -24,17 +25,30 @@ public class ConPluginsUpdateResult extends DefaultConnection {
     @Override
     public boolean open() throws Exception {
         super.open();
+        return true;
+    }
 
-        channel.pipeline().addLast(new ReplayingDecoder<Void>() {
+    @Override
+    protected void initConnectionPipeline(SocketChannel ch) {
+        ch.pipeline().addLast(new ReplayingDecoder<Void>() {
             @Override
-            protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> outList) throws Exception {
+            protected void decode(
+                    ChannelHandlerContext ctx,
+                    ByteBuf in,
+                    List<Object> outList
+            ) throws Exception {
                 long msLeft = in.readLong();
                 if (msLeft != 0) {
-                    throw new Exception("Web cool-down is still active (" + (msLeft / 60000) + " minutes remaining).");
+                    throw new Exception(
+                            "Web cool-down is still active ("
+                                    + (msLeft / 60000)
+                                    + " minutes remaining)."
+                    );
                 }
 
                 ByteBuf out = ctx.alloc().buffer();
                 out.writeInt(searchResults.size());
+
                 for (SearchResult r : searchResults) {
                     NettyUtils.writeUTF(out, safeStr(r.getPlugin().getName()));
                     NettyUtils.writeUTF(out, safeStr(r.getPlugin().getAuthor()));
@@ -43,12 +57,18 @@ public class ConPluginsUpdateResult extends DefaultConnection {
                     NettyUtils.writeUTF(out, safeStr(r.getDownloadType()));
                     NettyUtils.writeUTF(out, safeStr(r.getLatestVersion()));
                     NettyUtils.writeUTF(out, safeStr(r.getDownloadUrl()));
-                    NettyUtils.writeUTF(out, r.getSpigotId() == null ? "0" : r.getSpigotId());
-                    NettyUtils.writeUTF(out, r.getBukkitId() == null ? "0" : r.getBukkitId());
-                    NettyUtils.writeUTF(out, safeStr(r.plugin.getGithubRepoName()));
-                    NettyUtils.writeUTF(out, safeStr(r.plugin.getGithubAssetName()));
-                    NettyUtils.writeUTF(out, safeStr(r.plugin.getJenkinsProjectUrl()));
-                    NettyUtils.writeUTF(out, safeStr(r.plugin.getJenkinsArtifactName()));
+                    NettyUtils.writeUTF(out,
+                            r.getSpigotId() == null ? "0" : r.getSpigotId());
+                    NettyUtils.writeUTF(out,
+                            r.getBukkitId() == null ? "0" : r.getBukkitId());
+                    NettyUtils.writeUTF(out,
+                            safeStr(r.plugin.getGithubRepoName()));
+                    NettyUtils.writeUTF(out,
+                            safeStr(r.plugin.getGithubAssetName()));
+                    NettyUtils.writeUTF(out,
+                            safeStr(r.plugin.getJenkinsProjectUrl()));
+                    NettyUtils.writeUTF(out,
+                            safeStr(r.plugin.getJenkinsArtifactName()));
                 }
 
                 out.writeInt(excludedPlugins.size());
@@ -62,7 +82,6 @@ public class ConPluginsUpdateResult extends DefaultConnection {
                 ctx.pipeline().remove(this);
             }
         });
-        return true;
     }
 
     private String safeStr(String s) { return s == null ? "null" : s; }

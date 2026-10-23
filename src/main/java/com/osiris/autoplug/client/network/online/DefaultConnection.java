@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class DefaultConnection implements AutoCloseable {
+    public static boolean DEBUG = false;
     public static ExecutorService exec = Executors.newCachedThreadPool();
 
     public static final String NO_KEY = "NO_KEY";
@@ -45,6 +46,10 @@ public abstract class DefaultConnection implements AutoCloseable {
 
     public DefaultConnection(byte con_type) {
         this.conType = con_type;
+    }
+
+    protected void initConnectionPipeline(SocketChannel ch) throws Exception {
+        // Subclasses can install protocol handlers before authentication completes.
     }
 
     public synchronized boolean open() throws Exception {
@@ -127,6 +132,8 @@ public abstract class DefaultConnection implements AutoCloseable {
 
         CompletableFuture<Byte> authFuture = new CompletableFuture<>();
 
+        Object _this = this;
+
         Bootstrap b = new Bootstrap();
         b.group(GROUP)
                 .channel(NioSocketChannel.class)
@@ -144,15 +151,48 @@ public abstract class DefaultConnection implements AutoCloseable {
 
                         ch.pipeline().addLast(new AuthHandler(finalKey, conType, authFuture));
 
+                        initConnectionPipeline(ch);
+
                         ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                             @Override
-                            public void channelInactive(ChannelHandlerContext ctx) {
-                                if (!isClosing.get()) scheduleReconnect();
+                            public void channelRead(ChannelHandlerContext ctx, Object msg)
+                                    throws Exception {
+                                if (msg instanceof ByteBuf) {
+                                    ByteBuf buf = (ByteBuf) msg;
+
+                                    if(DEBUG) AL.info("["+_this.getClass().getSimpleName()+"] inbound ByteBuf; readableBytes="
+                                            + buf.readableBytes()
+                                            + "; firstByte="
+                                            + (buf.isReadable()
+                                            ? (buf.getByte(buf.readerIndex()) & 0xFF)
+                                            : -1));
+                                } else {
+                                    if(DEBUG) AL.info("["+_this.getClass().getSimpleName()+"] inbound message type="
+                                            + msg.getClass().getName());
+                                }
+
+                                super.channelRead(ctx, msg);
+                            }
+
+                            @Override
+                            public void channelInactive(ChannelHandlerContext ctx)
+                                    throws Exception {
+                                if(DEBUG) AL.info("["+_this.getClass().getSimpleName()+"] channelInactive");
+
+                                if (!isClosing.get()) {
+                                    scheduleReconnect();
+                                }
+
+                                super.channelInactive(ctx);
                             }
 
                             @Override
                             public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                                if (!isClosing.get()) scheduleReconnect();
+                                if(DEBUG) AL.info("["+_this.getClass().getSimpleName()+"] exceptionCaught: " + cause);
+
+                                if (!isClosing.get()) {
+                                    scheduleReconnect();
+                                }
                             }
                         });
                     }

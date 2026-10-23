@@ -7,6 +7,7 @@ import com.osiris.autoplug.client.network.online.DefaultConnection;
 import com.osiris.jlib.logger.AL;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
@@ -20,10 +21,14 @@ public class ConAutoPlugConsoleReceive extends DefaultConnection {
     public boolean open() throws Exception {
         if (!new WebConfig().online_console.asBoolean()) return false;
         super.open();
+        return true;
+    }
 
-        channel.pipeline().addLast(new LineBasedFrameDecoder(10000));
-        channel.pipeline().addLast(new StringDecoder(StandardCharsets.UTF_8));
-        channel.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
+    @Override
+    protected void initConnectionPipeline(SocketChannel ch) {
+        ch.pipeline().addLast(new LineBasedFrameDecoder(10000));
+        ch.pipeline().addLast(new StringDecoder(StandardCharsets.UTF_8));
+        ch.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, String line) {
                 if (!Commands.execute(line)) {
@@ -37,7 +42,5 @@ public class ConAutoPlugConsoleReceive extends DefaultConnection {
                 }
             }
         });
-
-        return true;
     }
 }
