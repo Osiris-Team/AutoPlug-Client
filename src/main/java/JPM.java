@@ -37,7 +37,7 @@ public class JPM {
 // Override default configurations
             this.groupId = "com.osiris.autoplug.client";
             this.artifactId = "AutoPlug-Client";
-            this.version = "10.2.2";
+            this.version = "10.2.3";
             this.mainClass = "com.osiris.autoplug.client.Main";
             this.jarName = "AutoPlug-Client-original.jar";
             this.fatJarName = "AutoPlug-Client.jar";
