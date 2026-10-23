@@ -44,7 +44,8 @@ public class ConPluginCommandReceive {
                 while (local_server_socket == null) {
                     try {
                         AL.debug(this.getClass(), "Binding on localhost:" + port + " for AutoPlug-Plugin...");
-                        local_server_socket = new ServerSocket(port);
+                        local_server_socket = com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild()
+                                ? new ServerSocket(port, 50, java.net.InetAddress.getLoopbackAddress()) : new ServerSocket(port);
                         AL.debug(this.getClass(), "Success!");
                     } catch (IOException e) {
                         AL.debug(this.getClass(), "Failed to bind on port " + port + "! " + e.getMessage());

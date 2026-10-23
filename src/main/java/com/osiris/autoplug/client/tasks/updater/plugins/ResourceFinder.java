@@ -26,6 +26,16 @@ import java.util.List;
 
 public class ResourceFinder {
 
+    /** Exact artifact identity; callers persist it only after an approved update is applied. */
+    public String findModrinthProject(java.nio.file.Path installed) throws java.io.IOException {
+        return new ModrinthAPI().findProjectForArtifact(installed);
+    }
+
+    /** Exact loader/game-version path used by isolated client and server profiles. */
+    public SearchResult findCompatibleModrinthArtifact(List<String> loaders, String project, String gameVersion, java.nio.file.Path installed) {
+        return new ModrinthAPI().searchCompatible(loaders, project, gameVersion, installed);
+    }
+
     /**
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins' name and author will be executed. <br>

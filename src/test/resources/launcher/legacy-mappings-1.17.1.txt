@@ -1,0 +1,17 @@
+# Selected lines from the unmodified Mojang client mappings.
+# Minecraft 1.17.1; retrieved 2026-10-04.
+# Source: https://piston-data.mojang.com/v1/objects/e4d540e0cba05a6097e885dffdf363e621f87d3f/client.txt
+# Source SHA-1: e4d540e0cba05a6097e885dffdf363e621f87d3f
+net.minecraft.client.Minecraft -> dvp:
+    net.minecraft.client.gui.screens.Screen screen -> y
+    1939:1940:void loadLevel(java.lang.String) -> a
+    2467:2467:net.minecraft.client.Minecraft getInstance() -> C
+    2932:2932:net.minecraft.client.gui.screens.Overlay getOverlay() -> aA
+net.minecraft.client.main.Main -> net.minecraft.client.main.Main:
+    47:235:void main(java.lang.String[]) -> main
+net.minecraft.client.gui.screens.TitleScreen -> eav:
+net.minecraft.client.gui.screens.Screen -> eaq:
+net.minecraft.client.gui.screens.Overlay -> eak:
+net.minecraft.util.thread.BlockableEventLoop -> aqv:
+    98:103:void execute(java.lang.Runnable) -> execute
+net.minecraft.util.thread.ReentrantBlockableEventLoop -> aqz:
