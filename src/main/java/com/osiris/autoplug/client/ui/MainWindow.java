@@ -103,7 +103,7 @@ public class MainWindow extends JFrame {
             Image image = Toolkit.getDefaultToolkit().getImage(icon.getAbsolutePath());
             trayIcon = new TrayIcon(image, "AutoPlug", null);
             trayIcon.addMouseListener(new MyMouseListener().onClick(event -> {
-                this.setVisible(true);
+                SwingUtilities.invokeLater(() -> { this.setVisible(true); this.toFront(); });
             }));
             trayIcon.setImageAutoSize(true);
             try {
@@ -135,12 +135,12 @@ public class MainWindow extends JFrame {
     private void initUI() throws Exception {
         // TODO dont stop full autoplug when this window is closed
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setName("AutoPlug-Tray");
-        this.setTitle("AutoPlug-Tray");
-        this.setUndecorated(true);
+        this.setName("AutoPlug-Dashboard");
+        this.setTitle("AutoPlug — Minecraft & Server Dashboard");
+        this.setResizable(true);
         int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width, screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        int width = (int) (screenWidth / 1.5), height = screenHeight / 2;
-        this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 20, 20));
+        int width = Math.min(screenWidth, Math.max(1024, (int) (screenWidth / 1.5))), height = Math.min(screenHeight, Math.max(680, (int)(screenHeight * 0.75)));
+        this.setMinimumSize(new Dimension(Math.min(900, screenWidth), Math.min(600, screenHeight)));
         this.setLocation((screenWidth / 2) - (width / 2), (screenHeight / 2) - (height / 2)); // Position frame in mid of screen
         this.setSize(width, height);
         this.setVisible(false);
@@ -154,7 +154,7 @@ public class MainWindow extends JFrame {
             titleAutoPlug.putClientProperty("FlatLaf.style", "font: 200% $semibold.font");
             thisLy.addH(titleAutoPlug);
 
-            titleTray.setText(" | Tray");
+            titleTray.setText(" | Dashboard");
             titleTray.putClientProperty("FlatLaf.style", "font: 200% $light.font");
             thisLy.addH(titleTray).delPadding().paddingTop();
 

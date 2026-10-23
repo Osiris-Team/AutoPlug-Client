@@ -13,7 +13,24 @@ import com.osiris.jlib.logger.AL;
 import java.io.File;
 
 public class InstalledModLoader {
-    public boolean isForge, isFabric, isQuilt;
+    public boolean isForge, isFabric, isQuilt, isNeoForge;
+
+    /** Explicit profile loader; never inspects the server working directory. */
+    public InstalledModLoader(String loader) {
+        String normalized = java.util.Objects.requireNonNull(loader).toLowerCase(java.util.Locale.ROOT);
+        isFabric = normalized.equals("fabric");
+        isQuilt = normalized.equals("quilt");
+        isForge = normalized.equals("forge");
+        isNeoForge = normalized.equals("neoforge");
+        if (!isFabric && !isQuilt && !isForge && !isNeoForge) throw new IllegalArgumentException("Unsupported mod loader: " + loader);
+    }
+
+    public String getProfileLoader() {
+        if (isNeoForge) return "neoforge";
+        if (isQuilt) return "quilt";
+        if (isFabric) return "fabric";
+        return "forge";
+    }
 
     public InstalledModLoader() {
         try {

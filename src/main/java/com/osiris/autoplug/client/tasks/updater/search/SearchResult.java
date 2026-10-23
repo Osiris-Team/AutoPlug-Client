@@ -21,7 +21,7 @@ import java.util.List;
 public class SearchResult {
 
     public static boolean isMatchFound(SearchResult sr) {
-        return sr != null && sr.type != Type.API_ERROR && sr.type != Type.RESOURCE_NOT_FOUND;
+        return sr != null && sr.type != Type.API_ERROR && sr.type != Type.RESOURCE_NOT_FOUND && sr.type != Type.NO_COMPATIBLE_RELEASE;
     }
 
     // TODO remove getters and setters and make everything public for easier future coding
@@ -38,6 +38,8 @@ public class SearchResult {
     public Type type;
     public Exception exception;
     public String fileName;
+    /** Optional publisher checksum for the exact selected artifact. */
+    public String sha256;
 
     /**
      * @param type    All codes: <br>
@@ -127,7 +129,8 @@ public class SearchResult {
         RESOURCE_NOT_FOUND((byte) 3),
         RESOURCE_EXCLUDED((byte) 4),
         UPDATE_DOWNLOADED((byte) 5),
-        UPDATE_INSTALLED((byte) 6);
+        UPDATE_INSTALLED((byte) 6),
+        NO_COMPATIBLE_RELEASE((byte) 7);
 
 
         public byte id = 0;

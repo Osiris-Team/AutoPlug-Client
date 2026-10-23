@@ -33,6 +33,72 @@ import java.time.Instant;
 public class CurseForgeAPI {
     private final String baseUrl = "https://api.curseforge.com/v1";
 
+    public interface ReleaseLoader { JsonArray load(String url) throws Exception; }
+    private final ReleaseLoader profileReleases;
+    public CurseForgeAPI() { this(CurseForgeAPI::loadProfileReleases); }
+    public CurseForgeAPI(ReleaseLoader loader) { profileReleases = java.util.Objects.requireNonNull(loader); }
+
+    private static JsonArray loadProfileReleases(String url) throws Exception {
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient.Builder().followSslRedirects(false)
+                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .callTimeout(45, java.util.concurrent.TimeUnit.SECONDS).build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(url)
+                .header("User-Agent", "AutoPlug-Client").header("x-api-key", new CurseForgeJson().key).build();
+        try (okhttp3.Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful() || response.body() == null) throw new IOException("CurseForge HTTP " + response.code());
+            return JsonParser.parseString(response.body().string()).getAsJsonObject().getAsJsonArray("data");
+        }
+    }
+
+    /** Profile-only compatibility check. forceLatest and local timestamps are intentionally ignored. */
+    public SearchResult searchCompatible(InstalledModLoader loader, MinecraftMod mod, String mcVersion) {
+        SearchResult result = new SearchResult(null, SearchResult.Type.API_ERROR, null, null, ".jar", null, null, false);
+        result.mod = mod;
+        if (mod.curseforgeId == null || !mod.curseforgeId.matches("[0-9]+")) {
+            result.type = SearchResult.Type.RESOURCE_NOT_FOUND;
+            return result;
+        }
+        try {
+            JsonArray releases = profileReleases.load(baseUrl + "/mods/" + mod.curseforgeId
+                    + "/files?gameVersion=" + java.net.URLEncoder.encode(mcVersion, "UTF-8") + "&pageSize=50");
+            JsonObject selected = null;
+            boolean unknownLoader = false;
+            for (JsonElement element : releases) {
+                JsonObject release = element.getAsJsonObject();
+                boolean version = false, matchingLoader = false, knownLoader = false;
+                for (JsonElement tagElement : release.getAsJsonArray("gameVersions")) {
+                    String tag = tagElement.getAsString();
+                    if (tag.equals(mcVersion)) version = true;
+                    if (tag.equalsIgnoreCase(loader.getProfileLoader())) matchingLoader = true;
+                    if (tag.equalsIgnoreCase("forge") || tag.equalsIgnoreCase("neoforge")
+                            || tag.equalsIgnoreCase("fabric") || tag.equalsIgnoreCase("quilt")) knownLoader = true;
+                }
+                if (version && !knownLoader) unknownLoader = true;
+                if (version && matchingLoader && (selected == null
+                        || release.get("id").getAsLong() > selected.get("id").getAsLong())) selected = release;
+            }
+            if (selected == null) {
+                if (releases.size() >= 50) throw new IOException("CurseForge results may be paginated; compatibility remains unresolved");
+                if (unknownLoader) throw new IOException("CurseForge release does not declare its mod loader");
+                result.type = SearchResult.Type.NO_COMPATIBLE_RELEASE;
+                return result;
+            }
+            if (!selected.has("downloadUrl") || selected.get("downloadUrl").isJsonNull()) {
+                throw new IOException("The publisher does not permit automatic downloads of this CurseForge file");
+            }
+            result.type = SearchResult.Type.UPDATE_AVAILABLE;
+            result.downloadUrl = selected.get("downloadUrl").getAsString();
+            result.fileName = selected.get("fileName").getAsString();
+            if (!result.fileName.endsWith(".jar")) throw new IOException("Selected CurseForge artifact is not a jar");
+            result.latestVersion = result.fileName;
+        } catch (Exception error) {
+            result.type = SearchResult.Type.API_ERROR;
+            result.exception = error;
+        }
+        return result;
+    }
+
     /**
      * Requires curseforgeId not null.
      */
