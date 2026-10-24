@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -27,8 +28,14 @@ public class ConSystemConsoleSend extends DefaultConnection {
     public static void send(@NotNull String message) {
         try {
             if (asyncTerminalLogWriter != null) {
-                asyncTerminalLogWriter.write(message + "\n");
-                asyncTerminalLogWriter.flush();
+                try{
+                    asyncTerminalLogWriter.write(message + "\n");
+                    asyncTerminalLogWriter.flush();
+                } catch (IOException e) {
+                    if(e.getMessage().contains("close")); // Stream already closed
+                    else throw e;
+                }
+
             }
         } catch (Exception e) {
             AL.warn("Failed to write to " + GD.SYSTEM_LATEST_LOG, e);

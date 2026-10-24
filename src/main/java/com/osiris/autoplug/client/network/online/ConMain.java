@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConMain extends DefaultConnection {
     public final ConSendPublicDetails CON_PUBLIC_DETAILS = new ConSendPublicDetails();
+    //
     public final ConAutoPlugConsoleReceive CON_CONSOLE_RECEIVE = new ConAutoPlugConsoleReceive();
     public final ConAutoPlugConsoleSend CON_CONSOLE_SEND = new ConAutoPlugConsoleSend();
     public final ConSystemConsoleSend CON_SYSTEM_CONSOLE_SEND = new ConSystemConsoleSend();
@@ -36,6 +37,7 @@ public class ConMain extends DefaultConnection {
         CON_SYSTEM_CONSOLE_RECEIVE.conMain = this;
         CON_PRIVATE_DETAILS.conMain = this;
         CON_FILE_MANAGER.conMain = this;
+        this.isReconnectAllowedWhenUserIsOffline = true; // Since this is the main connection
     }
 
     @Override

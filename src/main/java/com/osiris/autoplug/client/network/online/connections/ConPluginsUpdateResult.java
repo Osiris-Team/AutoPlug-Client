@@ -26,6 +26,7 @@ public class ConPluginsUpdateResult extends DefaultConnection {
         super((byte) 3);
         this.searchResults = searchResults;
         this.excludedPlugins = excludedPlugins;
+        this.isReconnectAllowed = false; // No reconnect attempts
     }
 
     @Override

@@ -69,7 +69,7 @@ public abstract class DefaultConnection implements AutoCloseable {
         return errorCode == 0;
     }
 
-    public int initalReconnectDelay = 2000;
+    public int initalReconnectDelay = 1000;
     public int additionalReconnectDelay = 30000;
     public int currentReconnectDelay = initalReconnectDelay;
     protected int getNewReconnectDelay() {
@@ -78,16 +78,32 @@ public abstract class DefaultConnection implements AutoCloseable {
         return delay;
     }
 
-    protected synchronized void scheduleReconnect() {
-        if (isClosing.get()) return;
+    public volatile boolean isReconnectAllowed = true;
+    public volatile boolean isReconnectAllowedWhenUserIsOffline = false;
 
+    protected synchronized void scheduleReconnect() {
         if (reconnectThread != null) {
             try { reconnectThread.interrupt(); } catch (Exception ignored) {}
+        }
+
+        if (isClosing.get()) return;
+        if (!isReconnectAllowed) return;
+        if (!isReconnectAllowedWhenUserIsOffline){
+            if(conMain != null && !conMain.isUserActive.get()) return; // Dont try reconnect when the user is offline anyways
         }
 
         reconnectThread = new Thread(() -> {
             try {
                 int delay = getNewReconnectDelay();
+
+                // Wait a least 2 seconds so that the user inactivity ping reaches the main con
+                // and re-check before actually trying a reconnect to avoid wrong reconnects in this situation
+                AL.debug(this.getClass(), "Connection closed, might be a valid close. Waiting 5 seconds before attempting actual reconnect...");
+                Thread.sleep(5000);
+                if (!isReconnectAllowedWhenUserIsOffline){
+                    if(conMain != null && !conMain.isUserActive.get()) return; // Dont try reconnect when the user is offline anyways
+                }
+
                 AL.warn(this.getClass().getSimpleName()+ " Connection problems! Reconnecting in " + delay / 1000 + " seconds...");
                 Thread.sleep(delay);
 
@@ -99,7 +115,11 @@ public abstract class DefaultConnection implements AutoCloseable {
                 }
 
                 if (!open()) scheduleReconnect();
-            } catch (Exception e) {
+            } catch (InterruptedException e){
+                // Do nothing on interrupt since its planned
+                AL.debug(this.getClass(),"Interrupted reconnect thread.");
+            }
+            catch (Exception e) {
                 AL.warn("Reconnect error", e);
             }
         });
