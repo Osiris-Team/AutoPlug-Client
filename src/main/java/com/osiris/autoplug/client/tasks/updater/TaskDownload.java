@@ -9,6 +9,7 @@
 package com.osiris.autoplug.client.tasks.updater;
 
 import com.osiris.autoplug.client.utils.UtilsCrypto;
+import com.osiris.autoplug.client.launcher.DownloadProgress;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.jlib.logger.AL;
@@ -61,50 +62,44 @@ public class TaskDownload extends BThread {
         super.runAtStart();
 
         final String fileName = dest.getName();
-        setStatus("Downloading " + fileName + "... (0mb/0mb)");
-        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
+        final String source = DownloadProgress.sourceUrl(url);
+        setStatus("Downloading " + fileName + " from " + source);
 
         Request request = new Request.Builder().url(url)
                 .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.one")
                 .build();
 
-        Response response = new OkHttpClient.Builder().followRedirects(true).build().newCall(request).execute();
-        ResponseBody body = null;
-        try {
+        try (DownloadProgress.Transfer transfer = DownloadProgress.begin("Downloading " + fileName, url);
+             Response response = new OkHttpClient.Builder().followRedirects(true).build().newCall(request).execute()) {
+            transfer.redirect(response.request().url().toString());
             if (response.code() != 200)
-                throw new Exception("Download of '" + dest.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
+                throw new Exception("Download of '" + dest.getName() + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + source);
 
-            body = response.body();
+            ResponseBody body = response.body();
             if (body == null)
                 throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
             validateContentType(dest.getName(), body.contentType(), ignoreContentType, allowedSubContentTypes);
             long completeFileSize = body.contentLength();
-            setMax(completeFileSize);
+            setMax(Math.max(1, completeFileSize));
 
-            BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(dest);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-            byte[] data = new byte[1024];
             long downloadedFileSize = 0;
-            int x = 0;
-            while ((x = in.read(data, 0, 1024)) >= 0) {
-                downloadedFileSize += x;
-
-                setStatus("Downloading " + fileName + "... (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
-                setNow(downloadedFileSize);
-
-                bout.write(data, 0, x);
+            try (BufferedInputStream in = new BufferedInputStream(body.byteStream());
+                 BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(dest), 65536)) {
+                byte[] data = new byte[65536];
+                int x;
+                while ((x = in.read(data)) >= 0) {
+                    if (Thread.currentThread().isInterrupted()) throw new java.io.InterruptedIOException("Download cancelled.");
+                    downloadedFileSize += x;
+                    String amount = downloadedFileSize / (1024 * 1024) + "mb"
+                            + (completeFileSize >= 0 ? "/" + completeFileSize / (1024 * 1024) + "mb" : "");
+                    setStatus("Downloading " + fileName + " (" + amount + ") from " + source);
+                    if (completeFileSize > 0) setNow(downloadedFileSize);
+                    bout.write(data, 0, x);
+                    transfer.update(downloadedFileSize, completeFileSize);
+                }
             }
-
-            setStatus("Downloaded " + fileName + " (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
-            bout.close();
-            in.close();
-            body.close();
-            response.close();
-        } catch (Exception e) {
-            if (body != null) body.close();
-            response.close();
-            throw e;
+            setStatus("Downloaded " + fileName + " from " + source);
+            transfer.complete(downloadedFileSize, completeFileSize);
         }
     }
 

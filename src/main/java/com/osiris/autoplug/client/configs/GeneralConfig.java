@@ -57,7 +57,8 @@ public class GeneralConfig extends MyYaml {
             }
 
             try {
-                if (this.autoplug_start_on_boot.asBoolean())
+                if (com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild()) { /* Parent owns this isolated instance. */ }
+                else if (this.autoplug_start_on_boot.asBoolean())
                     new UtilsNative().enableStartOnBootIfNeeded(new UtilsJar().getThisJar());
                 else new UtilsNative().disableStartOnBootIfNeeded();
             } catch (Exception ex) {
@@ -67,6 +68,7 @@ public class GeneralConfig extends MyYaml {
             try {
                 if (this.autoplug_system_tray.asBoolean()) {
                     boolean firstStart = MainWindow.GET == null;
+                    com.osiris.autoplug.client.Main.getLauncher();
                     new MainWindow(this);
                     if (firstStart) AL.info("Started system-tray GUI.");
                 } else {
@@ -208,6 +210,8 @@ public class GeneralConfig extends MyYaml {
 
     @Override
     public Yaml validateValues() {
+        if (com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild())
+            server_start_command.setComments(com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.COMMAND_POLICY);
         return this;
     }
 }

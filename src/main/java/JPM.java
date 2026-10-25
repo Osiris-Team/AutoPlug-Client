@@ -110,6 +110,17 @@ public class JPM {
 
             // Add custom plugins
             plugins.add(new AutoPlugPropertiesPlugin());
+            // Minecraft 1.16.5 runs on Java 8. Only this dependency-free startup
+            // helper targets Java 8; the launcher itself retains its Java 9 floor.
+            CompilerPlugin.get.onBeforeToXML(details -> {
+                details.addExecution("default-compile", null).putConfiguration("excludes exclude", "com/osiris/autoplug/legacy/**");
+                Execution helper = details.addExecution("legacy-world-helper", "compile").addGoal("compile");
+                helper.putConfiguration("release", "8");
+                helper.putConfiguration("source", "8");
+                helper.putConfiguration("target", "8");
+                helper.putConfiguration("includes include", "com/osiris/autoplug/legacy/**");
+                helper.putConfiguration("useIncrementalCompilation", "false");
+            });
 
             // Execute build
             File cwd = new File(System.getProperty("user.dir"));

@@ -163,7 +163,7 @@ public class UtilsMinecraft {
                     if (found) break;
                 }
             } catch (Exception e) {
-                AL.warn("Failed to get details of " + jar.getName(), e);
+                warnUnreadable(jar, e);
             }
         }
         return plugins;
@@ -222,21 +222,7 @@ public class UtilsMinecraft {
                         //    name = jar.getName();
                         //} // Don't do this, because the jars name contains its version and generally it wouldn't be nice
                         String version = obj.get("version").getAsString();
-                        JsonElement authorRaw = obj.get("author");
-                        JsonElement authorsRaw = obj.get("authors");
-
-                        String author = null;
-                        if (authorRaw != null && !authorRaw.isJsonNull())
-                            author = authorRaw.getAsString();
-                        else {
-                            try {
-                                // Old fabric.mod.json authors was a string array
-                                author = authorsRaw.getAsJsonArray().get(0).getAsString(); // Returns only the first author
-                            } catch (Exception e) {
-                                // New fabric.mod.json authors is a json objects array
-                                author = authorsRaw.getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString();
-                            }
-                        }
+                        String author = fabricAuthor(obj);
 
                         // Also check for ids in the config
                         String modrinthId = obj.get("id").getAsString();
@@ -245,10 +231,30 @@ public class UtilsMinecraft {
                     if (found) break;
                 }
             } catch (Exception e) {
-                AL.warn("Failed to get details of " + jar.getName(), e);
+                warnUnreadable(jar, e);
             }
         }
         return mods;
+    }
+
+    private String fabricAuthor(JsonObject metadata) {
+        JsonElement author = metadata.get("author");
+        if (author == null || author.isJsonNull()) {
+            JsonElement authors = metadata.get("authors");
+            if (authors == null || !authors.isJsonArray() || authors.getAsJsonArray().size() == 0) return null;
+            author = authors.getAsJsonArray().get(0);
+        }
+        if (author.isJsonObject()) author = author.getAsJsonObject().get("name");
+        return author != null && author.isJsonPrimitive() ? author.getAsString() : null;
+    }
+
+    private void warnUnreadable(File jar, Exception error) {
+        String message = "Failed to get details of " + jar.getName();
+        // The standalone launcher scans collections before the legacy logger is initialized.
+        synchronized (AL.class) {
+            if (AL.isStarted && AL.STRIPPED_OUT != null) AL.warn(message, error);
+            else System.err.println(message + ": " + error.getMessage());
+        }
     }
 
 }
