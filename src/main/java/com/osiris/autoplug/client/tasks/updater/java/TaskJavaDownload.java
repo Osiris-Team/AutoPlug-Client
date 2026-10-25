@@ -8,6 +8,7 @@
 
 package com.osiris.autoplug.client.tasks.updater.java;
 
+import com.osiris.autoplug.client.launcher.DownloadProgress;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.betterthread.BWarning;
@@ -59,19 +60,21 @@ public class TaskJavaDownload extends BThread {
         super.runAtStart();
 
         String fileName = dest.getName();
-        setStatus("Downloading " + fileName + "... (0mb/0mb)");
-        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + url);
+        final String source = DownloadProgress.sourceUrl(url);
+        setStatus("Downloading " + fileName + " from " + source);
+        AL.debug(this.getClass(), "Downloading " + fileName + " from: " + source);
 
         Request request = new Request.Builder().url(url)
                 .header("User-Agent", "AutoPlug Client/" + new Random().nextInt() + " - https://autoplug.one")
                 .build();
-        Response response = new OkHttpClient().newCall(request).execute();
-        ResponseBody body = null;
-        try {
+        try (DownloadProgress.Transfer transfer = DownloadProgress.begin("Downloading " + fileName, url);
+             Response response = new OkHttpClient().newCall(request).execute()) {
+            transfer.redirect(response.request().url().toString());
+            final String currentSource = DownloadProgress.sourceUrl(response.request().url().toString());
             if (response.code() != 200)
-                throw new Exception("Download of '" + fileName + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + url);
+                throw new Exception("Download of '" + fileName + "' failed! Code: " + response.code() + " Message: " + response.message() + " Url: " + currentSource);
 
-            body = response.body();
+            ResponseBody body = response.body();
             if (body == null)
                 throw new Exception("Download of '" + fileName + "' failed because of null response body!");
             else if (body.contentType() == null)
@@ -123,35 +126,29 @@ public class TaskJavaDownload extends BThread {
             newDest.createNewFile();
 
             long completeFileSize = body.contentLength();
-            setMax(completeFileSize);
+            setMax(Math.max(1, completeFileSize));
 
 
-            BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(dest);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-            byte[] data = new byte[1024];
             long downloadedFileSize = 0;
-            int x = 0;
-            while ((x = in.read(data, 0, 1024)) >= 0) {
-                downloadedFileSize += x;
-
-                setStatus("Downloading " + fileName + "... (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
-                setNow(downloadedFileSize);
-
-                bout.write(data, 0, x);
+            try (BufferedInputStream in = new BufferedInputStream(body.byteStream());
+                 BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(dest), 1024)) {
+                byte[] data = new byte[1024];
+                int x;
+                while ((x = in.read(data)) != -1) {
+                    if (Thread.currentThread().isInterrupted())
+                        throw new java.io.InterruptedIOException("Download interrupted");
+                    downloadedFileSize += x;
+                    setStatus("Downloading " + fileName + " from " + currentSource
+                            + " (" + downloadedFileSize + "/" + (completeFileSize < 0 ? "?" : completeFileSize) + " bytes)");
+                    if (completeFileSize > 0) setNow(downloadedFileSize);
+                    transfer.update(downloadedFileSize, completeFileSize);
+                    bout.write(data, 0, x);
+                }
             }
 
-            setStatus("Downloaded " + fileName + " (" + downloadedFileSize / (1024 * 1024) + "mb/" + completeFileSize / (1024 * 1024) + "mb)");
-            bout.close();
-            in.close();
-            body.close();
-            response.close();
-
             Files.copy(dest.toPath(), newDest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            if (body != null) body.close();
-            response.close();
-            throw e;
+            setStatus("Downloaded " + fileName + " (" + downloadedFileSize + " bytes) from " + currentSource);
+            transfer.complete(downloadedFileSize, completeFileSize);
         }
     }
 

@@ -242,6 +242,10 @@ public class UpdaterConfig extends MyYaml {
 
     @Override
     public Yaml validateValues() {
+        if (com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild()) {
+            for (YamlSection section : java.util.Arrays.asList(global_recurring_checks, self_updater, java_updater, server_updater, plugins_updater, mods_updater))
+                section.setValues("false").setComments(com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.UPDATER_POLICY);
+        }
         String selfP = self_updater_profile.asString();
         String jP = java_updater_profile.asString();
         String sP = server_updater_profile.asString();

@@ -40,13 +40,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class Server {
 
     private static final AtomicBoolean isKill = new AtomicBoolean(false);
+    private static final AtomicBoolean isRestarting = new AtomicBoolean(false);
     @Nullable
     public static AsyncInputStream ASYNC_SERVER_IN;
-    private static Process process;
+    private static volatile Process process;
+    // Guarded by Server.class: once exit is chosen, releasing the lock must not admit a new start.
+    private static boolean autoStopRequested;
     private static Thread threadServerAliveChecker;
     private static boolean colorServerLog;
 
     public static File getServerExecutable() throws NotLoadedException, YamlReaderException, YamlWriterException, IOException, IllegalKeyException, DuplicateKeyException, IllegalListException {
+        List<String> managed = com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.childCommand();
+        if (managed != null) {
+            int jar = managed.indexOf("-jar");
+            return new File(jar >= 0 && jar + 1 < managed.size() ? managed.get(jar + 1) : managed.get(0));
+        }
         File serverExe = null;
         while (true) {
             serverExe = new UtilsJar().determineServerJar();
@@ -101,6 +109,7 @@ public final class Server {
     }
 
     public static synchronized void start() {
+        if (autoStopRequested) return;
         try {
             try {
                 colorServerLog = new LoggerConfig().color_server_log.asBoolean();
@@ -129,15 +138,17 @@ public final class Server {
         }
     }
 
-    public static void restart() {
+    public static synchronized void restart() {
+        if (autoStopRequested) return;
         //Before starting make backups and check for updates
         AL.info("Restarting server...");
         try {
+            isRestarting.set(true);
             stop();
             start();
         } catch (Exception e) {
             AL.warn(e);
-        }
+        } finally { isRestarting.set(false); }
     }
 
     /**
@@ -287,9 +298,12 @@ public final class Server {
         // but messes input up, because there are 2 scanners on the same stream.
         // That's why we pause the current Terminal, which disables the user from entering console commands.
         // If AutoPlug-Plugin is installed the user can executed AutoPlug commands through in-game or console.
-        List<String> commands = new UtilsString().splitBySpacesAndQuotes(startCommand);
-        for (int i = 0; i < commands.size(); i++) {
-            commands.set(i, commands.get(i).replaceAll("\"", "")); // Processbuilder does not support quotes
+        List<String> commands = com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.childCommand();
+        if (commands == null) {
+            commands = new UtilsString().splitBySpacesAndQuotes(startCommand);
+            for (int i = 0; i < commands.size(); i++) {
+                commands.set(i, commands.get(i).replaceAll("\"", "")); // Processbuilder does not support quotes
+            }
         }
         AL.debug(Server.class, "Starting server with commands: " + commands);
         //TERMINAL.pause(true);
@@ -333,32 +347,44 @@ public final class Server {
         if (threadServerAliveChecker == null) {
             threadServerAliveChecker = new Thread(() -> {
                 try {
-                    boolean lastIsRunningCheck = false;
+                    Process lastObserved = process;
+                    boolean lastIsRunningCheck = lastObserved != null;
                     boolean currentIsRunningCheck;
                     while (true) {
                         Thread.sleep(2000);
-                        currentIsRunningCheck = Server.isRunning();
+                        Process observed = process;
+                        currentIsRunningCheck = observed != null && observed.isAlive();
+                        if (observed != lastObserved) {
+                            lastObserved = observed;
+                            lastIsRunningCheck = observed != null;
+                        }
                         if (!currentIsRunningCheck && lastIsRunningCheck) {
-                            AL.info("Server was stopped.");
-                            if (new GeneralConfig().autoplug_auto_stop.asBoolean()) {
-                                AL.info("Stopping AutoPlug too, since 'autoplug-stop' is enabled.");
-                                System.exit(0);
-                            } else {
-                                AL.info("To stop AutoPlug too, enter '.stop both'.");
-                            }
-
-                            if (process.exitValue() != 0) {
-                                if (isKill.get()) {
-                                    isKill.set(false);
+                            boolean exitAutoPlug = false;
+                            synchronized (Server.class) {
+                                Integer exitCode = observedExitCode(observed);
+                                if (exitCode == null) continue; // A restart replaced this process while we were observing its exit.
+                                AL.info("Server was stopped.");
+                                if (new GeneralConfig().autoplug_auto_stop.asBoolean() && requestAutomaticStop(observed)) {
+                                    AL.info("Stopping AutoPlug too, since 'autoplug-stop' is enabled.");
+                                    exitAutoPlug = true;
                                 } else {
-                                    AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + process.exitValue() + "'!");
-                                    if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
-                                        AL.info("Restart on crash is enabled, thus the server is restarting...");
-                                        Server.start();
-                                    }
+                                    AL.info("To stop AutoPlug too, enter '.stop both'.");
                                 }
 
+                                if (!exitAutoPlug && exitCode != 0) {
+                                    if (isKill.get()) {
+                                        isKill.set(false);
+                                    } else {
+                                        AL.warn("Server crash was detected! Exit-Code should be 0, but is '" + exitCode + "'!");
+                                        if (new GeneralConfig().server_restart_on_crash.asBoolean()) {
+                                            AL.info("Restart on crash is enabled, thus the server is restarting...");
+                                            Server.start();
+                                        }
+                                    }
+                                }
                             }
+                            // Shutdown hooks may call synchronized Server.stop(); never wait for them with its monitor held.
+                            if (exitAutoPlug) { System.exit(0); return; }
                         }
                         lastIsRunningCheck = currentIsRunningCheck;
                     }
@@ -368,6 +394,19 @@ public final class Server {
             });
             threadServerAliveChecker.start();
         }
+    }
+
+    /** An exit belongs to one process generation; a newly started server must never inherit it. */
+    static synchronized Integer observedExitCode(Process observed) {
+        if (observed == null || observed != process || observed.isAlive() || isRestarting.get()) return null;
+        return observed.exitValue();
+    }
+
+    /** Reserve automatic exit while holding the lifecycle lock; actual JVM exit happens after releasing it. */
+    static synchronized boolean requestAutomaticStop(Process observed) {
+        if (autoStopRequested || observedExitCode(observed) == null) return false;
+        autoStopRequested = true;
+        return true;
     }
 
     public static String getFileNameWithoutExt(String fileNameWithExt) throws NotLoadedException {
