@@ -36,6 +36,24 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class TaskModsUpdater extends BThread {
+    private com.osiris.autoplug.client.profiles.Profile profileContext;
+    private com.osiris.autoplug.client.profiles.ProfileUpdater profileUpdater;
+    private boolean profileApply, profileConfirmDisabling;
+
+    public TaskModsUpdater(String name, BThreadManager manager, com.osiris.autoplug.client.profiles.Profile profile,
+                           com.osiris.autoplug.client.profiles.ProfileUpdater updater, boolean apply, boolean confirmDisabling) {
+        this(name, manager);
+        if (profile.type == com.osiris.autoplug.client.profiles.Profile.Type.PLUGINS) throw new IllegalArgumentException("Expected a MODS or MODS_SERVER profile");
+        profileContext = profile; profileUpdater = updater; profileApply = apply; profileConfirmDisabling = confirmDisabling;
+    }
+    public static com.osiris.autoplug.client.profiles.ProfileUpdater.Plan processProfile(com.osiris.autoplug.client.profiles.Profile profile,
+            com.osiris.autoplug.client.profiles.ProfileUpdater updater, boolean apply, boolean confirmDisabling, java.util.function.Consumer<String> output) throws java.io.IOException {
+        if (profile.type == com.osiris.autoplug.client.profiles.Profile.Type.PLUGINS) throw new IllegalArgumentException("Expected a MODS or MODS_SERVER profile");
+        com.osiris.autoplug.client.profiles.ProfileUpdater.Plan plan = updater.check(profile);
+        output.accept(plan.summary());
+        if (apply) updater.apply(plan, confirmDisabling);
+        return plan;
+    }
     //private final ModsUpdateResultConnection con;
     private final String notifyProfile = "NOTIFY";
     private final String manualProfile = "MANUAL";
@@ -64,6 +82,11 @@ public class TaskModsUpdater extends BThread {
 
     @Override
     public void runAtStart() throws Exception {
+        if (profileContext != null) {
+            processProfile(profileContext, profileUpdater, profileApply, profileConfirmDisabling, this::addInfo);
+            finish("Profile " + profileContext.id + (profileApply ? " updated." : " checked."));
+            return;
+        }
         updaterConfig = new UpdaterConfig();
         if (!updaterConfig.mods_updater.asBoolean()) {
             skip();

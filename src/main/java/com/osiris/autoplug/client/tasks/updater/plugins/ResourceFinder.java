@@ -26,6 +26,14 @@ import java.util.List;
 
 public class ResourceFinder {
 
+    /** Profile-scoped resolution shares AutoPlug's Modrinth service and never consults process-global loader/config state. */
+    public com.google.gson.JsonObject findProfileRelease(ModrinthAPI api, String projectId, List<String> loaders, String gameVersion, String pinnedVersionId) throws java.io.IOException {
+        return api.compatibleProfileRelease(projectId, loaders, gameVersion, pinnedVersionId);
+    }
+    public com.google.gson.JsonObject findProfileCurseForgeRelease(String projectId, String loader, String gameVersion) throws Exception {
+        return new CurseForgeAPI().compatibleProfileRelease(projectId, loader, gameVersion);
+    }
+
     /**
      * If the spigot/bukkit id is not given this type of search
      * based on the plugins' name and author will be executed. <br>
@@ -78,6 +86,11 @@ public class ResourceFinder {
         plugin.setPremium(sr.isPremium);
         sr.plugin = plugin;
         return sr;
+    }
+    public SearchResult findProfilePluginByBukkitId(MinecraftPlugin plugin, String gameVersion) {
+        SearchResult result = new BukkitSearchById().searchCompatible(plugin, gameVersion);
+        result.plugin = plugin;
+        return result;
     }
     public SearchResult findPluginByModrinthId(List<String> loaders, MinecraftPlugin plugin, String mcVersion) {
         SearchResult sr = new ModrinthAPI().searchUpdatePlugin(loaders, plugin, mcVersion);

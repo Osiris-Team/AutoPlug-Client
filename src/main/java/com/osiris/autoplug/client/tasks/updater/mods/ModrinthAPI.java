@@ -21,7 +21,64 @@ import java.util.List;
 
 
 public class ModrinthAPI {
-    private final String baseUrl = "https://api.modrinth.com/v2";
+    private final String baseUrl;
+
+    public ModrinthAPI() { this("https://api.modrinth.com/v2"); }
+    public ModrinthAPI(String baseUrl) { this.baseUrl = baseUrl; }
+
+    /** Identify exact installed bytes, rather than guessing a project from a display name. A 404 is a genuine unknown file. */
+    public JsonObject identifyProfileFile(java.nio.file.Path file) throws java.io.IOException {
+        String hash = com.osiris.autoplug.client.profiles.SharedArtifactCache.hash(file, "SHA-1");
+        com.google.gson.JsonElement result = profileGet("/version_file/" + hash + "?algorithm=sha1", true);
+        return result == null ? null : result.getAsJsonObject();
+    }
+    public JsonObject profileVersion(String versionId) throws java.io.IOException {
+        if (versionId == null || !versionId.matches("[A-Za-z0-9_-]{1,128}")) throw new java.io.IOException("Invalid Modrinth version id");
+        com.google.gson.JsonElement result = profileGet("/version/" + versionId, true);
+        return result == null ? null : result.getAsJsonObject();
+    }
+
+    /** Explicit target version and loader resolution also works for downgrades, independent of local timestamps. */
+    public JsonObject compatibleProfileRelease(String projectId, List<String> loaders, String mcVersion, String pinnedVersionId) throws java.io.IOException {
+        if (projectId == null || !projectId.matches("[A-Za-z0-9_-]{1,128}")) throw new java.io.IOException("Invalid Modrinth project id");
+        if (pinnedVersionId != null) {
+            if (!pinnedVersionId.matches("[A-Za-z0-9_-]{1,128}")) throw new java.io.IOException("Invalid Modrinth version id");
+            com.google.gson.JsonElement result = profileGet("/version/" + pinnedVersionId, true);
+            if (result == null) return null;
+            JsonObject version = result.getAsJsonObject();
+            return projectId.equals(version.get("project_id").getAsString()) && profileCompatible(version, loaders, mcVersion) ? version : null;
+        }
+        String query = "/project/" + projectId + "/version?loaders=" + java.net.URLEncoder.encode(new com.google.gson.Gson().toJson(loaders), "UTF-8")
+                + "&game_versions=" + java.net.URLEncoder.encode(new com.google.gson.Gson().toJson(java.util.Collections.singletonList(mcVersion)), "UTF-8");
+        com.google.gson.JsonElement result = profileGet(query, true);
+        if (result == null) return null;
+        JsonObject selected = null;
+        for (com.google.gson.JsonElement element : result.getAsJsonArray()) {
+            JsonObject candidate = element.getAsJsonObject();
+            if (!profileCompatible(candidate, loaders, mcVersion)) continue;
+            if (selected == null || java.time.Instant.parse(candidate.get("date_published").getAsString()).isAfter(java.time.Instant.parse(selected.get("date_published").getAsString()))) selected = candidate;
+        }
+        return selected;
+    }
+    private static boolean profileCompatible(JsonObject version, List<String> loaders, String mcVersion) {
+        boolean game = false, loader = false;
+        for (com.google.gson.JsonElement value : version.getAsJsonArray("game_versions")) if (mcVersion.equals(value.getAsString())) game = true;
+        for (com.google.gson.JsonElement value : version.getAsJsonArray("loaders")) if (loaders.contains(value.getAsString())) loader = true;
+        return game && loader;
+    }
+    private com.google.gson.JsonElement profileGet(String relative, boolean missingAllowed) throws java.io.IOException {
+        java.net.HttpURLConnection connection = (java.net.HttpURLConnection) new java.net.URL(baseUrl + relative).openConnection();
+        connection.setConnectTimeout(15000); connection.setReadTimeout(30000);
+        connection.setRequestProperty("User-Agent", "AutoPlug-Client/10.2.0 (native profile updater)"); connection.setRequestProperty("Accept", "application/json");
+        try {
+            int status = connection.getResponseCode();
+            if (status == 404 && missingAllowed) return null;
+            if (status != 200) throw new java.io.IOException("Modrinth API returned HTTP " + status);
+            try (java.io.Reader input = new java.io.InputStreamReader(connection.getInputStream(), java.nio.charset.StandardCharsets.UTF_8)) {
+                return com.google.gson.JsonParser.parseReader(input);
+            } catch (RuntimeException invalid) { throw new java.io.IOException("Invalid Modrinth API response", invalid); }
+        } finally { connection.disconnect(); }
+    }
 
     private boolean isInt(String s) {
         try {

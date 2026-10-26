@@ -67,7 +67,7 @@ public class GeneralConfig extends MyYaml {
             try {
                 if (this.autoplug_system_tray.asBoolean()) {
                     boolean firstStart = MainWindow.GET == null;
-                    new MainWindow(this);
+                    MainWindow.open(this);
                     if (firstStart) AL.info("Started system-tray GUI.");
                 } else {
                     boolean isRunning = MainWindow.GET != null;

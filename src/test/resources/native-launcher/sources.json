@@ -1,0 +1,86 @@
+{
+  "retrievedUtc": "2026-10-03T20:03:48.378Z",
+  "sources": [
+    {
+      "file": "1.20.4.json",
+      "url": "https://piston-meta.mojang.com/v1/packages/bff1278922bca138b7722385a81366f3077abffa/1.20.4.json",
+      "mojangSha1": "bff1278922bca138b7722385a81366f3077abffa"
+    },
+    {
+      "file": "1.12.2.json",
+      "url": "https://piston-meta.mojang.com/v1/packages/832d95b9f40699d4961394dcf6cf549e65f15dc5/1.12.2.json",
+      "mojangSha1": "832d95b9f40699d4961394dcf6cf549e65f15dc5"
+    },
+    {
+      "file": "1.20.5.json",
+      "url": "https://piston-meta.mojang.com/v1/packages/2b95c082b76616fcf6e2aa9fe443a45c15ccb435/1.20.5.json",
+      "mojangSha1": "2b95c082b76616fcf6e2aa9fe443a45c15ccb435"
+    },
+    {
+      "file": "fabric-1.20.4.json",
+      "url": "https://meta.fabricmc.net/v2/versions/loader/1.20.4/0.15.11/profile/json"
+    },
+    {
+      "file": "quilt-1.20.4.json",
+      "url": "https://meta.quiltmc.org/v3/versions/loader/1.20.4/0.24.0/profile/json"
+    },
+    {
+      "file": "1.19.4.json",
+      "url": "https://piston-meta.mojang.com/v1/packages/b67b917c119918ddd3aa43ad98eed089a06dbc97/1.19.4.json",
+      "mojangSha1": "b67b917c119918ddd3aa43ad98eed089a06dbc97"
+    },
+    {
+      "file": "forge-install_profile.json",
+      "sourceArchive": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.4-49.2.0/forge-1.20.4-49.2.0-installer.jar",
+      "entry": "install_profile.json"
+    },
+    {
+      "file": "forge-version.json",
+      "sourceArchive": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.4-49.2.0/forge-1.20.4-49.2.0-installer.jar",
+      "entry": "version.json"
+    },
+    {
+      "file": "neoforge-install_profile.json",
+      "sourceArchive": "https://maven.neoforged.net/releases/net/neoforged/neoforge/20.4.251/neoforge-20.4.251-installer.jar",
+      "entry": "install_profile.json"
+    },
+    {
+      "file": "neoforge-version.json",
+      "sourceArchive": "https://maven.neoforged.net/releases/net/neoforged/neoforge/20.4.251/neoforge-20.4.251-installer.jar",
+      "entry": "version.json"
+    },
+    {
+      "file": "26.3.json",
+      "url": "https://piston-meta.mojang.com/v1/packages/4fe1aa1ef8da1cb95c5bad1fb98890ca56dd8ca3/26.3.json",
+      "mojangSha1": "4fe1aa1ef8da1cb95c5bad1fb98890ca56dd8ca3"
+    },
+    {
+      "file": "forge-26.3-install_profile.json",
+      "sourceArchive": "https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.0.9/forge-26.3-66.0.9-installer.jar",
+      "archiveSha1": "b1d66c82fa7b7caa612a70259b24ec95a41a023f",
+      "entry": "install_profile.json",
+      "recordedUtc": "2026-10-03T20:42:15.100Z"
+    },
+    {
+      "file": "forge-26.3-version.json",
+      "sourceArchive": "https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.0.9/forge-26.3-66.0.9-installer.jar",
+      "archiveSha1": "b1d66c82fa7b7caa612a70259b24ec95a41a023f",
+      "entry": "version.json",
+      "recordedUtc": "2026-10-03T20:42:15.100Z"
+    },
+    {
+      "file": "neoforge-26.3-install_profile.json",
+      "sourceArchive": "https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.46-beta/neoforge-26.3.0.46-beta-installer.jar",
+      "archiveSha1": "3807c85c92f4f2c91132494a02621f24dfa71a39",
+      "entry": "install_profile.json",
+      "recordedUtc": "2026-10-03T20:42:15.100Z"
+    },
+    {
+      "file": "neoforge-26.3-version.json",
+      "sourceArchive": "https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.46-beta/neoforge-26.3.0.46-beta-installer.jar",
+      "archiveSha1": "3807c85c92f4f2c91132494a02621f24dfa71a39",
+      "entry": "version.json",
+      "recordedUtc": "2026-10-03T20:42:15.100Z"
+    }
+  ]
+}

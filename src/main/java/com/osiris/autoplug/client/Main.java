@@ -71,6 +71,7 @@ public class Main {
         List<String> args = new ArrayList<>();
         if (_args != null)
             Collections.addAll(args, _args);
+        if (com.osiris.autoplug.client.clientapp.StartupCommands.executeClientOnly(args, System.out::println)) return;
         // Check various things to ensure an fully functioning application.
         // If one of these checks fails this application is stopped.
         long now = System.currentTimeMillis();
@@ -268,8 +269,8 @@ public class Main {
             try {
                 if (generalConfig.autoplug_system_tray.asBoolean()) {
                     now = System.currentTimeMillis();
-                    new MainWindow(generalConfig);
-                    AL.info("Started system-tray GUI, took " + (System.currentTimeMillis() - now) + "ms");
+                    MainWindow.open(generalConfig);
+                    AL.info("Scheduled client dashboard on the Swing event thread");
                 }
             } catch (Exception e) {
                 AL.warn(e);
@@ -312,16 +313,7 @@ public class Main {
                 Server.start();
 
             // Execute arguments as commands if existing
-            String argsString = "";
-            for (String arg : args) {
-                argsString += arg + " ";
-            }
-            if (argsString.contains(".")) {
-                String[] commands = argsString.split("\\."); // Split by dots
-                for (String c : commands) {
-                    Commands.execute("." + c);
-                }
-            }
+            for (String startupCommand : com.osiris.autoplug.client.clientapp.StartupCommands.parse(args)) Commands.execute(startupCommand);
 
             // We have to keep this main Thread running.
             // If we don't, the NonBlockingPipedInputStream stops working
