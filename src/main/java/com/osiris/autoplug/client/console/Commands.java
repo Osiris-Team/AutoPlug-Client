@@ -58,6 +58,7 @@ import com.osiris.autoplug.client.utils.tasks.MyBThreadManager;
 import com.osiris.autoplug.client.utils.tasks.UtilsTasks;
 import com.osiris.jlib.logger.AL;
 import com.osiris.autoplug.client.tasks.updater.plugins.InstalledPluginLoader;
+import com.osiris.autoplug.client.minecraft.LauncherCommands;
 
 /**
  * Listens for input started with .
@@ -98,6 +99,7 @@ public final class Commands {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
                     AL.info(".ping | Responds with 'Pong!' as a way to test if AutoPlug is running.");
+                    AL.info(".mc help | Minecraft client launcher, profile and server browser commands.");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
                     AL.info(".con reload | Closes and reconnects all connections (.cr)");
@@ -325,6 +327,10 @@ public final class Commands {
                     SSHManager.stop(true);
                     SSHManager.start(true);
                     return true;
+                } else if (command.startsWith(".mc")) {
+                    String sub = command.length() > 3 ? command.substring(3).trim() : "";
+                    String[] tokens = sub.isEmpty() ? new String[0] : sub.split("\\s+");
+                    return LauncherCommands.execute(tokens);
                 } else if (command.equals(".ping")) { // This is used for the SSH test, as well as for users to test if AutoPlug is running.
                     AL.info("Pong!");
                     return true;
