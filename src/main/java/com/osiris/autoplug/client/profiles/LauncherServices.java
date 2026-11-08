@@ -31,7 +31,10 @@ public class LauncherServices implements LauncherActions, AutoCloseable {
     private final JavaRuntimeManager runtimes;
     private final MinecraftLauncher launcher;
     private final AccountStore accounts;
-    private final MicrosoftAccountService microsoft = new MicrosoftAccountService();
+    private final MicrosoftAccountService microsoft;
+    private long authenticationGeneration;
+    private Thread authenticationWorker;
+    private boolean authenticationClosed;
     private final Map<String, Process> clients = new ConcurrentHashMap<>();
     private final Map<String, Process> localClients = new ConcurrentHashMap<>();
     private final Map<String, ProfileUpdates.Plan> plans = new ConcurrentHashMap<>();
@@ -47,6 +50,11 @@ public class LauncherServices implements LauncherActions, AutoCloseable {
     }
     /** An explicit Minecraft directory keeps local-save discovery testable without touching user saves. */
     public LauncherServices(Path root, Path minecraftDirectory, Consumer<String> progress) throws Exception {
+        this(root, minecraftDirectory, progress, new MicrosoftAccountService());
+    }
+    /** Injectable provider for deterministic account lifecycle tests. */
+    LauncherServices(Path root, Path minecraftDirectory, Consumer<String> progress, MicrosoftAccountService microsoft) throws Exception {
+        this.microsoft = Objects.requireNonNull(microsoft);
         this.root = root.toAbsolutePath().normalize();
         Consumer<String> log = progress == null ? ignored -> { } : progress;
         this.progress = message -> {
@@ -337,6 +345,8 @@ public class LauncherServices implements LauncherActions, AutoCloseable {
         applyRuntimeSettings(settings);
         worldService.setPreferredPort(settings.port);
         worldService.setSharingEnabled(settings.upnp);
+        if (authenticationWorker != null && (!Objects.equals(settings.microsoftClientId, state.settings.microsoftClientId)
+                || settings.rememberAccount != state.settings.rememberAccount)) cancelMicrosoftSignIn();
         if (!settings.rememberAccount) forgetStoredAccounts();
         state.settings = settings; saveState();
     }
@@ -349,19 +359,56 @@ public class LauncherServices implements LauncherActions, AutoCloseable {
             String path = value.getValue(); runtimes.setRuntime(value.getKey(), path == null || path.trim().isEmpty() ? null : Paths.get(path));
         }
     }
+    @Override public synchronized long beginAccountChange() {
+        if (authenticationClosed) throw new java.util.concurrent.CancellationException("Launcher is closed");
+        cancelMicrosoftSignIn();
+        return authenticationGeneration;
+    }
+    @Override public synchronized void cancelMicrosoftSignIn() {
+        authenticationGeneration++;
+        Thread worker = authenticationWorker; authenticationWorker = null;
+        if (worker != null && worker != Thread.currentThread()) worker.interrupt();
+    }
+    private void requireCurrentAuthentication(long attempt) {
+        if (authenticationClosed || attempt != authenticationGeneration || Thread.currentThread().isInterrupted())
+            throw new java.util.concurrent.CancellationException("Microsoft sign-in cancelled");
+    }
     @Override public void signInMicrosoft(Consumer<String> instructions) throws Exception {
-        String clientId; synchronized (this) { clientId = state.settings.microsoftClientId; }
-        MicrosoftAccountService.DeviceLogin device = microsoft.beginLogin(clientId); instructions.accept(device.message);
-        MinecraftAccount signedIn = microsoft.completeLogin(device);
+        signInMicrosoft(beginAccountChange(), null, instructions);
+    }
+    @Override public void signInMicrosoft(long attempt, SettingsInfo settings, Consumer<String> instructions) throws Exception {
+        String clientId;
         synchronized (this) {
-            account = signedIn; state.selectedAccount = account.uuid;
-            if (state.settings.rememberAccount) accounts.save(account);
-            saveState();
+            requireCurrentAuthentication(attempt);
+            if (settings != null) saveSettings(settings);
+            requireCurrentAuthentication(attempt);
+            authenticationWorker = Thread.currentThread(); clientId = state.settings.microsoftClientId;
         }
-        instructions.accept("Signed in as " + signedIn.username);
+        try {
+            MicrosoftAccountService.DeviceLogin device = microsoft.beginLogin(clientId);
+            synchronized (this) { requireCurrentAuthentication(attempt); instructions.accept(device.message); }
+            MinecraftAccount signedIn = microsoft.completeLogin(device);
+            synchronized (this) {
+                requireCurrentAuthentication(attempt);
+                if (state.settings.rememberAccount) accounts.save(signedIn);
+                account = signedIn; state.selectedAccount = signedIn.uuid; saveState();
+            }
+        } catch (Exception failure) {
+            synchronized (this) { requireCurrentAuthentication(attempt); }
+            throw failure;
+        } finally {
+            synchronized (this) {
+                if (attempt == authenticationGeneration && authenticationWorker == Thread.currentThread()) authenticationWorker = null;
+            }
+        }
+    }
+    @Override public synchronized void useOfflineAccount(long attempt, String name) throws Exception {
+        requireCurrentAuthentication(attempt); useOfflineAccount(name);
     }
     @Override public synchronized void useOfflineAccount(String name) throws Exception {
-        account = MinecraftAccount.offline(name); state.offlineName = name; state.selectedAccount = ""; saveState();
+        MinecraftAccount offline = MinecraftAccount.offline(name);
+        cancelMicrosoftSignIn();
+        account = offline; state.offlineName = name; state.selectedAccount = ""; saveState();
     }
     private void saveState() throws IOException { json.write(root.resolve("settings.json"), state); }
     private void forgetStoredAccounts() throws IOException { for (MinecraftAccount saved : accounts.list()) accounts.remove(saved.uuid); }
@@ -391,6 +438,7 @@ public class LauncherServices implements LauncherActions, AutoCloseable {
         while (!clients.isEmpty() || !localClients.isEmpty() || !worldService.activeSessions().isEmpty()) Thread.sleep(250);
     }
     @Override public void close() {
+        synchronized (this) { authenticationClosed = true; cancelMicrosoftSignIn(); }
         worldService.close();
         for (Process process : clients.values()) if (process.isAlive()) process.destroy();
         // Never destroy localClients: abrupt termination can corrupt an original user's save.

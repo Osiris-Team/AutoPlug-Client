@@ -183,7 +183,8 @@ class MinecraftLauncherTest {
         finally { server.stop(0); }
         Process process = launcher.launch(prepared);
         assertTrue(process.waitFor(20, TimeUnit.SECONDS)); assertEquals(0, process.exitValue());
-        assertEquals(request.gameDir.toString(), new String(Files.readAllBytes(request.gameDir.resolve("fixture-working-directory.txt")), StandardCharsets.UTF_8));
+        Path observedDirectory = Paths.get(new String(Files.readAllBytes(request.gameDir.resolve("fixture-working-directory.txt")), StandardCharsets.UTF_8));
+        assertTrue(Files.isSameFile(request.gameDir, observedDirectory), "The child must use the isolated profile, including canonical macOS /private paths");
         assertEquals(prepared.command(), launcher.prepare(request, ignored -> { }).command());
         assertFalse(Files.exists(temporary.resolve("fixture-working-directory.txt")));
     }

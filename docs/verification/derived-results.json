@@ -1,0 +1,350 @@
+{
+  "fixture": {
+    "totals": {
+      "tests": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "com.osiris.autoplug.client.browser.MineStatJsonTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.422"
+      },
+      {
+        "name": "com.osiris.autoplug.client.browser.ServerBrowserTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.01"
+      },
+      {
+        "name": "com.osiris.autoplug.client.browser.ServerFavoriteHistoryTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.008"
+      },
+      {
+        "name": "com.osiris.autoplug.client.browser.ServerIconTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.023"
+      },
+      {
+        "name": "com.osiris.autoplug.client.browser.ServerStatusIconIntegrationTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.013"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.DownloadProgressTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.086"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.JavaRuntimeManagerTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.016"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.LegacyWorldLaunchTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.34"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.MicrosoftAccountServiceTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.182"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.MinecraftLauncherTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.115"
+      },
+      {
+        "name": "com.osiris.autoplug.client.launcher.ParallelDownloadsTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.788"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.FabricDefaultProfileTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.137"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.LauncherAuthenticationRaceTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.082"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.LauncherCommandsTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.076"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.LauncherDefaultsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.105"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.LauncherPreferencesTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.069"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.LocalClientLifecycleTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.54"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.ProfileLoaderCompatibilityTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.02"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.ProfileStoreTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.025"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.ProfileUpdatesTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.07"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.ProviderCompatibilityTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.007"
+      },
+      {
+        "name": "com.osiris.autoplug.client.profiles.WorldActivityOrderingTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.025"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.DashboardPanelTest",
+        "tests": "16",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.937"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.DashboardServerRowsTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.86"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.LaunchChoicePanelTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.01"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.ManagedWorldPanelTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.058"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.OverallProgressTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.002"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrapTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.095"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.LocalWorldStoreTest",
+        "tests": "15",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.226"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.MinecraftServerInstallerTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.036"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.UpnpSharingServiceTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.057"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.WorldServiceTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.551"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.WorldStartupCancellationTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.049"
+      },
+      {
+        "name": "com.osiris.autoplug.client.worlds.WorldStoreTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.012"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ServerProcessObservationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.004"
+      },
+      {
+        "name": "com.osiris.autoplug.client.tasks.updater.LegacyDownloadProgressTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.113"
+      },
+      {
+        "name": "com.osiris.autoplug.client.tasks.updater.mods.ModrinthArtifactIdentityTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.029"
+      }
+    ]
+  },
+  "native": {
+    "totals": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "com.osiris.autoplug.client.ui.DashboardAuthenticationLifecycleTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.483"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.DashboardDisplayableTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.038"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.DashboardProfileCompatibilityTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.246"
+      },
+      {
+        "name": "com.osiris.autoplug.client.ui.ManagedWorldStartupNativeTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.138"
+      }
+    ]
+  }
+}
