@@ -76,6 +76,15 @@ public final class Commands {
      */
     public static boolean execute(@NotNull String command) {
 
+        if (command != null && (command.trim().startsWith(".profiles") || command.trim().startsWith(".mc ")
+                || (command.trim().startsWith(".check ") || command.trim().startsWith(".update ")) && command.contains("--profile"))) {
+            try {
+                com.osiris.autoplug.client.profiles.LauncherCommands launcher = new com.osiris.autoplug.client.profiles.LauncherCommands(Main.getLauncher(), AL::info);
+                launcher.execute(launcher.tokenize(command));
+            } catch (Exception e) { AL.warn("Launcher command failed: " + e.getMessage()); }
+            return true;
+        }
+
 
 
         String first = "";
@@ -97,6 +106,9 @@ public final class Commands {
                 if (command.equals(".help") || command.equals(".h")) {
                     AL.info("");
                     AL.info(".help | Prints out this (Shortcut: .h)");
+                    AL.info(".profiles list/create/clone/delete/template/add | Manage isolated client/server collections");
+                    AL.info(".check|.update mods|plugins --profile <id> | Review/apply profile updates; migration requires confirmation");
+                    AL.info(".mc launch <profile> [--server host:port] | .mc servers list/import/add | .mc worlds list/create/launch/share/stop");
                     AL.info(".ping | Responds with 'Pong!' as a way to test if AutoPlug is running.");
                     AL.info(".run tasks | Runs the 'before server startup tasks' without starting the server (.rt)");
                     AL.info(".con info | Shows details about AutoPlugs network connections (.ci)");
@@ -292,12 +304,12 @@ public final class Commands {
                     new TaskServerUpdater("ServerUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
-                } else if (command.equals(".check plugins") || command.equals(".cp")) {
+                } else if (command.equals(".check plugins") || command.equals(".cp") || command.equals(".update plugins")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskPluginsUpdater("PluginsUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);
                     return true;
-                } else if (command.equals(".check mods") || command.equals(".cm")) {
+                } else if (command.equals(".check mods") || command.equals(".cm") || command.equals(".update mods")) {
                     MyBThreadManager myManager = new UtilsTasks().createManagerAndPrinter();
                     new TaskModsUpdater("ModsUpdater", myManager.manager).start();
                     new UtilsTasks().printResultsWhenDone(myManager.manager);

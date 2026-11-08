@@ -1,0 +1,33 @@
+# Narrow adapter evidence for Minecraft 1.7.10; retrieved 2026-10-04.
+# Official client: https://launcher.mojang.com/v1/objects/e80d9b3bf5085002218d4be59e668bac718abbc6/client.jar
+# Client SHA-1 verified: e80d9b3bf5085002218d4be59e668bac718abbc6
+# SRG source: https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp/1.7.10/mcp-1.7.10-srg.zip
+# SRG archive SHA-256: d49df5c445dcf00ada532ab3b0e4283bf4b05ac13f210647658dfd3cec8b34c2
+# Unmodified joined.srg lines below; signatures and behavior independently checked with javap.
+# Native selection bdx.e(int) checks canLoadWorld and calls launchIntegratedServer(folder, displayName, null).
+# Its display-name helper reads the summary name; only null/empty names get localized World N fallback.
+# For ordinary nonempty save names, the summary name is passed unchanged.
+# Minecraft Runnable scheduler wraps Callable and queues off-thread work in aB; it is not Executor.
+# SaveFormatOld owns inherited canLoadWorld; public getMethod or superclass lookup is necessary.
+# No overlay API; original GuiMainMenu is the readiness gate.
+CL: ahj net/minecraft/world/WorldSettings
+CL: ayn net/minecraft/world/chunk/storage/AnvilSaveConverter
+CL: ayr net/minecraft/world/storage/SaveFormatOld
+CL: aze net/minecraft/world/storage/ISaveFormat
+CL: azf net/minecraft/world/storage/SaveFormatComparator
+CL: bao net/minecraft/client/Minecraft
+CL: bdx net/minecraft/client/gui/GuiSelectWorld
+CL: bee net/minecraft/client/gui/GuiMainMenu
+FD: bao/n net/minecraft/client/Minecraft/field_71462_r
+MD: ayn/b ()Ljava/util/List; net/minecraft/world/chunk/storage/AnvilSaveConverter/func_75799_b ()Ljava/util/List;
+MD: ayr/b ()Ljava/util/List; net/minecraft/world/storage/SaveFormatOld/func_75799_b ()Ljava/util/List;
+MD: ayr/f (Ljava/lang/String;)Z net/minecraft/world/storage/SaveFormatOld/func_90033_f (Ljava/lang/String;)Z
+MD: aze/b ()Ljava/util/List; net/minecraft/world/storage/ISaveFormat/func_75799_b ()Ljava/util/List;
+MD: aze/f (Ljava/lang/String;)Z net/minecraft/world/storage/ISaveFormat/func_90033_f (Ljava/lang/String;)Z
+MD: azf/a ()Ljava/lang/String; net/minecraft/world/storage/SaveFormatComparator/func_75786_a ()Ljava/lang/String;
+MD: azf/b ()Ljava/lang/String; net/minecraft/world/storage/SaveFormatComparator/func_75788_b ()Ljava/lang/String;
+MD: bao/B ()Lbao; net/minecraft/client/Minecraft/func_71410_x ()Lnet/minecraft/client/Minecraft;
+MD: bao/a (Ljava/lang/Runnable;)Lcom/google/common/util/concurrent/ListenableFuture; net/minecraft/client/Minecraft/func_152344_a (Ljava/lang/Runnable;)Lcom/google/common/util/concurrent/ListenableFuture;
+MD: bao/a (Ljava/lang/String;Ljava/lang/String;Lahj;)V net/minecraft/client/Minecraft/func_71371_a (Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/WorldSettings;)V
+MD: bao/d ()Laze; net/minecraft/client/Minecraft/func_71359_d ()Lnet/minecraft/world/storage/ISaveFormat;
+MD: bdx/e (I)V net/minecraft/client/gui/GuiSelectWorld/func_146615_e (I)V

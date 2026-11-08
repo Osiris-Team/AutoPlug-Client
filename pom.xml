@@ -355,6 +355,24 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java//JP
                     <source>9</source>
                     <target>9</target>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration><excludes><exclude>com/osiris/autoplug/legacy/**</exclude></excludes></configuration>
+                    </execution>
+                    <execution>
+                        <id>legacy-world-helper</id>
+                        <phase>compile</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <release>8</release>
+                            <source>8</source>
+                            <target>8</target>
+                            <includes><include>com/osiris/autoplug/legacy/**</include></includes>
+                            <useIncrementalCompilation>false</useIncrementalCompilation>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -13,7 +13,15 @@ import com.osiris.jlib.logger.AL;
 import java.io.File;
 
 public class InstalledModLoader {
-    public boolean isForge, isFabric, isQuilt;
+    public boolean isForge, isFabric, isQuilt, isNeoForge;
+
+    /** Explicit profile context; does not inspect or change the process working directory. */
+    public InstalledModLoader(String loader) {
+        isForge = "FORGE".equalsIgnoreCase(loader);
+        isFabric = "FABRIC".equalsIgnoreCase(loader);
+        isQuilt = "QUILT".equalsIgnoreCase(loader);
+        isNeoForge = "NEOFORGE".equalsIgnoreCase(loader);
+    }
 
     public InstalledModLoader() {
         try {

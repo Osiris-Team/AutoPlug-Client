@@ -1,0 +1,19 @@
+# Selected lines from the unmodified Mojang client mappings.
+# Minecraft 1.19; retrieved 2026-10-04.
+# Source: https://piston-data.mojang.com/v1/objects/150346d1c0b4acec0b4eb7f58b86e3ea1aa730f3/client.txt
+# Source SHA-1: 150346d1c0b4acec0b4eb7f58b86e3ea1aa730f3
+net.minecraft.client.Minecraft -> eev:
+    net.minecraft.client.gui.screens.Screen screen -> y
+    1991:1991:net.minecraft.client.gui.screens.worldselection.WorldOpenFlows createWorldOpenFlows() -> u
+    2347:2347:net.minecraft.client.Minecraft getInstance() -> G
+    2737:2737:net.minecraft.client.gui.screens.Overlay getOverlay() -> aB
+net.minecraft.client.main.Main -> net.minecraft.client.main.Main:
+    51:255:void main(java.lang.String[]) -> main
+net.minecraft.client.gui.screens.TitleScreen -> eko:
+net.minecraft.client.gui.screens.Screen -> ekj:
+net.minecraft.client.gui.screens.Overlay -> ekd:
+net.minecraft.client.gui.screens.worldselection.WorldOpenFlows -> eok:
+    57:58:void loadLevel(net.minecraft.client.gui.screens.Screen,java.lang.String) -> a
+net.minecraft.util.thread.BlockableEventLoop -> ayc:
+    100:105:void execute(java.lang.Runnable) -> execute
+net.minecraft.util.thread.ReentrantBlockableEventLoop -> ayg:

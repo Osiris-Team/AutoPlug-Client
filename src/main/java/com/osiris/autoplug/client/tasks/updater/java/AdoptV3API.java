@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.tasks.updater.java;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.osiris.autoplug.client.launcher.DownloadProgress;
 import com.osiris.jlib.json.Json;
 import com.osiris.jlib.json.exceptions.HttpErrorException;
 import com.osiris.jlib.json.exceptions.WrongJsonTypeException;
@@ -68,10 +69,15 @@ public class AdoptV3API {
     public JsonArray getVersionInformation(String releaseVersionName, OperatingSystemArchitectureType osArchitectureType, boolean isLargeHeapSize, ImageType imageType,
                                            boolean isHotspotImpl, boolean isOnlyLTS, OperatingSystemType osType, int maxItems,
                                            VendorProjectType vendorProject, ReleaseType releaseType) throws WrongJsonTypeException, IOException, HttpErrorException {
-        return Json.getAsJsonArray(getVersionInformationUrl(
+        String url = getVersionInformationUrl(
                 releaseVersionName, osArchitectureType, isLargeHeapSize, imageType, isHotspotImpl,
                 isOnlyLTS, osType, maxItems, vendorProject, releaseType
-        ));
+        );
+        try (DownloadProgress.Transfer transfer = DownloadProgress.begin("Fetching Java package metadata", url)) {
+            JsonArray result = Json.getAsJsonArray(url);
+            transfer.complete(-1, -1);
+            return result;
+        }
     }
 
     /**
@@ -113,7 +119,12 @@ public class AdoptV3API {
             while (true) { // Loop through all pages until last request gives 404 error code
                 url = getReleasesUrl(page, osArchitectureType, isLargeHeapSize, imageType,
                         isHotspotImpl, isOnlyLTS, osType, maxItems, vendorProject, releaseType);
-                Boolean shouldContinue = onNewPage.apply(Json.getAsObject(url));
+                JsonObject response;
+                try (DownloadProgress.Transfer transfer = DownloadProgress.begin("Fetching Java releases", url)) {
+                    response = Json.getAsObject(url);
+                    transfer.complete(-1, -1);
+                }
+                Boolean shouldContinue = onNewPage.apply(response);
                 if (!shouldContinue) break;
                 page++;
             }

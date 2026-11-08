@@ -10,6 +10,7 @@ package com.osiris.autoplug.client.tasks.updater.mods;
 
 import com.osiris.autoplug.client.tasks.updater.search.SearchResult;
 import com.osiris.autoplug.client.utils.GD;
+import com.osiris.autoplug.client.launcher.DownloadProgress;
 import com.osiris.betterthread.BThread;
 import com.osiris.betterthread.BThreadManager;
 import com.osiris.jlib.logger.AL;
@@ -118,24 +119,26 @@ public class TaskModDownload extends BThread implements ModDownloadTask {
         if (!dir.exists()) dir.mkdirs();
 
         dest = new File(dir + "/" + plName + "-[" + plLatestVersion + "].jar");
-        AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + url + "'");
+        final String source = DownloadProgress.sourceUrl(url);
+        AL.debug(this.getClass(), "Downloading " + dest.getName() + " to '" + dest.getAbsolutePath() + "' from '" + source + "'");
         if (dest.exists()) dest.delete();
         dest.createNewFile();
 
         final String fileName = dest.getName();
-        setStatus("Downloading " + fileName + "... (0kb/0kb)");
+        setStatus("Downloading " + fileName + " from " + source);
 
         Request request = new Request.Builder().url(url)
                 .header("User-Agent", "AutoPlug-Client - https://autoplug.one")
                 .build();
 
-        Response response = new OkHttpClient().newCall(request).execute();
-        ResponseBody body = null;
-        try {
+        try (DownloadProgress.Transfer transfer = DownloadProgress.begin("Downloading " + fileName, url);
+             Response response = new OkHttpClient().newCall(request).execute()) {
+            transfer.redirect(response.request().url().toString());
+            final String currentSource = DownloadProgress.sourceUrl(response.request().url().toString());
             if (response.code() != 200)
-                throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + url);
+                throw new Exception("Download error for " + plName + " code: " + response.code() + " message: " + response.message() + " url: " + currentSource);
 
-            body = response.body();
+            ResponseBody body = response.body();
             if (body == null)
                 throw new Exception("Download of '" + dest.getName() + "' failed because of null response body!");
             else if (body.contentType() == null)
@@ -150,32 +153,27 @@ public class TaskModDownload extends BThread implements ModDownloadTask {
                 throw new Exception("Download of '" + dest.getName() + "' failed because of invalid sub-content type: " + body.contentType().subtype());
 
             long completeFileSize = body.contentLength();
-            setMax(completeFileSize);
+            setMax(Math.max(1, completeFileSize));
 
-            BufferedInputStream in = new BufferedInputStream(body.byteStream());
-            FileOutputStream fos = new FileOutputStream(dest);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-            byte[] data = new byte[1024];
             long downloadedFileSize = 0;
-            int x = 0;
-            while ((x = in.read(data, 0, 1024)) >= 0) {
-                downloadedFileSize += x;
-
-                setStatus("Downloading " + fileName + "... (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
-                setNow(downloadedFileSize);
-
-                bout.write(data, 0, x);
+            try (BufferedInputStream in = new BufferedInputStream(body.byteStream());
+                 BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(dest), 1024)) {
+                byte[] data = new byte[1024];
+                int x;
+                while ((x = in.read(data)) != -1) {
+                    if (Thread.currentThread().isInterrupted())
+                        throw new java.io.InterruptedIOException("Download interrupted");
+                    downloadedFileSize += x;
+                    setStatus("Downloading " + fileName + " from " + currentSource
+                            + " (" + downloadedFileSize + "/" + (completeFileSize < 0 ? "?" : completeFileSize) + " bytes)");
+                    if (completeFileSize > 0) setNow(downloadedFileSize);
+                    transfer.update(downloadedFileSize, completeFileSize);
+                    bout.write(data, 0, x);
+                }
             }
 
-            setStatus("Downloaded " + fileName + " (" + downloadedFileSize / 1024 + "kb/" + completeFileSize / 1024 + "kb)");
-            bout.close();
-            in.close();
-            body.close();
-            response.close();
-        } catch (Exception e) {
-            if (body != null) body.close();
-            response.close();
-            throw e;
+            setStatus("Downloaded " + fileName + " (" + downloadedFileSize + " bytes) from " + currentSource);
+            transfer.complete(downloadedFileSize, completeFileSize);
         }
     }
 

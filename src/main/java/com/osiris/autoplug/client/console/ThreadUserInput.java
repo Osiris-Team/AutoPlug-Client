@@ -34,6 +34,18 @@ public class ThreadUserInput extends Thread {
     @Override
     public void run() {
         super.run();
+        if (com.osiris.autoplug.client.worlds.AutoPlugWorldBootstrap.isChild()) {
+            // Managed instances have piped stdin; a terminal line editor can swallow pipe commands.
+            try (java.io.BufferedReader input = new java.io.BufferedReader(new java.io.InputStreamReader(System.in, java.nio.charset.StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = input.readLine()) != null) {
+                    for (Consumer<String> listener : onReadLine) listener.accept(line);
+                    if (!Commands.execute(line)) Server.submitCommand(line);
+                }
+            } catch (Exception e) { AL.warn(e); }
+            finally { System.exit(0); } // Parent pipe closed: invoke the normal server-saving shutdown hook.
+            return;
+        }
         try {
             //Scanner scanner = new Scanner(System.in); // Old
             LineReader lineReader = LineReaderBuilder.builder()

@@ -1,0 +1,44 @@
+# Narrow adapter evidence for Minecraft 1.12.2; retrieved 2026-10-04.
+# Official client: https://piston-data.mojang.com/v1/objects/0f275bc1547d01fa5f56ba34bdc87d981ee12daf/client.jar
+# Client SHA-1 verified: 0f275bc1547d01fa5f56ba34bdc87d981ee12daf
+# SRG source: https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp/1.12.2/mcp-1.12.2-srg.zip
+# Names source: https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_stable/39-1.12/mcp_stable-39-1.12.zip
+# Unmodified source lines below. Method descriptors and native call arguments independently checked with javap.
+# GuiListWorldSelectionEntry.loadWorld invokes launchIntegratedServer(summary.getFileName(), summary.getDisplayName(), null) after canLoadWorld.
+# Minecraft is NOT Executor; addScheduledTask(Runnable) wraps a Callable and queues it for its original Minecraft thread.
+# AnvilSaveConverter extends SaveFormatOld; canLoadWorld is inherited and requires public getMethod or superclass lookup.
+# No getOverlay exists in this version; a GuiMainMenu screen is the readiness gate.
+CL: tr net/minecraft/util/IThreadListener
+CL: amx net/minecraft/world/WorldSettings
+CL: bez net/minecraft/world/chunk/storage/AnvilSaveConverter
+CL: bfc net/minecraft/world/storage/SaveFormatOld
+CL: bfg net/minecraft/world/storage/ISaveFormat
+CL: bfh net/minecraft/world/storage/WorldSummary
+CL: bib net/minecraft/client/Minecraft
+CL: blr net/minecraft/client/gui/GuiMainMenu
+CL: bol net/minecraft/client/gui/GuiListWorldSelectionEntry
+FD: bib/M net/minecraft/client/Minecraft/field_130070_K
+FD: bib/m net/minecraft/client/Minecraft/field_71462_r
+MD: bez/b ()Ljava/util/List; net/minecraft/world/chunk/storage/AnvilSaveConverter/func_75799_b ()Ljava/util/List;
+MD: bfc/b ()Ljava/util/List; net/minecraft/world/storage/SaveFormatOld/func_75799_b ()Ljava/util/List;
+MD: bfc/f (Ljava/lang/String;)Z net/minecraft/world/storage/SaveFormatOld/func_90033_f (Ljava/lang/String;)Z
+MD: bfg/b ()Ljava/util/List; net/minecraft/world/storage/ISaveFormat/func_75799_b ()Ljava/util/List;
+MD: bfg/f (Ljava/lang/String;)Z net/minecraft/world/storage/ISaveFormat/func_90033_f (Ljava/lang/String;)Z
+MD: bfh/a ()Ljava/lang/String; net/minecraft/world/storage/WorldSummary/func_75786_a ()Ljava/lang/String;
+MD: bfh/b ()Ljava/lang/String; net/minecraft/world/storage/WorldSummary/func_75788_b ()Ljava/lang/String;
+MD: bib/a (Ljava/lang/Runnable;)Lcom/google/common/util/concurrent/ListenableFuture; net/minecraft/client/Minecraft/func_152344_a (Ljava/lang/Runnable;)Lcom/google/common/util/concurrent/ListenableFuture;
+MD: bib/a (Ljava/lang/String;Ljava/lang/String;Lamx;)V net/minecraft/client/Minecraft/func_71371_a (Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/WorldSettings;)V
+MD: bib/g ()Lbfg; net/minecraft/client/Minecraft/func_71359_d ()Lnet/minecraft/world/storage/ISaveFormat;
+MD: bib/z ()Lbib; net/minecraft/client/Minecraft/func_71410_x ()Lnet/minecraft/client/Minecraft;
+MD: bol/e ()V net/minecraft/client/gui/GuiListWorldSelectionEntry/func_186777_e ()V
+# Human-readable names from MCP stable 39:
+func_152344_a,addScheduledTask,2,
+func_186777_e,loadWorld,0,
+func_71359_d,getSaveLoader,0,Returns the save loader that is currently being used
+func_71371_a,launchIntegratedServer,0,"Arguments: World foldername,  World ingame name, WorldSettings"
+func_71410_x,getMinecraft,0,Return the singleton Minecraft instance for the game
+func_75786_a,getFileName,0,return the file name
+func_75788_b,getDisplayName,0,return the display name of the save
+func_75799_b,getSaveList,0,
+func_90033_f,canLoadWorld,0,Return whether the given world can be loaded.
+field_71462_r,currentScreen,0,The GuiScreen that's being displayed at the moment.

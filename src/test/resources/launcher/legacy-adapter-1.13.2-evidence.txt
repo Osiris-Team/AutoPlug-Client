@@ -1,0 +1,31 @@
+# Narrow adapter evidence for Minecraft 1.13.2; retrieved 2026-10-04.
+# Official client: https://piston-data.mojang.com/v1/objects/30bfe37a8db404db11c7edf02cb5165817afb4d9/client.jar
+# Client SHA-1 verified: 30bfe37a8db404db11c7edf02cb5165817afb4d9
+# TSRG source: https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_config/1.13.2/mcp_config-1.13.2.zip
+# Archive SHA-256: 6cce7b121f7e30c8bec08c5c5ed10e887fc5720a08fd6d698ea1f37ab127df8d
+# Unmodified config/joined.tsrg excerpts below; signatures and behavior independently checked with javap.
+# Native selection cnc.i() checks cce.f(summary.a()) then calls cft.a(summary.a(), summary.b(), null).
+# Runnable scheduler cft.a(Runnable) wraps Callable and queues off-thread work in aG; it is not Executor.
+# SaveFormatOld owns inherited canLoadWorld; public getMethod or superclass lookup is necessary.
+# No overlay API; original GuiMainMenu is the readiness gate.
+ayd net/minecraft/world/WorldSettings
+cbw net/minecraft/world/chunk/storage/AnvilSaveConverter
+	b ()Ljava/util/List; func_75799_b
+cca net/minecraft/world/storage/SaveFormatOld
+	b ()Ljava/util/List; func_75799_b
+	f (Ljava/lang/String;)Z func_90033_f
+cce net/minecraft/world/storage/ISaveFormat
+	b ()Ljava/util/List; func_75799_b
+	f (Ljava/lang/String;)Z func_90033_f
+ccf net/minecraft/world/storage/WorldSummary
+	a ()Ljava/lang/String; func_75786_a
+	b ()Ljava/lang/String; func_75788_b
+cft net/minecraft/client/Minecraft
+	m field_71462_r
+	a (Ljava/lang/Runnable;)Lcom/google/common/util/concurrent/ListenableFuture; func_152344_a
+	a (Ljava/lang/String;Ljava/lang/String;Layd;)V func_71371_a
+	g ()Lcce; func_71359_d
+	s ()Lcft; func_71410_x
+cki net/minecraft/client/gui/GuiMainMenu
+cnc net/minecraft/client/gui/GuiListWorldSelectionEntry
+	i ()V func_186777_e

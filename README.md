@@ -19,6 +19,7 @@ support.
 - Automated, modularized backup creation
 - Fast, asynchronous, multithreaded task execution
 - Have synchronized (shared) folders
+- Native Minecraft client profiles, server browser and local virtual worlds — see the [launcher guide](./docs/native-launcher.md).
 - Web-Panel for starting, stopping restarting the server and viewing the last updating results summaries
 
 Premium [AutoPlug-Web](https://autoplug.one) features:
