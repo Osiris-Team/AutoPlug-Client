@@ -41,4 +41,10 @@ public class InstalledModLoader {
             isForge = true;
         }
     }
+
+    public InstalledModLoader(boolean isFabric, boolean isQuilt) {
+        this.isFabric = isFabric;
+        this.isQuilt = isQuilt;
+        this.isForge = !isFabric && !isQuilt;
+    }
 }
