@@ -298,7 +298,7 @@ AUTO-GENERATED FILE, CHANGES SHOULD BE DONE IN ./JPM.java or ./src/main/java//JP
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20250107</version>
+            <version>20260719</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
